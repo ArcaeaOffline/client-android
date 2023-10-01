@@ -18,14 +18,18 @@ import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.ocr.ocrDigitsByContourKnn
+import xyz.sevive.arcaeaoffline.ocr.rois.definition.DeviceAutoRoisT2
+import xyz.sevive.arcaeaoffline.ocr.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.ocr.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (OpenCVLoader.initDebug()) {
-            Log.d("myTag", "OpenCV loaded")
+            Log.d("ocr", "OpenCV loaded")
         }
         setContent {
             ArcaeaOfflineTheme {
@@ -80,7 +84,20 @@ class MainActivity : ComponentActivity() {
                         MatOfByte(*bytes), Imgcodecs.IMREAD_UNCHANGED
                     ) // decode the byte array to a Mat object using OpenCV
 
-                    Log.i("imgsize", image.size().toString())
+                    val rois = DeviceAutoRoisT2(
+                        image.size().width.toInt(), image.size().height.toInt()
+                    )
+
+                    val e = DeviceRoisExtractor(rois, image)
+                    val m = DeviceAutoRoisMaskerT2()
+
+                    val roi = m.pure(e.pure)
+
+                    val res = ocrDigitsByContourKnn(
+                        roi, KNearest.load("/storage/emulated/0/Documents/Arcaea Offline/digits.denoised.knn.dat")
+                    )
+
+                    Log.i("result", res.toString())
                 }
             }
         }
