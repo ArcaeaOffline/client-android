@@ -19,7 +19,7 @@ import xyz.sevive.arcaeaoffline.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.ocr.rois.definition.DeviceAutoRoisT2
 import xyz.sevive.arcaeaoffline.ocr.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.ocr.rois.masker.DeviceAutoRoisMaskerT2
-import java.io.File
+import xyz.sevive.arcaeaoffline.settings.SettingsOcr
 
 class AcceptShareActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,12 +56,9 @@ class AcceptShareActivity : Activity() {
                     val farRoi = m.far(e.far)
                     val lostRoi = m.lost(e.lost)
 
-                    val knnFileText = assets.open("digits.denoised.knn.dat").bufferedReader()
-                        .use { it.readText() }
-                    val tempKnnFile = File.createTempFile("temp-knn", null, this.applicationContext.cacheDir)
-                    tempKnnFile.writeText(knnFileText)
-
-                    val knnModel = KNearest.load(tempKnnFile.path)
+                    val knnModel = KNearest.load(
+                        SettingsOcr(this.baseContext).knnModelFile().path
+                    )
 
                     val pure = ocrDigitsByContourKnn(pureRoi, knnModel)
                     val far = ocrDigitsByContourKnn(farRoi, knnModel)
@@ -82,7 +79,6 @@ class AcceptShareActivity : Activity() {
 
                     // Toast.makeText(this.applicationContext, "PURE: $res", Toast.LENGTH_SHORT)
 
-                    tempKnnFile.delete()
                 } catch (e: Exception) {
                     var builder = NotificationCompat.Builder(this, "SHARE_OCR_RESULT")
                         .setSmallIcon(R.drawable.ic_notification_info)
