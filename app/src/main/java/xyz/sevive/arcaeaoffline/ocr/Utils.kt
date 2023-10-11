@@ -1,8 +1,10 @@
 package xyz.sevive.arcaeaoffline.ocr
 
 import org.opencv.core.Core
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Rect
+import org.opencv.core.Scalar
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.round
@@ -17,17 +19,69 @@ fun matMedian(mat: Mat): Double {
     Core.sort(arr, arrSorted, Core.SORT_EVERY_COLUMN + Core.SORT_ASCENDING)
 
     val rows = arr.rows()
-    if (rows % 2 == 0) {
+    return if (rows % 2 == 0) {
         val midIndex1 = rows / 2
         val midIndex2 = midIndex1 - 1
 
         val midValue1 = arrSorted.get(midIndex1, 0)[0]
         val midValue2 = arrSorted.get(midIndex2, 0)[0]
-        return (midValue1 + midValue2) / 2.0
+        (midValue1 + midValue2) / 2.0
     } else {
         val middleIndex = rows / 2
-        return arrSorted.get(middleIndex, 0)[0]
+        arrSorted.get(middleIndex, 0)[0]
     }
+}
+
+
+/**
+ * Port of numpy.bincount.
+ *
+ * [Original documentation](https://numpy.org/doc/stable/reference/generated/numpy.bincount.html#numpy-bincount)
+ *
+ * @param x array_like, 1 dimension, nonnegative ints.
+ * @param weights array_like, same shape as x.
+ * @param minLength int, minimum number of bins for the output array.
+ */
+@Suppress("unused")
+fun binCount(x: Mat, weights: Mat? = null, minLength: Int = 0): Mat {
+    assert(x.cols() == 1) { "binCount: `x` should be a one dimension array" }
+    if (weights != null) {
+        assert(weights.size() == x.size()) { "binCount: `weights` should have the same size as `x`" }
+    }
+    val checkMat = Mat()
+    Core.compare(x, Scalar(0.0), checkMat, Core.CMP_GE)
+    assert(Core.countNonZero(checkMat) == x.rows()) { "binCount: `x` should not have negative values" }
+
+    // determine bin size
+    val binSizeFromMat = Core.minMaxLoc(x).maxVal.toInt() + 1
+    val binSize = if (minLength > binSizeFromMat) minLength else binSizeFromMat
+
+    // extract values
+    val matValues = mutableListOf<Int>()
+    for (i in 0 until x.rows()) {
+        matValues.add(x.get(i, 0)[0].toInt())
+    }
+
+    val binArr = (0 until binSize).map { index -> matValues.count { value -> index == value } }
+    var binResultArr = binArr.map { it.toDouble() }
+
+    if (weights != null) {
+        val weightValues = mutableListOf<Double>()
+        for (i in 0 until weights.rows()) {
+            weightValues.add(weights.get(i, 0)[0])
+        }
+        val binWeights = (0 until binSize).map { 0.0 }.toMutableList()
+        for ((index, weight) in matValues.zip(weightValues)) {
+            binWeights[index] = binWeights[index] + weight
+        }
+        binResultArr = binResultArr.zip(binWeights).map { (value, weight) -> value * weight }
+    }
+
+    val resultMat = Mat.zeros(binSize, 1, CvType.CV_32F)
+    for (i in 0 until binSize) {
+        resultMat.put(i, 0, binResultArr[i])
+    }
+    return resultMat
 }
 
 fun collectionStandardDeviation(list: Collection<Double>): Double {
@@ -45,13 +99,12 @@ fun collectionMedian(list: List<Double>) = list.sorted().let {
     else it[it.size / 2]
 }
 
-class FixRect {
+class FixRects {
     companion object {
         fun connectBroken(
             rects: List<Rect>, imgWidth: Double, imgHeight: Double, overrideTolerance: Int? = null
         ): List<Rect> {
-            val tolerance: Int =
-                if (overrideTolerance != null) overrideTolerance else floor(imgWidth * 0.08).toInt()
+            val tolerance: Int = overrideTolerance ?: floor(imgWidth * 0.08).toInt()
 
             val newRects = mutableListOf<Rect>()
             val consumedRects = mutableListOf<Rect>()
@@ -89,7 +142,7 @@ class FixRect {
                 }
             }
 
-            val returnRects = rects.filter { it -> consumedRects.indexOf(it) == -1 }.toMutableList()
+            val returnRects = rects.filter { consumedRects.indexOf(it) == -1 }.toMutableList()
             returnRects.addAll(newRects)
             return returnRects.toList()
         }
@@ -110,14 +163,20 @@ class FixRect {
 
                 // find the thinnest part
                 val borderIgnore = round(rect.width * widthRangeRatio).toInt()
-                val imgCropped =
-                    imgMasked.submat(borderIgnore, rect.y, rect.width - borderIgnore, rect.height)
-                        .clone()
+
+                val imgCropped = imgMasked.submat(
+                    Rect(
+                        borderIgnore, rect.y, rect.width - borderIgnore, rect.height
+                    )
+                ).clone()
                 val whitePixels = mutableMapOf<Int, Int>()
                 for (i in 0 until imgCropped.rows()) {
                     val col = imgCropped.submat(i, i + 1, 0, imgCropped.cols()).clone()
                     whitePixels[rect.x + borderIgnore + i] = Core.countNonZero(col)
                 }
+
+                if (whitePixels.values.all { it == 0 }) return rects
+
                 val leastWhitePixels = whitePixels.values.minBy { it }
                 val xValuesMap = whitePixels.filter { it.value == leastWhitePixels }
                 val xValues = xValuesMap.keys.map { it.toDouble() }
@@ -135,8 +194,7 @@ class FixRect {
                 newRects.add(Rect(xMid, rect.y, rect.x + rect.width - xMid, rect.height))
             }
 
-            val returnRects =
-                rects.filter { it -> connectedRects.indexOf(it) == -1 }.toMutableList()
+            val returnRects = rects.filter { connectedRects.indexOf(it) == -1 }.toMutableList()
             returnRects.addAll(newRects)
             return returnRects.toList()
         }

@@ -10,12 +10,13 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.util.Date
 
+/**
+ * Perceptual Hash computation.
+ * Implementation follows http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
+ * Adapted from `imagehash.phash`, pure opencv implementation
+ * The result is slightly different from `imagehash.phash`.
+ */
 fun calculatePhash(imgGray: Mat, hashSize: Int = 8, highfreqFactor: Int = 4): Mat {
-    // Perceptual Hash computation.
-    // Implementation follows http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
-    // Adapted from `imagehash.phash`, pure opencv implementation
-    // The result is slightly different from `imagehash.phash`.
-
     assert(hashSize >= 2)
 
     val imgSize = hashSize * highfreqFactor
@@ -51,8 +52,13 @@ class ImagePhashDatabase(path: String) {
     val highfreqFactor: Int get() = pHighfreqFactor
     val builtTime: Date get() = pBuiltDate
 
-    val ids: MutableList<String> = mutableListOf()
-    val hashes: MutableList<BooleanArray> = mutableListOf()
+    val ids = mutableListOf<String>()
+    val hashes = mutableListOf<BooleanArray>()
+
+    val jacketIds = mutableListOf<String>()
+    val jacketHashes = mutableListOf<BooleanArray>()
+    val partnerIconIds = mutableListOf<String>()
+    val partnerIconHashes = mutableListOf<BooleanArray>()
 
     private fun getColumnIndex(cursor: Cursor, columnName: String): Int {
         val index = cursor.getColumnIndex(columnName)
@@ -109,6 +115,17 @@ class ImagePhashDatabase(path: String) {
             hashesCursor.close()
             throw Error("Invalid pHash database: `hashes` table not found")
         }
+
+        for ((id, hash) in ids.zip(hashes)) {
+            val idSplitted = id.split("||")
+            if (idSplitted.size > 1 && idSplitted[0] == "partner_icon") {
+                partnerIconIds.add(idSplitted[1])
+                partnerIconHashes.add(hash)
+            } else {
+                jacketIds.add(id)
+                jacketHashes.add(hash)
+            }
+        }
     }
 
     fun xorBooleanArray(arr1: BooleanArray, arr2: BooleanArray): Int {
@@ -116,20 +133,40 @@ class ImagePhashDatabase(path: String) {
         return arr1.zip(arr2).count { it.first xor it.second }
     }
 
-    fun lookupImage(imgGray: Mat): Pair<String, Int> {
-        val pHashMat = calculatePhash(imgGray, this.hashSize, this.highfreqFactor)
-        val pHashBoolArr = matToBooleanArray(pHashMat)
+    fun calculateImagePhash(imgGray: Mat) =
+        calculatePhash(imgGray, this.hashSize, this.highfreqFactor)
 
-        var minIndex = -1
-        var minDiff = -1
-        for (boolArr in this.hashes.withIndex()) {
-            val diff = xorBooleanArray(pHashBoolArr, boolArr.value)
-            if (minDiff < 0 || diff < minDiff) {
-                minDiff = diff
-                minIndex = boolArr.index
-            }
-        }
-
-        return Pair(this.ids[minIndex], minDiff)
+    /**
+     * This function takes a boolean array as a hash and a list of boolean arrays as hashes to
+     * compare with.
+     * @return A pair of integers, where the first element is the index of the hash in the list
+     *         that has the smallest Hamming distance with the given hash, and the second element
+     *         is the value of that distance.
+     */
+    fun lookupHashes(
+        hash: BooleanArray, ids: List<String>, hashes: List<BooleanArray>, limit: Int = 5
+    ): List<Pair<String, Int>> {
+        val xorResults =
+            ids.zip(hashes).map { (id, hashInArr) -> Pair(id, xorBooleanArray(hash, hashInArr)) }
+        return xorResults.sortedBy { it.second }.subList(0, limit)
     }
+
+    private fun lookupImagesHelper(
+        imgGray: Mat, ids: List<String>, hashes: List<BooleanArray>
+    ): List<Pair<String, Int>> {
+        val phashMat = calculateImagePhash(imgGray)
+        val hash = matToBooleanArray(phashMat)
+        return lookupHashes(hash, ids, hashes)
+    }
+
+    fun lookupImages(imgGray: Mat) = lookupImagesHelper(imgGray, this.ids, this.hashes)
+    fun lookupImage(imgGray: Mat) = lookupImages(imgGray)[0]
+
+    fun lookupJackets(imgGray: Mat) = lookupImagesHelper(imgGray, this.jacketIds, this.jacketHashes)
+    fun lookupJacket(imgGray: Mat) = lookupJackets(imgGray)[0]
+
+    fun lookupPartnerIcons(imgGray: Mat) =
+        lookupImagesHelper(imgGray, this.partnerIconIds, this.partnerIconHashes)
+
+    fun lookupPartnerIcon(imgGray: Mat) = lookupPartnerIcons(imgGray)[0]
 }
