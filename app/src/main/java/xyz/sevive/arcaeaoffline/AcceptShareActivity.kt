@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -9,23 +8,100 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import org.apache.commons.io.IOUtils
+import org.opencv.android.OpenCVLoader
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.ocr.ocrDigitsByContourKnn
-import xyz.sevive.arcaeaoffline.ocr.rois.definition.DeviceAutoRoisT2
-import xyz.sevive.arcaeaoffline.ocr.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.ocr.rois.masker.DeviceAutoRoisMaskerT2
+import xyz.sevive.arcaeaoffline.ocr.DeviceOcr
+import xyz.sevive.arcaeaoffline.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.ocr.rois.DeviceAutoRoisMaskerT2
+import xyz.sevive.arcaeaoffline.ocr.rois.DeviceAutoRoisT2
+import xyz.sevive.arcaeaoffline.ocr.rois.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.settings.SettingsOcr
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScore
+import xyz.sevive.arcaeaoffline.ui.components.ScoreCard
+import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-class AcceptShareActivity : Activity() {
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AcceptShareContent(arcaeaScore: ArcaeaScore? = null, modifier: Modifier = Modifier) {
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text(text = stringResource(R.string.title_activity_accept_share)) },
+            colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+        )
+    }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (arcaeaScore != null) {
+                ScoreCard(title = "Testing", ratingClass = 0, arcaeaScore = arcaeaScore)
+            } else {
+                Text("Waiting for result...")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AcceptSharContentPreview(modifier: Modifier = Modifier) {
+    ArcaeaOfflineTheme {
+        AcceptShareContent(
+            ArcaeaScore(
+                9562389, 2833, 37, 75, null,
+                3375, 0, 1, "OCR",
+            ),
+            modifier
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AcceptSharContentNoScorePreview(modifier: Modifier = Modifier) {
+    ArcaeaOfflineTheme {
+        AcceptShareContent(null, modifier)
+    }
+}
+
+
+class AcceptShareActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        this.createNotificationChannel()
+        if (OpenCVLoader.initDebug()) {
+            Log.d("ocr", "OpenCV loaded")
+        }
+
+        setTitle(R.string.title_activity_accept_share)
+        setContent {
+            AcceptShareContent(arcaeaScore = null)
+        }
 
         // https://www.cnblogs.com/daner1257/p/5581443.html
         val action = intent.action
@@ -52,45 +128,28 @@ class AcceptShareActivity : Activity() {
                     val e = DeviceRoisExtractor(rois, image)
                     val m = DeviceAutoRoisMaskerT2()
 
-                    val pureRoi = m.pure(e.pure)
-                    val farRoi = m.far(e.far)
-                    val lostRoi = m.lost(e.lost)
-
                     val knnModel = KNearest.load(
                         SettingsOcr(this.baseContext).knnModelFile().path
                     )
+                    val phashDb =
+                        ImagePhashDatabase(SettingsOcr(this.applicationContext).pHashDatabaseFile().path)
 
-                    val pure = ocrDigitsByContourKnn(pureRoi, knnModel)
-                    val far = ocrDigitsByContourKnn(farRoi, knnModel)
-                    val lost = ocrDigitsByContourKnn(lostRoi, knnModel)
+                    val ocr = DeviceOcr(e, m, knnModel, phashDb)
 
-                    Log.d("result", "do got result p$pure f$far l$lost")
+                    val ocrResult = ocr.ocr()
 
-                    var builder = NotificationCompat.Builder(this, "SHARE_OCR_RESULT")
-                        .setSmallIcon(R.drawable.ic_notification_info)
-                        .setContentTitle("OCR Result")
-                        .setContentText("PURE $pure, FAR $far, LOST $lost")
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    val ocrScore = ArcaeaScore(
+                        ocrResult.score, ocrResult.pure, ocrResult.far, ocrResult.lost,
+                        null, ocrResult.maxRecall, 0, 1, "OCR WIP"
+                    )
 
-                    with(NotificationManagerCompat.from(this)) {
-                        // notificationId is a unique int for each notification that you must define.
-                        notify(283375, builder.build())
+                    setContent {
+                        AcceptShareContent(arcaeaScore = ocrScore)
                     }
-
-                    // Toast.makeText(this.applicationContext, "PURE: $res", Toast.LENGTH_SHORT)
-
                 } catch (e: Exception) {
-                    var builder = NotificationCompat.Builder(this, "SHARE_OCR_RESULT")
-                        .setSmallIcon(R.drawable.ic_notification_info)
-                        .setContentTitle("OCR Error")
-                        .setContentText(e.message)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                    with(NotificationManagerCompat.from(this)) {
-                        // notificationId is a unique int for each notification that you must define.
-                        notify(283375, builder.build())
-                    }
-
+                    Toast.makeText(
+                        this.applicationContext, e.toString(), Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -101,8 +160,7 @@ class AcceptShareActivity : Activity() {
         // the NotificationChannel class is not in the Support Library.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Share OCR Result"  // getString(R.string.channel_name)
-            val descriptionText =
-                "This is description"  // getString(R.string.channel_description)
+            val descriptionText = "This is description"  // getString(R.string.channel_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel("SHARE_OCR_RESULT", name, importance).apply {
                 description = descriptionText
