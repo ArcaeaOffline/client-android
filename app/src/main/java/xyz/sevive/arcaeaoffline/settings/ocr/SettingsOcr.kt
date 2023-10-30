@@ -5,16 +5,15 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import java.io.File
-import java.nio.file.Files
 
 class SettingsOcr(val context: Context) {
     val ocrFilesParent: File
         get() {
-            return File(context.filesDir, "ocr")
+            return File(context.filesDir, "ocr/dependencies")
         }
 
-    fun knnModelFile() = File(this.ocrFilesParent.path, "knn.dat")
-    fun pHashDatabaseFile() = File(this.ocrFilesParent.path, "phash.db")
+    fun knnModelFile() = File(this.ocrFilesParent.path, "digits.knn.dat")
+    fun pHashDatabaseFile() = File(this.ocrFilesParent.path, "image-phash.db")
 
     val knnModelOk: Boolean
         get() {
@@ -22,8 +21,10 @@ class SettingsOcr(val context: Context) {
         }
 
     fun ocrFilesParentMkdirs() {
-        if (!ocrFilesParent.mkdirs()) {
-            Log.w("SettingsOCR", "ocrFilesParent mkdirs failed, $ocrFilesParent")
+        if (!ocrFilesParent.exists()) {
+            if (!ocrFilesParent.mkdirs()) {
+                Log.w("SettingsOCR", "ocrFilesParent mkdirs failed, $ocrFilesParent")
+            }
         }
     }
 
@@ -31,11 +32,8 @@ class SettingsOcr(val context: Context) {
         val resolver = this.context.contentResolver
         dst.delete()
 
-        val inputStream = resolver.openInputStream(src)
-        if (inputStream != null) {
-            Files.copy(inputStream, dst.toPath())
-            inputStream.close()
-        }
+        val outputStream = dst.outputStream()
+        resolver.openInputStream(src)?.copyTo(outputStream)
     }
 
     fun importKnn(fileUri: Uri) {
@@ -43,5 +41,12 @@ class SettingsOcr(val context: Context) {
 
         ocrFilesParentMkdirs()
         importFile(fileUri, builtinKnnModelFile)
+    }
+
+    fun importPHashDatabase(fileUri: Uri) {
+        val builtinPHashDatabaseFile = pHashDatabaseFile()
+
+        ocrFilesParentMkdirs()
+        importFile(fileUri, builtinPHashDatabaseFile)
     }
 }

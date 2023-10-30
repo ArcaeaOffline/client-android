@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
-    <string name="ocr_knnModel">KNearest model</string>
+    <string name="ocr.dependency.knnModel">KNearest model</string>
+    <string name="ocr.dependency.phashDatabase">Image PHash Database</string>
     <string name="arcaea_score">Score</string>
     <string name="arcaea_pure" translatable="false">PURE</string>
     <string name="arcaea_far" translatable="false">FAR</string>
