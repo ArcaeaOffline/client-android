@@ -51,6 +51,9 @@ fun OcrFromShareContent(
     val score = uiState.value.score
     val scoreError = uiState.value.error
 
+    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsState()
+    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
+
     ArcaeaOfflineTheme {
         Scaffold(topBar = {
             TopAppBar(
@@ -66,12 +69,8 @@ fun OcrFromShareContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Card(modifier) {
-                    OcrDependencyKnnModelStatus(
-                        state = ocrDependencyViewModel.knnModelState.collectAsState()
-                    )
-                    OcrDependencyPhashDatabaseStatus(
-                        state = ocrDependencyViewModel.phashDatabaseState.collectAsState()
-                    )
+                    OcrDependencyKnnModelStatus(state = knnModelState.value)
+                    OcrDependencyPhashDatabaseStatus(state = phashDatabaseState.value)
                 }
 
                 if (score != null) {

@@ -3,16 +3,15 @@ package xyz.sevive.arcaeaoffline.ui.components.ocr
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.models.KnnModelState
 
 @Composable
-fun OcrDependencyKnnModelStatus(state: State<KnnModelState>, modifier: Modifier = Modifier) {
-    val model = state.value.model
-    val error = state.value.error
+fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modifier) {
+    val model = state.model
+    val error = state.error
 
     val detailString: String? = if (error != null) {
         error.message ?: error.toString()
