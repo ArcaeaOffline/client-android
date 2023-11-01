@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -34,13 +35,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import xyz.sevive.arcaeaoffline.database.entities.Chart
+import xyz.sevive.arcaeaoffline.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.database.entities.Score
+import xyz.sevive.arcaeaoffline.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaDifficultyExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaGradeGradientExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.Date
 
 /**
  * https://stackoverflow.com/a/70508246/16484891
@@ -65,18 +69,6 @@ fun MeasureTextWidth(
         }
     }
 }
-
-data class ArcaeaScore(
-    val score: Int,
-    val pure: Int?,
-    val far: Int?,
-    val lost: Int?,
-    val date: Date?,
-    val maxRecall: Int?,
-    val modifier: Int?,
-    val clearType: Int?,
-    val comment: String?,
-)
 
 val RatingClassTexts = arrayOf("Past", "Present", "Future", "Beyond")
 
@@ -139,20 +131,36 @@ fun scorePflText(
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun ScoreCard(
-    title: String,
-    ratingClass: Int,
-    rating: Int = 0,
-    ratingPlus: Boolean = false,
-    arcaeaScore: ArcaeaScore,
+    score: Score,
+    chart: Chart? = null,
+    song: Song? = null,
+    difficulty: Difficulty? = null,
     modifier: Modifier = Modifier,
     dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    var ratingClassText = "${RatingClassTexts[ratingClass]} ${rating}"
-    if (ratingPlus) ratingClassText += "+"
+    var title = score.songId
+    if (chart != null) {
+        title = chart.title
+    } else if (difficulty != null && difficulty.title != null) {
+        title = difficulty.title
+    } else if (song != null) {
+        title = song.title
+    }
 
-    val (score, pure, far, lost) = arcaeaScore
+    var rating: Int? = null
+    var ratingPlus = false
+    if (chart != null) {
+        rating = chart.rating
+        ratingPlus = chart.ratingPlus
+    } else if (difficulty != null) {
+        rating = difficulty.rating
+        ratingPlus = difficulty.ratingPlus
+    }
+
+    var ratingClassText = "${RatingClassTexts[score.ratingClass]} $rating"
+    if (ratingPlus) ratingClassText += "+"
 
     Surface(
         modifier
@@ -169,7 +177,7 @@ fun ScoreCard(
             Text(
                 ratingClassText,
                 style = MaterialTheme.typography.titleMedium,
-                color = ratingClassColor(ratingClass)
+                color = ratingClassColor(score.ratingClass)
             )
 
             Row {
@@ -185,13 +193,13 @@ fun ScoreCard(
                         }, modifier.align(Alignment.CenterVertically)
                     ) { measuredWidth ->
                         Text(
-                            scoreText(score),
+                            scoreText(score.score),
                             modifier
                                 .width(measuredWidth)
                                 .padding(end = 8.dp)
                                 .align(Alignment.CenterVertically),
                             style = MaterialTheme.typography.headlineSmall.merge(
-                                TextStyle(brush = scoreGradientBrush(score))
+                                TextStyle(brush = scoreGradientBrush(score.score))
                             ),
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Right,
@@ -200,16 +208,21 @@ fun ScoreCard(
                     }
 
                     Column(modifier = modifier.align(Alignment.CenterVertically)) {
-                        Text(score.toString(), style = MaterialTheme.typography.titleMedium)
+                        Text(score.score.toString(), style = MaterialTheme.typography.titleMedium)
                         Row {
                             scorePflText(
-                                "P", pure, modifier, ArcaeaPflExtendedColors.current.pure
+                                "P", score.pure, modifier, ArcaeaPflExtendedColors.current.pure
                             )
-                            scorePflText("F", far, modifier, ArcaeaPflExtendedColors.current.far)
                             scorePflText(
-                                "L", lost, modifier, ArcaeaPflExtendedColors.current.lost
+                                "F",
+                                score.far,
+                                modifier,
+                                ArcaeaPflExtendedColors.current.far
                             )
-                            scorePflText("MR", arcaeaScore.maxRecall, modifier)
+                            scorePflText(
+                                "L", score.lost, modifier, ArcaeaPflExtendedColors.current.lost
+                            )
+                            scorePflText("MR", score.maxRecall, modifier)
                         }
                     }
                 }
@@ -224,41 +237,112 @@ fun ScoreCard(
                 }
             }
 
-            if (arcaeaScore.date != null) {
-                Text(dateFormat.format(arcaeaScore.date))
+            if (score.date != null) {
+                Text(dateFormat.format(score.date))
             }
 
-            if (expanded) {
-                Text(arcaeaScore.comment ?: "No comment")
+            AnimatedVisibility(expanded) {
+                Text(score.comment ?: "No comment")
             }
         }
     }
 }
 
 
+@Composable
+fun GetPreviewCharts(): Array<Chart> {
+    val songIdx = 75
+    val songId = "test"
+    val title = "Wow Super Cool and Super Loooooooooooooooooooooooooooooong Title"
+    val artist = "283375"
+    val set = "test"
+    val side = 0
+    val audioOverride = false
+    val jacketOverride = false
+
+    return arrayOf(
+        Chart(
+            songIdx = songIdx,
+            songId = songId,
+            ratingClass = 0,
+            rating = 2,
+            ratingPlus = false,
+            title = title,
+            artist = artist,
+            set = set,
+            side = side,
+            audioOverride = audioOverride,
+            jacketOverride = jacketOverride,
+            constant = 20
+        ),
+        Chart(
+            songIdx = songIdx,
+            songId = songId,
+            ratingClass = 1,
+            rating = 6,
+            ratingPlus = false,
+            title = title,
+            artist = artist,
+            set = set,
+            side = side,
+            audioOverride = audioOverride,
+            jacketOverride = jacketOverride,
+            constant = 65
+        ),
+        Chart(
+            songIdx = songIdx,
+            songId = songId,
+            ratingClass = 2,
+            rating = 9,
+            ratingPlus = true,
+            title = title,
+            artist = artist,
+            set = set,
+            side = side,
+            audioOverride = audioOverride,
+            jacketOverride = jacketOverride,
+            constant = 96
+        ),
+        Chart(
+            songIdx = songIdx,
+            songId = songId,
+            ratingClass = 3,
+            rating = 12,
+            ratingPlus = false,
+            title = title,
+            artist = artist,
+            set = set,
+            side = side,
+            audioOverride = audioOverride,
+            jacketOverride = jacketOverride,
+            constant = 120
+        ),
+    )
+}
+
+@Composable
+fun GetPreviewScores(): Array<Score> {
+    return arrayOf(
+        Score(0, "test", 0, 9900000, null, null, null, 283375, 75, 0, 1, "Test Only"),
+        Score(0, "test", 1, 9800000, 543, 2, 1, 283375, 75, 0, 1, "Test Only"),
+        Score(0, "test", 2, 9700000, 1023, 45, 23, 283375, 75, 0, 1, "Test Only"),
+        Score(0, "test", 3, 8950000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ScoreCardPreview(
     modifier: Modifier = Modifier
 ) {
-    val ratings = arrayOf(2, 6, 9, 12)
-    val ratingPluses = arrayOf(false, false, true, false)
-    val scores = arrayOf(
-        ArcaeaScore(9900000, null, null, null, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(9800000, 543, 2, 1, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(9700000, 1023, 45, 23, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(8950000, 1234, 56, 78, Date(283375), 75, 0, 1, "Test Only"),
-    )
+    val charts = GetPreviewCharts()
+    val scores = GetPreviewScores()
 
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
                 ScoreCard(
-                    title = "Wow Super Cool and Looooong Song Title",
-                    ratingClass = i,
-                    rating = ratings[i],
-                    ratingPlus = ratingPluses[i],
-                    arcaeaScore = scores[i]
+                    chart = charts[i], score = scores[i], modifier = modifier
                 )
             }
         }
@@ -271,24 +355,14 @@ fun ScoreCardPreview(
 fun ScoreCardDarkPreview(
     modifier: Modifier = Modifier
 ) {
-    val ratings = arrayOf(2, 6, 9, 12)
-    val ratingPluses = arrayOf(false, false, true, false)
-    val scores = arrayOf(
-        ArcaeaScore(9900000, null, null, null, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(9800000, 543, 2, 1, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(9700000, 1023, 45, 23, Date(283375), 75, 0, 1, "Test Only"),
-        ArcaeaScore(8950000, 1234, 56, 78, Date(283375), 75, 0, 1, "Test Only"),
-    )
+    val charts = GetPreviewCharts()
+    val scores = GetPreviewScores()
 
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
                 ScoreCard(
-                    title = "Wow Super Cool and Looooong Song Title",
-                    ratingClass = i,
-                    rating = ratings[i],
-                    ratingPlus = ratingPluses[i],
-                    arcaeaScore = scores[i]
+                    chart = charts[i], score = scores[i], modifier = modifier
                 )
             }
         }

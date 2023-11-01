@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
-    <string name="ocr.dependency.knnModel">KNearest 模型</string>
+    <string name="ocr_dependency_knnModel">KNearest 模型</string>
     <string name="arcaea_score">分数</string>
-    <string name="title_activity_accept_share">对分享图片 OCR</string>
-    <string name="ocr.dependency.phashDatabase">图像 pHash 数据库</string>
+    <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
+    <string name="ocr_dependency_phashDatabase">图像 pHash 数据库</string>
 </resources>
