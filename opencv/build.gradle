@@ -99,6 +99,7 @@ println "OpenCV: " +openCVersionName + " " + project.buildscript.sourceFile
 android {
     namespace "org.opencv"
     compileSdk 34
+    ndkVersion '22.1.7171670'
 
     defaultConfig {
         minSdk 21
@@ -119,8 +120,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-
-    
 
     buildTypes {
         debug {
