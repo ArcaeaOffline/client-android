@@ -17,7 +17,7 @@ fun OcrDependencyPhashDatabaseStatus(
     val error = state.error
 
     OcrDependencyItemStatus(
-        title = { Text(stringResource(R.string.ocr_dependency_phashDatabase)) },
+        title = { Text(stringResource(R.string.ocr_dependency_phash_database)) },
         label = {
             if (error == null && db != null) {
                 Text(

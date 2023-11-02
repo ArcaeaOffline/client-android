@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.opencv.android.OpenCVLoader
 import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ocr.ImagePhashDatabase
 import java.io.File
 import java.io.FileNotFoundException
@@ -18,11 +18,24 @@ class OcrDependencyViewModel : ViewModel() {
     private val _phashDatabaseState = MutableStateFlow(PhashDatabaseState())
     val phashDatabaseState: StateFlow<PhashDatabaseState> = _phashDatabaseState.asStateFlow()
 
-    init {
-        OpenCVLoader.initDebug()
+    private var ocrDependencyPaths: OcrDependencyPaths? = null
+
+    fun setOcrDependencyPaths(paths: OcrDependencyPaths) {
+        ocrDependencyPaths = paths
+    }
+
+    fun reload(ocrDependencyPaths: OcrDependencyPaths? = null) {
+        val paths = ocrDependencyPaths ?: this.ocrDependencyPaths ?: throw IllegalArgumentException(
+            "Cannot load from a null `ocrDependencyPaths`"
+        )
+
+        loadKnnModel(paths.knnModelFile)
+        loadPhashDatabase(paths.phashDatabaseFile)
     }
 
     fun loadKnnModel(file: File) {
+        System.loadLibrary("opencv_java4")
+
         val newKnnModelState = try {
             if (!file.exists()) throw FileNotFoundException("${file.path} does not exist.")
             KnnModelState(model = KNearest.load(file.path), error = null)

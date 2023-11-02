@@ -1,12 +1,20 @@
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
-    <string name="ocr_dependency_knnModel">KNearest model</string>
-    <string name="ocr_dependency_phashDatabase">Image PHash Database</string>
+    <string name="ocr_dependency_knn_model">KNearest model</string>
+    <string name="ocr_dependency_phash_database">Image PHash Database</string>
     <string name="arcaea_score">Score</string>
     <string name="arcaea_pure" translatable="false">PURE</string>
     <string name="arcaea_far" translatable="false">FAR</string>
     <string name="arcaea_lost" translatable="false">LOST</string>
+
+    <string name="nav_overview">Overview</string>
+    <string name="nav_database">Database</string>
+    <string name="nav_ocr">OCR</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="settings_ocr_import_knn">Import KNearest Model</string>
+    <string name="settings_ocr_import_phash_database">Import pHash Database</string>
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
 </resources>

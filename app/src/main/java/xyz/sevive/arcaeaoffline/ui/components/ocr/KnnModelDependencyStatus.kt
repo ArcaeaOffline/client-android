@@ -20,7 +20,7 @@ fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modif
     } else null
 
     OcrDependencyItemStatus(
-        title = { Text(stringResource(R.string.ocr_dependency_knnModel)) },
+        title = { Text(stringResource(R.string.ocr_dependency_knn_model)) },
         label = {
             if (error == null && model != null) {
                 Text(
