@@ -1,6 +1,24 @@
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
+    <string name="crash_report_title_error_occurred">Error occurred.</string>
+    <string name="crash_report_report_id">Report ID</string>
+    <string name="crash_report_crash_date">Crashed at</string>
+    <string name="crash_report_send_report_prompt">Send this crash report?</string>
+    <string name="crash_report_textfield_label_comment">Comment (Optional)</string>
+    <string name="crash_report_textfield_placeholder_comment">What did you do when the app crashed?</string>
+    <string name="crash_report_textfield_label_contact">Contact (Optional)</string>
+    <string name="crash_report_textfield_placeholder_contact">How can we reach you when we need more information?</string>
+    <string name="crash_report_send_button">Send Report</string>
+    <string name="crash_report_save_button">Save Report</string>
+    <string name="crash_report_ignore_button">Ignore</string>
+    <string name="crash_report_toast_report_send_attempted">Attempted to send a crash report</string>
+    <string name="crash_report_toast_report_send_success">Crash report sent</string>
+    <string name="crash_report_toast_report_send_failed">Failed to send crash report</string>
+    <string name="crash_report_toast_report_save_success">Crash report saved</string>
+    <string name="crash_report_toast_report_save_failed">Failed to save crash report</string>
+    <string name="crash_report_toast_report_ignored">Crash report ignored</string>
+
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image PHash Database</string>
     <string name="arcaea_score">Score</string>

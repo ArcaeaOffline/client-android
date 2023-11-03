@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
+    <string name="crash_report_title_error_occurred">发生错误。</string>
+    <string name="crash_report_report_id">报告 ID</string>
+    <string name="crash_report_crash_date">崩溃时间</string>
+    <string name="crash_report_send_report_prompt">要发送崩溃报告吗？</string>
+    <string name="crash_report_textfield_label_comment">备注（可选）</string>
+    <string name="crash_report_textfield_placeholder_comment">你在应用崩溃时尝试执行什么操作？</string>
+    <string name="crash_report_textfield_label_contact">联系方式（可选）</string>
+    <string name="crash_report_textfield_placeholder_contact">当我们需要更多有关信息时，该如何联系你？</string>
+    <string name="crash_report_send_button">发送报告</string>
+    <string name="crash_report_save_button">暂存报告</string>
     <string name="ocr_dependency_knn_model">KNearest 模型</string>
     <string name="arcaea_score">分数</string>
     <string name="settings_ocr_import_knn">导入 KNearest 模型</string>
@@ -11,4 +21,11 @@
     <string name="nav_database">数据库</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">设置</string>
+    <string name="crash_report_ignore_button">什么都不做</string>
+    <string name="crash_report_toast_report_send_success">崩溃报告已发送</string>
+    <string name="crash_report_toast_report_send_failed">崩溃报告发送失败</string>
+    <string name="crash_report_toast_report_save_success">崩溃报告已保存</string>
+    <string name="crash_report_toast_report_save_failed">崩溃报告保存失败</string>
+    <string name="crash_report_toast_report_ignored">崩溃报告已忽略</string>
+    <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
 </resources>

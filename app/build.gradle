@@ -1,6 +1,11 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+}
+
+secrets {
+    defaultPropertiesFileName = 'local.defaults.properties'
 }
 
 android {
@@ -80,6 +85,10 @@ dependencies {
 
     def nav_version = "2.7.5"
     implementation "androidx.navigation:navigation-compose:$nav_version"
+
+    def acraVersion = "5.11.3"
+    implementation "ch.acra:acra-http:$acraVersion"
+    implementation "ch.acra:acra-dialog:$acraVersion"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
