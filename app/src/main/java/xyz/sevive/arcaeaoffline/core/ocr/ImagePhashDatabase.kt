@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ocr
+package xyz.sevive.arcaeaoffline.core.ocr
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase

@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ocr
+package xyz.sevive.arcaeaoffline.core.ocr
 
 import org.opencv.core.Core
 import org.opencv.core.Mat
@@ -7,8 +7,8 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.ocr.rois.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.ocr.rois.DeviceRoisMasker
+import xyz.sevive.arcaeaoffline.core.ocr.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceRoisMasker
 
 data class DeviceOcrResult(
     val ratingClass: Int,

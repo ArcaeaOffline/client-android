@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.ocr.ImagePhashDatabase
 import java.io.File
 import java.io.FileNotFoundException
 

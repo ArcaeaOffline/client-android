@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.models
 
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 
 data class KnnModelState(
     val model: KNearest? = null,

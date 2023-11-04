@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ocr
+package xyz.sevive.arcaeaoffline.core.ocr
 
 import org.opencv.core.Core
 import org.opencv.core.CvType
