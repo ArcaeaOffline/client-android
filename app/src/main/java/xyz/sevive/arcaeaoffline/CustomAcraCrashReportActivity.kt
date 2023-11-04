@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,16 +20,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,6 +66,7 @@ class CrashReportViewModel : ViewModel() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrashReportContent(
     crashReportData: CrashReportData,
@@ -69,118 +80,154 @@ fun CrashReportContent(
     val contact by crashReportViewModel.contact.collectAsState()
 
     ArcaeaOfflineTheme {
-        Surface(
-            modifier
-                .padding(16.dp)
-                .fillMaxSize()
-        ) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                item {
-                    Text(
-                        ":(",
-                        style = MaterialTheme.typography.displayLarge,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+        Scaffold(topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    titleContentColor = MaterialTheme.colorScheme.onError,
+                )
+            )
+        }) { padding ->
+            Surface(
+                modifier
+                    .padding(padding)
+                    .padding(16.dp)
+                    .fillMaxSize()
+            ) {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                stringResource(R.string.crash_report_title_app_crashed),
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
 
-                item {
-                    Text(
-                        stringResource(R.string.crash_report_title_error_occurred),
-                        style = MaterialTheme.typography.displaySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                            Spacer(
+                                modifier
+                                    .defaultMinSize(24.dp, Dp.Unspecified)
+                                    .weight(1f)
+                            )
 
-                item {
-                    Column {
-                        Text(
-                            stringResource(R.string.crash_report_report_id),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(crashReportData.getString(ReportField.REPORT_ID) ?: "UNKNOWN")
+                            Text(
+                                ":(",
+                                textAlign = TextAlign.End,
+                                style = MaterialTheme.typography.displayLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
-                }
 
-                item {
-                    Column {
-                        Text(
-                            stringResource(R.string.crash_report_crash_date),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Text(
-                            crashReportData.getString(ReportField.USER_CRASH_DATE) ?: "UNKNOWN"
-                        )
-                    }
-                }
+                    item {
+                        Box(modifier.horizontalScroll(rememberScrollState())) {
+                            val trace = crashReportData.getString(ReportField.STACK_TRACE)
+                            val textStyle = MaterialTheme.typography.labelMedium
+                            val textColor = MaterialTheme.colorScheme.error
 
-                item {
-                    Box(modifier.horizontalScroll(rememberScrollState())) {
-                        val title = crashReportData.getString(ReportField.STACK_TRACE)
-                        if (title != null) {
-                            val titleLines = title.lines()
-                            if (titleLines.size <= 10) {
-                                Text(title)
+                            if (trace != null) {
+                                val traceLines = trace.lines()
+                                val displayTraceLines: List<String> = if (traceLines.size > 5) {
+                                    traceLines.subList(0, 5) + listOf("...")
+                                } else {
+                                    traceLines
+                                }
+
+                                Text(
+                                    displayTraceLines.joinToString("\n"),
+                                    style = textStyle,
+                                    color = textColor
+                                )
                             } else {
-                                Text(title.lines().subList(0, 9).joinToString("\n"))
+                                Text(
+                                    "Unable to get stack trace.",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = textColor
+                                )
                             }
-                        } else {
-                            Text("Unable to get stack trace.")
                         }
                     }
-                }
 
-                item {
-                    Text(
-                        stringResource(R.string.crash_report_send_report_prompt),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
+                    item {
+                        Text(
+                            stringResource(R.string.crash_report_send_report_prompt),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
 
-                item {
-                    OutlinedTextField(
-                        value = comment ?: "",
-                        onValueChange = { crashReportViewModel.setComment(it) },
-                        label = { Text(stringResource(R.string.crash_report_textfield_label_comment)) },
-                        placeholder = { Text(stringResource(R.string.crash_report_textfield_placeholder_comment)) },
-                        minLines = 2,
-                        maxLines = 4,
-                        modifier = modifier.fillMaxWidth()
-                    )
-                }
-                item {
-                    OutlinedTextField(
-                        value = contact ?: "",
-                        onValueChange = { crashReportViewModel.setContact(it) },
-                        label = { Text(stringResource(R.string.crash_report_textfield_label_contact)) },
-                        placeholder = { Text(stringResource(R.string.crash_report_textfield_placeholder_contact)) },
-                        minLines = 2,
-                        modifier = modifier.fillMaxWidth()
-                    )
-                }
 
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button({
-                            onSendReport(
-                                comment, contact
+                    item {
+                        Column {
+                            Text(
+                                stringResource(R.string.crash_report_report_id),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.secondary,
                             )
-                        }) {
-                            Text(stringResource(R.string.crash_report_send_button))
+                            Text(crashReportData.getString(ReportField.REPORT_ID) ?: "UNKNOWN")
                         }
-                        OutlinedButton({ onSaveReport() }) {
-                            Text(stringResource(R.string.crash_report_save_button))
-                        }
+                    }
 
-                        Spacer(modifier.weight(1f))
-
-                        OutlinedButton(
-                            { onIgnore() }, colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    item {
+                        Column {
+                            Text(
+                                stringResource(R.string.crash_report_crash_date),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.secondary,
                             )
-                        ) {
-                            Text(stringResource(R.string.crash_report_ignore_button))
+                            Text(
+                                crashReportData.getString(ReportField.USER_CRASH_DATE) ?: "UNKNOWN"
+                            )
+                        }
+                    }
+
+                    item {
+                        OutlinedTextField(
+                            value = comment ?: "",
+                            onValueChange = { crashReportViewModel.setComment(it) },
+                            label = { Text(stringResource(R.string.crash_report_textfield_label_comment)) },
+                            placeholder = { Text(stringResource(R.string.crash_report_textfield_placeholder_comment)) },
+                            minLines = 2,
+                            maxLines = 4,
+                            modifier = modifier.fillMaxWidth()
+                        )
+                    }
+                    item {
+                        OutlinedTextField(
+                            value = contact ?: "",
+                            onValueChange = { crashReportViewModel.setContact(it) },
+                            label = { Text(stringResource(R.string.crash_report_textfield_label_contact)) },
+                            placeholder = { Text(stringResource(R.string.crash_report_textfield_placeholder_contact)) },
+                            minLines = 2,
+                            modifier = modifier.fillMaxWidth()
+                        )
+                    }
+
+                    item {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button({
+                                onSendReport(
+                                    comment, contact
+                                )
+                            }) {
+                                Text(stringResource(R.string.crash_report_send_button))
+                            }
+                            OutlinedButton({ onSaveReport() }) {
+                                Text(stringResource(R.string.crash_report_save_button))
+                            }
+
+                            Spacer(modifier.weight(1f))
+
+                            OutlinedButton(
+                                { onIgnore() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.tertiary,
+                                )
+                            ) {
+                                Text(stringResource(R.string.crash_report_ignore_button))
+                            }
                         }
                     }
                 }
@@ -221,8 +268,9 @@ class CustomAcraCrashReportActivity : ComponentActivity() {
         finish()
     }
 
-    private fun saveReport() {/* TODO: save report */
-        finish()
+    private fun saveReport() {
+        Toast.makeText(this, "Not Implemented", Toast.LENGTH_LONG).show()/* TODO: save report */
+//        finish()
     }
 
     private fun ignoreReport() {
