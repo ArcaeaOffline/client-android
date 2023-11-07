@@ -35,10 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.database.entities.Chart
-import xyz.sevive.arcaeaoffline.database.entities.Difficulty
-import xyz.sevive.arcaeaoffline.database.entities.Score
-import xyz.sevive.arcaeaoffline.database.entities.Song
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaDifficultyExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaGradeGradientExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme

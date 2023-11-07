@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
-    <string name="crash_report_title_error_occurred">Error occurred.</string>
+    <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
+
+    <string name="crash_report_title_app_crashed">App Crashed.</string>
+    <string name="crash_report_title_error_occurred">Error Occurred.</string>
     <string name="crash_report_report_id">Report ID</string>
     <string name="crash_report_crash_date">Crashed at</string>
     <string name="crash_report_send_report_prompt">Send this crash report?</string>
@@ -9,8 +12,8 @@
     <string name="crash_report_textfield_placeholder_comment">What did you do when the app crashed?</string>
     <string name="crash_report_textfield_label_contact">Contact (Optional)</string>
     <string name="crash_report_textfield_placeholder_contact">How can we reach you when we need more information?</string>
-    <string name="crash_report_send_button">Send Report</string>
-    <string name="crash_report_save_button">Save Report</string>
+    <string name="crash_report_send_button">Send</string>
+    <string name="crash_report_save_button">Save but Don\'t Send</string>
     <string name="crash_report_ignore_button">Ignore</string>
     <string name="crash_report_toast_report_send_attempted">Attempted to send a crash report</string>
     <string name="crash_report_toast_report_send_success">Crash report sent</string>

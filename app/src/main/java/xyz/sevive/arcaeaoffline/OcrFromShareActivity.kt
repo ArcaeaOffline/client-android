@@ -26,12 +26,12 @@ import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.rois.definition.DeviceAutoRoisT2
 import xyz.sevive.arcaeaoffline.core.ocr.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.database.entities.Score
 import xyz.sevive.arcaeaoffline.ui.components.ScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
@@ -58,10 +58,10 @@ fun OcrFromShareContent(
         Scaffold(topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(R.string.title_activity_ocr_from_share)) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
+                )
             )
         }) { innerPadding ->
             Column(

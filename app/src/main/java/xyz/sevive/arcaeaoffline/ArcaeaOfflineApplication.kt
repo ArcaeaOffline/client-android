@@ -7,13 +7,17 @@ import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
+import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
 class ArcaeaOfflineApplication : Application() {
+
+    lateinit var arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
 
         initAcra {
-            //core configuration:
+            // core configurations
             buildConfigClass = BuildConfig::class.java
             reportFormat = StringFormat.JSON
 
@@ -27,15 +31,15 @@ class ArcaeaOfflineApplication : Application() {
 
             dialog {
                 title = "Uncaught Exception"
-//                text = ""
-//                positiveButtonText = getString(R.string.dialog_positive)
-//                negativeButtonText = getString(R.string.dialog_negative)
-//                commentPrompt = getString(R.string.dialog_comment)
-//                emailPrompt = getString(R.string.dialog_email)
-//                resIcon = R.drawable.dialog_icon
-//                resTheme = R.style.Theme_ArcaeaOffline
                 reportDialogClass = CustomAcraCrashReportActivity::class.java
             }
         }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        arcaeaOfflineDatabaseRepositoryContainer =
+            ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
     }
 }

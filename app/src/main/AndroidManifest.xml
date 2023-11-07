@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <queries>
+        <package android:name="moe.low.arc" />
+    </queries>
+
     <application
         android:name=".ArcaeaOfflineApplication"
         android:allowBackup="true"

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import xyz.sevive.arcaeaoffline.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 class OcrFromShareViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(OcrFromShareState())

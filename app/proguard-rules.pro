@@ -21,3 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keep public class org.opencv.core.CvException
+
+-dontwarn javax.annotation.processing.*
