@@ -39,6 +39,8 @@ class ArcaeaOfflineApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        System.loadLibrary("opencv_java4")
+
         arcaeaOfflineDatabaseRepositoryContainer =
             ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
     }

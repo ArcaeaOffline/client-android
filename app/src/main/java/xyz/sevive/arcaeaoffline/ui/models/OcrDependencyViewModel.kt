@@ -34,8 +34,6 @@ class OcrDependencyViewModel : ViewModel() {
     }
 
     fun loadKnnModel(file: File) {
-        System.loadLibrary("opencv_java4")
-
         val newKnnModelState = try {
             if (!file.exists()) throw FileNotFoundException("${file.path} does not exist.")
             KnnModelState(model = KNearest.load(file.path), error = null)

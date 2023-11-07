@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.apache.commons.io.IOUtils
-import org.opencv.android.OpenCVLoader
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
@@ -94,7 +93,6 @@ class OcrFromShareActivity : ComponentActivity() {
     private lateinit var ocrFromShareViewModel: OcrFromShareViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        OpenCVLoader.initDebug()
 
         ocrDependencyViewModel = ViewModelProvider(this)[OcrDependencyViewModel::class.java]
         ocrFromShareViewModel = ViewModelProvider(this)[OcrFromShareViewModel::class.java]
