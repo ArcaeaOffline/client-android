@@ -16,24 +16,18 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationGraph
-import xyz.sevive.arcaeaoffline.ui.navigation.RootNavItem
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreens
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val items = listOf(
-        RootNavItem.Overview,
-        RootNavItem.Database,
-        RootNavItem.Ocr,
-        RootNavItem.Settings,
-    )
     NavigationBar {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         val currentRouteRoot = currentRoute?.split("/")
 
-        items.forEach { item ->
+        MainScreens.values().forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon(), null) },
                 label = { Text(stringResource(item.title)) },

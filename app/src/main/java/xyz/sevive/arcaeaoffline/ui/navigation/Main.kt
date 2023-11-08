@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Settings
@@ -16,30 +17,28 @@ import xyz.sevive.arcaeaoffline.ui.screens.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.screens.SettingsScreen
 
 
-sealed class RootNavItem(
-    var title: Int, var icon: @Composable () -> ImageVector, var route: String
+enum class MainScreens(
+    val route: String, val icon: @Composable () -> ImageVector, @StringRes val title: Int
 ) {
-    object Overview : RootNavItem(R.string.nav_overview, { Icons.Filled.Dashboard }, "overview")
-    object Database : RootNavItem(R.string.nav_database, { Icons.Filled.Storage }, "database")
-    object Ocr :
-        RootNavItem(R.string.nav_ocr, { ImageVector.vectorResource(R.drawable.ic_ocr) }, "ocr")
-
-    object Settings : RootNavItem(R.string.nav_settings, { Icons.Filled.Settings }, "settings")
+    Overview("overview", { Icons.Filled.Dashboard }, R.string.nav_overview),
+    Database(DatabaseNavRouteRoot, { Icons.Filled.Storage }, R.string.nav_database),
+    Ocr("ocr", { ImageVector.vectorResource(R.drawable.ic_ocr) }, R.string.nav_ocr),
+    Settings("settings", { Icons.Filled.Settings }, R.string.nav_settings),
 }
 
 @Composable
 fun MainNavigationGraph(navController: NavHostController) {
-    NavHost(navController, startDestination = RootNavItem.Overview.route) {
-        composable(RootNavItem.Overview.route) {
+    NavHost(navController, startDestination = MainScreens.Overview.route) {
+        composable(MainScreens.Overview.route) {
             OverviewScreen()
         }
 
         databaseGraph(navController)
 
-        composable(RootNavItem.Ocr.route) {
+        composable(MainScreens.Ocr.route) {
             OcrScreen()
         }
-        composable(RootNavItem.Settings.route) {
+        composable(MainScreens.Settings.route) {
             SettingsScreen()
         }
     }
