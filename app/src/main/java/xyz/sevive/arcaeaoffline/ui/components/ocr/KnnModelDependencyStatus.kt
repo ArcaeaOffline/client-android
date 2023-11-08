@@ -28,6 +28,12 @@ fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modif
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary,
                 )
+            } else if (error != null) {
+                Text(
+                    error::class.simpleName ?: "Error", modifier = modifier,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         },
         status = if (error != null) {
