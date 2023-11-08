@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -36,23 +39,33 @@ fun ActionCard(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer)
     ),
-    slot: @Composable () -> Unit = {}
+    headSlot: @Composable () -> Unit = {},
+    tailSlot: @Composable () -> Unit = {}
 ) {
-    Card(modifier.clickable { onClick() }, colors = cardColors) {
+    Card(modifier, colors = cardColors) {
         Row(
-            Modifier.padding(dimensionResource(R.dimen.action_card_padding)),
+            Modifier
+                .clickable { onClick() }
+                .padding(dimensionResource(R.dimen.action_card_padding)),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            headSlot()
+
+            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
+
             Column {
-                Text(title, style = MaterialTheme.typography.bodyLarge)
+                Text(title, style = MaterialTheme.typography.titleLarge)
                 if (description != null) {
                     Text(description, style = MaterialTheme.typography.labelLarge)
                 }
             }
 
             Spacer(Modifier.weight(1f))
+            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
 
-            slot()
+            tailSlot()
+
+            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
         }
     }
 }
@@ -62,14 +75,25 @@ fun ActionCard(
 fun ActionCardPreview() {
     ArcaeaOfflineTheme {
         Column(
-            Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ActionCard({}, "Test Card")
             ActionCard({}, "Test Card w/ desc", "wow description")
-            ActionCard({}, "Test Card w/ icon", "wow an arrow") {
-                Icon(Icons.Default.ArrowForward, null)
-            }
+            ActionCard(onClick = {},
+                title = "Test Card w/ icon",
+                description = "wow an arrow",
+                tailSlot = {
+                    Icon(Icons.Default.ArrowForward, null)
+                })
+            ActionCard(onClick = {},
+                title = "Test Card w/ two icons",
+                description = "wow icons",
+                headSlot = {
+                    Icon(Icons.Default.UploadFile, null)
+                },
+                tailSlot = {
+                    Icon(Icons.Default.ChevronRight, null)
+                })
         }
     }
 }
