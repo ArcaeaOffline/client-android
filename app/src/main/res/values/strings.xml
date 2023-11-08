@@ -69,6 +69,7 @@
     <string name="database_manage_import_from_arcaea_apk_installed">Import from installed Arcaea</string>
     <string name="database_manage_import_from_arcaea_apk_installed_unavailable">Arcaea not installed</string>
 
+    <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
     <string name="settings_ocr_import_knn">Import KNearest Model</string>
     <string name="settings_ocr_import_phash_database">Import pHash Database</string>
 

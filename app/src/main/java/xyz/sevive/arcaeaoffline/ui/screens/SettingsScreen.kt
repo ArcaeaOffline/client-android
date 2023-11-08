@@ -5,25 +5,24 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.ui.components.ActionCard
+import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
@@ -46,21 +47,19 @@ fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
 
 
 @Composable
-fun SettingsOcrDependencyCard(
-    modifier: Modifier = Modifier, ocrDependencyViewModel: OcrDependencyViewModel = viewModel()
-) {
+fun SettingsOcrDependencyCard(viewModel: OcrDependencyViewModel = viewModel()) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     val expandArrowRotateDegree: Float by animateFloatAsState(
-        if (expanded) 180f else 0f, label = "expandArrowRotate"
+        if (expanded) 0f else -90f, label = "expandArrowRotate"
     )
 
     val context = LocalContext.current
-    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsState()
-    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
+    val knnModelState = viewModel.knnModelState.collectAsState()
+    val phashDatabaseState = viewModel.phashDatabaseState.collectAsState()
 
     val ocrDependencyPaths = OcrDependencyPaths(context)
-    ocrDependencyViewModel.setOcrDependencyPaths(ocrDependencyPaths)
-    ocrDependencyViewModel.reload()
+    viewModel.setOcrDependencyPaths(ocrDependencyPaths)
+    viewModel.reload()
 
     val importKnnLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
@@ -73,7 +72,7 @@ fun SettingsOcrDependencyCard(
                 it?.copyTo(outputStream)
             }
 
-            ocrDependencyViewModel.reload()
+            viewModel.reload()
         }
     }
 
@@ -88,34 +87,22 @@ fun SettingsOcrDependencyCard(
                 it?.copyTo(outputStream)
             }
 
-            ocrDependencyViewModel.reload()
+            viewModel.reload()
         }
     }
 
-    OutlinedCard(modifier.padding(16.dp)) {
-        Row(
-            modifier
-                .clickable { expanded = !expanded }
-                .padding(8.dp)) {
-            Text(
-                "OCR Dependencies",
-                modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically),
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            TextButton(onClick = { expanded = !expanded }) {
+    TitleOutlinedCard(title = {
+        ActionCard(onClick = { expanded = !expanded },
+            title = stringResource(R.string.settings_ocr_dependencies_title),
+            headSlot = { Icon(Icons.Default.Api, null) },
+            tailSlot = {
                 Icon(
-                    Icons.Filled.ExpandMore,
-                    "Expand",
-                    modifier.rotate(expandArrowRotateDegree)
+                    Icons.Filled.ExpandMore, null, Modifier.rotate(expandArrowRotateDegree)
                 )
-            }
-        }
-
-        AnimatedVisibility(visible = expanded) {
-            Column(modifier.padding(12.dp)) {
+            })
+    }) { padding ->
+        AnimatedVisibility(expanded) {
+            Column(Modifier.padding(padding)) {
                 OcrDependencyKnnModelStatus(state = knnModelState.value)
                 Button(onClick = { importKnnLauncher.launch("*/*") }) {
                     Text(stringResource(R.string.settings_ocr_import_knn))
@@ -132,5 +119,11 @@ fun SettingsOcrDependencyCard(
 
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
-    SettingsOcrDependencyCard(modifier)
+    Surface(modifier.fillMaxSize()) {
+        LazyColumn(contentPadding = PaddingValues(12.dp)) {
+            item {
+                SettingsOcrDependencyCard()
+            }
+        }
+    }
 }

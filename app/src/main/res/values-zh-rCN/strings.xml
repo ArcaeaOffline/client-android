@@ -55,4 +55,5 @@
     <string name="database_status_intro">数据库中共有：</string>
     <string name="database_status_initialize_button">初始化</string>
     <string name="database_status_title">数据库状态</string>
+    <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
 </resources>

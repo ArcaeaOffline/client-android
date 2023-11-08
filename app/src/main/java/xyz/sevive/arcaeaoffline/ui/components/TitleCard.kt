@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -16,7 +17,7 @@ fun TitleOutlinedCard(
     customPaddingValues: PaddingValues? = null,
     titleContainerColor: Color = MaterialTheme.colorScheme.surface,
     titleContentColor: Color = MaterialTheme.colorScheme.onSurface,
-    content: @Composable (paddingValues: PaddingValues) -> Unit,
+    content: @Composable ColumnScope.(paddingValues: PaddingValues) -> Unit,
 ) {
     val paddingValues = customPaddingValues ?: PaddingValues(8.dp)
 
