@@ -36,6 +36,18 @@ class DatabaseEntryViewModel(private val repositoryContainer: ArcaeaOfflineDatab
         initialValue = listOf()
     )
 
+    val chartInfoList = repositoryContainer.chartInfoRepository.findAll().stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = listOf()
+    )
+
+    val scoreList = repositoryContainer.chartInfoRepository.findAll().stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = listOf()
+    )
+
     suspend fun initDatabase() {
         repositoryContainer.propertyRepository.upsert(Property("version", "4"))
     }

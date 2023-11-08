@@ -1,6 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,8 +14,25 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipFile
 
+
 class DatabaseManageViewModel(private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer) :
     ViewModel() {
+    fun isArcaeaInstalled(context: Context): Boolean {
+        return try {
+            context.packageManager.getPackageInfo("moe.low.arc", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    fun getArcaeaIconFromInstalled(context: Context): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon("moe.low.arc")
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
+    }
 
     suspend fun importPacklist(inputStream: InputStream) {
         val result = IOUtils.toString(inputStream, StandardCharsets.UTF_8)

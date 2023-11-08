@@ -34,6 +34,41 @@
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
+    <plurals name="database_pack_entries">
+        <item quantity="many">%d pack entries</item>
+        <item quantity="other">%d pack entry</item>
+    </plurals>
+    <plurals name="database_song_entries">
+        <item quantity="many">%d song entries</item>
+        <item quantity="other">%d song entry</item>
+    </plurals>
+    <plurals name="database_difficulty_entries">
+        <item quantity="many">%d difficulty entries</item>
+        <item quantity="other">%d difficulty entry</item>
+    </plurals>
+    <plurals name="database_chart_info_entries">
+        <item quantity="many">%d chart info entries</item>
+        <item quantity="other">%d chart info entry</item>
+    </plurals>
+    <plurals name="database_score_entries">
+        <item quantity="many">%d score entries</item>
+        <item quantity="other">%d score entry</item>
+    </plurals>
+
+    <string name="database_status_title">Database Status</string>
+    <string name="database_status_initialize_button">Initialize</string>
+    <string name="database_status_not_initialized">Database not initialized</string>
+    <string name="database_status_intro">Database contains a total of:</string>
+
+    <string name="database_manage_title">Manage</string>
+
+    <string name="database_manage_import_title">Import…</string>
+    <string name="database_manage_import_packlist">Import packlist</string>
+    <string name="database_manage_import_songlist">Import songlist</string>
+    <string name="database_manage_import_from_arcaea_apk">Import from Arcaea .apk</string>
+    <string name="database_manage_import_from_arcaea_apk_installed">Import from installed Arcaea</string>
+    <string name="database_manage_import_from_arcaea_apk_installed_unavailable">Arcaea not installed</string>
+
     <string name="settings_ocr_import_knn">Import KNearest Model</string>
     <string name="settings_ocr_import_phash_database">Import pHash Database</string>
 

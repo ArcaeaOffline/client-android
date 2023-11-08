@@ -1,0 +1,30 @@
+package xyz.sevive.arcaeaoffline.ui.components
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
+@Composable
+fun TitleOutlinedCard(
+    title: @Composable (paddingValues: PaddingValues) -> Unit,
+    modifier: Modifier = Modifier,
+    customPaddingValues: PaddingValues? = null,
+    titleContainerColor: Color = MaterialTheme.colorScheme.surface,
+    titleContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    content: @Composable (paddingValues: PaddingValues) -> Unit,
+) {
+    val paddingValues = customPaddingValues ?: PaddingValues(8.dp)
+
+    OutlinedCard(modifier) {
+        Surface(color = titleContainerColor, contentColor = titleContentColor) {
+            title(paddingValues)
+        }
+
+        content(paddingValues)
+    }
+}

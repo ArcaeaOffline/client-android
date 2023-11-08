@@ -14,6 +14,9 @@
     <string name="crash_report_save_button">暂存但不发送</string>
     <string name="ocr_dependency_knn_model">KNearest 模型</string>
     <string name="arcaea_score">分数</string>
+    <string name="database_manage_import_title">导入</string>
+    <string name="database_manage_import_packlist">导入 packlist</string>
+    <string name="database_manage_import_songlist">导入 songlist</string>
     <string name="settings_ocr_import_knn">导入 KNearest 模型</string>
     <string name="settings_ocr_import_phash_database">导入 pHash 数据库</string>
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
@@ -29,4 +32,27 @@
     <string name="crash_report_toast_report_save_failed">崩溃报告保存失败</string>
     <string name="crash_report_toast_report_ignored">崩溃报告已忽略</string>
     <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
+    <string name="database_manage_import_from_arcaea_apk">导入 Arcaea .apk</string>
+    <string name="database_manage_import_from_arcaea_apk_installed">从本机 Arcaea 导入</string>
+    <string name="database_manage_import_from_arcaea_apk_installed_unavailable">未安装 Arcaea</string>
+    <string name="database_manage_title">管理</string>
+    <plurals name="database_pack_entries">
+        <item quantity="other">%d 个曲包</item>
+    </plurals>
+    <plurals name="database_song_entries">
+        <item quantity="other">%d 首歌曲</item>
+    </plurals>
+    <plurals name="database_difficulty_entries">
+        <item quantity="other">%d 个难度</item>
+    </plurals>
+    <plurals name="database_chart_info_entries">
+        <item quantity="other">%d 个谱面信息</item>
+    </plurals>
+    <plurals name="database_score_entries">
+        <item quantity="other">%d 个分数记录</item>
+    </plurals>
+    <string name="database_status_not_initialized">数据库未初始化</string>
+    <string name="database_status_intro">数据库中共有：</string>
+    <string name="database_status_initialize_button">初始化</string>
+    <string name="database_status_title">数据库状态</string>
 </resources>
