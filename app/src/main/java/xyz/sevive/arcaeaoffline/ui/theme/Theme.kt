@@ -61,11 +61,11 @@ fun ArcaeaOfflineTheme(
 
     CompositionLocalProvider(
         ArcaeaDifficultyExtendedColors provides
-                if (darkTheme) darkArcaeaDifficultyColors else lightArcaeaDifficultyColors,
+            if (darkTheme) darkArcaeaDifficultyColors else lightArcaeaDifficultyColors,
         ArcaeaPflExtendedColors provides
-                if (darkTheme) darkArcaeaPflColors else lightArcaeaPflColors,
+            if (darkTheme) darkArcaeaPflColors else lightArcaeaPflColors,
         ArcaeaGradeGradientExtendedColors provides
-                if (darkTheme) darkArcaeaGradeGradientColors else lightArcaeaGradeGradientColors
+            if (darkTheme) darkArcaeaGradeGradientColors else lightArcaeaGradeGradientColors
     ) {
         MaterialTheme(
             colorScheme = colorScheme, typography = Typography, content = content
