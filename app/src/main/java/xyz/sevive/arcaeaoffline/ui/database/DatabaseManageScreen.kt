@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -34,10 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
+import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
+import java.util.zip.ZipInputStream
+
 
 @Composable
 fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier = Modifier) {
@@ -52,7 +58,7 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
         if (fileUri != null) {
             val inputStream = context.contentResolver.openInputStream(fileUri)
             if (inputStream != null) {
-                coroutineScope.launch { viewModel.importPacklist(inputStream) }
+                coroutineScope.launch { viewModel.importPacklist(inputStream, context) }
             }
         }
     }
@@ -63,55 +69,76 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
         if (fileUri != null) {
             val inputStream = context.contentResolver.openInputStream(fileUri)
             if (inputStream != null) {
-                coroutineScope.launch { viewModel.importSonglist(inputStream) }
+                coroutineScope.launch { viewModel.importSonglist(inputStream, context) }
+            }
+        }
+    }
+
+    val importArcaeaApkLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { fileUri ->
+        if (fileUri != null) {
+            val inputStream = context.contentResolver.openInputStream(fileUri)
+            if (inputStream != null) {
+                Toast.makeText(
+                    context,
+                    R.string.database_manage_import_from_arcaea_apk_please_wait,
+                    Toast.LENGTH_LONG
+                ).show()
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) {
+                        ZipInputStream(inputStream).use {
+                            viewModel.importArcaeaApkFromSelect(it, context)
+                        }
+                    }
+                }
             }
         }
     }
 
     TitleOutlinedCard(title = { padding ->
-        Row(
-            Modifier.padding(padding),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Default.FileDownload, null)
+        IconRow(
+            modifier = modifier.padding(padding),
+            icon = { Icon(Icons.Default.FileDownload, null) }) {
             Text(stringResource(R.string.database_manage_import_title))
         }
     }, modifier = modifier.fillMaxWidth()) { padding ->
         Column(Modifier.padding(padding)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button({ importPacklistLauncher.launch("*/*") }) {
-                    Text(stringResource(R.string.database_manage_import_packlist))
+                    IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                        Text(stringResource(R.string.database_manage_import_packlist))
+                    }
                 }
                 Button({ importSonglistLauncher.launch("*/*") }) {
-                    Text(stringResource(R.string.database_manage_import_songlist))
+                    IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                        Text(stringResource(R.string.database_manage_import_songlist))
+                    }
+                }
+            }
+
+            Button({ importArcaeaApkLauncher.launch("*/*") }) {
+                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                    Text(stringResource(R.string.database_manage_import_from_arcaea_apk))
                 }
             }
 
             Button(
-                {
-                    coroutineScope.launch {
-                        viewModel.importArcaeaApkFromInstalled(
-                            context
-                        )
-                    }
-                }, enabled = arcaeaInstalled
+                { coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) } },
+                enabled = arcaeaInstalled
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                IconRow(icon = {
                     if (arcaeaInstalled) {
                         val arcaeaIcon = viewModel.getArcaeaIconFromInstalled(context)
-                        val iconPx = LocalDensity.current.run {
-                            24.dp.toPx()
-                        }.toInt()
-                        Image(
-                            arcaeaIcon!!.toBitmap(iconPx, iconPx).asImageBitmap(), null
-                        )
-                        Text(stringResource(R.string.database_manage_import_from_arcaea_apk_installed))
+                        val iconPx = LocalDensity.current.run { 24.dp.toPx() }.toInt()
+                        Image(arcaeaIcon!!.toBitmap(iconPx, iconPx).asImageBitmap(), null)
                     } else {
                         Icon(Icons.Default.Cancel, null)
+                    }
+                }) {
+                    if (arcaeaInstalled) {
+                        Text(stringResource(R.string.database_manage_import_from_arcaea_apk_installed))
+                    } else {
                         Text(stringResource(R.string.database_manage_import_from_arcaea_apk_installed_unavailable))
                     }
                 }

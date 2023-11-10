@@ -68,6 +68,20 @@
     <string name="database_manage_import_from_arcaea_apk">Import from Arcaea .apk</string>
     <string name="database_manage_import_from_arcaea_apk_installed">Import from installed Arcaea</string>
     <string name="database_manage_import_from_arcaea_apk_installed_unavailable">Arcaea not installed</string>
+    <string name="database_manage_import_from_arcaea_apk_please_wait">Reading .apk file, please hold on</string>
+
+    <plurals name="database_packlist_imported">
+        <item quantity="many">%d packs imported</item>
+        <item quantity="other">%d pack imported</item>
+    </plurals>
+    <plurals name="database_songlist_song_imported">
+        <item quantity="many">%d songs imported</item>
+        <item quantity="other">%d song imported</item>
+    </plurals>
+    <plurals name="database_songlist_difficulty_imported">
+        <item quantity="many">%d difficulties imported</item>
+        <item quantity="other">%d difficulty imported</item>
+    </plurals>
 
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
     <string name="settings_ocr_import_knn">Import KNearest Model</string>

@@ -35,6 +35,15 @@
     <string name="database_manage_import_from_arcaea_apk">导入 Arcaea .apk</string>
     <string name="database_manage_import_from_arcaea_apk_installed">从本机 Arcaea 导入</string>
     <string name="database_manage_import_from_arcaea_apk_installed_unavailable">未安装 Arcaea</string>
+    <plurals name="database_packlist_imported">
+        <item quantity="other">已导入 %d 个曲包</item>
+    </plurals>
+    <plurals name="database_songlist_song_imported">
+        <item quantity="other">已导入 %d 首歌曲</item>
+    </plurals>
+    <plurals name="database_songlist_difficulty_imported">
+        <item quantity="other">已导入 %d 个难度</item>
+    </plurals>
     <string name="database_manage_title">管理</string>
     <plurals name="database_pack_entries">
         <item quantity="other">%d 个曲包</item>
@@ -56,4 +65,5 @@
     <string name="database_status_initialize_button">初始化</string>
     <string name="database_status_title">数据库状态</string>
     <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
+    <string name="database_manage_import_from_arcaea_apk_please_wait">正在读取 .apk 文件，请稍候</string>
 </resources>
