@@ -83,6 +83,9 @@
         <item quantity="other">%d difficulty imported</item>
     </plurals>
 
+    <string name="song_id_selector_select_pack">Select a pack…</string>
+    <string name="song_id_selector_select_song">Select a song…</string>
+
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
     <string name="settings_ocr_import_knn">Import KNearest Model</string>
     <string name="settings_ocr_import_phash_database">Import pHash Database</string>

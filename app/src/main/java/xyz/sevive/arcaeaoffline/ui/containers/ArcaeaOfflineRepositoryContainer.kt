@@ -4,6 +4,8 @@ import android.content.Context
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
@@ -22,6 +24,7 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val songRepository: SongRepository
     val difficultyRepository: DifficultyRepository
     val chartInfoRepository: ChartInfoRepository
+    val chartRepository: ChartRepository
 
     val scoreRepository: ScoreRepository
 }
@@ -47,6 +50,10 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
 
     override val chartInfoRepository: ChartInfoRepository by lazy {
         ChartInfoRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartInfoDao())
+    }
+
+    override val chartRepository: ChartRepository by lazy {
+        ChartRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartDao())
     }
 
     override val scoreRepository: ScoreRepository by lazy {

@@ -12,6 +12,9 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE id = :id")
     fun find(id: String): Flow<Song>
 
+    @Query("SELECT * FROM songs WHERE `set` = :set")
+    fun findBySet(set: String): Flow<List<Song>>
+
     @Query("SELECT * FROM songs")
     fun findAll(): Flow<List<Song>>
 

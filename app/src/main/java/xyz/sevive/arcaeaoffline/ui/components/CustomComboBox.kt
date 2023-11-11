@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenuItem
@@ -13,17 +14,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.text.input.TextFieldValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomComboBox(
-    options: List<Pair<String, Any>>,
+    options: List<Pair<TextFieldValue, Any>>,
+    selectedIndex: Int,
     onSelectChanged: (Int) -> Unit,
     modifier: Modifier = Modifier,
     label: @Composable () -> Unit = {},
@@ -31,12 +33,10 @@ fun CustomComboBox(
     trailingIcon: @Composable () -> Unit = { Icon(Icons.Default.ArrowDropDown, null) }
 ) {
     val labels = options.map { it.first }
-    var selectedIndex by remember { mutableIntStateOf(-1) }
 
     var expanded by remember { mutableStateOf(false) }
     val trailingIconRotateDegree by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        label = "trailingIconRotateDegree"
+        targetValue = if (expanded) 180f else 0f, label = "trailingIconRotateDegree"
     )
 
     ExposedDropdownMenuBox(
@@ -44,23 +44,25 @@ fun CustomComboBox(
     ) {
         TextField(
             readOnly = true,
-            value = if (selectedIndex > -1) labels[selectedIndex] else "",
+            value = if (selectedIndex > -1) labels[selectedIndex] else TextFieldValue(),
             onValueChange = { },
+            singleLine = true,
             label = { label() },
             leadingIcon = { leadingIcon() },
             trailingIcon = { Box(Modifier.rotate(trailingIconRotateDegree)) { trailingIcon() } },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier.menuAnchor(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.indices.forEach { i ->
                 DropdownMenuItem(
                     onClick = {
-                        selectedIndex = i
                         onSelectChanged(i)
                         expanded = false
                     },
-                    text = { Text(text = labels[i]) },
+                    text = { Text(labels[i].annotatedString) },
                 )
             }
         }

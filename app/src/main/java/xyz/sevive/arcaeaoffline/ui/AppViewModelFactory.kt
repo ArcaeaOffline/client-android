@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
+import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseManageViewModel
 
@@ -15,7 +16,7 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabaseManageViewModel
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        // Initializer for ItemEditViewModel
+        // Initializer for ViewModels
         initializer {
             DatabaseEntryViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
@@ -24,6 +25,12 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseManageViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            SongIdSelectorViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

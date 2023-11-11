@@ -66,4 +66,6 @@
     <string name="database_status_title">数据库状态</string>
     <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
     <string name="database_manage_import_from_arcaea_apk_please_wait">正在读取 .apk 文件，请稍候</string>
+    <string name="song_id_selector_select_pack">选择曲包</string>
+    <string name="song_id_selector_select_song">选择歌曲</string>
 </resources>

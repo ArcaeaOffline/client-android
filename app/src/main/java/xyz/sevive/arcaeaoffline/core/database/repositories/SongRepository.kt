@@ -6,6 +6,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
 interface SongRepository {
     fun find(id: String): Flow<Song?>
+    fun findBySet(set: String): Flow<List<Song>>
     fun findAll(): Flow<List<Song>>
     suspend fun upsert(item: Song)
     suspend fun upsertAll(vararg items: Song)
@@ -16,6 +17,8 @@ interface SongRepository {
 
 class SongRepositoryImpl(private val dao: SongDao) : SongRepository {
     override fun find(id: String): Flow<Song?> = dao.find(id)
+
+    override fun findBySet(set: String): Flow<List<Song>> = dao.findBySet(set)
 
     override fun findAll(): Flow<List<Song>> = dao.findAll()
 
