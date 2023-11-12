@@ -103,7 +103,7 @@ android {
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk 34
 
         versionCode openCVersionCode
         versionName openCVersionName
