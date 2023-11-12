@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
+    <string name="unstable_version_alert_title">不稳定版本</string>
     <string name="crash_report_title_app_crashed">应用崩溃。</string>
     <string name="crash_report_title_error_occurred">发生错误。</string>
     <string name="crash_report_report_id">报告 ID</string>
@@ -68,4 +69,9 @@
     <string name="database_manage_import_from_arcaea_apk_please_wait">正在读取 .apk 文件，请稍候</string>
     <string name="song_id_selector_select_pack">选择曲包</string>
     <string name="song_id_selector_select_song">选择歌曲</string>
+    <string name="unstable_version_alert_description">应用随时可能崩溃，并且数据可能丢失甚至无法恢复。\n请注意时刻备份数据，并在应用请求时发送崩溃报告。</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_application_id">应用 ID</string>
+    <string name="settings_about_version">版本</string>
+    <string name="settings_about_version_code">版本代号</string>
 </resources>

@@ -14,7 +14,7 @@ import androidx.navigation.compose.composable
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.screens.OcrScreen
 import xyz.sevive.arcaeaoffline.ui.screens.OverviewScreen
-import xyz.sevive.arcaeaoffline.ui.screens.SettingsScreen
+import xyz.sevive.arcaeaoffline.ui.settings.SettingsScreen
 
 
 enum class MainScreens(

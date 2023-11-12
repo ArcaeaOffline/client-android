@@ -22,6 +22,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,14 +36,17 @@ fun ActionCard(
     title: String,
     description: String? = null,
     modifier: Modifier = Modifier,
-    cardColors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer)
-    ),
+    shape: Shape = CardDefaults.shape,
+    cardColors: CardColors? = null,
     headSlot: @Composable () -> Unit = {},
     tailSlot: @Composable () -> Unit = {}
 ) {
-    Card(modifier, colors = cardColors) {
+    val _cardColors = cardColors ?: CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer)
+    )
+
+    Card(modifier, shape = shape, colors = _cardColors) {
         Row(
             Modifier
                 .clickable { onClick() }

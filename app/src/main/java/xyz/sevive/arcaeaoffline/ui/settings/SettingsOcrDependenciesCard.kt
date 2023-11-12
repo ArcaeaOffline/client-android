@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens
+package xyz.sevive.arcaeaoffline.ui.settings
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -6,16 +6,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
@@ -36,6 +31,7 @@ import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
+
 
 fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
     if (!ocrDependencyPaths.parentDir.exists()) {
@@ -47,7 +43,7 @@ fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
 
 
 @Composable
-fun SettingsOcrDependencyCard(viewModel: OcrDependencyViewModel = viewModel()) {
+fun SettingsOcrDependenciesCard(viewModel: OcrDependencyViewModel = viewModel()) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     val expandArrowRotateDegree: Float by animateFloatAsState(
         if (expanded) 0f else -90f, label = "expandArrowRotate"
@@ -94,6 +90,7 @@ fun SettingsOcrDependencyCard(viewModel: OcrDependencyViewModel = viewModel()) {
     TitleOutlinedCard(title = {
         ActionCard(onClick = { expanded = !expanded },
             title = stringResource(R.string.settings_ocr_dependencies_title),
+            shape = settingsTitleActionCardShape(),
             headSlot = { Icon(Icons.Default.Api, null) },
             tailSlot = {
                 Icon(
@@ -112,17 +109,6 @@ fun SettingsOcrDependencyCard(viewModel: OcrDependencyViewModel = viewModel()) {
                 Button(onClick = { importPhashDbLauncher.launch("*/*") }) {
                     Text(stringResource(R.string.settings_ocr_import_phash_database))
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    Surface(modifier.fillMaxSize()) {
-        LazyColumn(contentPadding = PaddingValues(12.dp)) {
-            item {
-                SettingsOcrDependencyCard()
             }
         }
     }
