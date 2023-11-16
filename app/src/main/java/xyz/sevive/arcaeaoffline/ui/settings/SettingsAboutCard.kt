@@ -6,13 +6,11 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CardDefaults
@@ -22,15 +20,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.util.TypedValueCompat.pxToDp
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionCard
@@ -69,33 +67,14 @@ internal fun drawableToBitmap(drawable: Drawable): Bitmap? {
 @Composable
 fun AppIcon(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val res = context.resources
 
-    val bgDrawable = ResourcesCompat.getDrawable(res, R.drawable.ic_launcher_background, null)!!
-    val fgDrawable = ResourcesCompat.getDrawable(res, R.drawable.ic_launcher_foreground, null)!!
+    Image(
+        context.packageManager.getApplicationIcon(BuildConfig.APPLICATION_ID).toBitmap()
+            .asImageBitmap(),
+        null,
+        modifier = modifier,
+    )
 
-    val bg = drawableToBitmap(bgDrawable)!!
-    val fg = drawableToBitmap(fgDrawable)!!
-
-    val iconSize = (fg.width * 0.6667).toInt()
-
-    val x = (fg.width - iconSize) / 2
-    val y = (fg.height - iconSize) / 2
-
-    val bgCropped = Bitmap.createBitmap(bg, x, y, iconSize, iconSize)
-    val fgCropped = Bitmap.createBitmap(fg, x, y, iconSize, iconSize)
-
-    Box(modifier) {
-        Image(bgCropped.asImageBitmap(), null)
-        Image(fgCropped.asImageBitmap(), null)
-    }
-
-}
-
-@Preview
-@Composable
-fun AppIconPreview() {
-    AppIcon()
 }
 
 @Composable
@@ -121,11 +100,14 @@ fun SettingsAboutCard() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AppIcon(
-                    modifier = Modifier
-                        .size(37.5.dp)
-                        .clip(CircleShape)
-                )
+                val titleTextStyle = MaterialTheme.typography.titleLarge
+                val iconDp = with(LocalDensity.current) {
+                    pxToDp(
+                        titleTextStyle.fontSize.toPx() * 2.0.toFloat(),
+                        LocalContext.current.resources.displayMetrics
+                    )
+                }.dp
+                AppIcon(modifier = Modifier.size(iconDp))
                 Text(
                     stringResource(R.string.app_name),
                     fontWeight = FontWeight.Bold,
