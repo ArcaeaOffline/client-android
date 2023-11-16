@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import xyz.sevive.arcaeaoffline.core.database.daos.CalculatedPotentialDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
@@ -73,7 +74,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(
                     context, ArcaeaOfflineDatabase::class.java, "arcaea_offline.db"
-                ).build().also { Instance = it }
+                ).openHelperFactory(RequerySQLiteOpenHelperFactory()).build().also { Instance = it }
             }
         }
     }

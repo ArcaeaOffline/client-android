@@ -10,6 +10,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+        maven {
+            // used by
+            // 'com.github.requery:sqlite-android'
+            url 'https://jitpack.io'
+        }
     }
 }
 

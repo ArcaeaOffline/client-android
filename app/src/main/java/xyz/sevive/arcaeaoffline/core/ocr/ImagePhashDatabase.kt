@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabase
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -16,10 +16,10 @@ import java.util.Date
  * Adapted from `imagehash.phash`, pure opencv implementation
  * The result is slightly different from `imagehash.phash`.
  */
-fun calculatePhash(imgGray: Mat, hashSize: Int = 8, highfreqFactor: Int = 4): Mat {
+fun calculatePhash(imgGray: Mat, hashSize: Int = 8, highFreqFactor: Int = 4): Mat {
     assert(hashSize >= 2)
 
-    val imgSize = hashSize * highfreqFactor
+    val imgSize = hashSize * highFreqFactor
     val img = Mat()
     Imgproc.resize(
         imgGray, img, Size(imgSize.toDouble(), imgSize.toDouble()), 0.0, 0.0, Imgproc.INTER_LANCZOS4
@@ -27,10 +27,10 @@ fun calculatePhash(imgGray: Mat, hashSize: Int = 8, highfreqFactor: Int = 4): Ma
     img.convertTo(img, CvType.CV_32FC1)
     val dct = Mat()
     Core.dct(img, dct)
-    val dctLowfreq = dct.submat(0, hashSize, 0, hashSize).clone()
-    val med = matMedian(dctLowfreq.clone())
+    val dctLowFreq = dct.submat(0, hashSize, 0, hashSize).clone()
+    val med = matMedian(dctLowFreq.clone())
     val diff = Mat()
-    Core.compare(dctLowfreq, Scalar(med), diff, Core.CMP_GT)
+    Core.compare(dctLowFreq, Scalar(med), diff, Core.CMP_GT)
     return diff
 }
 
@@ -41,16 +41,15 @@ fun matToBooleanArray(mat: Mat): BooleanArray {
 }
 
 class ImagePhashDatabase(path: String) {
-    val dbObj: SQLiteDatabase =
+    private val databaseObject: SQLiteDatabase =
         SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY)
 
-    private var pHashSize = 0
-    private var pHighfreqFactor = 0
-    private var pBuiltDate = Date()
-
-    val hashSize: Int get() = pHashSize
-    val highfreqFactor: Int get() = pHighfreqFactor
-    val builtTime: Date get() = pBuiltDate
+    var hashSize = 0
+        private set
+    var highfreqFactor = 0
+        private set
+    var builtTime = Date()
+        private set
 
     val ids = mutableListOf<String>()
     val hashes = mutableListOf<BooleanArray>()
@@ -67,8 +66,9 @@ class ImagePhashDatabase(path: String) {
     }
 
     init {
-        val propertiesCursor =
-            dbObj.query("properties", arrayOf("key", "value"), null, null, null, null, null)
+        val propertiesCursor = databaseObject.query(
+            "properties", arrayOf("key", "value"), null, null, null, null, null
+        )
 
         if (propertiesCursor.count <= 0) {
             propertiesCursor.close()
@@ -83,12 +83,12 @@ class ImagePhashDatabase(path: String) {
                 val propertyName = propertiesCursor.getString(keyIndex)
 
                 if (propertyName == "hash_size") {
-                    pHashSize = propertiesCursor.getInt(valueIndex)
+                    hashSize = propertiesCursor.getInt(valueIndex)
                 } else if (propertyName == "highfreq_factor") {
-                    pHighfreqFactor = propertiesCursor.getInt(valueIndex)
+                    highfreqFactor = propertiesCursor.getInt(valueIndex)
                 } else if (propertyName == "built_timestamp") {
                     val unixTimestamp = propertiesCursor.getInt(valueIndex).toLong()
-                    pBuiltDate = Date(unixTimestamp * 1000)
+                    builtTime = Date(unixTimestamp * 1000)
                 }
 
                 propertiesCursor.moveToNext()
@@ -96,7 +96,7 @@ class ImagePhashDatabase(path: String) {
         }
 
         val hashesCursor =
-            dbObj.query("hashes", arrayOf("id", "hash"), null, null, null, null, null)
+            databaseObject.query("hashes", arrayOf("id", "hash"), null, null, null, null, null)
 
         if (hashesCursor.count > 0) {
             hashesCursor.moveToFirst()
@@ -117,9 +117,9 @@ class ImagePhashDatabase(path: String) {
         }
 
         for ((id, hash) in ids.zip(hashes)) {
-            val idSplitted = id.split("||")
-            if (idSplitted.size > 1 && idSplitted[0] == "partner_icon") {
-                partnerIconIds.add(idSplitted[1])
+            val idSplit = id.split("||")
+            if (idSplit.size > 1 && idSplit[0] == "partner_icon") {
+                partnerIconIds.add(idSplit[1])
                 partnerIconHashes.add(hash)
             } else {
                 jacketIds.add(id)
