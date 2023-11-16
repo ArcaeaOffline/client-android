@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     if (unstableAlertRead) {
-                        MainScreenView()
+                        ArcaeaOfflineMainScreen(windowSizeClass)
                     } else {
                         UnstableVersionAlertScreen(
                             onConfirm = {
