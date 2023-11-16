@@ -33,6 +33,7 @@ import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionCard
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
+import xyz.sevive.arcaeaoffline.ui.constants.IS_UNSTABLE_VERSION
 
 
 @Composable
@@ -79,13 +80,11 @@ fun AppIcon(modifier: Modifier = Modifier) {
 
 @Composable
 fun SettingsAboutCard() {
-    val isStableBuild = BuildConfig.IS_STABLE_BUILD.toBoolean()
-
     TitleOutlinedCard(title = {
         ActionCard(onClick = { },
             title = stringResource(R.string.settings_about_title),
             shape = settingsTitleActionCardShape(),
-            cardColors = if (!isStableBuild) CardDefaults.cardColors(
+            cardColors = if (IS_UNSTABLE_VERSION) CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.error,
             ) else null,
@@ -115,7 +114,7 @@ fun SettingsAboutCard() {
                 )
             }
 
-            if (!isStableBuild) {
+            if (IS_UNSTABLE_VERSION) {
                 UnstableBuildAlert(Modifier.fillMaxWidth(), showDetails = false)
             }
 

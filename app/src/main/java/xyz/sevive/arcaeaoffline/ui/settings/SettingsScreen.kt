@@ -24,9 +24,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.constants.IS_UNSTABLE_VERSION
 
 @Composable
 internal fun settingsTitleActionCardShape(): CornerBasedShape {
@@ -81,7 +81,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             .padding(dimensionResource(R.dimen.general_page_padding))
     ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
-            if (!BuildConfig.IS_STABLE_BUILD.toBoolean()) {
+            if (IS_UNSTABLE_VERSION) {
                 item {
                     UnstableBuildAlert(Modifier.fillMaxWidth(), showDetails = true)
                 }
