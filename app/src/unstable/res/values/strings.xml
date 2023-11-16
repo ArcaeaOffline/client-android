@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_unstable">Arcaea Offline Unstable</string>
+
+    <string name="unstable_version_alert_title">UNSTABLE VERSION</string>
+    <string name="unstable_version_alert_short_description">The app may crash at any time, and your data is under the risk of being lost or even irrecoverable.\nBe sure to backup your data!</string>
+    <string name="unstable_version_alert_screen_details_markdown">
+        This is an **unstable** version of Arcaea Offline.\n
+        \n
+        ---\n
+        #### The app may crash at any time\n
+        \n
+        Some features have not been tested and may result in app crashes.\n
+        \n
+        Thus, please send crash reports to help us locate issues when the app prompted to do so.\n
+        \n
+        *If you are concerned about privacy issues, you can also choose not to send the reports.*
+        *We respect your choice.*\n
+        \n
+        ---\n
+        #### Risk of data loss\n
+        \n
+        Some data operations have not been tested, and may result in data loss, even making it
+        irrecoverable.\n
+        \n
+        Thus, please be sure to back up your data.
+    </string>
+    <string name="unstable_version_alert_screen_confirm_prompt_markdown">
+        We will **not provide any support** for data loss or any other similar issues
+        caused by using an unstable version. Thus, please confirm that you are aware of
+        the risks.
+    </string>
+    <string name="unstable_version_alert_screen_actions_confirm">I am aware of the risks. Continue.</string>
+    <string name="unstable_version_alert_screen_actions_deny">Exit</string>
+</resources>

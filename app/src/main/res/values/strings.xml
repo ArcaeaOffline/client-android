@@ -1,10 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Reference one string from another string in strings.xml?
+https://stackoverflow.com/a/39870268/16484891
+CC BY-SA 3.0
+-->
+<!DOCTYPE resources [<!ENTITY app_name "Arcaea Offline">]>
+
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
-
-    <string name="unstable_version_alert_title">UNSTABLE VERSION</string>
-    <string name="unstable_version_alert_description">The app may crash at any time, and your data is under the risk of being lost or even unrecoverable.\nPlease be sure to backup your data, and send the crash report when the app requests it.</string>
 
     <string name="crash_report_title_app_crashed">App Crashed.</string>
     <string name="crash_report_title_error_occurred">Error Occurred.</string>
