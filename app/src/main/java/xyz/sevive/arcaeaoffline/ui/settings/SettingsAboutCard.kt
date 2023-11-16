@@ -31,9 +31,9 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.util.TypedValueCompat.pxToDp
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.constants.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.ActionCard
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
-import xyz.sevive.arcaeaoffline.ui.constants.IS_UNSTABLE_VERSION
 
 
 @Composable

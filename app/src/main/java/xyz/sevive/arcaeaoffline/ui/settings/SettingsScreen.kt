@@ -24,8 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.constants.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.constants.IS_UNSTABLE_VERSION
 
 @Composable
 internal fun settingsTitleActionCardShape(): CornerBasedShape {
