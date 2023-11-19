@@ -64,6 +64,7 @@
     <string name="database_status_intro">数据库中共有：</string>
     <string name="database_status_initialize_button">初始化</string>
     <string name="database_status_title">数据库状态</string>
+    <string name="datetime_picker_date_tab">日期</string>
     <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
     <string name="database_manage_import_from_arcaea_apk_please_wait">正在读取 .apk 文件，请稍候</string>
     <string name="song_id_selector_select_pack">选择曲包</string>
@@ -72,4 +73,7 @@
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>
     <string name="settings_about_version_code">版本代号</string>
+    <string name="datetime_picker_time_tab">时间</string>
+    <string name="general_ok">OK</string>
+    <string name="general_cancel">取消</string>
 </resources>

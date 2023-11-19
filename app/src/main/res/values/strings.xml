@@ -10,6 +10,9 @@ CC BY-SA 3.0
 
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
 
+    <string name="general_ok">OK</string>
+    <string name="general_cancel">Cancel</string>
+
     <string name="crash_report_title_app_crashed">App Crashed.</string>
     <string name="crash_report_title_error_occurred">Error Occurred.</string>
     <string name="crash_report_report_id">Report ID</string>
@@ -92,6 +95,9 @@ CC BY-SA 3.0
 
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
+
+    <string name="datetime_picker_date_tab">Date</string>
+    <string name="datetime_picker_time_tab">Time</string>
 
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
     <string name="settings_ocr_import_knn">Import KNearest Model</string>

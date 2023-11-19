@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline
 
 import android.app.Application
 import android.content.Context
+import com.jakewharton.threetenabp.AndroidThreeTen
 import org.acra.config.dialog
 import org.acra.config.httpSender
 import org.acra.data.StringFormat
@@ -40,6 +41,8 @@ class ArcaeaOfflineApplication : Application() {
         super.onCreate()
 
         System.loadLibrary("opencv_java4")
+
+        AndroidThreeTen.init(this)
 
         arcaeaOfflineDatabaseRepositoryContainer =
             ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
