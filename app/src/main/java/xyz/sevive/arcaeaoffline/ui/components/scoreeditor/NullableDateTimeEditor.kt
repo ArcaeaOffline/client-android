@@ -153,16 +153,19 @@ internal fun DateTimeEditDialog(
 internal fun NullableDateTimeEditor(
     date: LocalDateTime?,
     onDateChange: (LocalDateTime) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
+    val editable = date != null
 
     DisableSelection {
         TextField(
             value = if (date != null) date.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)) else "",
             onValueChange = {},
+            modifier = modifier.clickable(editable) { showPicker = true },
             readOnly = true,
             enabled = false,
-            modifier = Modifier.clickable { showPicker = true },
+            label = { Text(stringResource(R.string.datetime_picker_label)) },
             colors = if (date != null) TextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
 //                disabledBorderColor = MaterialTheme.colorScheme.outline,
@@ -172,7 +175,7 @@ internal fun NullableDateTimeEditor(
                 disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) else TextFieldDefaults.colors(),
             trailingIcon = {
-                IconButton(onClick = { showPicker = true }) {
+                IconButton(onClick = { showPicker = true }, enabled = editable) {
                     Icon(Icons.Default.Edit, null)
                 }
             },

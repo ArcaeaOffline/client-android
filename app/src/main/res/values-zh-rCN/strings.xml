@@ -76,4 +76,5 @@
     <string name="datetime_picker_time_tab">时间</string>
     <string name="general_ok">OK</string>
     <string name="general_cancel">取消</string>
+    <string name="datetime_picker_label">日期</string>
 </resources>
