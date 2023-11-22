@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,24 +29,33 @@ fun CustomComboBox(
     selectedIndex: Int,
     onSelectChanged: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     label: @Composable () -> Unit = {},
     leadingIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = { Icon(Icons.Default.ArrowDropDown, null) }
 ) {
     val labels = options.map { it.first }
 
-    var expanded by remember { mutableStateOf(false) }
+    var userExpanded by remember { mutableStateOf(false) }
+    val expanded = enabled && userExpanded
     val trailingIconRotateDegree by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f, label = "trailingIconRotateDegree"
     )
 
+    LaunchedEffect(enabled, userExpanded) {
+        if (!enabled) userExpanded = false
+    }
+
     ExposedDropdownMenuBox(
-        expanded = expanded, onExpandedChange = { expanded = !expanded }, modifier = modifier
+        expanded = expanded,
+        onExpandedChange = { userExpanded = !userExpanded },
+        modifier = modifier,
     ) {
         TextField(
             readOnly = true,
             value = if (selectedIndex > -1) labels[selectedIndex] else TextFieldValue(),
             onValueChange = { },
+            enabled = enabled,
             singleLine = true,
             label = { label() },
             leadingIcon = { leadingIcon() },
@@ -55,12 +65,15 @@ fun CustomComboBox(
                 .fillMaxWidth()
                 .menuAnchor(),
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { userExpanded = false },
+        ) {
             options.indices.forEach { i ->
                 DropdownMenuItem(
                     onClick = {
                         onSelectChanged(i)
-                        expanded = false
+                        userExpanded = false
                     },
                     text = { Text(labels[i].annotatedString) },
                 )
