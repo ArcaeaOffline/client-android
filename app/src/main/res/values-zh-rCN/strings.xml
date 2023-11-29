@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
+    <string name="score_no_comment">// 无备注 //</string>
     <string name="crash_report_title_app_crashed">应用崩溃。</string>
     <string name="crash_report_title_error_occurred">发生错误。</string>
     <string name="crash_report_report_id">报告 ID</string>

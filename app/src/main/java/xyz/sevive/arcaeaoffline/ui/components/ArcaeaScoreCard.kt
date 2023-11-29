@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -26,7 +26,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,16 +37,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jakewharton.threetenabp.AndroidThreeTen
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.FormatStyle
+import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaDifficultyExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaGradeGradientExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 
 /**
  * https://stackoverflow.com/a/70508246/16484891
@@ -69,8 +75,6 @@ fun MeasureTextWidth(
         }
     }
 }
-
-val RatingClassTexts = arrayOf("Past", "Present", "Future", "Beyond")
 
 @Composable
 fun ratingClassColor(ratingClass: Int): Color {
@@ -109,11 +113,8 @@ fun scoreGradientBrush(score: Int): Brush {
 }
 
 @Composable
-fun scorePflText(
-    string: String,
-    number: Int?,
-    modifier: Modifier,
-    color: Color = Color.Unspecified
+fun ScorePflText(
+    string: String, number: Int?, modifier: Modifier, color: Color = Color.Unspecified
 ) {
     Row(modifier.padding(end = 8.dp)) {
         Text(
@@ -124,60 +125,49 @@ fun scorePflText(
             style = MaterialTheme.typography.labelLarge,
             color = color
         )
-        Text(number?.toString() ?: "?", modifier.alignByBaseline(), color = color)
+        Text(number?.toString() ?: "-", modifier.alignByBaseline(), color = color)
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
+
 @Composable
-fun ScoreCard(
+fun ArcaeaScoreCard(
     score: Score,
-    chart: Chart? = null,
-    song: Song? = null,
-    difficulty: Difficulty? = null,
     modifier: Modifier = Modifier,
-    dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    chart: Chart? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    var title = score.songId
-    if (chart != null) {
-        title = chart.title
-    } else if (difficulty != null && difficulty.title != null) {
-        title = difficulty.title
-    } else if (song != null) {
-        title = song.title
+    val title = chart?.title ?: score.songId
+
+    val rating = chart?.rating
+    val ratingPlus = chart?.ratingPlus
+
+    val ratingClassName = ArcaeaScoreRatingClass.fromInt(score.ratingClass).name
+    val ratingClassDisplayText = if (chart != null) {
+        if (ratingPlus != null && ratingPlus) {
+            "$ratingClassName $rating+"
+        } else {
+            "$ratingClassName $rating"
+        }
+    } else {
+        "$ratingClassName ?"
     }
 
-    var rating: Int? = null
-    var ratingPlus = false
-    if (chart != null) {
-        rating = chart.rating
-        ratingPlus = chart.ratingPlus
-    } else if (difficulty != null) {
-        rating = difficulty.rating
-        ratingPlus = difficulty.ratingPlus
-    }
+    val scoreText =
+        score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
-    var ratingClassText = "${RatingClassTexts[score.ratingClass]} $rating"
-    if (ratingPlus) ratingClassText += "+"
-
-    Surface(
-        modifier
-            .padding(8.dp)
-            .clickable { expanded = !expanded }) {
-        Column(modifier.animateContentSize()) {
+    Card(modifier.clickable { expanded = !expanded }) {
+        Column(modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
             Text(
                 title,
                 modifier.animateContentSize(),
-                style = MaterialTheme.typography.titleLarge,
                 maxLines = if (expanded) 2 else 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
-                ratingClassText,
-                style = MaterialTheme.typography.titleMedium,
-                color = ratingClassColor(score.ratingClass)
+                ratingClassDisplayText,
+                color = ratingClassColor(score.ratingClass),
             )
 
             Row {
@@ -187,7 +177,7 @@ fun ScoreCard(
                             Text(
                                 "EX+",
                                 modifier.padding(end = 10.dp),
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                             )
                         }, modifier.align(Alignment.CenterVertically)
@@ -208,21 +198,18 @@ fun ScoreCard(
                     }
 
                     Column(modifier = modifier.align(Alignment.CenterVertically)) {
-                        Text(score.score.toString(), style = MaterialTheme.typography.titleMedium)
+                        Text(scoreText, fontWeight = FontWeight.Bold)
                         Row {
-                            scorePflText(
+                            ScorePflText(
                                 "P", score.pure, modifier, ArcaeaPflExtendedColors.current.pure
                             )
-                            scorePflText(
-                                "F",
-                                score.far,
-                                modifier,
-                                ArcaeaPflExtendedColors.current.far
+                            ScorePflText(
+                                "F", score.far, modifier, ArcaeaPflExtendedColors.current.far
                             )
-                            scorePflText(
+                            ScorePflText(
                                 "L", score.lost, modifier, ArcaeaPflExtendedColors.current.lost
                             )
-                            scorePflText("MR", score.maxRecall, modifier)
+                            ScorePflText("MR", score.maxRecall, modifier)
                         }
                     }
                 }
@@ -230,19 +217,28 @@ fun ScoreCard(
                 TextButton(onClick = { expanded = !expanded }) {
                     Icon(
                         Icons.Default.KeyboardArrowDown,
-                        "",
-                        modifier.rotate(if (expanded) 180f else 0f)
+                        null,
+                        modifier.rotate(if (expanded) 180f else 0f),
                     )
-
                 }
             }
 
             if (score.date != null) {
-                Text(dateFormat.format(score.date))
+                Text(
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+                        LocalDateTime.ofInstant(
+                            Instant.ofEpochSecond(score.date.toLong()), ZoneId.systemDefault()
+                        )
+                    )
+                )
             }
 
             AnimatedVisibility(expanded) {
-                Text(score.comment ?: "No comment")
+                val commentTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                Text(
+                    score.comment ?: stringResource(R.string.score_no_comment),
+                    color = commentTextColor,
+                )
             }
         }
     }
@@ -250,7 +246,7 @@ fun ScoreCard(
 
 
 @Composable
-fun GetPreviewCharts(): Array<Chart> {
+private fun previewCharts(): Array<Chart> {
     val songIdx = 75
     val songId = "test"
     val title = "Wow Super Cool and Super Loooooooooooooooooooooooooooooong Title"
@@ -321,27 +317,29 @@ fun GetPreviewCharts(): Array<Chart> {
 }
 
 @Composable
-fun GetPreviewScores(): Array<Score> {
+private fun previewScores(): Array<Score> {
     return arrayOf(
         Score(0, "test", 0, 9900000, null, null, null, 283375, 75, 0, 1, "Test Only"),
         Score(0, "test", 1, 9800000, 543, 2, 1, 283375, 75, 0, 1, "Test Only"),
         Score(0, "test", 2, 9700000, 1023, 45, 23, 283375, 75, 0, 1, "Test Only"),
-        Score(0, "test", 3, 8950000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
+        Score(0, "test", 3, 895000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ScoreCardPreview(
+private fun ScoreCardPreview(
     modifier: Modifier = Modifier
 ) {
-    val charts = GetPreviewCharts()
-    val scores = GetPreviewScores()
+    val charts = previewCharts()
+    val scores = previewScores()
+
+    AndroidThreeTen.init(LocalContext.current)
 
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
-                ScoreCard(
+                ArcaeaScoreCard(
                     chart = charts[i], score = scores[i], modifier = modifier
                 )
             }
@@ -352,16 +350,18 @@ fun ScoreCardPreview(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun ScoreCardDarkPreview(
+private fun ScoreCardDarkPreview(
     modifier: Modifier = Modifier
 ) {
-    val charts = GetPreviewCharts()
-    val scores = GetPreviewScores()
+    val charts = previewCharts()
+    val scores = previewScores()
+
+    AndroidThreeTen.init(LocalContext.current)
 
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
-                ScoreCard(
+                ArcaeaScoreCard(
                     chart = charts[i], score = scores[i], modifier = modifier
                 )
             }

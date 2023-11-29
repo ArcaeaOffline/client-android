@@ -2,6 +2,7 @@
 <resources>
     <dimen name="general_page_padding">16dp</dimen>
     <dimen name="general_icon_text_padding">4dp</dimen>
+    <dimen name="general_card_padding">8dp</dimen>
     <dimen name="list_arrangement_padding">8dp</dimen>
 
     <dimen name="main_screen_list_arrangement_spaced_by">12dp</dimen>
