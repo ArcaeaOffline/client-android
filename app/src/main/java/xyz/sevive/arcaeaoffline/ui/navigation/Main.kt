@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -27,13 +28,13 @@ enum class MainScreens(
 }
 
 @Composable
-fun MainNavigationGraph(navController: NavHostController) {
+fun MainNavigationGraph(navController: NavHostController, windowSizeClass: WindowSizeClass) {
     NavHost(navController, startDestination = MainScreens.Overview.route) {
         composable(MainScreens.Overview.route) {
             OverviewScreen()
         }
 
-        databaseGraph(navController)
+        databaseGraph(navController, windowSizeClass)
 
         composable(MainScreens.Ocr.route) {
             OcrScreen()

@@ -36,6 +36,7 @@ CC BY-SA 3.0
 
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image PHash Database</string>
+    <string name="arcaea_chart">Chart</string>
     <string name="arcaea_score">Score</string>
     <string name="arcaea_pure" translatable="false">PURE</string>
     <string name="arcaea_far" translatable="false">FAR</string>
@@ -81,6 +82,10 @@ CC BY-SA 3.0
     <string name="database_manage_import_from_arcaea_apk_installed">Import from installed Arcaea</string>
     <string name="database_manage_import_from_arcaea_apk_installed_unavailable">Arcaea not installed</string>
     <string name="database_manage_import_from_arcaea_apk_please_wait">Reading .apk file, please hold on</string>
+
+    <string name="database_add_score_title">Add Score</string>
+
+    <string name="database_score_list_title">Score List</string>
 
     <plurals name="database_packlist_imported">
         <item quantity="many">%d packs imported</item>

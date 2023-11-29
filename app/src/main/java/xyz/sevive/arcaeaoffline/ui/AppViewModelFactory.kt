@@ -8,8 +8,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
+import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.database.DatabaseScoreListViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -25,6 +27,18 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseManageViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            DatabaseAddScoreViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            DatabaseScoreListViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

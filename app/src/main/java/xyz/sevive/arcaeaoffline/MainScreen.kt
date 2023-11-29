@@ -101,14 +101,14 @@ fun ArcaeaOfflineMainScreen(windowSizeClass: WindowSizeClass, modifier: Modifier
     if (windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Expanded) {
         Row(Modifier.fillMaxHeight()) {
             ArcaeaOfflineNavigationRail(navController, Modifier.fillMaxHeight())
-            MainNavigationGraph(navController)
+            MainNavigationGraph(navController, windowSizeClass)
         }
     } else {
         Scaffold(
             bottomBar = { ArcaeaOfflineNavigationBar(navController) },
         ) { padding ->
             Surface(modifier.padding(padding)) {
-                MainNavigationGraph(navController = navController)
+                MainNavigationGraph(navController, windowSizeClass)
             }
         }
     }
