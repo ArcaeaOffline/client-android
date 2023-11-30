@@ -153,7 +153,7 @@ fun CrashReportContent(
                         Text(
                             stringResource(R.string.crash_report_send_report_prompt),
                             style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
@@ -163,7 +163,7 @@ fun CrashReportContent(
                             Text(
                                 stringResource(R.string.crash_report_report_id),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(crashReportData.getString(ReportField.REPORT_ID) ?: "UNKNOWN")
                         }
@@ -174,7 +174,7 @@ fun CrashReportContent(
                             Text(
                                 stringResource(R.string.crash_report_crash_date),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.secondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
                                 crashReportData.getString(ReportField.USER_CRASH_DATE) ?: "UNKNOWN"

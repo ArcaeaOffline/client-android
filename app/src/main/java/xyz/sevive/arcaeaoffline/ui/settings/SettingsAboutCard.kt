@@ -44,7 +44,7 @@ internal fun SettingsAboutDescLabel(
         Text(
             label,
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.secondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         content()
     }

@@ -229,7 +229,8 @@ fun ArcaeaScoreCard(
                         LocalDateTime.ofInstant(
                             Instant.ofEpochSecond(score.date.toLong()), ZoneId.systemDefault()
                         )
-                    )
+                    ),
+                    style = MaterialTheme.typography.labelMedium,
                 )
             }
 
@@ -237,6 +238,7 @@ fun ArcaeaScoreCard(
                 val commentTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                 Text(
                     score.comment ?: stringResource(R.string.score_no_comment),
+                    style = MaterialTheme.typography.labelMedium,
                     color = commentTextColor,
                 )
             }

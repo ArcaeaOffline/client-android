@@ -24,7 +24,7 @@ fun OcrDependencyPhashDatabaseStatus(
                     "J${db.jacketHashes.size} PI${db.partnerIconHashes.size}",
                     modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else if (error != null) {
                 Text(

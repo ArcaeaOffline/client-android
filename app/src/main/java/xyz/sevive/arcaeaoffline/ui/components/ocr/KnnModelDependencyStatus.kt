@@ -26,7 +26,7 @@ fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modif
                 Text(
                     "varCount ${model.varCount}", modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else if (error != null) {
                 Text(
