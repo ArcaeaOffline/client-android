@@ -103,6 +103,10 @@ CC BY-SA 3.0
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
 
+    <string name="score_editor_set_null">NULL</string>
+    <string name="score_editor_comment_field">Comment</string>
+    <string name="score_editor_commit_button">Commit</string>
+
     <string name="datetime_picker_label">Date</string>
     <string name="datetime_picker_date_tab">Date</string>
     <string name="datetime_picker_time_tab">Time</string>

@@ -77,8 +77,11 @@
     <string name="datetime_picker_time_tab">时间</string>
     <string name="general_ok">OK</string>
     <string name="general_cancel">取消</string>
+    <string name="score_editor_set_null">置空</string>
+    <string name="score_editor_comment_field">备注</string>
     <string name="datetime_picker_label">日期</string>
     <string name="arcaea_chart">谱面</string>
     <string name="database_add_score_title">添加分数</string>
     <string name="database_score_list_title">分数列表</string>
+    <string name="score_editor_commit_button">提交</string>
 </resources>

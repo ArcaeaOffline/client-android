@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
 import org.threeten.bp.ZoneOffset
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
@@ -150,6 +152,50 @@ class ScoreEditorViewModel : ViewModel() {
 
     fun setCommentIsNull(value: Boolean) {
         _commentIsNull.value = value
+    }
+
+    private fun <T> setNullableFlowFromValue(
+        originalFlow: MutableStateFlow<T>, isNullFlow: MutableStateFlow<Boolean>, value: T?
+    ) {
+        if (value != null) {
+            originalFlow.value = value
+            isNullFlow.value = false
+        } else {
+            isNullFlow.value = true
+        }
+    }
+
+    fun setArcaeaScore(score: Score) {
+        _songId.value = score.songId
+        _ratingClass.value = ArcaeaScoreRatingClass.fromInt(score.ratingClass)
+        _score.value = score.score
+        setNullableFlowFromValue(_pure, _pureIsNull, score.pure)
+        setNullableFlowFromValue(_far, _farIsNull, score.far)
+        setNullableFlowFromValue(_lost, _lostIsNull, score.lost)
+
+        setNullableFlowFromValue(
+            _date, _dateIsNull,
+            if (score.date != null) {
+                Instant.ofEpochSecond(
+                    score.date.toLong()
+                ).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            } else null,
+        )
+
+        setNullableFlowFromValue(_maxRecall, _maxRecallIsNull, score.maxRecall)
+        setNullableFlowFromValue(
+            _clearType, _clearTypeIsNull,
+            if (score.clearType != null) {
+                ArcaeaScoreClearType.fromInt(score.clearType)
+            } else null,
+        )
+        setNullableFlowFromValue(
+            _modifier, _modifierIsNull,
+            if (score.modifier != null) {
+                ArcaeaScoreModifier.fromInt(score.modifier)
+            } else null,
+        )
+        setNullableFlowFromValue(_comment, _commentIsNull, score.comment)
     }
 
     fun toArcaeaScore(): Score {
