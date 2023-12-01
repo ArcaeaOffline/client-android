@@ -143,20 +143,13 @@ fun DatabaseEntryScreenNavEntry(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.main_screen_list_arrangement_spaced_by)),
     ) {
         item {
-            Text(
-                stringResource(R.string.nav_database),
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-
-        item {
             DatabaseStatusComponent(Modifier.fillMaxWidth())
         }
 
         item {
             ActionCard(
                 onClick = { onNavigateToSubRoute(DatabaseScreens.Manage.route) },
-                title = stringResource(R.string.database_manage_title),
+                title = stringResource(DatabaseScreens.Manage.title),
                 headSlot = {
                     Icon(Icons.Default.Build, null)
                 },
@@ -169,7 +162,7 @@ fun DatabaseEntryScreenNavEntry(
         item {
             ActionCard(
                 onClick = { onNavigateToSubRoute(DatabaseScreens.AddScore.route) },
-                title = stringResource(R.string.develop_placeholder),
+                title = stringResource(DatabaseScreens.AddScore.title),
                 headSlot = {
                     Icon(Icons.Default.Add, null)
                 },
@@ -182,7 +175,7 @@ fun DatabaseEntryScreenNavEntry(
         item {
             ActionCard(
                 onClick = { onNavigateToSubRoute(DatabaseScreens.ScoreList.route) },
-                title = stringResource(R.string.develop_placeholder),
+                title = stringResource(DatabaseScreens.ScoreList.title),
                 headSlot = {
                     Icon(Icons.Default.List, null)
                 },
@@ -194,13 +187,31 @@ fun DatabaseEntryScreenNavEntry(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseEntryScreenExpanded(navController: NavHostController) {
-    Row {
-        DatabaseEntryScreenNavEntry({ navController.navigate(it) }, Modifier.weight(1f))
+    Surface(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxSize()) {
+            Scaffold(
+                Modifier.weight(1f),
+                topBar = {
+                    TopAppBar(title = {
+                        Text(
+                            stringResource(R.string.nav_database),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    })
+                },
+            ) { padding ->
+                DatabaseEntryScreenNavEntry(
+                    { navController.navigate(it) },
+                    Modifier.padding(padding),
+                )
+            }
 
-        Surface(Modifier.weight(2f)) {
-            DatabaseNavigationGraph(navController)
+            Surface(Modifier.weight(2f)) {
+                DatabaseNavigationGraph(navController)
+            }
         }
     }
 }
@@ -212,14 +223,16 @@ fun DatabaseEntryScreenDefault(
     modifier: Modifier = Modifier,
 ) {
     Surface(modifier.fillMaxSize()) {
-        Scaffold(topBar = {
-            TopAppBar(title = {
-                Text(
-                    stringResource(R.string.nav_database),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            })
-        }) { padding ->
+        Scaffold(
+            topBar = {
+                TopAppBar(title = {
+                    Text(
+                        stringResource(R.string.nav_database),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                })
+            },
+        ) { padding ->
             DatabaseEntryScreenNavEntry(onNavigateToSubRoute, Modifier.padding(padding))
         }
     }

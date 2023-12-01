@@ -22,9 +22,9 @@ const val DatabaseNavRouteRoot = "database"
 
 enum class DatabaseScreens(val route: String, @StringRes val title: Int) {
     Entry("$DatabaseNavRouteRoot/entry", R.string.develop_placeholder),
-    Manage("$DatabaseNavRouteRoot/manage", R.string.develop_placeholder),
-    AddScore("$DatabaseNavRouteRoot/add_score", R.string.develop_placeholder),
-    ScoreList("$DatabaseNavRouteRoot/score_list", R.string.develop_placeholder),
+    Manage("$DatabaseNavRouteRoot/manage", R.string.database_manage_title),
+    AddScore("$DatabaseNavRouteRoot/add_score", R.string.database_add_score_title),
+    ScoreList("$DatabaseNavRouteRoot/score_list", R.string.database_score_list_title),
 }
 
 
