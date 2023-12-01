@@ -12,6 +12,8 @@ CC BY-SA 3.0
 
     <string name="general_ok">OK</string>
     <string name="general_cancel">Cancel</string>
+    <string name="general_save">Save</string>
+    <string name="general_edit">Edit</string>
 
     <string name="score_no_date">// No date //</string>
     <string name="score_no_clear_type">// No clear type //</string>
@@ -44,6 +46,12 @@ CC BY-SA 3.0
     <string name="arcaea_pure" translatable="false">PURE</string>
     <string name="arcaea_far" translatable="false">FAR</string>
     <string name="arcaea_lost" translatable="false">LOST</string>
+
+    <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
+    <string name="ocr_from_share_cache_score_button">Cache</string>
+    <string name="ocr_from_share_score_saved">Score saved</string>
+    <string name="ocr_from_share_return_to_share_source">Return to previous app</string>
+    <string name="ocr_from_share_stay_in_app">Stay in %s</string>
 
     <string name="nav_overview">Overview</string>
     <string name="nav_database">Database</string>

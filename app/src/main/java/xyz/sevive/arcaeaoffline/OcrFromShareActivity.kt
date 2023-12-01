@@ -1,168 +1,209 @@
 package xyz.sevive.arcaeaoffline
 
 import android.content.Intent
+import android.content.pm.PackageManager.NameNotFoundException
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.IntentCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.apache.commons.io.IOUtils
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.ocr.DeviceOcr
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneOffset
+import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ocr.rois.definition.DeviceAutoRoisT2
-import xyz.sevive.arcaeaoffline.core.ocr.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.ui.components.ScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
-import xyz.sevive.arcaeaoffline.ui.models.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun OcrFromShareContent(
-    modifier: Modifier = Modifier,
-    ocrDependencyViewModel: OcrDependencyViewModel = viewModel(),
-    ocrFromShareViewModel: OcrFromShareViewModel = viewModel(),
-) {
-    val uiState = ocrFromShareViewModel.uiState.collectAsState()
-    val score = uiState.value.score
-    val scoreError = uiState.value.error
-
-    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsState()
-    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
-
-    ArcaeaOfflineTheme {
-        Scaffold(topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(R.string.title_activity_ocr_from_share)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                )
-            )
-        }) { innerPadding ->
-            Column(
-                modifier = Modifier.padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Card(modifier) {
-                    OcrDependencyKnnModelStatus(state = knnModelState.value)
-                    OcrDependencyPhashDatabaseStatus(state = phashDatabaseState.value)
-                }
-
-                if (score != null) {
-                    ScoreCard(score = score)
-                } else if (scoreError != null) {
-                    Text(
-                        scoreError.message ?: scoreError.toString(),
-                        modifier.padding(8.dp),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                } else {
-                    Text("Waiting for result...", modifier.padding(8.dp))
-                }
-            }
-        }
-    }
-}
 
 class OcrFromShareActivity : ComponentActivity() {
     private lateinit var ocrDependencyViewModel: OcrDependencyViewModel
     private lateinit var ocrFromShareViewModel: OcrFromShareViewModel
+
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         ocrDependencyViewModel = ViewModelProvider(this)[OcrDependencyViewModel::class.java]
-        ocrFromShareViewModel = ViewModelProvider(this)[OcrFromShareViewModel::class.java]
+        ocrFromShareViewModel = ViewModelProvider(
+            this,
+            factory = AppViewModelProvider.Factory,
+        )[OcrFromShareViewModel::class.java]
 
         setTitle(R.string.title_activity_ocr_from_share)
+
         setContent {
-            OcrFromShareContent(
-                ocrDependencyViewModel = ocrDependencyViewModel,
-                ocrFromShareViewModel = ocrFromShareViewModel
-            )
-        }
+            val windowSizeClass = calculateWindowSizeClass(this)
 
-        // https://www.cnblogs.com/daner1257/p/5581443.html
-        val action = intent.action
-        val type = intent.type
-        if (action.equals(Intent.ACTION_SEND) && type != null && type.startsWith("image/")) {
-            val uri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-            //接收多张图片: ArrayList<Uri> uris=intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (uri != null) {
-                try {
-                    val inputStream =
-                        contentResolver.openInputStream(uri) // get an input stream from the Uri
-
-                    val bytes: ByteArray =
-                        IOUtils.toByteArray(inputStream) // convert the input stream to a byte array
-
-                    val image = Imgcodecs.imdecode(
-                        MatOfByte(*bytes), Imgcodecs.IMREAD_UNCHANGED
-                    ) // decode the byte array to a Mat object using OpenCV
-
-                    val rois = DeviceAutoRoisT2(
-                        image.size().width.toInt(), image.size().height.toInt()
-                    )
-
-                    val e = DeviceRoisExtractor(rois, image)
-                    val m = DeviceAutoRoisMaskerT2()
-
-                    val ocrDependencyPaths = OcrDependencyPaths(this.applicationContext)
-                    ocrDependencyViewModel.loadKnnModel(ocrDependencyPaths.knnModelFile)
-                    ocrDependencyViewModel.loadPhashDatabase(ocrDependencyPaths.phashDatabaseFile)
-
-                    val knnModel = ocrDependencyViewModel.knnModelState.value.model
-                    val phashDb = ocrDependencyViewModel.phashDatabaseState.value.db
-                    if (knnModel == null || phashDb == null) {
-                        throw Exception("OCR dependency missing, cannot continue")
-                    }
-
-                    val ocr = DeviceOcr(e, m, knnModel, phashDb)
-                    val ocrResult = ocr.ocr()
-
-                    val ocrScore = Score(
-                        0,
-                        ocrResult.songId ?: "",
-                        ocrResult.ratingClass,
-                        ocrResult.score,
-                        ocrResult.pure,
-                        ocrResult.far,
-                        ocrResult.lost,
-                        null,
-                        ocrResult.maxRecall,
-                        0,
-                        1,
-                        "OCR WIP"
-                    )
-
-                    ocrFromShareViewModel.setResult(ocrScore)
-                } catch (e: Exception) {
-                    ocrFromShareViewModel.setResult(null, e)
-                }
+            ArcaeaOfflineTheme {
+                OcrFromShareScreen(
+                    windowSizeClass,
+                    getShareAppName(),
+                    getShareAppIcon(),
+                    onReturnToShareApp = { finishAffinity() },
+                    onStayInApp = {
+                        val intent = Intent(this@OcrFromShareActivity, MainActivity::class.java)
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(intent)
+                        finishAffinity()
+                    },
+                    ocrDependencyViewModel = ocrDependencyViewModel,
+                    ocrFromShareViewModel = ocrFromShareViewModel
+                )
             }
         }
+
+        when (intent?.action) {
+            Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSingleImageOcr()
+                }
+            }
+
+            // TODO: jump to ocr page
+//            Intent.ACTION_SEND_MULTIPLE -> {
+//                if (intent.type?.startsWith("image/") == true) {
+//
+//                }
+//            }
+
+            else -> {}
+        }
+    }
+
+    private fun getShareAppPackageName(): String? {
+        val fromIntent = intent.`package`
+
+        if (fromIntent != null) {
+            return fromIntent
+        }
+
+        // intent.package no value, try from referrer
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && referrer != null) {
+            return referrer.toString().replace("android-app://", "")
+        }
+
+        return null
+    }
+
+    private fun getShareAppName(): String? {
+        var shareAppName: String? = null
+
+        val packageName = getShareAppPackageName()
+
+        if (packageName != null) {
+            shareAppName = try {
+                val info = packageManager.getApplicationInfo(packageName, 0)
+                packageManager.getApplicationLabel(info).toString()
+            } catch (e: NameNotFoundException) {
+                packageName
+            }
+        }
+
+        return shareAppName
+    }
+
+    private fun getShareAppIcon(): ImageBitmap? {
+        val packageName = getShareAppPackageName() ?: return null
+
+        return try {
+            packageManager.getApplicationIcon(packageName).toBitmap().asImageBitmap()
+        } catch (e: NameNotFoundException) {
+            null
+        }
+    }
+
+
+    private fun handleSingleImageOcr() {
+        // fix 'getParcelableExtra(String!): T?' is deprecated. Deprecated in Java
+        // https://stackoverflow.com/a/75824124/16484891
+        // CC BY-SA 4.0
+        val uri = IntentCompat.getParcelableExtra(
+            intent, Intent.EXTRA_STREAM, Uri::class.java
+        ) ?: return
+
+        // get an input stream from the Uri
+        val inputStream = contentResolver.openInputStream(uri)
+
+        if (inputStream == null) {
+            ocrFromShareViewModel.setException(Exception("Error reading image"))
+            return
+        }
+
+        val inputStreamRead = IOUtils.toByteArray(inputStream)
+
+        val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
+        ocrFromShareViewModel.setImageBitmap(imgBitmap)
+
+        // decode the byte array to a Mat object using OpenCV
+        val imgMat = Imgcodecs.imdecode(MatOfByte(*inputStreamRead), Imgcodecs.IMREAD_UNCHANGED)
+
+        val ocrDependencyPaths = OcrDependencyPaths(this.applicationContext)
+        ocrDependencyViewModel.loadKnnModel(ocrDependencyPaths.knnModelFile)
+        ocrDependencyViewModel.loadPhashDatabase(ocrDependencyPaths.phashDatabaseFile)
+
+        val knnModel = ocrDependencyViewModel.knnModelState.value.model
+        val phashDb = ocrDependencyViewModel.phashDatabaseState.value.db
+        if (knnModel == null || phashDb == null) {
+            ocrFromShareViewModel.setException(
+                IllegalArgumentException("OCR dependency missing, cannot continue")
+            )
+            return
+        }
+
+        val imageFileName = try {
+            val returnCursor = contentResolver.query(uri, null, null, null, null)!!
+            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            returnCursor.moveToFirst()
+            val fileName = returnCursor.getString(nameIndex)
+            returnCursor.close()
+
+            fileName
+        } catch (e: Exception) {
+            Log.w("OCR", "Cannot extract file name from Uri: $uri", e)
+
+            null
+        }
+
+        val imgExif = ExifInterface(inputStreamRead.inputStream())
+        val imgExifDateTimeOriginal = imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+
+        val imgDate = if (imgExifDateTimeOriginal != null) {
+            LocalDateTime.parse(
+                imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
+            ).toInstant(ZoneOffset.UTC).epochSecond
+        } else {
+            null
+        }
+
+        val rois = DeviceAutoRoisT2(imgMat.size().width.toInt(), imgMat.size().height.toInt())
+        val masker = DeviceAutoRoisMaskerT2()
+        ocrFromShareViewModel.startOcr(
+            imgMat,
+            assets,
+            rois,
+            masker,
+            knnModel,
+            phashDb,
+            date = imgDate,
+            comment = if (imageFileName != null) "OCR $imageFileName" else null,
+        )
     }
 }

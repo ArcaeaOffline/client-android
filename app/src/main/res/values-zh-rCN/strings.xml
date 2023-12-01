@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
+    <string name="general_save">保存</string>
+    <string name="general_edit">编辑</string>
     <string name="score_no_date">// 无日期 //</string>
     <string name="score_no_clear_type">// 无 Clear Type //</string>
     <string name="score_no_modifier">// 无 Modifier //</string>
@@ -25,6 +27,10 @@
     <string name="settings_ocr_import_phash_database">导入 pHash 数据库</string>
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
     <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
+    <string name="ocr_from_share_cache_score_button">暂存</string>
+    <string name="ocr_from_share_score_saved">成绩已保存</string>
+    <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
+    <string name="ocr_from_share_stay_in_app">留在 %s</string>
     <string name="nav_overview">概览</string>
     <string name="nav_database">数据库</string>
     <string name="nav_ocr">OCR</string>
@@ -87,4 +93,5 @@
     <string name="database_add_score_title">添加分数</string>
     <string name="database_score_list_title">分数列表</string>
     <string name="score_editor_commit_button">提交</string>
+    <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
 </resources>
