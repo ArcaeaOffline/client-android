@@ -15,7 +15,7 @@ enum class ArcaeaScoreClearType(val value: Int) {
                 clearTypeInt in ArcaeaScoreClearTypeRange
             ) { "clearTypeInt should be within the range of [0, 5]" }
 
-            return values().find { it.value == clearTypeInt } ?: throw IllegalArgumentException()
+            return entries.find { it.value == clearTypeInt } ?: throw IllegalArgumentException()
         }
     }
 }

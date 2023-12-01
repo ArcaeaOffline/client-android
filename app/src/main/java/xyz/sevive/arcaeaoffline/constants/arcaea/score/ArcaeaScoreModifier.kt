@@ -15,7 +15,7 @@ enum class ArcaeaScoreModifier(val value: Int) {
                 modifierInt in ArcaeaScoreModifierRange
             ) { "modifierInt should be within the range of [0, 2]" }
 
-            return values().find { it.value == modifierInt } ?: throw IllegalArgumentException()
+            return entries.find { it.value == modifierInt } ?: throw IllegalArgumentException()
         }
     }
 }
