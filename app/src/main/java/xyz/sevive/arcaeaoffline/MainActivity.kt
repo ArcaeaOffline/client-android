@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val unstableAlertReadFlow = this.baseContext.unstableDataStore.data.map { preferences ->
-            preferences[UNSTABLE_ALERT_READ]
+            preferences[UNSTABLE_ALERT_READ] ?: false
         }
 
         setContent {
