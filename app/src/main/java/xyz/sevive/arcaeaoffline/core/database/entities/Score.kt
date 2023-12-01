@@ -14,7 +14,7 @@ data class Score(
     val pure: Int?,
     val far: Int?,
     val lost: Int?,
-    val date: Int?,
+    val date: Long?,
     @ColumnInfo(name = "max_recall") val maxRecall: Int?,
     val modifier: Int?,
     @ColumnInfo(name = "clear_type") val clearType: Int?,

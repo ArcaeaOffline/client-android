@@ -38,7 +38,7 @@ data class OcrHistory(
             pure = pure,
             far = far,
             lost = lost,
-            date = date?.toInt(),
+            date = date,
             maxRecall = maxRecall,
             modifier = modifier,
             clearType = clearType,
@@ -66,7 +66,7 @@ data class OcrHistory(
                 pure = score.pure,
                 far = score.far,
                 lost = score.lost,
-                date = score.date?.toLong(),
+                date = score.date,
                 maxRecall = score.maxRecall,
                 modifier = score.modifier,
                 clearType = score.clearType

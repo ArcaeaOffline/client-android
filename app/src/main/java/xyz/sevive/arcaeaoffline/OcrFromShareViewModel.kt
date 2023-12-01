@@ -133,7 +133,7 @@ class OcrFromShareViewModel(
                 ocrResult.pure,
                 ocrResult.far,
                 ocrResult.lost,
-                date?.toInt(),
+                date,
                 ocrResult.maxRecall,
                 scoreModifier?.value,
                 clearType?.value,

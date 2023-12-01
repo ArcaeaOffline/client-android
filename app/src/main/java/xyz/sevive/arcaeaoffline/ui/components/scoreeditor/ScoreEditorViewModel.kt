@@ -215,7 +215,7 @@ class ScoreEditorViewModel : ViewModel() {
             pure = pure.value,
             far = far.value,
             lost = lost.value,
-            date = date.value?.toEpochSecond(ZoneOffset.UTC)?.toInt(),
+            date = date.value?.toEpochSecond(ZoneOffset.UTC),
             maxRecall = maxRecall.value,
             clearType = clearType.value?.value,
             modifier = modifier.value?.value,
