@@ -44,6 +44,8 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
@@ -223,24 +225,37 @@ fun ArcaeaScoreCard(
                 }
             }
 
-            if (score.date != null) {
-                Text(
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+            Text(
+                if (score.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                    .format(
                         LocalDateTime.ofInstant(
                             Instant.ofEpochSecond(score.date.toLong()), ZoneId.systemDefault()
                         )
-                    ),
-                    style = MaterialTheme.typography.labelMedium,
-                )
-            }
+                    ) else stringResource(R.string.score_no_date),
+                style = MaterialTheme.typography.labelMedium,
+            )
 
             AnimatedVisibility(expanded) {
-                val commentTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                Text(
-                    score.comment ?: stringResource(R.string.score_no_comment),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = commentTextColor,
-                )
+                Column {
+                    val clearTypeText = if (score.clearType != null) {
+                        ArcaeaScoreClearType.fromInt(score.clearType).toDisplayString()
+                    } else stringResource(R.string.score_no_clear_type)
+
+                    val modifierText = if (score.modifier != null) {
+                        ArcaeaScoreModifier.fromInt(score.modifier).toDisplayString()
+                    } else stringResource(R.string.score_no_modifier)
+
+                    Text(
+                        "$clearTypeText | $modifierText",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+
+                    Text(
+                        score.comment ?: stringResource(R.string.score_no_comment),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }

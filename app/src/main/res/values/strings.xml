@@ -13,6 +13,9 @@ CC BY-SA 3.0
     <string name="general_ok">OK</string>
     <string name="general_cancel">Cancel</string>
 
+    <string name="score_no_date">// No date //</string>
+    <string name="score_no_clear_type">// No clear type //</string>
+    <string name="score_no_modifier">// No modifier //</string>
     <string name="score_no_comment">// No comment //</string>
 
     <string name="crash_report_title_app_crashed">App Crashed.</string>
