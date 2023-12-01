@@ -164,7 +164,7 @@ internal fun ClearTypeField(
     ) {
         CustomComboBox(
             options = ArcaeaScoreClearType.entries.map {
-                Pair(TextFieldValue(it.name.replace("_", " ")), it.value)
+                Pair(TextFieldValue(it.toDisplayString()), it.value)
             },
             selectedIndex = clearType?.value ?: -1,
             onSelectChanged = { viewModel.setClearType(it) },
@@ -190,7 +190,7 @@ internal fun ModifierField(
     ) {
         CustomComboBox(
             options = ArcaeaScoreModifier.entries.map {
-                Pair(TextFieldValue(it.name.replace("_", " ")), it.value)
+                Pair(TextFieldValue(it.toDisplayString()), it.value)
             },
             selectedIndex = scoreModifier?.value ?: -1,
             onSelectChanged = { viewModel.setModifier(it) },
