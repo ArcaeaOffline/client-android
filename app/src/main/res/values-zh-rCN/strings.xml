@@ -94,4 +94,5 @@
     <string name="database_score_list_title">分数列表</string>
     <string name="score_editor_commit_button">提交</string>
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
+    <string name="icon_desc_navigate_back">返回</string>
 </resources>

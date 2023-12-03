@@ -7,23 +7,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -40,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
+import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import java.util.zip.ZipInputStream
@@ -147,34 +141,20 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseManageScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    Surface(modifier.fillMaxSize()) {
-        Scaffold(topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.database_manage_title)) },
-                navigationIcon = {
-                    IconButton({ onNavigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, null)
-                    }
-                },
-            )
-        }) { padding ->
-            LazyColumn(
-                modifier
-                    .padding(padding)
-                    .padding(dimensionResource(R.dimen.general_page_padding)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
-            ) {
-                item {
-                    DatabaseManageImport(viewModel)
-                }
+    SubScreenContainer(onNavigateUp = onNavigateUp,
+        title = { Text(stringResource(R.string.database_manage_title)) }) {
+        LazyColumn(
+            modifier.padding(dimensionResource(R.dimen.general_page_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
+        ) {
+            item {
+                DatabaseManageImport(viewModel)
             }
         }
     }

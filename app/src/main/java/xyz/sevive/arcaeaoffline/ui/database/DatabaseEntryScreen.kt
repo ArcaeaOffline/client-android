@@ -31,9 +31,13 @@ fun DatabaseEntryScreen() {
     val state = calculateListDetailPaneScaffoldState(currentPaneDestination = detailPaneRole)
     var selectedScreenRoute: String? by rememberSaveable { mutableStateOf(null) }
 
-    BackHandler(detailPaneRole == ListDetailPaneScaffoldRole.Detail) {
+    val handleNavigateUp = {
         selectedScreenRoute = null
         detailPaneRole = ListDetailPaneScaffoldRole.List
+    }
+
+    BackHandler(detailPaneRole == ListDetailPaneScaffoldRole.Detail) {
+        handleNavigateUp()
     }
 
     ListDetailPaneScaffold(
@@ -52,18 +56,15 @@ fun DatabaseEntryScreen() {
                 DatabaseScreens.Empty.route -> {}
 
                 DatabaseScreens.Manage.route -> {
-                    DatabaseManageScreen(onNavigateUp = {
-                        selectedScreenRoute = null
-                        detailPaneRole = ListDetailPaneScaffoldRole.List
-                    })
+                    DatabaseManageScreen(onNavigateUp = handleNavigateUp)
                 }
 
                 DatabaseScreens.AddScore.route -> {
-                    DatabaseAddScoreScreen()
+                    DatabaseAddScoreScreen(onNavigateUp = handleNavigateUp)
                 }
 
                 DatabaseScreens.ScoreList.route -> {
-                    DatabaseScoreListScreen()
+                    DatabaseScoreListScreen(onNavigateUp = handleNavigateUp)
                 }
 
                 else -> {

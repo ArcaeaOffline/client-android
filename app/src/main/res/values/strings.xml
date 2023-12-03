@@ -8,6 +8,9 @@ CC BY-SA 3.0
 <resources>
     <string name="app_name">Arcaea Offline</string>
 
+    <!-- General icon descriptions -->
+    <string name="icon_desc_navigate_back">Go back</string>
+
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
 
     <string name="general_ok">OK</string>
