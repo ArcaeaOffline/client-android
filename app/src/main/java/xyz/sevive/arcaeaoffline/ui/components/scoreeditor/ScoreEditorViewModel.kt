@@ -165,9 +165,15 @@ class ScoreEditorViewModel : ViewModel() {
         }
     }
 
+    // this should only be used by `setArcaeaScore` and `toArcaeaScore`...
+    // ...by now, maybe we should expose `setScoreId` later
+    private val _scoreId = MutableStateFlow<Int?>(null)
+
     fun setArcaeaScore(score: Score) {
         _songId.value = score.songId
         _ratingClass.value = ArcaeaScoreRatingClass.fromInt(score.ratingClass)
+        _scoreId.value = score.id
+
         _score.value = score.score
         setNullableFlowFromValue(_pure, _pureIsNull, score.pure)
         setNullableFlowFromValue(_far, _farIsNull, score.far)
@@ -208,7 +214,7 @@ class ScoreEditorViewModel : ViewModel() {
         }
 
         return Score(
-            id = 0,
+            id = _scoreId.value ?: 0,
             songId = songId.value!!,
             ratingClass = ratingClass.value!!.value,
             score = score.value,
