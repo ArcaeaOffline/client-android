@@ -36,7 +36,7 @@ fun ArcaeaOfflineNavigationBar(navController: NavController) {
     val currentRouteRoot = currentRoute?.split("/")
 
     NavigationBar {
-        MainScreens.values().forEach { item ->
+        MainScreens.entries.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon(), null) },
                 label = { Text(stringResource(item.title)) },
@@ -67,7 +67,7 @@ fun ArcaeaOfflineNavigationRail(navController: NavController, modifier: Modifier
     NavigationRail(modifier) {
         Spacer(Modifier.weight(1f))
 
-        MainScreens.values().forEach { item ->
+        MainScreens.entries.forEach { item ->
             NavigationRailItem(
                 icon = { Icon(item.icon(), null) },
                 modifier = Modifier.padding(

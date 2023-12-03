@@ -40,7 +40,7 @@ CC BY-SA 3.0
     <string name="crash_report_toast_report_ignored">Crash report ignored</string>
 
     <string name="ocr_dependency_knn_model">KNearest model</string>
-    <string name="ocr_dependency_phash_database">Image PHash Database</string>
+    <string name="ocr_dependency_phash_database">Image pHash Database</string>
     <string name="arcaea_chart">Chart</string>
     <string name="arcaea_score">Score</string>
     <string name="arcaea_pure" translatable="false">PURE</string>

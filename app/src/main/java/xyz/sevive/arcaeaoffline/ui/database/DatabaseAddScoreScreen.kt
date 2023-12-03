@@ -75,10 +75,9 @@ fun DatabaseAddScoreScreenChartSelector(
 fun DatabaseAddScoreScreen(
     modifier: Modifier = Modifier,
     databaseAddScoreViewModel: DatabaseAddScoreViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    scoreEditorViewModel: ScoreEditorViewModel = viewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-    val scoreEditorViewModel = ScoreEditorViewModel()
 
     var currentTab by remember { mutableIntStateOf(0) }
 

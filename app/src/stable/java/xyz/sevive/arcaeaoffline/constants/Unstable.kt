@@ -1,3 +1,3 @@
-package xyz.sevive.arcaeaoffline.ui.constants
+package xyz.sevive.arcaeaoffline.constants
 
 const val IS_UNSTABLE_VERSION = false
