@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.components
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -116,18 +117,18 @@ fun scoreGradientBrush(score: Int): Brush {
 
 @Composable
 fun ScorePflText(
-    string: String, number: Int?, modifier: Modifier, color: Color = Color.Unspecified
+    string: String, number: Int?, modifier: Modifier = Modifier, color: Color = Color.Unspecified
 ) {
     Row(modifier.padding(end = 8.dp)) {
         Text(
             string,
-            modifier
+            Modifier
                 .alignByBaseline()
                 .padding(end = 1.dp),
             style = MaterialTheme.typography.labelLarge,
             color = color
         )
-        Text(number?.toString() ?: "-", modifier.alignByBaseline(), color = color)
+        Text(number?.toString() ?: "-", Modifier.alignByBaseline(), color = color)
     }
 }
 
@@ -139,6 +140,9 @@ fun ArcaeaScoreCard(
     chart: Chart? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    val expandArrowRotateDegree by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f, label = "expandArrow"
+    )
 
     val title = chart?.title ?: score.songId
 
@@ -159,11 +163,14 @@ fun ArcaeaScoreCard(
     val scoreText =
         score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
-    Card(modifier.clickable { expanded = !expanded }) {
-        Column(modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
+    Card(modifier) {
+        Column(
+            Modifier
+                .clickable { expanded = !expanded }
+                .padding(dimensionResource(R.dimen.general_card_padding))) {
             Text(
                 title,
-                modifier.animateContentSize(),
+                Modifier.animateContentSize(),
                 maxLines = if (expanded) 2 else 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -173,20 +180,20 @@ fun ArcaeaScoreCard(
             )
 
             Row {
-                Row(modifier.weight(1f)) {
+                Row(Modifier.weight(1f)) {
                     MeasureTextWidth(
                         viewToMeasure = {
                             Text(
                                 "EX+",
-                                modifier.padding(end = 10.dp),
+                                Modifier.padding(end = 10.dp),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                             )
-                        }, modifier.align(Alignment.CenterVertically)
+                        }, Modifier.align(Alignment.CenterVertically)
                     ) { measuredWidth ->
                         Text(
                             scoreText(score.score),
-                            modifier
+                            Modifier
                                 .width(measuredWidth)
                                 .padding(end = 8.dp)
                                 .align(Alignment.CenterVertically),
@@ -199,19 +206,19 @@ fun ArcaeaScoreCard(
                         )
                     }
 
-                    Column(modifier = modifier.align(Alignment.CenterVertically)) {
+                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                         Text(scoreText, fontWeight = FontWeight.Bold)
                         Row {
                             ScorePflText(
-                                "P", score.pure, modifier, ArcaeaPflExtendedColors.current.pure
+                                "P", score.pure, color = ArcaeaPflExtendedColors.current.pure
                             )
                             ScorePflText(
-                                "F", score.far, modifier, ArcaeaPflExtendedColors.current.far
+                                "F", score.far, color = ArcaeaPflExtendedColors.current.far
                             )
                             ScorePflText(
-                                "L", score.lost, modifier, ArcaeaPflExtendedColors.current.lost
+                                "L", score.lost, color = ArcaeaPflExtendedColors.current.lost
                             )
-                            ScorePflText("MR", score.maxRecall, modifier)
+                            ScorePflText("MR", score.maxRecall)
                         }
                     }
                 }
@@ -220,7 +227,7 @@ fun ArcaeaScoreCard(
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         null,
-                        modifier.rotate(if (expanded) 180f else 0f),
+                        Modifier.rotate(expandArrowRotateDegree),
                     )
                 }
             }
