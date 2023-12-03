@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.stateIn
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
-class DatabaseEntryViewModel(private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer) :
-    ViewModel() {
-
+class DatabaseNavEntryViewModel(
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+) : ViewModel() {
     val propertyVersion: StateFlow<Property?> =
         repositoryContainer.propertyRepository.find("version").stateIn(
             viewModelScope,

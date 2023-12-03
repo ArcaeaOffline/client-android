@@ -10,8 +10,8 @@ import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabaseEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseScoreListViewModel
 
 /**
@@ -21,7 +21,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for ViewModels
         initializer {
-            DatabaseEntryViewModel(
+            DatabaseNavEntryViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

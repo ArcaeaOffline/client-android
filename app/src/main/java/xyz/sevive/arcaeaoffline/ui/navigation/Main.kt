@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.database.DatabaseEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.OcrScreen
 import xyz.sevive.arcaeaoffline.ui.screens.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.settings.SettingsScreen
@@ -28,17 +29,23 @@ enum class MainScreens(
 }
 
 @Composable
-fun MainNavigationGraph(navController: NavHostController, windowSizeClass: WindowSizeClass) {
-    NavHost(navController, startDestination = MainScreens.Overview.route) {
+fun MainNavigationGraph(
+    mainNavController: NavHostController,
+    windowSizeClass: WindowSizeClass,
+) {
+    NavHost(mainNavController, startDestination = MainScreens.Overview.route) {
         composable(MainScreens.Overview.route) {
             OverviewScreen()
         }
 
-        databaseGraph(navController, windowSizeClass)
+        composable(MainScreens.Database.route) {
+            DatabaseEntryScreen()
+        }
 
         composable(MainScreens.Ocr.route) {
             OcrScreen()
         }
+
         composable(MainScreens.Settings.route) {
             SettingsScreen()
         }
