@@ -50,7 +50,6 @@
 //   It may load library with different version (from OpenCV Android Manager, which is installed separatelly on device)
 //
 // - use "System.loadLibrary("opencv_java4")" or "OpenCVLoader.initDebug()"
-//   TODO: Add accurate API to load OpenCV native library
 //
 //
 //
@@ -94,7 +93,7 @@ apply plugin: 'kotlin-android'
 def openCVersionName = "4.8.0"
 def openCVersionCode = ((4 * 100 + 8) * 100 + 0) * 10 + 0
 
-println "OpenCV: " +openCVersionName + " " + project.buildscript.sourceFile
+println "OpenCV: " + openCVersionName + "(" + openCVersionCode + ") " + project.buildscript.sourceFile
 
 android {
     namespace "org.opencv"
@@ -104,9 +103,6 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 34
-
-        versionCode openCVersionCode
-        versionName openCVersionName
 
         externalNativeBuild {
             cmake {
@@ -148,7 +144,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            path (project.projectDir.toString() + '/libcxx_helper/CMakeLists.txt')
+            path(project.projectDir.toString() + '/libcxx_helper/CMakeLists.txt')
         }
     }
 
@@ -158,5 +154,4 @@ android {
     }
 }
 
-dependencies {
-}
+dependencies {}
