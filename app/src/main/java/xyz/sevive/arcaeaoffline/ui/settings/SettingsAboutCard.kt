@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -78,17 +84,45 @@ fun AppIcon(modifier: Modifier = Modifier) {
 
 }
 
+class SettingsAboutException : Exception() {
+    override val message: String? get() = null
+}
+
 @Composable
 fun SettingsAboutCard() {
+    val context = LocalContext.current
+
+    var crashCounter by rememberSaveable { mutableIntStateOf(8) }
+    var toast: Toast? by rememberSaveable { mutableStateOf(null) }
+
+    if (crashCounter == 1) {
+        Toast.makeText(context, "😭", Toast.LENGTH_SHORT).show()
+        throw SettingsAboutException()
+    }
+
     TitleOutlinedCard(title = {
-        ActionCard(onClick = { },
+        ActionCard(
+            onClick = {
+                if (crashCounter > 1) {
+                    crashCounter -= 1
+                    if (toast != null) {
+                        toast!!.cancel()
+                    }
+                    toast = Toast(context)
+                    toast!!.setText(crashCounter.toString())
+                    toast!!.show()
+                } else {
+                    Toast.makeText(context, "🤔", Toast.LENGTH_SHORT).show()
+                }
+            },
             title = stringResource(R.string.settings_about_title),
             shape = settingsTitleActionCardShape(),
             cardColors = if (IS_UNSTABLE_VERSION) CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.error,
             ) else null,
-            headSlot = { Icon(Icons.Default.Info, null) })
+            headSlot = { Icon(Icons.Default.Info, null) },
+        )
     }) { padding ->
         Column(
             Modifier.padding(padding),
