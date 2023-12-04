@@ -1,11 +1,12 @@
-// This file is part of OpenCV project.
+// This file is modified from "OpenCV-android-sdk/sdk/build.gradle".
+// The original "OpenCV-android-sdk/sdk/build.gradle" is a part of OpenCV project.
 // It is subject to the license terms in the LICENSE file found in the top-level directory
-// of this distribution and at http://opencv.org/license.html.
+// of the OpenCV Android SDK distribution (version 4.8.0) and at http://opencv.org/license.html.
 
 //
-// Notes about integration OpenCV into existed Android Studio application project are below (application 'app' module should exist).
+// Notes about integration OpenCV into existed Android Studio application project are below (application "app" module should exist).
 //
-// This file is located in <OpenCV-android-sdk>/sdk directory (near 'etc', 'java', 'native' subdirectories)
+// This file is located in <OpenCV-android-sdk>/sdk directory (near "etc", "java", "native" subdirectories)
 //
 // Add module into Android Studio application project:
 //
@@ -21,11 +22,11 @@
 //
 //   Edit "settings.gradle" and add these lines:
 //
-//   def opencvsdk='<path_to_opencv_android_sdk_rootdir>'
+//   def opencvsdk="<path_to_opencv_android_sdk_rootdir>"
 //   // You can put declaration above into gradle.properties file instead (including file in HOME directory),
-//   // but without 'def' and apostrophe symbols ('): opencvsdk=<path_to_opencv_android_sdk_rootdir>
-//   include ':opencv'
-//   project(':opencv').projectDir = new File(opencvsdk + '/sdk')
+//   // but without "def" and apostrophe symbols ("): opencvsdk=<path_to_opencv_android_sdk_rootdir>
+//   include ":opencv"
+//   project(":opencv").projectDir = new File(opencvsdk + "/sdk")
 //
 //
 //
@@ -34,12 +35,12 @@
 // - Android Studio way:
 //   "Open Module Settings" (F4) -> "Dependencies" tab
 //
-// - or add "project(':opencv')" dependency into app/build.gradle:
+// - or add "project(":opencv")" dependency into app/build.gradle:
 //
 //   dependencies {
-//       implementation fileTree(dir: 'libs', include: ['*.jar'])
+//       implementation fileTree(dir: "libs", include: ["*.jar"])
 //       ...
-//       implementation project(':opencv')
+//       implementation project(":opencv")
 //   }
 //
 //
@@ -74,7 +75,7 @@
 //       }
 //   }
 //
-// - (optional) Limit/filter ABIs to build ('android' scope of 'app/build.gradle'):
+// - (optional) Limit/filter ABIs to build ("android" scope of "app/build.gradle"):
 //   Useful information: https://developer.android.com/studio/build/gradle-tips.html (Configure separate APKs per ABI)
 //
 //   splits {
@@ -82,69 +83,78 @@
 //           enable true
 //           universalApk false
 //           reset()
-//           include 'armeabi-v7a' // , 'x86', 'x86_64', 'arm64-v8a'
+//           include "armeabi-v7a" // , "x86", "x86_64", "arm64-v8a"
 //       }
 //   }
 //
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+// this suppresses the android.defaultConfig.externalNativeBuild.cmake unstable api warning
+@file:Suppress("UnstableApiUsage")
 
-def openCVersionName = "4.8.0"
-def openCVersionCode = ((4 * 100 + 8) * 100 + 0) * 10 + 0
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
 
-println "OpenCV: " + openCVersionName + "(" + openCVersionCode + ") " + project.buildscript.sourceFile
+val openCVersionName = "4.8.0"
+val openCVersionCode = ((4 * 100 + 8) * 100 + 0) * 10 + 0
+
+println("OpenCV: $openCVersionName($openCVersionCode) ${project.buildscript.sourceFile}")
 
 android {
-    namespace "org.opencv"
-    compileSdk 34
-    ndkVersion '22.1.7171670'
+    namespace = "org.opencv"
+    compileSdk = 34
+    ndkVersion = "22.1.7171670"
 
     defaultConfig {
-        minSdk 21
-        targetSdk 34
+        minSdk = 21
+        // targetSdk is deprecated and it is safe to remove directly
+        // targetSdk = 34
 
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_STL=c++_shared"
-                targets "opencv_jni_shared"
+                arguments("-DANDROID_STL=c++_shared")
+                targets("opencv_jni_shared")
             }
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildTypes {
         debug {
-            packagingOptions {
-                doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts
+            packaging {
+                // doNotStrip is deprecated
+                // doNotStrip("**/*.so")
+                jniLibs.keepDebugSymbols.add("**/*.so")  // controlled by OpenCV CMake scripts
             }
         }
         release {
-            packagingOptions {
-                doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts
+            packaging {
+                // doNotStrip("**/*.so")
+                jniLibs.keepDebugSymbols.add("**/*.so")  // controlled by OpenCV CMake scripts
             }
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.txt")
         }
     }
 
     sourceSets {
-        main {
-            jniLibs.srcDirs = ['native/libs']
-            java.srcDirs = ['java/src']
-            aidl.srcDirs = ['java/src']
-            res.srcDirs = ['java/res']
-            manifest.srcFile 'java/AndroidManifest.xml'
+        named("main") {
+            jniLibs.srcDirs("native/libs")
+            java.srcDirs("java/src")
+            aidl.srcDirs("java/src")
+            res.srcDirs("java/res")
+            manifest.srcFile("java/AndroidManifest.xml")
         }
     }
 
     externalNativeBuild {
         cmake {
-            path(project.projectDir.toString() + '/libcxx_helper/CMakeLists.txt')
+            path("${project.projectDir}/libcxx_helper/CMakeLists.txt")
         }
     }
 
@@ -153,5 +163,3 @@ android {
         buildConfig = true
     }
 }
-
-dependencies {}

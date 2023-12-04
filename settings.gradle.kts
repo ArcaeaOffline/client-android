@@ -14,11 +14,11 @@ dependencyResolutionManagement {
         maven {
             // used by
             // 'com.github.requery:sqlite-android'
-            url 'https://jitpack.io'
+            setUrl("https://jitpack.io")
         }
     }
 }
 
 rootProject.name = "Arcaea Offline"
-include ':app'
-include ':opencv'
+include("app")
+include("opencv")
