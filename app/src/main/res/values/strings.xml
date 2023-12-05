@@ -90,12 +90,12 @@ CC BY-SA 3.0
     <string name="database_manage_title">Manage</string>
 
     <string name="database_manage_import_title">Import…</string>
-    <string name="database_manage_import_packlist">Import packlist</string>
-    <string name="database_manage_import_songlist">Import songlist</string>
-    <string name="database_manage_import_from_arcaea_apk">Import from Arcaea .apk</string>
-    <string name="database_manage_import_from_arcaea_apk_installed">Import from installed Arcaea</string>
+    <string name="database_manage_import_packlist">packlist</string>
+    <string name="database_manage_import_songlist">songlist</string>
+    <string name="database_manage_import_from_arcaea_apk">From Arcaea .apk</string>
+    <string name="database_manage_import_from_arcaea_apk_installed">From installed Arcaea</string>
     <string name="database_manage_import_from_arcaea_apk_installed_unavailable">Arcaea not installed</string>
-    <string name="database_manage_import_from_arcaea_apk_please_wait">Reading .apk file, please hold on</string>
+    <string name="database_manage_import_from_arcaea_apk_please_wait">Reading apk, please wait…</string>
 
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_scores">Scores</string>

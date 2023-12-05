@@ -4,10 +4,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
@@ -91,18 +88,16 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
             icon = { Icon(Icons.Default.FileDownload, null) }) {
             Text(stringResource(R.string.database_manage_import_title))
         }
-    }, modifier = modifier.fillMaxWidth()) { padding ->
+    }, modifier = modifier) { padding ->
         Column(Modifier.padding(padding)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button({ importPacklistLauncher.launch("*/*") }) {
-                    IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                        Text(stringResource(R.string.database_manage_import_packlist))
-                    }
+            Button({ importPacklistLauncher.launch("*/*") }) {
+                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                    Text(stringResource(R.string.database_manage_import_packlist))
                 }
-                Button({ importSonglistLauncher.launch("*/*") }) {
-                    IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                        Text(stringResource(R.string.database_manage_import_songlist))
-                    }
+            }
+            Button({ importSonglistLauncher.launch("*/*") }) {
+                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                    Text(stringResource(R.string.database_manage_import_songlist))
                 }
             }
 
