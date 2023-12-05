@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.database
+package xyz.sevive.arcaeaoffline.ui.database.manage
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -12,19 +12,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 
 
-class DatabaseManageViewModel(private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer) :
-    ViewModel() {
+class DatabaseManageViewModel(
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+) : ViewModel() {
     fun isArcaeaInstalled(context: Context): Boolean {
         return try {
             context.packageManager.getPackageInfo("moe.low.arc", 0)
@@ -135,6 +138,13 @@ class DatabaseManageViewModel(private val repositoryContainer: ArcaeaOfflineData
             arcaeaApkZipFile.getInputStream(songlistZipEntry)
         }
         importSonglist(songlistInputStream, context)
+    }
+
+    suspend fun exportScores(outputStream: OutputStream) {
+        val content = ArcaeaOfflineExportScore(repositoryContainer.scoreRepository).toJsonString()
+        if (content != null) {
+            IOUtils.write(content, outputStream)
+        }
     }
 
     companion object {

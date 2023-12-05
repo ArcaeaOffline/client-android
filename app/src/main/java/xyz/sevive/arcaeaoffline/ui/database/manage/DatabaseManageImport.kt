@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.database
+package xyz.sevive.arcaeaoffline.ui.database.manage
 
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.FileDownload
@@ -23,17 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
-import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import java.util.zip.ZipInputStream
@@ -136,25 +131,6 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
                         Text(stringResource(R.string.database_manage_import_from_arcaea_apk_installed_unavailable))
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun DatabaseManageScreen(
-    onNavigateUp: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) {
-    SubScreenContainer(onNavigateUp = onNavigateUp,
-        title = { Text(stringResource(R.string.database_manage_title)) }) {
-        LazyColumn(
-            modifier.padding(dimensionResource(R.dimen.general_page_padding)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
-        ) {
-            item {
-                DatabaseManageImport(viewModel)
             }
         }
     }
