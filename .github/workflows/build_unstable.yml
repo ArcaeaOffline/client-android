@@ -1,0 +1,96 @@
+# modified from Droid-ify/client
+# https://github.com/Droid-ify/client/blob/3cfc5e58e20c982b8c4b2e254089ec50c732a4e0/.github/workflows/release_build.yml
+# https://github.com/Droid-ify/client/blob/3cfc5e58e20c982b8c4b2e254089ec50c732a4e0/.github/workflows/build_debug.yml
+
+name: Build Unstable Release APK
+
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Check out repository
+                uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
+
+            # we will run `chmod +x gradlew` later, and this permission change would cause
+            # ```
+            # $ git diff
+            #
+            # diff --git a/gradlew b/gradlew
+            # old mode 100644
+            # new mode 100755
+            # ```
+            # then the auto-generated version name by `git describe` would include a "dirty" in it.
+            # we definitely don't want it, so we tell git to ignore the permission changes
+            -   name: Configure git
+                run: git config core.fileMode false
+
+            -   name: Validate Gradle Wrapper
+                uses: gradle/wrapper-validation-action@v1
+
+            -   name: Set up Java 17
+                uses: actions/setup-java@v4
+                with:
+                    java-version: 17
+                    distribution: 'adopt'
+                    cache: gradle
+
+            -   name: Download OpenCV Android SDK
+                uses: robinraju/release-downloader@v1.8
+                with:
+                    repository: "opencv/opencv"
+                    tag: "4.8.0"
+                    fileName: "opencv-4.8.0-android-sdk.zip"
+
+            -   name: Configure OpenCV Android SDK
+                run: |
+                    unzip -q opencv-4.8.0-android-sdk.zip "OpenCV-android-sdk/sdk/*" -d .
+                    mv ./OpenCV-android-sdk/sdk/* ./opencv/
+                    rm ./opencv/build.gradle
+                    git checkout .
+
+            -   name: Grant execution permission to Gradle Wrapper
+                run: chmod +x gradlew
+
+            -   name: Build APK
+                uses: gradle/gradle-build-action@v2.10.0
+                with:
+                    arguments: assembleUnstableRelease
+
+            -   name: Checks
+                run: find . -type f -name "*.apk"
+
+            -   name: Sign app APK
+                uses: r0adkll/sign-android-release@v1
+                id: sign_app
+                with:
+                    releaseDirectory: app/build/outputs/apk/unstable/release
+                    signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+                    alias: release
+                    keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+                    keyPassword: ${{ secrets.KEY_PASSWORD }}
+                env:
+                    BUILD_TOOLS_VERSION: "34.0.0"
+
+            -   name: Upload `arm` Releases
+                uses: actions/upload-artifact@v3
+                with:
+                    name: armeabi-v7a & arm64-v8a
+                    path: app/build/outputs/apk/unstable/release/app-unstable-arm*-signed.apk
+
+            -   name: Upload `x86` Releases
+                uses: actions/upload-artifact@v3
+                with:
+                    name: x86 & x86_64
+                    path: app/build/outputs/apk/unstable/release/app-unstable-x86*-signed.apk
+
+            -   name: Upload `universal` Release
+                uses: actions/upload-artifact@v3
+                with:
+                    name: universal
+                    path: app/build/outputs/apk/unstable/release/app-unstable-universal*-signed.apk
