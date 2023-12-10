@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
@@ -72,7 +73,10 @@ fun UnstableBuildAlert(modifier: Modifier = Modifier, showDetails: Boolean = tru
 }
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    settingsViewModel: SettingsViewModel = viewModel(),
+) {
     Surface(
         modifier
             .fillMaxSize()
@@ -86,7 +90,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             }
 
             item {
-                SettingsOcrDependenciesCard()
+                SettingsOcrDependenciesCard(settingsViewModel)
             }
 
             item {

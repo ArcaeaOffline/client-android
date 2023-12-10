@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.settings
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -33,57 +32,43 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStat
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 
 
-fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
-    if (!ocrDependencyPaths.parentDir.exists()) {
-        if (!ocrDependencyPaths.parentDir.mkdirs()) {
-            Log.w("OCR Dependency", "Cannot create dependencies parent directory")
-        }
-    }
-}
-
-
 @Composable
-fun SettingsOcrDependenciesCard(viewModel: OcrDependencyViewModel = viewModel()) {
+fun SettingsOcrDependenciesCard(
+    settingsViewModel: SettingsViewModel,
+    ocrDependencyViewModel: OcrDependencyViewModel = viewModel(),
+) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     val expandArrowRotateDegree: Float by animateFloatAsState(
         if (expanded) 0f else -90f, label = "expandArrowRotate"
     )
 
     val context = LocalContext.current
-    val knnModelState = viewModel.knnModelState.collectAsState()
-    val phashDatabaseState = viewModel.phashDatabaseState.collectAsState()
+    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsState()
+    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
 
     val ocrDependencyPaths = OcrDependencyPaths(context)
-    viewModel.setOcrDependencyPaths(ocrDependencyPaths)
-    viewModel.reload()
+    ocrDependencyViewModel.setOcrDependencyPaths(ocrDependencyPaths)
+    ocrDependencyViewModel.reload()
 
     val importKnnLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) { fileUri ->
-        if (fileUri != null) {
-            mkOcrDependencyParentDirs(ocrDependencyPaths)
-            val inputStream = context.contentResolver.openInputStream(fileUri)
-            inputStream.use {
-                val outputStream = ocrDependencyPaths.knnModelFile.outputStream()
-                it?.copyTo(outputStream)
-            }
-
-            viewModel.reload()
+    ) {
+        it?.let {
+            settingsViewModel.importKnnModel(
+                context.contentResolver.openInputStream(it), ocrDependencyPaths,
+            )
+            ocrDependencyViewModel.reload()
         }
     }
 
     val importPhashDbLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) { fileUri ->
-        if (fileUri != null) {
-            mkOcrDependencyParentDirs(ocrDependencyPaths)
-            val inputStream = context.contentResolver.openInputStream(fileUri)
-            inputStream.use {
-                val outputStream = ocrDependencyPaths.phashDatabaseFile.outputStream()
-                it?.copyTo(outputStream)
-            }
-
-            viewModel.reload()
+    ) {
+        it?.let {
+            settingsViewModel.importPhashDatabase(
+                context.contentResolver.openInputStream(it), ocrDependencyPaths,
+            )
+            ocrDependencyViewModel.reload()
         }
     }
 
