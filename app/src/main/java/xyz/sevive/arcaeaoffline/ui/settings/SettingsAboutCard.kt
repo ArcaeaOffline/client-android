@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.settings
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -88,14 +89,16 @@ class SettingsAboutException : Exception() {
     override val message: String? get() = null
 }
 
+@SuppressLint("ShowToast")
 @Composable
 fun SettingsAboutCard() {
     val context = LocalContext.current
 
-    var crashCounter by rememberSaveable { mutableIntStateOf(8) }
+    var crashCounter by rememberSaveable { mutableIntStateOf(7) }
     var toast: Toast? by rememberSaveable { mutableStateOf(null) }
 
-    if (crashCounter == 1) {
+    if (crashCounter <= 0) {
+        if (toast != null) toast!!.cancel()
         Toast.makeText(context, "😭", Toast.LENGTH_SHORT).show()
         throw SettingsAboutException()
     }
@@ -103,16 +106,16 @@ fun SettingsAboutCard() {
     TitleOutlinedCard(title = {
         ActionCard(
             onClick = {
-                if (crashCounter > 1) {
+                if (crashCounter > 0) {
                     crashCounter -= 1
+                }
+
+                if (crashCounter in 1..4) {
                     if (toast != null) {
                         toast!!.cancel()
                     }
-                    toast = Toast(context)
-                    toast!!.setText(crashCounter.toString())
+                    toast = Toast.makeText(context, crashCounter.toString(), Toast.LENGTH_SHORT)
                     toast!!.show()
-                } else {
-                    Toast.makeText(context, "🤔", Toast.LENGTH_SHORT).show()
                 }
             },
             title = stringResource(R.string.settings_about_title),
