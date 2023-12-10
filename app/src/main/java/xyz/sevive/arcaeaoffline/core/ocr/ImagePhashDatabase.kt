@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
+import android.content.ContentValues
 import android.database.Cursor
 import io.requery.android.database.sqlite.SQLiteDatabase
 import org.opencv.core.Core
@@ -8,6 +9,8 @@ import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+import org.threeten.bp.Instant
+import java.io.File
 import java.util.Date
 
 /**
@@ -169,4 +172,53 @@ class ImagePhashDatabase(path: String) {
         lookupImagesHelper(imgGray, this.partnerIconIds, this.partnerIconHashes)
 
     fun lookupPartnerIcon(imgGray: Mat) = lookupPartnerIcons(imgGray)[0]
+
+    companion object {
+        fun build(
+            databaseFile: File,
+            images: List<Mat>,
+            labels: List<String>,
+            hashSize: Int = 16,
+            highFreqFactor: Int = 4,
+        ) {
+            val db = SQLiteDatabase.openOrCreateDatabase(databaseFile, null)
+
+            db.use {
+                it.execSQL("CREATE TABLE properties (`key` TEXT, value TEXT)")
+
+                val hashSizeContentValues = ContentValues()
+                hashSizeContentValues.put("key", "hash_size")
+                hashSizeContentValues.put("value", hashSize)
+
+                val highFreqFactorContentValues = ContentValues()
+                highFreqFactorContentValues.put("key", "highfreq_factor")
+                highFreqFactorContentValues.put("value", highFreqFactor)
+
+                it.insert("properties", null, hashSizeContentValues)
+                it.insert("properties", null, highFreqFactorContentValues)
+
+                it.execSQL("CREATE TABLE hashes (id TEXT, hash BLOB(${hashSize * hashSize}))")
+                images.zip(labels).forEach { pair ->
+                    val mat = pair.first
+                    val label = pair.second
+
+                    val hash = matToBooleanArray(calculatePhash(mat, hashSize, highFreqFactor))
+                    val hashByteArray = ByteArray(hash.size)
+                    hash.forEachIndexed { index, b ->
+                        hashByteArray[index] = if (b) 1.toByte() else 0.toByte()
+                    }
+
+                    val hashContentValues = ContentValues()
+                    hashContentValues.put("id", label)
+                    hashContentValues.put("hash", hashByteArray)
+                    it.insert("hashes", null, hashContentValues)
+                }
+
+                val buildTimestampContentValues = ContentValues()
+                buildTimestampContentValues.put("key", "built_timestamp")
+                buildTimestampContentValues.put("value", Instant.now().epochSecond)
+                it.insert("properties", null, buildTimestampContentValues)
+            }
+        }
+    }
 }
