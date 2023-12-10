@@ -33,15 +33,20 @@ class DeviceOcr(
     companion object {
         fun preprocessPartnerIcon(imgGray: Mat): Mat {
             val iconSquared = Mat()
-            Core.copyMakeBorder(
-                imgGray,
-                iconSquared,
-                imgGray.width() - imgGray.height(),
-                0,
-                0,
-                0,
-                Core.BORDER_REPLICATE
-            )
+            if (imgGray.width() > imgGray.height()) {
+                Core.copyMakeBorder(
+                    imgGray,
+                    iconSquared,
+                    imgGray.width() - imgGray.height(),
+                    0,
+                    0,
+                    0,
+                    Core.BORDER_REPLICATE
+                )
+            } else {
+                imgGray.copyTo(iconSquared)
+            }
+
             val w = iconSquared.width().toDouble()
             val h = iconSquared.height().toDouble()
             Imgproc.fillPoly(
