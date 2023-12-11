@@ -99,4 +99,5 @@
     <string name="icon_desc_navigate_back">返回</string>
     <string name="settings_ocr_phash_database_build_from_arcaea">从 Arcaea 构建</string>
     <string name="general_please_wait">请稍候……</string>
+    <string name="general_arcaea_not_installed">未安装 Arcaea</string>
 </resources>

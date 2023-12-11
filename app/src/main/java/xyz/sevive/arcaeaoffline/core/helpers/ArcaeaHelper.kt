@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.core.helpers
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -32,7 +33,7 @@ class ArcaeaHelper(context: Context) {
 
     val tempPhashDatabaseFile = File(context.cacheDir, tempPhashDatabaseFilename)
 
-    fun getArcaeaPackageInfo(): PackageInfo? {
+    fun getPackageInfo(): PackageInfo? {
         return try {
             packageManager.getPackageInfo(ArcaeaPackageName, 0)
         } catch (e: PackageManager.NameNotFoundException) {
@@ -43,12 +44,27 @@ class ArcaeaHelper(context: Context) {
     /**
      * @throws ArcaeaNotInstalledException if Arcaea isn't installed
      */
-    fun getArcaeaPackageInfoOrFail(): PackageInfo {
-        return getArcaeaPackageInfo() ?: throw ArcaeaNotInstalledException()
+    fun getPackageInfoOrFail(): PackageInfo {
+        return getPackageInfo() ?: throw ArcaeaNotInstalledException()
+    }
+
+    fun isInstalled(): Boolean {
+        return getPackageInfo() != null
+    }
+
+    fun getIcon(): Drawable? {
+        getPackageInfoOrFail()
+
+        return try {
+            packageManager.getApplicationIcon(ArcaeaPackageName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
     }
 
     suspend fun getApkZipFile(): ZipFile {
-        getArcaeaPackageInfoOrFail()
+        getPackageInfoOrFail()
+
         val appInfo = packageManager.getApplicationInfo(ArcaeaPackageName, 0)
 
         return withContext(Dispatchers.IO) {
