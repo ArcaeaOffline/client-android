@@ -97,4 +97,6 @@
     <string name="score_editor_commit_button">提交</string>
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
     <string name="icon_desc_navigate_back">返回</string>
+    <string name="settings_ocr_phash_database_build_from_arcaea">从 Arcaea 构建</string>
+    <string name="general_please_wait">请稍候……</string>
 </resources>
