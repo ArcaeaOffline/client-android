@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -42,7 +42,7 @@ fun RatingClassSelector(
         )
 
         LazyVerticalGrid(columns = GridCells.Fixed(style.columns)) {
-            ArcaeaScoreRatingClass.values().forEach {
+            ArcaeaScoreRatingClass.entries.forEach {
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
@@ -81,7 +81,7 @@ private fun RatingClassSelectorPreview() {
                     enabledRatingClasses = enabledRatingClasses
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 RatingClassSelector(
                     ratingClass = selectedRatingClass,
@@ -90,7 +90,7 @@ private fun RatingClassSelectorPreview() {
                     style = RatingClassSelectorStyle.Vertical,
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 RatingClassSelector(
                     ratingClass = selectedRatingClass,

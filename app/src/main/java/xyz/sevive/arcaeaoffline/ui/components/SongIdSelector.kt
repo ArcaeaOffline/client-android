@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -89,7 +89,7 @@ fun SongIdSelector(
                 if (it > -1) onSongIdChanged(songList[it].id) else onSongIdChanged(null)
             },
             label = { Text(stringResource(R.string.song_id_selector_select_song)) },
-            leadingIcon = { Icon(Icons.Default.QueueMusic, null) },
+            leadingIcon = { Icon(Icons.AutoMirrored.Default.QueueMusic, null) },
             modifier = Modifier.fillMaxWidth(),
         )
     }

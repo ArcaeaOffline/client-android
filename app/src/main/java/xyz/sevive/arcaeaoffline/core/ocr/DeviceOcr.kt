@@ -109,7 +109,7 @@ class DeviceOcr(
 
     fun ratingClass(): Int {
         val roi = extractor.ratingClass
-        val results = listOf<Mat>(
+        val results = listOf(
             masker.ratingClassPst(roi),
             masker.ratingClassPrs(roi),
             masker.ratingClassFtr(roi),
@@ -122,7 +122,7 @@ class DeviceOcr(
 
     fun clearStatus(): Int {
         val roi = extractor.clearStatus
-        val results = listOf<Mat>(
+        val results = listOf(
             masker.clearStatusTrackLost(roi),
             masker.clearStatusTrackComplete(roi),
             masker.clearStatusFullRecall(roi),

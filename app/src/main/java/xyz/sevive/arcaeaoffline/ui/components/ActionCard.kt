@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Card
@@ -29,30 +28,28 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-@SuppressLint("ModifierParameter")
 @Composable
 fun ActionCard(
     onClick: () -> Unit,
     title: String,
-    description: String? = null,
     modifier: Modifier = Modifier,
+    description: String? = null,
     shape: Shape = CardDefaults.shape,
     cardColors: CardColors? = null,
     headSlot: @Composable () -> Unit = {},
     tailSlot: @Composable () -> Unit = {}
 ) {
-    val _cardColors = cardColors ?: CardDefaults.cardColors(
+    val appliedCardColors = cardColors ?: CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer)
     )
 
-    Card(modifier, shape = shape, colors = _cardColors) {
+    Card(modifier, shape = shape, colors = appliedCardColors) {
         Row(
             Modifier
                 .clickable { onClick() }
                 .padding(dimensionResource(R.dimen.action_card_padding)),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             headSlot()
 
             Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
@@ -82,12 +79,12 @@ fun ActionCardPreview() {
             Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ActionCard({}, "Test Card")
-            ActionCard({}, "Test Card w/ desc", "wow description")
+            ActionCard({}, "Test Card w/ desc", description = "wow description")
             ActionCard(onClick = {},
                 title = "Test Card w/ icon",
                 description = "wow an arrow",
                 tailSlot = {
-                    Icon(Icons.Default.ArrowForward, null)
+                    Icon(Icons.AutoMirrored.Default.ArrowForward, null)
                 })
             ActionCard(onClick = {},
                 title = "Test Card w/ two icons",

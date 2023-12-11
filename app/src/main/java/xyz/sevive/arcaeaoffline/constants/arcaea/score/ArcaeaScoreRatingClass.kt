@@ -11,7 +11,7 @@ enum class ArcaeaScoreRatingClass(val value: Int) {
                 ratingClassInt in ArcaeaScoreRatingClassRange
             ) { "ratingClassInt should be within the range of [0, 3]" }
 
-            return values().find { it.value == ratingClassInt } ?: throw IllegalArgumentException()
+            return entries.find { it.value == ratingClassInt } ?: throw IllegalArgumentException()
         }
     }
 }

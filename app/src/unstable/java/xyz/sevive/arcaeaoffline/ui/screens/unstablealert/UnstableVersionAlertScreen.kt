@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Login
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -106,7 +106,7 @@ internal fun ActionsContent(
     // a 10s countdown to ensure user has skim through the notice
     // an extra 1 second to let user know what's going on:
     // this app is wasting my precious 10 seconds of time,
-    // forcing me to confirm a fxxking long and boring alert
+    // forcing me to confirm a fucking long and boring alert
     var confirmContentReadCountdown by remember { mutableIntStateOf(11) }
     LaunchedEffect(key1 = confirmContentReadCountdown) {
         while (confirmContentReadCountdown > 0) {
@@ -122,7 +122,7 @@ internal fun ActionsContent(
             contentColor = MaterialTheme.colorScheme.error,
         ),
     ) {
-        IconRow(icon = { Icon(Icons.Default.Logout, null) }) {
+        IconRow(icon = { Icon(Icons.AutoMirrored.Default.Logout, null) }) {
             Text(stringResource(R.string.unstable_version_alert_screen_actions_deny))
         }
     }
@@ -137,7 +137,7 @@ internal fun ActionsContent(
     ) {
         IconRow(icon = {
             if (confirmContentReadCountdown <= 0) {
-                Icon(Icons.Default.Login, null)
+                Icon(Icons.AutoMirrored.Default.Login, null)
             } else {
                 Text(
                     "(${confirmContentReadCountdown})",

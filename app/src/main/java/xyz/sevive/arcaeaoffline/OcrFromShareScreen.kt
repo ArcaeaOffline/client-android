@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
@@ -76,7 +76,7 @@ internal fun AppIconAndLabelButton(
     modifier: Modifier = Modifier,
     actionText: (@Composable () -> Unit)? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
-    trailingIcon: @Composable () -> Unit = { Icon(Icons.Default.ArrowForward, null) },
+    trailingIcon: @Composable () -> Unit = { Icon(Icons.AutoMirrored.Default.ArrowForward, null) },
 ) {
     Button(
         onClick = onClick,
