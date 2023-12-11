@@ -159,11 +159,11 @@ class ArcaeaHelper(context: Context) {
     private fun buildPhashDatabaseCleanUp() {
         if (jacketsCacheDir.exists()) FileUtils.cleanDirectory(jacketsCacheDir)
         if (partnerIconsCacheDir.exists()) FileUtils.cleanDirectory(partnerIconsCacheDir)
-        if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
     }
 
     suspend fun buildPhashDatabase() {
         buildPhashDatabaseCleanUp()
+        if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
 
         try {
             extractJackets()
