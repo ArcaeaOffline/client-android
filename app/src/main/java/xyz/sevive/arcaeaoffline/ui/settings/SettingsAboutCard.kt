@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -95,7 +96,7 @@ fun SettingsAboutCard() {
     val context = LocalContext.current
 
     var crashCounter by rememberSaveable { mutableIntStateOf(7) }
-    var toast: Toast? by rememberSaveable { mutableStateOf(null) }
+    var toast: Toast? by remember { mutableStateOf(null) }
 
     if (crashCounter <= 0) {
         if (toast != null) toast!!.cancel()
