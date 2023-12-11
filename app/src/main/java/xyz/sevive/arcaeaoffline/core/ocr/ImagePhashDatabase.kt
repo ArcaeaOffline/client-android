@@ -11,7 +11,6 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import org.threeten.bp.Instant
 import java.io.File
-import java.util.Date
 
 /**
  * Perceptual Hash computation.
@@ -51,7 +50,7 @@ class ImagePhashDatabase(path: String) {
         private set
     var highfreqFactor = 0
         private set
-    var builtTime = Date()
+    var builtTime: Instant? = null
         private set
 
     val ids = mutableListOf<String>()
@@ -91,7 +90,7 @@ class ImagePhashDatabase(path: String) {
                     highfreqFactor = propertiesCursor.getInt(valueIndex)
                 } else if (propertyName == "built_timestamp") {
                     val unixTimestamp = propertiesCursor.getInt(valueIndex).toLong()
-                    builtTime = Date(unixTimestamp * 1000)
+                    builtTime = Instant.ofEpochMilli(unixTimestamp * 1000)
                 }
 
                 propertiesCursor.moveToNext()
