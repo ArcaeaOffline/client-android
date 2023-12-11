@@ -43,18 +43,15 @@ fun matToBooleanArray(mat: Mat): BooleanArray {
 }
 
 class ImagePhashDatabase(path: String) {
-    private val databaseObject: SQLiteDatabase =
-        SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY)
-
     var hashSize = 0
         private set
-    var highfreqFactor = 0
+    var highFreqFactor = 0
         private set
     var builtTime: Instant? = null
         private set
 
-    val ids = mutableListOf<String>()
-    val hashes = mutableListOf<BooleanArray>()
+    private val ids = mutableListOf<String>()
+    private val hashes = mutableListOf<BooleanArray>()
 
     val jacketIds = mutableListOf<String>()
     val jacketHashes = mutableListOf<BooleanArray>()
@@ -68,75 +65,72 @@ class ImagePhashDatabase(path: String) {
     }
 
     init {
-        val propertiesCursor = databaseObject.query(
-            "properties", arrayOf("key", "value"), null, null, null, null, null
-        )
+        val db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY)
 
-        if (propertiesCursor.count <= 0) {
-            propertiesCursor.close()
-            throw Error("Invalid pHash database: `properties` table not found")
-        } else {
-            propertiesCursor.moveToFirst()
+        db.use {
+            val propertiesCursor = db.query(
+                "properties", arrayOf("key", "value"), null, null, null, null, null
+            )
 
-            val keyIndex = getColumnIndex(propertiesCursor, "key")
-            val valueIndex = getColumnIndex(propertiesCursor, "value")
-
-            for (i in 0 until propertiesCursor.count) {
-                val propertyName = propertiesCursor.getString(keyIndex)
-
-                if (propertyName == "hash_size") {
-                    hashSize = propertiesCursor.getInt(valueIndex)
-                } else if (propertyName == "highfreq_factor") {
-                    highfreqFactor = propertiesCursor.getInt(valueIndex)
-                } else if (propertyName == "built_timestamp") {
-                    val unixTimestamp = propertiesCursor.getInt(valueIndex).toLong()
-                    builtTime = Instant.ofEpochMilli(unixTimestamp * 1000)
-                }
-
-                propertiesCursor.moveToNext()
-            }
-        }
-
-        val hashesCursor =
-            databaseObject.query("hashes", arrayOf("id", "hash"), null, null, null, null, null)
-
-        if (hashesCursor.count > 0) {
-            hashesCursor.moveToFirst()
-
-            val idIndex = getColumnIndex(hashesCursor, "id")
-            val hashIndex = getColumnIndex(hashesCursor, "hash")
-
-            for (i in 0 until hashesCursor.count) {
-                ids.add(hashesCursor.getString(idIndex))
-                val byteArray = hashesCursor.getBlob(hashIndex)
-                hashes.add(BooleanArray(byteArray.size) { byteArray[it] != 0.toByte() })
-
-                hashesCursor.moveToNext()
-            }
-        } else {
-            hashesCursor.close()
-            throw Error("Invalid pHash database: `hashes` table not found")
-        }
-
-        for ((id, hash) in ids.zip(hashes)) {
-            val idSplit = id.split("||")
-            if (idSplit.size > 1 && idSplit[0] == "partner_icon") {
-                partnerIconIds.add(idSplit[1])
-                partnerIconHashes.add(hash)
+            if (propertiesCursor.count <= 0) {
+                propertiesCursor.close()
+                throw Error("Invalid pHash database: `properties` table not found")
             } else {
-                jacketIds.add(id)
-                jacketHashes.add(hash)
+                propertiesCursor.moveToFirst()
+
+                val keyIndex = getColumnIndex(propertiesCursor, "key")
+                val valueIndex = getColumnIndex(propertiesCursor, "value")
+
+                for (i in 0 until propertiesCursor.count) {
+                    when (propertiesCursor.getString(keyIndex)) {
+                        "hash_size" -> hashSize = propertiesCursor.getInt(valueIndex)
+                        "highfreq_factor" -> highFreqFactor = propertiesCursor.getInt(valueIndex)
+                        "built_timestamp" -> {
+                            val unixTimestamp = propertiesCursor.getInt(valueIndex).toLong()
+                            builtTime = Instant.ofEpochSecond(unixTimestamp)
+                        }
+                    }
+
+                    propertiesCursor.moveToNext()
+                }
+            }
+
+            val hashesCursor =
+                db.query("hashes", arrayOf("id", "hash"), null, null, null, null, null)
+
+            if (hashesCursor.count > 0) {
+                hashesCursor.moveToFirst()
+
+                val idIndex = getColumnIndex(hashesCursor, "id")
+                val hashIndex = getColumnIndex(hashesCursor, "hash")
+
+                for (i in 0 until hashesCursor.count) {
+                    ids.add(hashesCursor.getString(idIndex))
+                    val byteArray = hashesCursor.getBlob(hashIndex)
+                    hashes.add(BooleanArray(byteArray.size) { byteArray[it] != 0.toByte() })
+
+                    hashesCursor.moveToNext()
+                }
+            } else {
+                hashesCursor.close()
+                throw Error("Invalid pHash database: `hashes` table not found")
+            }
+
+            for ((id, hash) in ids.zip(hashes)) {
+                val idSplit = id.split("||")
+                if (idSplit.size > 1 && idSplit[0] == "partner_icon") {
+                    partnerIconIds.add(idSplit[1])
+                    partnerIconHashes.add(hash)
+                } else {
+                    jacketIds.add(id)
+                    jacketHashes.add(hash)
+                }
             }
         }
-    }
-
-    fun xorBooleanArray(arr1: BooleanArray, arr2: BooleanArray): Int {
-        assert(arr1.size == arr2.size)
-        return arr1.zip(arr2).count { it.first xor it.second }
     }
 
     fun calculateImagePhash(imgGray: Mat) =
-        calculatePhash(imgGray, this.hashSize, this.highfreqFactor)
+        calculatePhash(imgGray, this.hashSize, this.highFreqFactor)
 
     /**
      * This function takes a boolean array as a hash and a list of boolean arrays as hashes to
@@ -161,9 +155,6 @@ class ImagePhashDatabase(path: String) {
         return lookupHashes(hash, ids, hashes)
     }
 
-    fun lookupImages(imgGray: Mat) = lookupImagesHelper(imgGray, this.ids, this.hashes)
-    fun lookupImage(imgGray: Mat) = lookupImages(imgGray)[0]
-
     fun lookupJackets(imgGray: Mat) = lookupImagesHelper(imgGray, this.jacketIds, this.jacketHashes)
     fun lookupJacket(imgGray: Mat) = lookupJackets(imgGray)[0]
 
@@ -173,6 +164,11 @@ class ImagePhashDatabase(path: String) {
     fun lookupPartnerIcon(imgGray: Mat) = lookupPartnerIcons(imgGray)[0]
 
     companion object {
+        fun xorBooleanArray(arr1: BooleanArray, arr2: BooleanArray): Int {
+            assert(arr1.size == arr2.size)
+            return arr1.zip(arr2).count { it.first xor it.second }
+        }
+
         fun build(
             databaseFile: File,
             images: List<Mat>,
