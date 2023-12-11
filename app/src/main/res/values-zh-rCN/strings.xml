@@ -43,8 +43,7 @@
     <string name="crash_report_toast_report_ignored">崩溃报告已忽略</string>
     <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
     <string name="database_manage_import_from_arcaea_apk">从 Arcaea 安装包导入</string>
-    <string name="database_manage_import_from_arcaea_apk_installed">从本机 Arcaea 导入</string>
-    <string name="database_manage_import_from_arcaea_apk_installed_unavailable">未安装 Arcaea</string>
+    <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
     <plurals name="database_packlist_imported">
         <item quantity="other">已导入 %d 个曲包</item>
     </plurals>

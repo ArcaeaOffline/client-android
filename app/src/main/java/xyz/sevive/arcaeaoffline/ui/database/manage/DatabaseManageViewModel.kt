@@ -1,8 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.database.manage
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -28,23 +26,6 @@ import java.util.zip.ZipInputStream
 class DatabaseManageViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    fun isArcaeaInstalled(context: Context): Boolean {
-        return try {
-            context.packageManager.getPackageInfo("moe.low.arc", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-    fun getArcaeaIconFromInstalled(context: Context): Drawable? {
-        return try {
-            context.packageManager.getApplicationIcon("moe.low.arc")
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
-        }
-    }
-
     private fun toast(context: Context, string: String, length: Int = Toast.LENGTH_LONG) {
         // https://stackoverflow.com/a/34970752/16484891
         // make code running in main thread, CC BY-SA 4.0

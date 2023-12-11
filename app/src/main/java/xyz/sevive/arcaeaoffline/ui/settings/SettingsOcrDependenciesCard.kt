@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ui.components.ActionCard
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
@@ -108,7 +109,7 @@ fun SettingsOcrDependenciesCard(
                         Text(stringResource(R.string.settings_ocr_import_phash_database))
                     }
 
-                    Button(onClick = {
+                    ArcaeaButton({
                         showBuildPhashDatabaseDialog = true
                         coroutineScope.launch {
                             settingsViewModel.buildPhashDatabaseFromArcaea(
