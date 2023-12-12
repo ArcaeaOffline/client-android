@@ -5,6 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import io.requery.android.database.sqlite.SQLiteDatabase
+import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
+import io.requery.android.database.sqlite.SQLiteFunction
 import xyz.sevive.arcaeaoffline.core.database.daos.CalculatedPotentialDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
@@ -31,6 +34,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
+import kotlin.math.floor
 
 
 @Database(
@@ -66,6 +70,8 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun calculatedPotentialDao(): CalculatedPotentialDao
 
     companion object {
+        private const val DATABASE_NAME = "arcaea_offline.db"
+
         @Volatile
         private var Instance: ArcaeaOfflineDatabase? = null
 
@@ -73,8 +79,25 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(
-                    context, ArcaeaOfflineDatabase::class.java, "arcaea_offline.db"
-                ).openHelperFactory(RequerySQLiteOpenHelperFactory()).build().also { Instance = it }
+                    context, ArcaeaOfflineDatabase::class.java, DATABASE_NAME
+                ).openHelperFactory { configuration ->
+                    // Custom Functions on Android SQLite with Room
+                    // https://medium.com/@adarshsharma1904/custom-functions-on-android-sqlite-with-room-e79b53c4c924
+                    val config = SQLiteDatabaseConfiguration(
+                        context.getDatabasePath(DATABASE_NAME).path,
+                        SQLiteDatabase.OPEN_CREATE or SQLiteDatabase.OPEN_READWRITE
+                    )
+
+                    config.functions.add(SQLiteFunction("FLOOR", 1) { args, result ->
+                        if (args != null && result != null) {
+                            val number = args.getDouble(0)
+                            result.set(floor(number).toLong())
+                        }
+                    })
+
+                    val options = RequerySQLiteOpenHelperFactory.ConfigurationOptions { config }
+                    RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
+                }.build().also { Instance = it }
             }
         }
     }
