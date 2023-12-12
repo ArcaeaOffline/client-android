@@ -12,6 +12,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreCalculatedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreCalculatedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
@@ -27,6 +29,7 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val chartRepository: ChartRepository
 
     val scoreRepository: ScoreRepository
+    val scoreCalculatedRepository: ScoreCalculatedRepository
 }
 
 class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context) :
@@ -58,5 +61,11 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
 
     override val scoreRepository: ScoreRepository by lazy {
         ScoreRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).scoreDao())
+    }
+
+    override val scoreCalculatedRepository: ScoreCalculatedRepository by lazy {
+        ScoreCalculatedRepositoryImpl(
+            ArcaeaOfflineDatabase.getDatabase(context).scoreCalculatedDao()
+        )
     }
 }

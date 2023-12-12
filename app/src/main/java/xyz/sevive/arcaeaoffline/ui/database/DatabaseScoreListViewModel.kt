@@ -16,6 +16,12 @@ class DatabaseScoreListViewModel(
         initialValue = listOf(),
     )
 
+    val scoreCalculatedList = repositoryContainer.scoreCalculatedRepository.findAll().stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = listOf(),
+    )
+
     suspend fun updateScore(score: Score) {
         repositoryContainer.scoreRepository.upsert(score)
     }

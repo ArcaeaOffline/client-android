@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,11 +34,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.ScoreCalculated
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 @Composable
 internal fun DatabaseScoreListItem(
@@ -45,11 +49,21 @@ internal fun DatabaseScoreListItem(
     onRequestEdit: () -> Unit,
     onRequestDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    scoreCalculated: ScoreCalculated? = null,
 ) {
     Row(modifier, verticalAlignment = Alignment.Bottom) {
         ArcaeaScoreCard(score = score, Modifier.weight(1f))
 
-        Column {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("PTT", style = MaterialTheme.typography.labelSmall)
+
+            val pttText = if (scoreCalculated != null) {
+                val decimalFormat = DecimalFormat("#.###")
+                decimalFormat.roundingMode = RoundingMode.DOWN
+                decimalFormat.format(scoreCalculated.potential)
+            } else "-.--"
+            Text(pttText, style = MaterialTheme.typography.labelMedium)
+
             IconButton(onClick = onRequestEdit) {
                 Icon(Icons.Default.Edit, null)
             }
@@ -71,6 +85,7 @@ fun DatabaseScoreListScreen(
     val context = LocalContext.current
 
     val scoreList by databaseScoreListViewModel.scoreList.collectAsState()
+    val scoreCalculatedList by databaseScoreListViewModel.scoreCalculatedList.collectAsState()
     var showScoreEditor by rememberSaveable { mutableStateOf(false) }
 
     SubScreenContainer(
@@ -94,6 +109,7 @@ fun DatabaseScoreListScreen(
                     // this makes list item jitter when positioned near the top/bottom
                     // TODO: issue in this ExperimentalApi or `ArcaeaScoreCard`?
                     Modifier.animateItemPlacement(),
+                    scoreCalculatedList.find { sc -> sc.id == it.id },
                 )
             }
         }
@@ -110,8 +126,9 @@ fun DatabaseScoreListScreen(
                         coroutineScope.launch {
                             databaseScoreListViewModel.updateScore(it)
                         }
-                        Toast.makeText(context, "Update score ${it.id}", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(
+                            context, "Update score ${it.id}", Toast.LENGTH_SHORT
+                        ).show()
                         showScoreEditor = false
                     },
                     scoreEditorViewModel,
