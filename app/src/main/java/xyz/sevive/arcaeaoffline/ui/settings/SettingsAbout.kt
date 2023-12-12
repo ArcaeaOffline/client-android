@@ -1,10 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.settings
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -58,21 +54,6 @@ internal fun SettingsAboutDescLabel(
     }
 }
 
-internal fun drawableToBitmap(drawable: Drawable): Bitmap? {
-    // https://stackoverflow.com/a/24389104/16484891
-    // CC BY-SA 4.0
-    if (drawable is BitmapDrawable) {
-        return drawable.bitmap
-    }
-    val bitmap = Bitmap.createBitmap(
-        drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
-    return bitmap
-}
-
 @Composable
 fun AppIcon(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -92,7 +73,7 @@ class SettingsAboutException : Exception() {
 
 @SuppressLint("ShowToast")
 @Composable
-fun SettingsAboutCard() {
+fun SettingsAbout() {
     val context = LocalContext.current
 
     var crashCounter by rememberSaveable { mutableIntStateOf(7) }

@@ -23,8 +23,6 @@
     <string name="database_manage_import_title">导入</string>
     <string name="database_manage_import_packlist">packlist</string>
     <string name="database_manage_import_songlist">songlist</string>
-    <string name="settings_ocr_import_knn">导入 KNearest 模型</string>
-    <string name="settings_ocr_import_phash_database">导入 pHash 数据库</string>
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
     <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
     <string name="ocr_from_share_cache_score_button">暂存</string>
@@ -101,4 +99,5 @@
     <string name="general_please_wait">请稍候……</string>
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
+    <string name="general_import">导入</string>
 </resources>

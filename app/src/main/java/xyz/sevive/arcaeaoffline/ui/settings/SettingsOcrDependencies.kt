@@ -42,7 +42,7 @@ import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 
 
 @Composable
-fun SettingsOcrDependenciesCard(
+fun SettingsOcrDependencies(
     settingsViewModel: SettingsViewModel,
     ocrDependencyViewModel: OcrDependencyViewModel = viewModel(),
 ) {
@@ -100,13 +100,13 @@ fun SettingsOcrDependenciesCard(
             Column(Modifier.padding(padding)) {
                 OcrDependencyKnnModelStatus(state = knnModelState.value)
                 Button(onClick = { importKnnLauncher.launch("*/*") }) {
-                    Text(stringResource(R.string.settings_ocr_import_knn))
+                    Text(stringResource(R.string.general_import))
                 }
 
                 OcrDependencyPhashDatabaseStatus(state = phashDatabaseState.value)
                 Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
                     Button(onClick = { importPhashDbLauncher.launch("*/*") }) {
-                        Text(stringResource(R.string.settings_ocr_import_phash_database))
+                        Text(stringResource(R.string.general_import))
                     }
 
                     ArcaeaButton({

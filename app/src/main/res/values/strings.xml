@@ -18,6 +18,7 @@ CC BY-SA 3.0
     <string name="general_save">Save</string>
     <string name="general_edit">Edit</string>
     <string name="general_please_wait">Please wait…</string>
+    <string name="general_import">Import</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
@@ -133,8 +134,6 @@ CC BY-SA 3.0
     <string name="datetime_picker_time_tab">Time</string>
 
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
-    <string name="settings_ocr_import_knn">Import KNearest Model</string>
-    <string name="settings_ocr_import_phash_database">Import pHash Database</string>
     <string name="settings_ocr_phash_database_build_from_arcaea">Build from Arcaea</string>
 
     <string name="settings_about_title">About</string>

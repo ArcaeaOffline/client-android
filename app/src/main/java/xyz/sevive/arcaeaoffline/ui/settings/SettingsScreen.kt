@@ -90,11 +90,11 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsOcrDependenciesCard(settingsViewModel)
+                SettingsOcrDependencies(settingsViewModel)
             }
 
             item {
-                SettingsAboutCard()
+                SettingsAbout()
             }
         }
     }
