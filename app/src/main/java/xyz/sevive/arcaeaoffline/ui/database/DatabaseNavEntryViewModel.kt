@@ -42,7 +42,7 @@ class DatabaseNavEntryViewModel(
         initialValue = listOf()
     )
 
-    val scoreList = repositoryContainer.chartInfoRepository.findAll().stateIn(
+    val scoreList = repositoryContainer.scoreRepository.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
