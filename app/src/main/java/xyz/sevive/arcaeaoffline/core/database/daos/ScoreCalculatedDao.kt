@@ -7,8 +7,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ScoreCalculated
 
 @Dao
 interface ScoreCalculatedDao {
-    @Query("SELECT * FROM scores_calculated WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: Int): Flow<ScoreCalculated>
+    @Query("SELECT * FROM scores_calculated WHERE id = :id")
+    fun find(id: Int): Flow<ScoreCalculated>
 
     @Query("SELECT * FROM scores_calculated")
     fun findAll(): Flow<List<ScoreCalculated>>
