@@ -40,8 +40,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
-import java.math.RoundingMode
-import java.text.DecimalFormat
+import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
 
 @Composable
 internal fun DatabaseScoreListItem(
@@ -57,12 +56,10 @@ internal fun DatabaseScoreListItem(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("PTT", style = MaterialTheme.typography.labelSmall)
 
-            val pttText = if (scoreCalculated != null) {
-                val decimalFormat = DecimalFormat("#.###")
-                decimalFormat.roundingMode = RoundingMode.DOWN
-                decimalFormat.format(scoreCalculated.potential)
-            } else "-.--"
-            Text(pttText, style = MaterialTheme.typography.labelMedium)
+            Text(
+                potentialToText(scoreCalculated?.potential),
+                style = MaterialTheme.typography.labelMedium,
+            )
 
             IconButton(onClick = onRequestEdit) {
                 Icon(Icons.Default.Edit, null)
