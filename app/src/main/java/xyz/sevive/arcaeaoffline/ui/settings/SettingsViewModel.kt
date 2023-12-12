@@ -42,6 +42,8 @@ class SettingsViewModel : ViewModel() {
     suspend fun buildPhashDatabaseFromArcaea(
         context: Context, ocrDependencyPaths: OcrDependencyPaths,
     ) {
+        mkOcrDependencyParentDirs(ocrDependencyPaths)
+
         val arcaeaHelper = ArcaeaHelper(context)
 
         withContext(Dispatchers.IO) {
