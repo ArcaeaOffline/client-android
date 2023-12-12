@@ -155,7 +155,7 @@ class DatabaseManageViewModel(
         val chartInfoList = mutableListOf<ChartInfo>()
         cursor.moveToFirst()
         cursor.use {
-            while (it.moveToNext()) {
+            do {
                 val songId = it.getString(it.getColumnIndex("song_id"))
                 val ratingClass = it.getInt(it.getColumnIndex("rating_class"))
                 val constant = it.getInt(it.getColumnIndex("constant"))
@@ -165,9 +165,16 @@ class DatabaseManageViewModel(
                     songId = songId, ratingClass = ratingClass, constant = constant, notes = notes
                 )
                 chartInfoList.add(chartInfo)
-            }
+            } while (it.moveToNext())
         }
         repositoryContainer.chartInfoRepository.upsertAll(*chartInfoList.toTypedArray())
+
+        toast(
+            context, String.format(
+                context.resources.getString(R.string.database_chart_info_imported),
+                chartInfoList.size,
+            )
+        )
     }
 
     suspend fun exportScores(outputStream: OutputStream) {

@@ -119,6 +119,7 @@ CC BY-SA 3.0
         <item quantity="many">%d difficulties imported</item>
         <item quantity="other">%d difficulty imported</item>
     </plurals>
+    <string name="database_chart_info_imported">%d chart info imported</string>
 
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
