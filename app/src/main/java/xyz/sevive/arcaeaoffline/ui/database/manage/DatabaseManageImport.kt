@@ -3,7 +3,9 @@ package xyz.sevive.arcaeaoffline.ui.database.manage
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileDownload
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,33 +95,62 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
             Text(stringResource(R.string.database_manage_import_title))
         }
     }, modifier = modifier) { padding ->
-        Column(Modifier.padding(padding)) {
-            Button({ importPacklistLauncher.launch("*/*") }) {
-                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                    Text(stringResource(R.string.database_manage_import_packlist))
-                }
-            }
-            Button({ importSonglistLauncher.launch("*/*") }) {
-                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                    Text(stringResource(R.string.database_manage_import_songlist))
-                }
-            }
-
-            Button({ importArcaeaApkLauncher.launch("*/*") }) {
-                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                    Text(stringResource(R.string.database_manage_import_from_arcaea_apk))
-                }
-            }
-
-            ArcaeaButton({
-                coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
+        Column(
+            Modifier.padding(padding),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+        ) {
+            TitleOutlinedCard(title = {
+                Text(
+                    stringResource(R.string.database_manage_import_song_info_title),
+                    Modifier.padding(it),
+                )
             }) {
-                Text(stringResource(R.string.database_manage_import_from_arcaea_installed))
+                Column(
+                    Modifier
+                        .padding(it)
+                        .fillMaxWidth()
+                ) {
+                    Button({ importPacklistLauncher.launch("*/*") }) {
+                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            Text(stringResource(R.string.database_manage_import_packlist))
+                        }
+                    }
+                    Button({ importSonglistLauncher.launch("*/*") }) {
+                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            Text(stringResource(R.string.database_manage_import_songlist))
+                        }
+                    }
+
+                    Button({ importArcaeaApkLauncher.launch("*/*") }) {
+                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            Text(stringResource(R.string.database_manage_import_from_arcaea_apk))
+                        }
+                    }
+
+                    ArcaeaButton({
+                        coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
+                    }) {
+                        Text(stringResource(R.string.database_manage_import_from_arcaea_installed))
+                    }
+                }
             }
 
-            Button(onClick = { importChartInfoDatabaseLauncher.launch("*/*") }) {
-                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
-                    Text(stringResource(R.string.database_manage_import_chart_info_database))
+            TitleOutlinedCard(title = {
+                Text(
+                    stringResource(R.string.database_manage_import_chart_info_title),
+                    Modifier.padding(it),
+                )
+            }) {
+                Column(
+                    Modifier
+                        .padding(it)
+                        .fillMaxWidth()
+                ) {
+                    Button(onClick = { importChartInfoDatabaseLauncher.launch("*/*") }) {
+                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            Text(stringResource(R.string.database_manage_import_chart_info_database))
+                        }
+                    }
                 }
             }
         }

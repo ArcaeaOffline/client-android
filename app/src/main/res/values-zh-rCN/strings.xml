@@ -69,7 +69,6 @@
         <item quantity="other">%d 个分数记录</item>
     </plurals>
     <string name="database_status_not_initialized">数据库未初始化</string>
-    <string name="database_status_intro">数据库中共有：</string>
     <string name="database_status_initialize_button">初始化</string>
     <string name="database_status_title">数据库状态</string>
     <string name="datetime_picker_date_tab">日期</string>
@@ -100,4 +99,7 @@
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
     <string name="general_import">导入</string>
+    <string name="database_version_label">版本 %d</string>
+    <string name="database_manage_import_chart_info_title">谱面信息</string>
+    <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
 </resources>

@@ -65,6 +65,7 @@ CC BY-SA 3.0
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
+    <string name="database_version_label">Version %d</string>
     <plurals name="database_pack_entries">
         <item quantity="many">%d pack entries</item>
         <item quantity="other">%d pack entry</item>
@@ -89,16 +90,17 @@ CC BY-SA 3.0
     <string name="database_status_title">Database Status</string>
     <string name="database_status_initialize_button">Initialize</string>
     <string name="database_status_not_initialized">Database not initialized</string>
-    <string name="database_status_intro">Database contains a total of:</string>
 
     <string name="database_manage_title">Manage</string>
 
     <string name="database_manage_import_title">Import…</string>
+    <string name="database_manage_import_song_info_title">Pack &amp; Song Info</string>
     <string name="database_manage_import_packlist">packlist</string>
     <string name="database_manage_import_songlist">songlist</string>
     <string name="database_manage_import_from_arcaea_apk">From Arcaea .apk</string>
     <string name="database_manage_import_from_arcaea_apk_please_wait">Reading apk, please wait…</string>
     <string name="database_manage_import_from_arcaea_installed">From installed Arcaea</string>
+    <string name="database_manage_import_chart_info_title">Chart Info</string>
     <string name="database_manage_import_chart_info_database">Chart Info Database</string>
 
     <string name="database_manage_export_title">Export…</string>

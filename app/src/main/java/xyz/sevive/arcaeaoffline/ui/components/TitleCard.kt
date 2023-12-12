@@ -8,7 +8,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import xyz.sevive.arcaeaoffline.R
 
 @Composable
 fun TitleOutlinedCard(
@@ -19,7 +20,9 @@ fun TitleOutlinedCard(
     titleContentColor: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable ColumnScope.(paddingValues: PaddingValues) -> Unit,
 ) {
-    val paddingValues = customPaddingValues ?: PaddingValues(8.dp)
+    val paddingValues = customPaddingValues ?: PaddingValues(
+        dimensionResource(R.dimen.general_card_padding)
+    )
 
     OutlinedCard(modifier) {
         Surface(color = titleContainerColor, contentColor = titleContentColor) {
