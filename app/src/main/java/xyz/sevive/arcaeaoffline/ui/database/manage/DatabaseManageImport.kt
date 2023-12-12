@@ -75,6 +75,16 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
         }
     }
 
+    val importChartInfoDatabaseLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) {
+        it?.let {
+            coroutineScope.launch {
+                viewModel.importChartsInfoDatabase(it, context)
+            }
+        }
+    }
+
     TitleOutlinedCard(title = { padding ->
         IconRow(
             modifier = modifier.padding(padding),
@@ -104,6 +114,12 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
                 coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
             }) {
                 Text(stringResource(R.string.database_manage_import_from_arcaea_installed))
+            }
+
+            Button(onClick = { importChartInfoDatabaseLauncher.launch("*/*") }) {
+                IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                    Text(stringResource(R.string.database_manage_import_chart_info_database))
+                }
             }
         }
     }

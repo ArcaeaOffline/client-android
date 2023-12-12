@@ -1,21 +1,27 @@
 package xyz.sevive.arcaeaoffline.ui.database.manage
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.core.database.getIntOrNull
 import androidx.lifecycle.ViewModel
+import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -119,6 +125,49 @@ class DatabaseManageViewModel(
             arcaeaApkZipFile.getInputStream(songlistZipEntry)
         }
         importSonglist(songlistInputStream, context)
+    }
+
+    @SuppressLint("Range")
+    suspend fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
+        val inputStream = context.contentResolver.openInputStream(fileUri) ?: return
+
+        val databaseCopied = File(context.cacheDir, "chart_info_database_copy.db")
+        if (databaseCopied.exists()) databaseCopied.delete()
+
+        inputStream.use {
+            IOUtils.copy(it, databaseCopied.outputStream())
+        }
+
+        val db = SQLiteDatabase.openDatabase(
+            databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
+        )
+
+        val cursor = db.query(
+            "charts_info",
+            arrayOf("song_id", "rating_class", "constant", "notes"),
+            null,
+            null,
+            null,
+            null,
+            null,
+        )
+
+        val chartInfoList = mutableListOf<ChartInfo>()
+        cursor.moveToFirst()
+        cursor.use {
+            while (it.moveToNext()) {
+                val songId = it.getString(it.getColumnIndex("song_id"))
+                val ratingClass = it.getInt(it.getColumnIndex("rating_class"))
+                val constant = it.getInt(it.getColumnIndex("constant"))
+                val notes = it.getIntOrNull(it.getColumnIndex("notes"))
+
+                val chartInfo = ChartInfo(
+                    songId = songId, ratingClass = ratingClass, constant = constant, notes = notes
+                )
+                chartInfoList.add(chartInfo)
+            }
+        }
+        repositoryContainer.chartInfoRepository.upsertAll(*chartInfoList.toTypedArray())
     }
 
     suspend fun exportScores(outputStream: OutputStream) {
