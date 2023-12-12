@@ -13,6 +13,7 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseScoreListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.overview.OverviewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -20,6 +21,12 @@ import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for ViewModels
+        initializer {
+            OverviewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
         initializer {
             DatabaseNavEntryViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer

@@ -2,6 +2,8 @@ package xyz.sevive.arcaeaoffline.ui.containers
 
 import android.content.Context
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.repositories.CalculatedPotentialRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.CalculatedPotentialRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
@@ -30,6 +32,7 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
 
     val scoreRepository: ScoreRepository
     val scoreCalculatedRepository: ScoreCalculatedRepository
+    val calculatedPotentialRepository: CalculatedPotentialRepository
 }
 
 class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context) :
@@ -66,6 +69,12 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
     override val scoreCalculatedRepository: ScoreCalculatedRepository by lazy {
         ScoreCalculatedRepositoryImpl(
             ArcaeaOfflineDatabase.getDatabase(context).scoreCalculatedDao()
+        )
+    }
+
+    override val calculatedPotentialRepository: CalculatedPotentialRepository by lazy {
+        CalculatedPotentialRepositoryImpl(
+            ArcaeaOfflineDatabase.getDatabase(context).calculatedPotentialDao()
         )
     }
 }
