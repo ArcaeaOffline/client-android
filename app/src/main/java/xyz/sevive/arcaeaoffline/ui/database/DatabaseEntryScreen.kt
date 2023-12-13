@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreens
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -54,17 +54,17 @@ fun DatabaseEntryScreen() {
     ) {
         AnimatedPane(Modifier.fillMaxSize()) {
             when (selectedScreenRoute) {
-                DatabaseScreens.Empty.route -> {}
+                DatabaseScreen.Empty.route -> {}
 
-                DatabaseScreens.Manage.route -> {
+                DatabaseScreen.Manage.route -> {
                     DatabaseManageScreen(onNavigateUp = handleNavigateUp)
                 }
 
-                DatabaseScreens.AddScore.route -> {
+                DatabaseScreen.AddScore.route -> {
                     DatabaseAddScoreScreen(onNavigateUp = handleNavigateUp)
                 }
 
-                DatabaseScreens.ScoreList.route -> {
+                DatabaseScreen.ScoreList.route -> {
                     DatabaseScoreListScreen(onNavigateUp = handleNavigateUp)
                 }
 

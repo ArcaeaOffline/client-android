@@ -5,7 +5,7 @@ import xyz.sevive.arcaeaoffline.R
 
 const val DatabaseNavRouteRoot = "database"
 
-enum class DatabaseScreens(val route: String, @StringRes val title: Int) {
+enum class DatabaseScreen(val route: String, @StringRes val title: Int) {
     Empty("$DatabaseNavRouteRoot/empty", R.string.develop_placeholder),
     Manage("$DatabaseNavRouteRoot/manage", R.string.database_manage_title),
     AddScore("$DatabaseNavRouteRoot/add_score", R.string.database_add_score_title),

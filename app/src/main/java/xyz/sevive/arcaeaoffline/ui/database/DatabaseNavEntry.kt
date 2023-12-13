@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionCard
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreens
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
 
 
 @Composable
@@ -48,8 +48,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionCard(
-                    onClick = { onNavigateToSubRoute(DatabaseScreens.Manage.route) },
-                    title = stringResource(DatabaseScreens.Manage.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreen.Manage.route) },
+                    title = stringResource(DatabaseScreen.Manage.title),
                     headSlot = {
                         Icon(Icons.Default.Build, null)
                     },
@@ -61,8 +61,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionCard(
-                    onClick = { onNavigateToSubRoute(DatabaseScreens.AddScore.route) },
-                    title = stringResource(DatabaseScreens.AddScore.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreen.AddScore.route) },
+                    title = stringResource(DatabaseScreen.AddScore.title),
                     headSlot = {
                         Icon(Icons.Default.Add, null)
                     },
@@ -74,8 +74,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionCard(
-                    onClick = { onNavigateToSubRoute(DatabaseScreens.ScoreList.route) },
-                    title = stringResource(DatabaseScreens.ScoreList.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreen.ScoreList.route) },
+                    title = stringResource(DatabaseScreen.ScoreList.title),
                     headSlot = {
                         Icon(Icons.AutoMirrored.Default.List, null)
                     },

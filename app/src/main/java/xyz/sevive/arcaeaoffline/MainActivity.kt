@@ -90,8 +90,7 @@ class MainActivity : ComponentActivity() {
                                 windowSizeClass,
                             )
                         } else {
-                            ArcaeaOfflineMainScreen(windowSizeClass)
-
+                            MainScreen(windowSizeClass)
                         }
                     }
                 }
