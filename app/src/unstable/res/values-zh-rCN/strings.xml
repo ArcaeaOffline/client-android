@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name_unstable">Arcaea Offline 不稳定版</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:node="merge">Arcaea Offline 不稳定版</string>
 
     <string name="unstable_version_alert_title">不稳定版本</string>
     <string name="unstable_version_alert_short_description">应用随时可能崩溃，并且数据可能丢失甚至无法恢复。\n请注意备份！</string>

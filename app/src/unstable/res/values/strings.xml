@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name_unstable">Arcaea Offline Unstable</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:node="merge">Arcaea Offline Unstable</string>
 
     <string name="unstable_version_alert_title">UNSTABLE VERSION</string>
     <string name="unstable_version_alert_short_description">The app may crash at any time, and your data is under the risk of being lost or even irrecoverable.\nBe sure to backup your data!</string>
