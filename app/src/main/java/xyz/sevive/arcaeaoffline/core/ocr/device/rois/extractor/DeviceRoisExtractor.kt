@@ -1,8 +1,8 @@
-package xyz.sevive.arcaeaoffline.core.ocr.rois.extractor
+package xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor
 
 import org.opencv.core.Mat
 import org.opencv.core.Rect
-import xyz.sevive.arcaeaoffline.core.ocr.rois.definition.DeviceRois
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import kotlin.math.roundToInt
 
 class DeviceRoisExtractor(val rois: DeviceRois, val img: Mat) {

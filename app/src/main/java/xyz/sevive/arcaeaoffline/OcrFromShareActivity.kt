@@ -24,8 +24,8 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
-import xyz.sevive.arcaeaoffline.core.ocr.rois.definition.DeviceAutoRoisT2
-import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceAutoRoisMaskerT2
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceAutoRoisT2
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel

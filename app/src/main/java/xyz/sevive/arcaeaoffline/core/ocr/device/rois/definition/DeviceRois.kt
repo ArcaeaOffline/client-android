@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr.rois.definition
+package xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition
 
 interface DeviceRois {
     val pure: DoubleArray

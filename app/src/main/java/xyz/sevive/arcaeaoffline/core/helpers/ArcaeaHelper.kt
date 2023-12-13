@@ -11,8 +11,8 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
-import xyz.sevive.arcaeaoffline.core.ocr.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile

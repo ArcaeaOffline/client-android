@@ -17,9 +17,9 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.ocr.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.rois.definition.DeviceRois
-import xyz.sevive.arcaeaoffline.core.ocr.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceRoisMasker
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.data.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.database.AppDatabase

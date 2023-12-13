@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.core.ocr.device
 
 import org.opencv.core.Core
 import org.opencv.core.Mat
@@ -7,8 +7,14 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.core.ocr.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.rois.masker.DeviceRoisMasker
+import xyz.sevive.arcaeaoffline.core.ocr.FixRects
+import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
+import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
+import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
+import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
+import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
 
 data class DeviceOcrResult(
     val ratingClass: Int,
@@ -25,10 +31,10 @@ data class DeviceOcrResult(
 )
 
 class DeviceOcr(
-    val extractor: DeviceRoisExtractor,
-    val masker: DeviceRoisMasker,
-    val knnModel: KNearest,
-    val phashDb: ImagePhashDatabase
+    private val extractor: DeviceRoisExtractor,
+    private val masker: DeviceRoisMasker,
+    private val knnModel: KNearest,
+    private val phashDb: ImagePhashDatabase
 ) {
     companion object {
         fun preprocessPartnerIcon(imgGray: Mat): Mat {
@@ -63,7 +69,7 @@ class DeviceOcr(
         }
     }
 
-    fun pfl(roiGray: Mat, factor: Double = 1.0): Int {
+    private fun pfl(roiGray: Mat, factor: Double = 1.0): Int {
         val contours = ArrayList<MatOfPoint>()
         Imgproc.findContours(
             roiGray, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE
@@ -120,7 +126,7 @@ class DeviceOcr(
 
     fun maxRecall(): Int = ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), knnModel)
 
-    fun clearStatus(): Int {
+    private fun clearStatus(): Int {
         val roi = extractor.clearStatus
         val results = listOf(
             masker.clearStatusTrackLost(roi),
@@ -131,7 +137,7 @@ class DeviceOcr(
         return results.indices.maxBy { Core.countNonZero(results[it]) }
     }
 
-    fun lookupSongId(): Pair<String, Int> {
+    private fun lookupSongId(): Pair<String, Int> {
         val roiGray = Mat()
         Imgproc.cvtColor(extractor.jacket, roiGray, Imgproc.COLOR_BGR2GRAY)
         return phashDb.lookupJacket(roiGray)
@@ -139,13 +145,11 @@ class DeviceOcr(
 
     fun songId(): String = lookupSongId().first
 
-    fun lookupPartnerId(): Pair<String, Int> {
+    private fun lookupPartnerId(): Pair<String, Int> {
         val roiGray = Mat()
         Imgproc.cvtColor(extractor.partnerIcon, roiGray, Imgproc.COLOR_BGR2GRAY)
         return phashDb.lookupPartnerIcon(preprocessPartnerIcon(roiGray))
     }
-
-    fun partnerId(): String = lookupPartnerId().first
 
     fun ocr(): DeviceOcrResult {
         val phashLen = phashDb.hashSize * phashDb.hashSize

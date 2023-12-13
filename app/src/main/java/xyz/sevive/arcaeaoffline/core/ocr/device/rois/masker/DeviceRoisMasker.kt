@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr.rois.masker
+package xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker
 
 import org.opencv.core.Mat
 
