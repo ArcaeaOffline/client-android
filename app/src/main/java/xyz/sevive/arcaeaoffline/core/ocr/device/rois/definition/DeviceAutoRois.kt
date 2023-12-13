@@ -2,38 +2,38 @@ package xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition
 
 import kotlin.math.max
 
-abstract class DeviceAutoRois(w: Int, h: Int) : DeviceRois {
+abstract class DeviceAutoRois(open val w: Int, open val h: Int) : DeviceRois {
     abstract val factor: Double
 }
 
-class DeviceAutoRoisT1(val w: Int, val h: Int) : DeviceAutoRois(w, h) {
+class DeviceAutoRoisT1(override val w: Int, override val h: Int) : DeviceAutoRois(w, h) {
     override val factor: Double
         get() {
             return if (this.w.toDouble() / this.h.toDouble() < 16.0 / 9.0) ((this.w / 16.0) * 9.0) / 720.0 else this.h / 720.0
         }
 
-    val wMid: Double
+    private val wMid: Double
         get() = this.w / 2.0
 
-    val hMid: Double
-        get() = this.h / 2.0
+//    val hMid: Double
+//        get() = this.h / 2.0
 
-    val topBar: List<Double>
+    private val topBar: List<Double>
         get() = listOf(0.0, 0.0, this.w.toDouble(), 50.0 * this.factor)
 
-    val layoutAreaHMid: Double
+    private val layoutAreaHMid: Double
         get() = this.h / 2.0 + this.topBar[3]
 
-    val pflLeftFromWMid: Double
+    private val pflLeftFromWMid: Double
         get() = 5 * this.factor
 
-    val pflX: Double
+    private val pflX: Double
         get() = this.wMid + this.pflLeftFromWMid
 
-    val pflW: Double
+    private val pflW: Double
         get() = 76 * this.factor
 
-    val pflH: Double
+    private val pflH: Double
         get() = 26 * this.factor
 
     override val pure
@@ -104,34 +104,34 @@ class DeviceAutoRoisT1(val w: Int, val h: Int) : DeviceAutoRois(w, h) {
         }
 }
 
-class DeviceAutoRoisT2(val w: Int, val h: Int) : DeviceAutoRois(w, h) {
+class DeviceAutoRoisT2(override val w: Int, override val h: Int) : DeviceAutoRois(w, h) {
     override val factor: Double
         get() {
             return if (this.w.toDouble() / this.h.toDouble() < 16.0 / 9.0) ((this.w / 16.0) * 9.0) / 1080.0 else this.h / 1080.0
         }
 
-    val wMid: Double
+    private val wMid: Double
         get() = this.w / 2.0
 
-    val hMid: Double
-        get() = this.h / 2.0
+//    val hMid: Double
+//        get() = this.h / 2.0
 
-    val topBar: List<Double>
+    private val topBar: List<Double>
         get() = listOf(0.0, 0.0, this.w.toDouble(), 75.0 * this.factor)
 
     val layoutAreaHMid: Double
         get() = this.h / 2.0 + this.topBar[3]
 
-    val pflMidFromWMid: Double
-        get() = 60 * this.factor
+//    val pflMidFromWMid: Double
+//        get() = 60 * this.factor
 
-    val pflX: Double
+    private val pflX: Double
         get() = this.wMid + 10 * this.factor
 
-    val pflW: Double
+    private val pflW: Double
         get() = 100 * this.factor
 
-    val pflH: Double
+    private val pflH: Double
         get() = 24 * this.factor
 
     override val pure: DoubleArray
