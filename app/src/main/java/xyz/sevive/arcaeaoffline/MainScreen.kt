@@ -24,12 +24,7 @@ fun MainScreen(windowSizeClass: WindowSizeClass, modifier: Modifier = Modifier) 
             MainNavigationRail(navController, Modifier.fillMaxHeight())
         }
 
-        Column(
-            Modifier
-                .fillMaxSize()
-            // TODO: this looks quite good
-//                .background(MaterialTheme.colorScheme.inverseOnSurface)
-        ) {
+        Column(Modifier.fillMaxSize()) {
             MainNavigationGraph(navController, Modifier.weight(1f))
             AnimatedVisibility(navigationType == MainScreenNavigationType.BAR) {
                 MainNavigationBar(navController)

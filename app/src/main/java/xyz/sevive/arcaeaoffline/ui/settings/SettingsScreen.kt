@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -77,7 +77,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = viewModel(),
 ) {
-    Surface(
+    Box(
         modifier
             .fillMaxSize()
             .padding(dimensionResource(R.dimen.general_page_padding))

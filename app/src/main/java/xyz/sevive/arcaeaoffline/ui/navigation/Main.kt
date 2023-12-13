@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
@@ -52,7 +53,7 @@ fun MainNavigationBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
 
-    NavigationBar {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.inverseOnSurface) {
         MainScreen.entries.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon(), null) },
@@ -72,7 +73,7 @@ fun MainNavigationRail(navController: NavController, modifier: Modifier = Modifi
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
 
-    NavigationRail(modifier) {
+    NavigationRail(modifier, containerColor = MaterialTheme.colorScheme.inverseOnSurface) {
         Spacer(Modifier.weight(1f))
 
         MainScreen.entries.forEach { item ->

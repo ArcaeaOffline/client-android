@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
@@ -69,16 +67,14 @@ fun DatabaseEntryScreen() {
                 }
 
                 else -> {
-                    Surface(contentColor = MaterialTheme.colorScheme.onSurfaceVariant) {
-                        Box {
-                            Icon(
-                                Icons.AutoMirrored.Default.MenuOpen,
-                                null,
-                                Modifier
-                                    .size(150.dp)
-                                    .align(Alignment.Center)
-                            )
-                        }
+                    Box {
+                        Icon(
+                            Icons.AutoMirrored.Default.MenuOpen,
+                            null,
+                            Modifier
+                                .size(150.dp)
+                                .align(Alignment.Center)
+                        )
                     }
                 }
             }

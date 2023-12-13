@@ -3,13 +3,11 @@ package xyz.sevive.arcaeaoffline.ui.overview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,20 +35,18 @@ fun OverviewScreen(
 ) {
     val b30 by overviewModel.b30.collectAsState()
 
-    Surface(
+    Column(
         modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(dimensionResource(R.dimen.general_page_padding))
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
-                item {
-                    B30R10Label(label = "B30", value = potentialToText(b30))
-                }
+        LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
+            item {
+                B30R10Label(label = "B30", value = potentialToText(b30))
+            }
 
-                item {
-                    B30R10Label(label = "R10", value = "-.--")
-                }
+            item {
+                B30R10Label(label = "R10", value = "-.--")
             }
         }
     }
