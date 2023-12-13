@@ -44,16 +44,16 @@ fun UnstableBuildAlert(modifier: Modifier = Modifier, showDetails: Boolean = tru
         modifier,
         shape = CutCornerShape(
             0.dp,
-            dimensionResource(R.dimen.action_card_padding),
+            dimensionResource(R.dimen.action_button_padding),
             0.dp,
-            dimensionResource(R.dimen.action_card_padding),
+            dimensionResource(R.dimen.action_button_padding),
         ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.error,
         ),
     ) {
-        Column(Modifier.padding(dimensionResource(R.dimen.action_card_padding))) {
+        Column(Modifier.padding(dimensionResource(R.dimen.action_button_padding))) {
             IconRow(icon = { Icon(painterResource(R.drawable.ic_unstable_build), null) }) {
                 Text(
                     stringResource(R.string.unstable_version_alert_title),

@@ -33,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.ui.components.ActionCard
+import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
@@ -86,7 +86,7 @@ fun SettingsOcrDependencies(
     }
 
     TitleOutlinedCard(title = {
-        ActionCard(onClick = { expanded = !expanded },
+        ActionButton(onClick = { expanded = !expanded },
             title = stringResource(R.string.settings_ocr_dependencies_title),
             shape = settingsTitleActionCardShape(),
             headSlot = { Icon(Icons.Default.Api, null) },

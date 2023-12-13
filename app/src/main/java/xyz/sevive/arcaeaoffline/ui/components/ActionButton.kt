@@ -1,18 +1,21 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DisabledByDefault
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,30 +32,34 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
-fun ActionCard(
+fun ActionButton(
     onClick: () -> Unit,
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    enabled: Boolean = true,
     shape: Shape = CardDefaults.shape,
-    cardColors: CardColors? = null,
+    buttonColors: ButtonColors? = null,
     headSlot: @Composable () -> Unit = {},
     tailSlot: @Composable () -> Unit = {}
 ) {
-    val appliedCardColors = cardColors ?: CardDefaults.cardColors(
+    val appliedColors = buttonColors ?: ButtonDefaults.buttonColors(
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer)
     )
 
-    Card(modifier, shape = shape, colors = appliedCardColors) {
-        Row(
-            Modifier
-                .clickable { onClick() }
-                .padding(dimensionResource(R.dimen.action_card_padding)),
-            verticalAlignment = Alignment.CenterVertically) {
+    Button(
+        onClick,
+        modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = appliedColors,
+        contentPadding = PaddingValues(dimensionResource(R.dimen.action_button_padding)),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             headSlot()
 
-            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
+            Spacer(modifier.width(dimensionResource(R.dimen.action_button_icon_text_padding)))
 
             Column {
                 Text(title, style = MaterialTheme.typography.titleLarge)
@@ -62,38 +69,48 @@ fun ActionCard(
             }
 
             Spacer(Modifier.weight(1f))
-            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
+            Spacer(modifier.width(dimensionResource(R.dimen.action_button_icon_text_padding)))
 
             tailSlot()
 
-            Spacer(modifier.width(dimensionResource(R.dimen.action_card_icon_text_padding)))
+            Spacer(modifier.width(dimensionResource(R.dimen.action_button_icon_text_padding)))
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun ActionCardPreview() {
+fun ActionButtonPreview() {
     ArcaeaOfflineTheme {
         Column(
             Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ActionCard({}, "Test Card")
-            ActionCard({}, "Test Card w/ desc", description = "wow description")
-            ActionCard(onClick = {},
-                title = "Test Card w/ icon",
+            ActionButton({}, "Test")
+            ActionButton({}, "Test w/ desc", description = "wow description")
+            ActionButton(onClick = {},
+                title = "Test w/ icon",
                 description = "wow an arrow",
                 tailSlot = {
                     Icon(Icons.AutoMirrored.Default.ArrowForward, null)
                 })
-            ActionCard(onClick = {},
-                title = "Test Card w/ two icons",
+            ActionButton(onClick = {},
+                title = "Test w/ two icons",
                 description = "wow icons",
                 headSlot = {
                     Icon(Icons.Default.UploadFile, null)
                 },
                 tailSlot = {
                     Icon(Icons.Default.ChevronRight, null)
+                })
+            ActionButton(onClick = {},
+                title = "Test disabled",
+                description = "wow disabled",
+                enabled = false,
+                headSlot = {
+                    Icon(Icons.Default.Cancel, null)
+                },
+                tailSlot = {
+                    Icon(Icons.Default.DisabledByDefault, null)
                 })
         }
     }

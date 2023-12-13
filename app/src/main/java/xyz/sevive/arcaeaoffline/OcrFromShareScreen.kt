@@ -85,7 +85,7 @@ internal fun AppIconAndLabelButton(
         shape = RoundedCornerShape(20.dp),
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.action_card_icon_text_padding)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.action_button_icon_text_padding)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             appIcon()

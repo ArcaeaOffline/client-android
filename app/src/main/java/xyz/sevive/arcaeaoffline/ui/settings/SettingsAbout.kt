@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,7 +36,7 @@ import androidx.core.util.TypedValueCompat.pxToDp
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.IS_UNSTABLE_VERSION
-import xyz.sevive.arcaeaoffline.ui.components.ActionCard
+import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 
 
@@ -86,7 +86,7 @@ fun SettingsAbout() {
     }
 
     TitleOutlinedCard(title = {
-        ActionCard(
+        ActionButton(
             onClick = {
                 if (crashCounter > 0) {
                     crashCounter -= 1
@@ -102,7 +102,7 @@ fun SettingsAbout() {
             },
             title = stringResource(R.string.settings_about_title),
             shape = settingsTitleActionCardShape(),
-            cardColors = if (IS_UNSTABLE_VERSION) CardDefaults.cardColors(
+            buttonColors = if (IS_UNSTABLE_VERSION) ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.error,
             ) else null,
