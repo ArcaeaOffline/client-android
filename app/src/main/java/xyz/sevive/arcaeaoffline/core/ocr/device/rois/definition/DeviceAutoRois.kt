@@ -110,7 +110,7 @@ class DeviceAutoRoisT2(override val w: Int, override val h: Int) : DeviceAutoRoi
             return if (this.w.toDouble() / this.h.toDouble() < 16.0 / 9.0) ((this.w / 16.0) * 9.0) / 1080.0 else this.h / 1080.0
         }
 
-    private val wMid: Double
+    val wMid: Double
         get() = this.w / 2.0
 
 //    val hMid: Double
