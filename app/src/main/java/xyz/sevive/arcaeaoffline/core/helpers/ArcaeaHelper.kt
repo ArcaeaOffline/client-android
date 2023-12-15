@@ -177,7 +177,9 @@ class ArcaeaHelper(context: Context) {
         if (partnerIconsCacheDir.exists()) FileUtils.cleanDirectory(partnerIconsCacheDir)
     }
 
-    suspend fun buildPhashDatabase() {
+    suspend fun buildPhashDatabase(
+        progressCallback: (progress: Int, total: Int) -> Unit = { _, _ -> }
+    ) {
         buildPhashDatabaseCleanUp()
         if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
 
@@ -199,7 +201,12 @@ class ArcaeaHelper(context: Context) {
                 labels.add("partner_icon||${FilenameUtils.getBaseName(it.name)}")
             }
 
-            ImagePhashDatabase.build(tempPhashDatabaseFile, mats, labels)
+            ImagePhashDatabase.build(
+                tempPhashDatabaseFile,
+                mats,
+                labels,
+                progressCallback = progressCallback,
+            )
         } finally {
             buildPhashDatabaseCleanUp()
         }

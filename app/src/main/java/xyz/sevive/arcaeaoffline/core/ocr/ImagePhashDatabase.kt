@@ -175,7 +175,10 @@ class ImagePhashDatabase(path: String) {
             labels: List<String>,
             hashSize: Int = 16,
             highFreqFactor: Int = 4,
+            progressCallback: (progress: Int, total: Int) -> Unit = { _, _ -> },
         ) {
+            assert(images.size == labels.size) { "`images` and `labels` should have the same size" }
+
             val db = SQLiteDatabase.openOrCreateDatabase(databaseFile, null)
 
             db.use {
@@ -193,7 +196,7 @@ class ImagePhashDatabase(path: String) {
                 it.insert("properties", null, highFreqFactorContentValues)
 
                 it.execSQL("CREATE TABLE hashes (id TEXT, hash BLOB(${hashSize * hashSize}))")
-                images.zip(labels).forEach { pair ->
+                images.zip(labels).forEachIndexed { i, pair ->
                     val mat = pair.first
                     val label = pair.second
 
@@ -207,6 +210,8 @@ class ImagePhashDatabase(path: String) {
                     hashContentValues.put("id", label)
                     hashContentValues.put("hash", hashByteArray)
                     it.insert("hashes", null, hashContentValues)
+
+                    progressCallback(i + 1, images.size)
                 }
 
                 val buildTimestampContentValues = ContentValues()

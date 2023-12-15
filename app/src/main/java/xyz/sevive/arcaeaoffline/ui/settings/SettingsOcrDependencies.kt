@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -27,8 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -128,13 +128,25 @@ fun SettingsOcrDependencies(
     }
 
     if (showBuildPhashDatabaseDialog) {
-        Dialog(onDismissRequest = {}) {
-            Card {
-                Column(Modifier.padding(dimensionResource(R.dimen.general_page_padding))) {
-                    Text(stringResource(R.string.general_please_wait))
-                    LinearProgressIndicator()
+        val phashDatabaseBuildProgress by settingsViewModel.phashDatabaseBuildProgress.collectAsState()
+        val phashDatabaseBuildProgressTotal by settingsViewModel.phashDatabaseBuildProgressTotal.collectAsState()
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {},
+            icon = { Icon(painterResource(R.drawable.ic_database), null) },
+            text = {
+                Column {
+                    if (phashDatabaseBuildProgressTotal > -1) {
+                        Text("$phashDatabaseBuildProgress/$phashDatabaseBuildProgressTotal")
+                        LinearProgressIndicator(
+                            progress = { phashDatabaseBuildProgress.toFloat() / phashDatabaseBuildProgressTotal },
+                        )
+                    } else {
+                        Text(stringResource(R.string.general_please_wait))
+                        LinearProgressIndicator()
+                    }
                 }
-            }
-        }
+            },
+        )
     }
 }

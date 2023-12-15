@@ -4,13 +4,19 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import java.io.InputStream
 
 class SettingsViewModel : ViewModel() {
+    private val _phashDatabaseBuildProgress = MutableStateFlow(-1)
+    val phashDatabaseBuildProgress = _phashDatabaseBuildProgress.asStateFlow()
+    private val _phashDatabaseBuildProgressTotal = MutableStateFlow(-1)
+    val phashDatabaseBuildProgressTotal = _phashDatabaseBuildProgressTotal.asStateFlow()
+
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
         if (!ocrDependencyPaths.parentDir.exists()) {
             if (!ocrDependencyPaths.parentDir.mkdirs()) {
@@ -42,20 +48,18 @@ class SettingsViewModel : ViewModel() {
     suspend fun buildPhashDatabaseFromArcaea(
         context: Context, ocrDependencyPaths: OcrDependencyPaths,
     ) {
-        mkOcrDependencyParentDirs(ocrDependencyPaths)
-
         val arcaeaHelper = ArcaeaHelper(context)
 
+        _phashDatabaseBuildProgress.value = 0
         withContext(Dispatchers.IO) {
-            arcaeaHelper.buildPhashDatabase()
+            arcaeaHelper.buildPhashDatabase(progressCallback = { progress, total ->
+                _phashDatabaseBuildProgress.value = progress
+                _phashDatabaseBuildProgressTotal.value = total
+            })
         }
+        _phashDatabaseBuildProgress.value = -1
+        _phashDatabaseBuildProgressTotal.value = -1
 
-        if (ocrDependencyPaths.phashDatabaseFile.exists()) {
-            ocrDependencyPaths.phashDatabaseFile.delete()
-        }
-        IOUtils.copy(
-            arcaeaHelper.tempPhashDatabaseFile.inputStream(),
-            ocrDependencyPaths.phashDatabaseFile.outputStream(),
-        )
+        importPhashDatabase(arcaeaHelper.tempPhashDatabaseFile.inputStream(), ocrDependencyPaths)
     }
 }
