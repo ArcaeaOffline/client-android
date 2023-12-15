@@ -163,6 +163,8 @@ dependencies {
     implementation(libs.compose.richtext.commonmark)
     implementation(libs.compose.richtext.ui.material3)
 
+    implementation(libs.github.jvziyaoyao.imageviewer)
+
     // test & debug
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

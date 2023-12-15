@@ -7,6 +7,7 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
@@ -15,6 +16,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
+import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
+import xyz.sevive.arcaeaoffline.data.clearStatusToClearType
 
 data class DeviceOcrResult(
     val ratingClass: Int,
@@ -29,6 +32,38 @@ data class DeviceOcrResult(
     val partnerId: String?,
     val partnerIdPossibility: Double?,
 )
+
+
+fun DeviceOcrResult.toScore(
+    arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
+    date: Long? = null,
+    comment: String? = null,
+): Score? {
+    if (this.songId == null) return null
+
+    val scoreModifier = if (arcaeaPartnerModifiers != null && this.partnerId != null) {
+        arcaeaPartnerModifiers[this.partnerId]
+    } else null
+    val clearType = if (scoreModifier != null && this.clearStatus != null) {
+        clearStatusToClearType(this.clearStatus, scoreModifier)
+    } else null
+
+    return Score(
+        id = 0,
+        this.songId,
+        this.ratingClass,
+        this.score,
+        this.pure,
+        this.far,
+        this.lost,
+        date,
+        this.maxRecall,
+        scoreModifier?.value,
+        clearType?.value,
+        comment,
+    )
+}
+
 
 class DeviceOcr(
     private val extractor: DeviceRoisExtractor,
