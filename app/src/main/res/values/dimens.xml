@@ -5,6 +5,8 @@
     <dimen name="general_card_padding">8dp</dimen>
     <dimen name="list_arrangement_padding">8dp</dimen>
 
+    <dimen name="text_label_padding">2dp</dimen>
+
     <dimen name="main_screen_list_arrangement_spaced_by">12dp</dimen>
 
     <dimen name="action_button_padding">16dp</dimen>
