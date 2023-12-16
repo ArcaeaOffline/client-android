@@ -44,11 +44,29 @@ interface DeviceAutoRoisMasker : DeviceRoisMasker
 //}
 
 class DeviceAutoRoisMaskerT2 : DeviceAutoRoisMasker {
-    private val pflHsvLower = Scalar(0.0, 0.0, 248.0)
-    private val pflHsvUpper = Scalar(179.0, 10.0, 255.0)
+    private val pflHsvLower = Scalar(0.0, 0.0, 245.0)
+    private val pflHsvUpper = Scalar(179.0, 30.0, 255.0)
 
-    private val whiteHsvLower = Scalar(0.0, 0.0, 240.0)
-    private val whiteHsvUpper = Scalar(179.0, 10.0, 255.0)
+//    private val pureSupplementHsvLower = Scalar(120.0, 0.0, 180.0)
+//    private val pureSupplementHsvUpper = Scalar(135.0, 30.0, 200.0)
+//
+//    private val farSupplementHsvLower = Scalar(0.0, 0.0, 160.0)
+//    private val farSupplementHsvUpper = Scalar(30.0, 90.0, 225.0)
+//
+//    private val lostSupplementHsvLower = Scalar(145.0, 0.0, 130.0)
+//    private val lostSupplementHsvUpper = Scalar(175.0, 50.0, 155.0)
+
+//    private val pureSupplementHsvLower = Scalar(0.0, 0.0, 0.0)
+//    private val pureSupplementHsvUpper = Scalar(0.0, 0.0, 0.0)
+//
+//    private val farSupplementHsvLower = Scalar(0.0, 0.0, 0.0)
+//    private val farSupplementHsvUpper = Scalar(0.0, 0.0, 0.0)
+//
+//    private val lostSupplementHsvLower = Scalar(0.0, 0.0, 0.0)
+//    private val lostSupplementHsvUpper = Scalar(0.0, 0.0, 0.0)
+
+    private val scoreHsvLower = Scalar(0.0, 0.0, 180.0)
+    private val scoreHsvUpper = Scalar(179.0, 255.0, 255.0)
 
     private val pstHsvLower = Scalar(100.0, 50.0, 80.0)
     private val pstHsvUpper = Scalar(100.0, 255.0, 255.0)
@@ -77,13 +95,23 @@ class DeviceAutoRoisMaskerT2 : DeviceAutoRoisMasker {
     private val pureMemoryHsvLower = Scalar(90.0, 70.0, 80.0)
     private val pureMemoryHsvUpper = Scalar(110.0, 200.0, 175.0)
 
-    private fun maskHsv(roiBgr: Mat, hsvMin: Scalar, hsvMax: Scalar): Mat {
+    private fun maskHsv(roiBgr: Mat, hsvLower: Scalar, hsvUpper: Scalar): Mat {
         val roiHsv = Mat()
         val dst = Mat()
         Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
-        Core.inRange(roiHsv, hsvMin, hsvMax, dst)
+        Core.inRange(roiHsv, hsvLower, hsvUpper, dst)
         return dst
     }
+
+//    private fun pfl(roiBgr: Mat, supplementLower: Scalar, supplementUpper: Scalar): Mat {
+//        val result = Mat()
+//
+//        val common = maskHsv(roiBgr, this.pflHsvLower, this.pflHsvUpper)
+//        val supplement = maskHsv(roiBgr, supplementLower, supplementUpper)
+//        Core.bitwise_or(common, supplement, result)
+//
+//        return result
+//    }
 
     private fun pfl(roiBgr: Mat): Mat {
         return this.maskHsv(roiBgr, this.pflHsvLower, this.pflHsvUpper)
@@ -102,7 +130,7 @@ class DeviceAutoRoisMaskerT2 : DeviceAutoRoisMasker {
     }
 
     override fun score(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.whiteHsvLower, this.whiteHsvUpper)
+        return this.maskHsv(roiBgr, this.scoreHsvLower, this.scoreHsvUpper)
     }
 
     override fun ratingClassPst(roiBgr: Mat): Mat {
