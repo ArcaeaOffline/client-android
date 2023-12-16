@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -138,7 +139,10 @@ fun ArcaeaScoreCard(
     score: Score,
     modifier: Modifier = Modifier,
     chart: Chart? = null,
+    colors: CardColors? = null,
 ) {
+    val cardColors = colors ?: CardDefaults.cardColors()
+
     var expanded by rememberSaveable { mutableStateOf(false) }
     val expandArrowRotateDegree by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f, label = "expandArrow"
@@ -163,11 +167,8 @@ fun ArcaeaScoreCard(
     val scoreText =
         score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
-    Card(modifier) {
-        Column(
-            Modifier
-                .clickable { expanded = !expanded }
-                .padding(dimensionResource(R.dimen.general_card_padding))) {
+    Card({ expanded = !expanded }, modifier, colors = cardColors) {
+        Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
             Text(
                 title,
                 Modifier.animateContentSize(),
