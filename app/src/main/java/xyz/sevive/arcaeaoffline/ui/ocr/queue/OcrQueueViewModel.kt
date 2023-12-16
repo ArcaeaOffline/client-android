@@ -1,10 +1,11 @@
-package xyz.sevive.arcaeaoffline.ui.ocr
+package xyz.sevive.arcaeaoffline.ui.ocr.queue
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,13 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneOffset
+import org.threeten.bp.format.DateTimeFormatter
+import xyz.sevive.arcaeaoffline.core.calculate.calculateArcaeaScoreRange
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
@@ -25,7 +32,9 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceAutoRoisT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
+import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import java.io.FileNotFoundException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -39,8 +48,20 @@ data class OcrQueueTask(
     var status: OcrQueueStatus,
     var ocrResult: DeviceOcrResult? = null,
     var score: Score? = null,
+    var chart: Chart? = null,
     var exception: Exception? = null,
-)
+) {
+    val scoreValid: Boolean
+        get() {
+            val chart = chart?.copy()
+            val score = score?.copy()
+            return if (chart?.notes == null || score == null || score.pure == null || score.far == null) {
+                false
+            } else {
+                calculateArcaeaScoreRange(chart.notes, score.pure, score.far).contains(score.score)
+            }
+        }
+}
 
 class OcrQueueViewModel : ViewModel() {
     private val _ocrQueueTasksMap = mutableMapOf<Int, OcrQueueTask>()
@@ -90,29 +111,42 @@ class OcrQueueViewModel : ViewModel() {
         syncQueueStateFlow()
     }
 
+    private fun checkTask(taskId: Int): Boolean {
+        return _ocrQueueTasksMap.contains(taskId)
+    }
+
+    private fun checkTaskOrLog(taskId: Int): Boolean {
+        val result = checkTask(taskId)
+        if (!result) {
+            Log.w(LogTag, "Cannot find task $taskId")
+        }
+        return result
+    }
+
     private fun modifyTask(task: OcrQueueTask) {
+        if (!checkTaskOrLog(task.id)) return
+
         _ocrQueueTasksMap[task.id] = task
         syncQueueStateFlow()
     }
 
-    private fun deleteTask(task: OcrQueueTask) {
+    fun deleteTask(taskId: Int) {
         if (queueRunning.value) {
             Log.w(LogTag, "Cannot add/delete task during queue running!")
             return
         }
 
-        _ocrQueueTasksMap.remove(task.id)
+        if (!checkTaskOrLog(taskId)) return
+
+        _ocrQueueTasksMap.remove(taskId)
         syncQueueStateFlow()
     }
 
-    fun deleteTask(taskId: Int) {
-        val task = _ocrQueueTasksMap[taskId]
-        if (task == null) {
-            Log.w(LogTag, "Cannot delete task $taskId, task not found!")
-            return
-        }
+    fun editScore(taskId: Int, score: Score) {
+        if (!checkTaskOrLog(taskId)) return
 
-        deleteTask(task)
+        val task = _ocrQueueTasksMap[taskId]!!.copy(score = score)
+        modifyTask(task)
     }
 
     private fun isImage(byteArray: ByteArray): Boolean {
@@ -136,7 +170,7 @@ class OcrQueueViewModel : ViewModel() {
         addTask(task)
     }
 
-    fun addImageFileOrFail(imageUri: Uri, context: Context) {
+    private fun addImageFileOrFail(imageUri: Uri, context: Context) {
         if (!isImage(imageUri, context)) throw IllegalArgumentException("File is not an image!")
 
         addImageFile(imageUri)
@@ -194,7 +228,7 @@ class OcrQueueViewModel : ViewModel() {
         addImageFiles(uris, context, detectScreenshot)
     }
 
-    private fun processTask(
+    private suspend fun processTask(
         task: OcrQueueTask,
         context: Context,
         knnModel: KNearest,
@@ -202,9 +236,8 @@ class OcrQueueViewModel : ViewModel() {
     ) {
         if (task.status == OcrQueueStatus.DONE) return
 
-        Log.d(LogTag, "Processing task ${task.id}")
-
-        task.status = OcrQueueStatus.PROCESSING
+        var taskCopy = task.copy(status = OcrQueueStatus.PROCESSING)
+        Log.d(LogTag, "Processing task ${taskCopy.id}")
         modifyTask(task)
 
         try {
@@ -219,18 +252,49 @@ class OcrQueueViewModel : ViewModel() {
             val masker = DeviceAutoRoisMaskerT2()
             val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
 
-            // TODO: read image exif
-            // TODO: build ArcaeaPartnerModifiers
+            val imgExif = ExifInterface(byteArray.inputStream())
+            val imgExifDateTimeOriginal = imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+
+            val imgDate = if (imgExifDateTimeOriginal != null) {
+                LocalDateTime.parse(
+                    imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
+                ).toInstant(ZoneOffset.UTC).epochSecond
+            } else {
+                null
+            }
+
+            val arcaeaPartnerModifiers = ArcaeaPartnerModifiers(context.assets)
+
             val ocrResult = ocr.ocr()
-            task.status = OcrQueueStatus.DONE
-            task.ocrResult = ocrResult
-            task.score = ocrResult.toScore()
+
+            if (ocrResult.songId == null) throw Exception("OCR result invalid: no `song_id`")
+
+            val arcaeaOfflineDatabaseRepositoryContainer =
+                ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
+            val chart = ChartFactory.getChart(
+                arcaeaOfflineDatabaseRepositoryContainer,
+                ocrResult.songId,
+                ocrResult.ratingClass
+            )
+
+            taskCopy = taskCopy.copy(
+                status = OcrQueueStatus.DONE,
+                ocrResult = ocrResult,
+                score = ocrResult.toScore(
+                    date = imgDate,
+                    arcaeaPartnerModifiers = arcaeaPartnerModifiers,
+                ),
+                chart = chart,
+            )
         } catch (e: Exception) {
-            task.status = OcrQueueStatus.ERROR
-            task.exception = e
+            taskCopy = taskCopy.copy(
+                status = OcrQueueStatus.ERROR,
+                exception = e,
+            )
+            Log.e(LogTag, "Error occurred at task ${task.id} ${task.fileUri}", e)
         }
 
-        modifyTask(task)
+        modifyTask(taskCopy)
     }
 
     fun tryStopQueue() {
