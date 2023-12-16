@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.database.manage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -22,9 +21,12 @@ fun DatabaseManageScreen(
 ) {
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = { Text(stringResource(R.string.database_manage_title)) },
+        title = stringResource(R.string.database_manage_title),
     ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+        LazyColumn(
+            modifier,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+        ) {
             item {
                 DatabaseManageImport(viewModel, Modifier.fillMaxWidth())
             }

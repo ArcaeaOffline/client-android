@@ -65,7 +65,7 @@ fun OcrQueueScreen(
         )
     }
 
-    SubScreenContainer(onNavigateUp = { /*TODO*/ }, title = { /*TODO*/ }) {
+    SubScreenContainer(onNavigateUp = { /*TODO*/ }, title = "") {
         Column {
             Row {
                 Button(

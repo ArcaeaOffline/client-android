@@ -10,16 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +31,7 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
+import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.RatingClassSelector
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelector
@@ -83,7 +78,6 @@ fun DatabaseAddScoreScreenChartSelector(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseAddScoreScreen(
     onNavigateUp: () -> Unit,
@@ -100,67 +94,59 @@ fun DatabaseAddScoreScreen(
 
     val tabs = listOf(R.string.arcaea_chart, R.string.arcaea_score)
 
-    Scaffold(
-        modifier,
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.database_add_score_title)) },
-                    navigationIcon = {
-                        IconButton(onClick = onNavigateUp) {
-                            Icon(
-                                Icons.AutoMirrored.Default.ArrowBack,
-                                stringResource(R.string.icon_desc_navigate_back),
+    SubScreenContainer(
+        onNavigateUp = onNavigateUp, title = stringResource(R.string.database_add_score_title)
+    ) {
+        Scaffold(
+            modifier,
+            topBar = {
+                Column {
+                    Box(Modifier.defaultMinSize(minHeight = 20.dp)) {
+                        AnimatedContent(
+                            targetState = score != null,
+                            transitionSpec = {
+                                slideInVertically { -it }.togetherWith(slideOutVertically { -it } + fadeOut())
+                            },
+                            label = "",
+                        ) {
+                            if (it) {
+                                ArcaeaScoreCard(score!!, chart = selectedChart)
+                            } else {
+                                Text("Score Invalid")
+                            }
+                        }
+                    }
+
+                    TabRow(selectedTabIndex = currentTab) {
+                        tabs.forEachIndexed { i, stringResId ->
+                            Tab(
+                                text = { Text(stringResource(stringResId)) },
+                                selected = currentTab == i,
+                                onClick = { currentTab = i },
                             )
                         }
-                    },
-                )
+                    }
+                }
+            },
+        ) {
+            Box(Modifier.padding(it)) {
+                when (currentTab) {
+                    0 -> DatabaseAddScoreScreenChartSelector(
+                        databaseAddScoreViewModel = databaseAddScoreViewModel,
+                        scoreEditorViewModel = scoreEditorViewModel,
+                    )
 
-                Box(Modifier.defaultMinSize(minHeight = 20.dp)) {
-                    AnimatedContent(
-                        targetState = score != null,
-                        transitionSpec = {
-                            slideInVertically { -it }.togetherWith(slideOutVertically { -it } + fadeOut())
-                        },
-                        label = "",
-                    ) {
-                        if (it) {
-                            ArcaeaScoreCard(score!!, chart = selectedChart)
-                        } else {
-                            Text("Score Invalid")
+                    1 -> LazyColumn {
+                        item {
+                            ScoreEditor(
+                                {
+                                    coroutineScope.launch {
+                                        databaseAddScoreViewModel.saveScore(it)
+                                    }
+                                },
+                                viewModel = scoreEditorViewModel,
+                            )
                         }
-                    }
-                }
-
-                TabRow(selectedTabIndex = currentTab) {
-                    tabs.forEachIndexed { i, stringResId ->
-                        Tab(
-                            text = { Text(stringResource(stringResId)) },
-                            selected = currentTab == i,
-                            onClick = { currentTab = i },
-                        )
-                    }
-                }
-            }
-        },
-    ) {
-        Box(Modifier.padding(it)) {
-            when (currentTab) {
-                0 -> DatabaseAddScoreScreenChartSelector(
-                    databaseAddScoreViewModel = databaseAddScoreViewModel,
-                    scoreEditorViewModel = scoreEditorViewModel,
-                )
-
-                1 -> LazyColumn {
-                    item {
-                        ScoreEditor(
-                            {
-                                coroutineScope.launch {
-                                    databaseAddScoreViewModel.saveScore(it)
-                                }
-                            },
-                            viewModel = scoreEditorViewModel,
-                        )
                     }
                 }
             }

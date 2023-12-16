@@ -87,7 +87,7 @@ fun DatabaseScoreListScreen(
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = { Text(stringResource(R.string.database_score_list_title)) },
+        title = stringResource(R.string.database_score_list_title),
     ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
             items(scoreList, key = { it.id }) {
