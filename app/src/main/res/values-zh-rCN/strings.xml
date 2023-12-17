@@ -91,6 +91,9 @@
     <string name="database_manage_export_scores">分数</string>
     <string name="database_add_score_title">添加分数</string>
     <string name="database_score_list_title">分数列表</string>
+    <plurals name="database_score_list_delete_confirm_dialog_content">
+        <item quantity="other">删除 %d 个分数？</item>
+    </plurals>
     <string name="score_editor_commit_button">提交</string>
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
     <string name="icon_desc_navigate_back">返回</string>
@@ -102,4 +105,6 @@
     <string name="database_version_label">版本 %d</string>
     <string name="database_manage_import_chart_info_title">谱面信息</string>
     <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
+    <string name="general_delete">删除</string>
+    <string name="general_confirm">确认</string>
 </resources>

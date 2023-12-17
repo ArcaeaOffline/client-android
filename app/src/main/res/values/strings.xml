@@ -14,9 +14,11 @@ CC BY-SA 3.0
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
 
     <string name="general_ok">OK</string>
+    <string name="general_confirm">Confirm</string>
     <string name="general_cancel">Cancel</string>
     <string name="general_save">Save</string>
     <string name="general_edit">Edit</string>
+    <string name="general_delete">Delete</string>
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
 
@@ -109,6 +111,10 @@ CC BY-SA 3.0
     <string name="database_add_score_title">Add Score</string>
 
     <string name="database_score_list_title">Score List</string>
+    <plurals name="database_score_list_delete_confirm_dialog_content">
+        <item quantity="many">Are you sure to delete %d scores?</item>
+        <item quantity="other">Are you sure to delete %d score?</item>
+    </plurals>
 
     <plurals name="database_packlist_imported">
         <item quantity="many">%d packs imported</item>

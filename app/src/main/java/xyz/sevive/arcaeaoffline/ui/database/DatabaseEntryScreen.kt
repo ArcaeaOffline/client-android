@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
+import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

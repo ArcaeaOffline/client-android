@@ -11,8 +11,8 @@ import xyz.sevive.arcaeaoffline.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabaseScoreListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListViewModel
 import xyz.sevive.arcaeaoffline.ui.models.DatabaseCommonFunctionsViewModel
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewModel
 
