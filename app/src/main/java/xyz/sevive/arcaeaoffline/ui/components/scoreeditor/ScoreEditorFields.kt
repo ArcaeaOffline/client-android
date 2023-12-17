@@ -124,7 +124,7 @@ internal fun MaxRecallField(
         onNumberChange = { viewModel.setMaxRecall(it) },
         modifier = modifier,
         contentModifier = contentModifier,
-        label = { Text("MAX RECALL") },
+        label = { Text(stringResource(R.string.arcaea_max_recall)) },
     )
 }
 
@@ -170,7 +170,7 @@ internal fun ClearTypeField(
             onSelectChanged = { viewModel.setClearType(it) },
             modifier = contentModifier,
             enabled = clearType != null,
-            label = { Text("Clear Type") },
+            label = { Text(stringResource(R.string.arcaea_score_clear_type)) },
         )
     }
 }
@@ -196,7 +196,7 @@ internal fun ModifierField(
             onSelectChanged = { viewModel.setModifier(it) },
             modifier = contentModifier,
             enabled = scoreModifier != null,
-            label = { Text("Modifier") },
+            label = { Text(stringResource(R.string.arcaea_score_modifier)) },
         )
     }
 }

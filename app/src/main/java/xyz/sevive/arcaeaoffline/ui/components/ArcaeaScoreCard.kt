@@ -4,8 +4,11 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -13,10 +16,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,9 +29,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -125,14 +130,28 @@ fun ScorePflText(
             string,
             Modifier
                 .alignByBaseline()
-                .padding(end = 1.dp),
-            style = MaterialTheme.typography.labelLarge,
+                .padding(end = 1.5.dp),
+            style = MaterialTheme.typography.labelMedium,
             color = color
         )
         Text(number?.toString() ?: "-", Modifier.alignByBaseline(), color = color)
     }
 }
 
+@Composable
+private fun DetailsTextWithLabel(label: String, text: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.text_label_padding)),
+    ) {
+        Text(
+            label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall,
+        )
+        Text(text, style = MaterialTheme.typography.labelMedium)
+    }
+}
 
 @Composable
 fun ArcaeaScoreCard(
@@ -143,9 +162,9 @@ fun ArcaeaScoreCard(
 ) {
     val cardColors = colors ?: CardDefaults.cardColors()
 
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    var showDetails by rememberSaveable { mutableStateOf(false) }
     val expandArrowRotateDegree by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f, label = "expandArrow"
+        targetValue = if (showDetails) 180f else 0f, label = "expandArrow"
     )
 
     val title = chart?.title ?: score.songId
@@ -167,18 +186,28 @@ fun ArcaeaScoreCard(
     val scoreText =
         score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
-    Card({ expanded = !expanded }, modifier, colors = cardColors) {
+    Card({ showDetails = !showDetails }, modifier, colors = cardColors) {
         Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
-            Text(
-                title,
-                Modifier.animateContentSize(),
-                maxLines = if (expanded) 2 else 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                ratingClassDisplayText,
-                color = ratingClassColor(score.ratingClass),
-            )
+            Row(verticalAlignment = Alignment.Top) {
+                Column {
+                    Text(
+                        title,
+                        Modifier.animateContentSize(),
+                        maxLines = if (showDetails) 2 else 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        ratingClassDisplayText,
+                        color = ratingClassColor(score.ratingClass),
+                    )
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                if (score.id > 0) {
+                    Text("ID ${score.id}", style = MaterialTheme.typography.labelMedium)
+                }
+            }
 
             Row {
                 Row(Modifier.weight(1f)) {
@@ -209,6 +238,7 @@ fun ArcaeaScoreCard(
 
                     Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                         Text(scoreText, fontWeight = FontWeight.Bold)
+
                         Row {
                             ScorePflText(
                                 "P", score.pure, color = ArcaeaPflExtendedColors.current.pure
@@ -219,16 +249,17 @@ fun ArcaeaScoreCard(
                             ScorePflText(
                                 "L", score.lost, color = ArcaeaPflExtendedColors.current.lost
                             )
-                            ScorePflText("MR", score.maxRecall)
                         }
+
+                        ScorePflText(stringResource(R.string.arcaea_max_recall), score.maxRecall)
                     }
                 }
 
-                TextButton(onClick = { expanded = !expanded }) {
+                IconButton(onClick = { showDetails = !showDetails }) {
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         null,
-                        Modifier.rotate(expandArrowRotateDegree),
+                        Modifier.graphicsLayer { rotationZ = expandArrowRotateDegree },
                     )
                 }
             }
@@ -243,8 +274,16 @@ fun ArcaeaScoreCard(
                 style = MaterialTheme.typography.labelMedium,
             )
 
-            AnimatedVisibility(expanded) {
-                Column {
+            AnimatedVisibility(showDetails) {
+                Column(
+                    Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding))
+                ) {
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = LocalContentColor.current.copy(0.5f),
+                    )
+
                     val clearTypeText = if (score.clearType != null) {
                         ArcaeaScoreClearType.fromInt(score.clearType).toDisplayString()
                     } else stringResource(R.string.score_no_clear_type)
@@ -253,15 +292,22 @@ fun ArcaeaScoreCard(
                         ArcaeaScoreModifier.fromInt(score.modifier).toDisplayString()
                     } else stringResource(R.string.score_no_modifier)
 
-                    Text(
-                        "$clearTypeText | $modifierText",
-                        style = MaterialTheme.typography.labelMedium,
-                    )
+                    Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                        DetailsTextWithLabel(
+                            label = stringResource(R.string.arcaea_score_clear_type),
+                            text = clearTypeText,
+                            modifier = Modifier.weight(1f),
+                        )
+                        DetailsTextWithLabel(
+                            label = stringResource(R.string.arcaea_score_modifier),
+                            text = modifierText,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
 
-                    Text(
-                        score.comment ?: stringResource(R.string.score_no_comment),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    DetailsTextWithLabel(
+                        label = stringResource(R.string.arcaea_score_comment),
+                        text = score.comment ?: stringResource(R.string.score_no_comment)
                     )
                 }
             }

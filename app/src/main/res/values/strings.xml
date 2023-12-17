@@ -55,6 +55,10 @@ CC BY-SA 3.0
     <string name="arcaea_pure" translatable="false">PURE</string>
     <string name="arcaea_far" translatable="false">FAR</string>
     <string name="arcaea_lost" translatable="false">LOST</string>
+    <string name="arcaea_max_recall">MAX RECALL</string>
+    <string name="arcaea_score_clear_type">Clear Type</string>
+    <string name="arcaea_score_modifier">Modifier</string>
+    <string name="arcaea_score_comment">Comment</string>
 
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
     <string name="ocr_from_share_cache_score_button">Cache</string>

@@ -107,4 +107,8 @@
     <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
     <string name="general_delete">删除</string>
     <string name="general_confirm">确认</string>
+    <string name="arcaea_score_clear_type">通关状态</string>
+    <string name="arcaea_score_modifier">Modifier</string>
+    <string name="arcaea_score_comment">备注</string>
+    <string name="arcaea_max_recall">MAX RECALL</string>
 </resources>
