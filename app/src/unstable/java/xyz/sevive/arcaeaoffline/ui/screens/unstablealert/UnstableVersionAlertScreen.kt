@@ -32,7 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -100,21 +100,10 @@ internal fun ConfirmPromptContent(modifier: Modifier = Modifier) {
 
 @Composable
 internal fun ActionsContent(
+    countdownValue: Int,
     onConfirm: () -> Unit,
     onDeny: () -> Unit,
 ) {
-    // a 10s countdown to ensure user has skim through the notice
-    // an extra 1 second to let user know what's going on:
-    // this app is wasting my precious 10 seconds of time,
-    // forcing me to confirm a fucking long and boring alert
-    var confirmContentReadCountdown by remember { mutableIntStateOf(11) }
-    LaunchedEffect(key1 = confirmContentReadCountdown) {
-        while (confirmContentReadCountdown > 0) {
-            delay(1000L)
-            confirmContentReadCountdown -= 1
-        }
-    }
-
     OutlinedButton(
         onClick = { onDeny() },
         colors = ButtonDefaults.outlinedButtonColors(
@@ -133,14 +122,14 @@ internal fun ActionsContent(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError,
         ),
-        enabled = confirmContentReadCountdown <= 0,
+        enabled = countdownValue <= 0,
     ) {
         IconRow(icon = {
-            if (confirmContentReadCountdown <= 0) {
+            if (countdownValue <= 0) {
                 Icon(Icons.AutoMirrored.Default.Login, null)
             } else {
                 Text(
-                    "(${confirmContentReadCountdown})",
+                    "(${countdownValue})",
                     fontSize = with(LocalDensity.current) { 20.dp.toSp() },
                 )
             }
@@ -152,6 +141,7 @@ internal fun ActionsContent(
 
 @Composable
 fun UnstableVersionAlertScreenExpanded(
+    countdownValue: Int,
     onConfirm: () -> Unit,
     onDeny: () -> Unit,
     modifier: Modifier = Modifier,
@@ -189,7 +179,7 @@ fun UnstableVersionAlertScreenExpanded(
             ) {
                 ConfirmPromptContent()
                 Column {
-                    ActionsContent(onConfirm = onConfirm, onDeny = onDeny)
+                    ActionsContent(countdownValue, onConfirm = onConfirm, onDeny = onDeny)
                 }
             }
 
@@ -200,6 +190,7 @@ fun UnstableVersionAlertScreenExpanded(
 
 @Composable
 fun UnstableVersionAlertScreenDefault(
+    countdownValue: Int,
     onConfirm: () -> Unit,
     onDeny: () -> Unit,
     windowSizeClass: WindowSizeClass,
@@ -236,7 +227,7 @@ fun UnstableVersionAlertScreenDefault(
                 if (!confirmPromptInDetailsContainer) {
                     ConfirmPromptContent()
                 }
-                ActionsContent(onConfirm = onConfirm, onDeny = onDeny)
+                ActionsContent(countdownValue, onConfirm = onConfirm, onDeny = onDeny)
             }
         },
     ) {
@@ -268,27 +259,45 @@ fun UnstableVersionAlertScreenDefault(
     }
 }
 
+/**
+ * a 10s countdown to ensure user has skim through the notice
+ * an extra 1 second to let user know what's going on:
+ * this app is wasting my precious 10 seconds of time,
+ * forcing me to confirm a fucking long and boring alert
+ */
+@Composable
+fun rememberContentReadCountdown(): Int {
+    var countdown by rememberSaveable { mutableIntStateOf(11) }
+    LaunchedEffect(key1 = countdown) {
+        while (countdown > 0) {
+            delay(1000L)
+            countdown -= 1
+        }
+    }
+    return countdown
+}
+
 @Composable
 fun UnstableVersionAlertScreen(
     onConfirm: () -> Unit,
     onDeny: () -> Unit,
     windowSizeClass: WindowSizeClass,
 ) {
+    val countdown = rememberContentReadCountdown()
+
     if (windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Expanded) {
-        UnstableVersionAlertScreenExpanded(onConfirm, onDeny)
+        UnstableVersionAlertScreenExpanded(countdown, onConfirm, onDeny)
     } else {
-        UnstableVersionAlertScreenDefault(onConfirm, onDeny, windowSizeClass)
+        UnstableVersionAlertScreenDefault(countdown, onConfirm, onDeny, windowSizeClass)
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-    device = Devices.DESKTOP,
-)
+@Preview(showBackground = true, showSystemUi = true, device = Devices.DESKTOP)
 @Composable
-fun UnstableVersionAlertScreenExpandedPreview() {
+private fun UnstableVersionAlertScreenExpandedPreview() {
+    val countdown = rememberContentReadCountdown()
+
     ArcaeaOfflineTheme {
-        UnstableVersionAlertScreenExpanded({}, {})
+        UnstableVersionAlertScreenExpanded(countdown, {}, {})
     }
 }

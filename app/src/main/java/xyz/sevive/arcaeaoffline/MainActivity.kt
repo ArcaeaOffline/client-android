@@ -30,6 +30,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.ui.screens.unstablealert.UnstableVersionAlertScreen
@@ -40,18 +45,24 @@ val Context.unstableDataStore: DataStore<Preferences> by preferencesDataStore(na
 val UNSTABLE_ALERT_READ = booleanPreferencesKey("unstable_alert_read")
 
 class MainActivity : ComponentActivity() {
+    private val _unstableAlertReadState = MutableStateFlow<Boolean?>(null)
+    private val unstableAlertReadState = _unstableAlertReadState.asStateFlow()
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val unstableAlertReadFlow = this.baseContext.unstableDataStore.data.map { preferences ->
-            preferences[UNSTABLE_ALERT_READ] ?: false
+        CoroutineScope(Dispatchers.Default).launch {
+            _unstableAlertReadState.value = baseContext.unstableDataStore.data.map { preferences ->
+                preferences[UNSTABLE_ALERT_READ] ?: false
+            }.first()
         }
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
-            val unstableAlertRead by unstableAlertReadFlow.collectAsState(initial = null)
             val coroutineScope = rememberCoroutineScope()
+
+            val unstableAlertRead by unstableAlertReadState.collectAsState()
 
             ArcaeaOfflineTheme {
                 Surface(
@@ -70,17 +81,9 @@ class MainActivity : ComponentActivity() {
                         },
                         label = "unstableVersionScreenSlideOut",
                     ) {
-                        if (it == null) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Spacer(Modifier.weight(1f))
-
-                                LinearProgressIndicator()
-                                Text("Initializing")
-
-                                Spacer(Modifier.weight(1f))
-                            }
-                        } else if (!it) {
-                            UnstableVersionAlertScreen(
+                        when (it) {
+                            true -> MainScreen(windowSizeClass)
+                            false -> UnstableVersionAlertScreen(
                                 onConfirm = {
                                     coroutineScope.launch {
                                         confirmUnstableAlertRead()
@@ -89,8 +92,15 @@ class MainActivity : ComponentActivity() {
                                 onDeny = { finishAffinity() },
                                 windowSizeClass,
                             )
-                        } else {
-                            MainScreen(windowSizeClass)
+
+                            null -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Spacer(Modifier.weight(1f))
+
+                                LinearProgressIndicator()
+                                Text("Initializing")
+
+                                Spacer(Modifier.weight(1f))
+                            }
                         }
                     }
                 }
@@ -101,6 +111,7 @@ class MainActivity : ComponentActivity() {
     private suspend fun confirmUnstableAlertRead() {
         this.baseContext.unstableDataStore.edit { settings ->
             settings[UNSTABLE_ALERT_READ] = true
+            _unstableAlertReadState.value = true
         }
     }
 }
