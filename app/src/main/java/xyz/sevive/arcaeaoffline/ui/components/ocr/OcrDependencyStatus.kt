@@ -116,7 +116,7 @@ fun OcrDependencyItemStatus(
 
 @Preview(showBackground = true)
 @Composable
-fun OcrDependencyItemStatusPreview(modifier: Modifier = Modifier) {
+private fun OcrDependencyItemStatusPreview(modifier: Modifier = Modifier) {
     ArcaeaOfflineTheme {
         Card(modifier.padding(8.dp)) {
             Text(

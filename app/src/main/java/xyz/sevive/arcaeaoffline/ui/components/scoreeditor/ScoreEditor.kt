@@ -116,7 +116,7 @@ fun ScoreEditor(
 
 @Preview
 @Composable
-fun ScoreEditorPreview() {
+private fun ScoreEditorPreview() {
     ArcaeaOfflineTheme {
         ScoreEditor({})
     }

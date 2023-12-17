@@ -80,14 +80,15 @@ fun ActionButton(
 
 @Preview(showBackground = true)
 @Composable
-fun ActionButtonPreview() {
+private fun ActionButtonPreview() {
     ArcaeaOfflineTheme {
         Column(
             Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ActionButton({}, "Test")
             ActionButton({}, "Test w/ desc", description = "wow description")
-            ActionButton(onClick = {},
+            ActionButton(
+                onClick = {},
                 title = "Test w/ icon",
                 description = "wow an arrow",
                 tailSlot = {
