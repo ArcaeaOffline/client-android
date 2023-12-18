@@ -51,6 +51,7 @@ import com.origeek.imageViewer.viewer.rememberViewerState
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
@@ -58,15 +59,15 @@ import xyz.sevive.arcaeaoffline.ui.utils.getFilename
 
 
 @Composable
-fun OcrQueueItemImagePreview(task: OcrQueueTask, onDismissRequest: () -> Unit) {
+fun OcrQueueItemImagePreview(uiItem: OcrQueueTaskUiItem, onDismissRequest: () -> Unit) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     val imageViewerState = rememberViewerState()
-    val filename = context.getFilename(task.fileUri) ?: "-"
+    val filename = context.getFilename(uiItem.fileUri) ?: "-"
     var showFileUri by rememberSaveable { mutableStateOf(false) }
 
-    val inputStream = context.contentResolver.openInputStream(task.fileUri)
+    val inputStream = context.contentResolver.openInputStream(uiItem.fileUri)
     if (inputStream == null) {
         Toast.makeText(context, "Cannot preview image", Toast.LENGTH_LONG).show()
         onDismissRequest()
@@ -82,7 +83,7 @@ fun OcrQueueItemImagePreview(task: OcrQueueTask, onDismissRequest: () -> Unit) {
             Surface(Modifier.fillMaxWidth()) {
                 if (showFileUri) {
                     Text(
-                        task.fileUri.toString(),
+                        uiItem.fileUri.toString(),
                         Modifier.clickable { showFileUri = !showFileUri },
                     )
                 } else {
@@ -108,22 +109,22 @@ fun OcrQueueItemImagePreview(task: OcrQueueTask, onDismissRequest: () -> Unit) {
 }
 
 @Composable
-fun OcrQueueItemStatus(status: OcrQueueStatus) {
+fun OcrQueueItemStatus(status: OcrQueueTaskStatus) {
     when (status) {
-        OcrQueueStatus.IDLE -> Icon(Icons.Default.HistoryToggleOff, null)
+        OcrQueueTaskStatus.IDLE -> Icon(Icons.Default.HistoryToggleOff, null)
 
-        OcrQueueStatus.PROCESSING -> CircularProgressIndicator(
+        OcrQueueTaskStatus.PROCESSING -> CircularProgressIndicator(
             Modifier.size(Icons.Default.HourglassBottom.defaultHeight),
             strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth / 1.5f,
         )
 
-        OcrQueueStatus.DONE -> Icon(
+        OcrQueueTaskStatus.DONE -> Icon(
             Icons.Default.Check,
             null,
             tint = MaterialTheme.colorScheme.secondary,
         )
 
-        OcrQueueStatus.ERROR -> Icon(
+        OcrQueueTaskStatus.ERROR -> Icon(
             Icons.Default.Error,
             null,
             tint = MaterialTheme.colorScheme.error,
@@ -133,24 +134,24 @@ fun OcrQueueItemStatus(status: OcrQueueStatus) {
 
 @Composable
 fun OcrQueueItem(
-    task: OcrQueueTask,
-    onDeleteTask: (OcrQueueTask) -> Unit,
+    uiItem: OcrQueueTaskUiItem,
+    onDeleteTask: (Int) -> Unit,
     deleteEnabled: Boolean = true,
-    onEditScore: (Score) -> Unit,
-    onSaveScore: (OcrQueueTask) -> Unit,
+    onEditScore: (Int, Score) -> Unit,
+    onSaveScore: (Int) -> Unit,
     scoreEditorViewModel: ScoreEditorViewModel = viewModel(),
 ) {
     val context = LocalContext.current
 
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showScoreEditor by rememberSaveable { mutableStateOf(false) }
-    val filename = context.getFilename(task.fileUri) ?: "-"
+    val filename = context.getFilename(uiItem.fileUri) ?: "-"
 
     if (showImagePreview) {
-        OcrQueueItemImagePreview(task, onDismissRequest = { showImagePreview = false })
+        OcrQueueItemImagePreview(uiItem, onDismissRequest = { showImagePreview = false })
     }
 
-    val score = task.score
+    val score = uiItem.score
     if (showScoreEditor && score != null) {
         scoreEditorViewModel.setArcaeaScore(score)
 
@@ -160,7 +161,7 @@ fun OcrQueueItem(
         ) {
             Surface(Modifier.fillMaxWidth(0.95f)) {
                 ScoreEditor(
-                    onScoreCommit = { onEditScore(it); showScoreEditor = false },
+                    onScoreCommit = { onEditScore(uiItem.id, it); showScoreEditor = false },
                     viewModel = scoreEditorViewModel
                 )
             }
@@ -175,7 +176,7 @@ fun OcrQueueItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "ID ${task.id}",
+                        "ID ${uiItem.id}",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.labelSmall
@@ -192,9 +193,9 @@ fun OcrQueueItem(
 
                 Spacer(Modifier.weight(0.1f))
 
-                OcrQueueItemStatus(task.status)
+                OcrQueueItemStatus(uiItem.status)
                 IconButton(
-                    onClick = { onSaveScore(task) },
+                    onClick = { onSaveScore(uiItem.id) },
                     enabled = score != null,
                 ) {
                     Icon(Icons.Default.Save, null)
@@ -206,7 +207,7 @@ fun OcrQueueItem(
                     Icon(Icons.Default.Edit, null)
                 }
                 IconButton(
-                    onClick = { onDeleteTask(task) },
+                    onClick = { onDeleteTask(uiItem.id) },
                     enabled = deleteEnabled,
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
@@ -216,16 +217,16 @@ fun OcrQueueItem(
                 }
             }
 
-            when (task.status) {
-                OcrQueueStatus.DONE -> Row {
-                    val scoreCardColors = if (task.scoreValid) null else {
+            when (uiItem.status) {
+                OcrQueueTaskStatus.DONE -> Row {
+                    val scoreCardColors = if (uiItem.scoreValid) null else {
                         CardDefaults.cardColors(containerColor = Color.Yellow.copy(0.2f))
                     }
-                    ArcaeaScoreCard(score!!, chart = task.chart, colors = scoreCardColors)
+                    ArcaeaScoreCard(score!!, chart = uiItem.chart, colors = scoreCardColors)
                 }
 
-                OcrQueueStatus.ERROR -> Text(
-                    task.exception!!.message ?: task.status.toString(),
+                OcrQueueTaskStatus.ERROR -> Text(
+                    uiItem.exception!!.message ?: uiItem.status.toString(),
                     color = MaterialTheme.colorScheme.error,
                 )
 

@@ -24,31 +24,23 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
-import xyz.sevive.arcaeaoffline.ui.models.DatabaseCommonFunctionsViewModel
+import xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueueTaskStatus
 
 
 @Composable
-fun OcrQueue(
-    ocrQueueViewModel: OcrQueueViewModel,
-    databaseCommonFunctionsViewModel: DatabaseCommonFunctionsViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) {
+fun OcrQueue(ocrQueueViewModel: OcrQueueViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val tasks by ocrQueueViewModel.ocrQueueTasks.collectAsState()
-    val doneTasks = tasks.filter { it.status == OcrQueueStatus.DONE }
-    val scoreValidTasks = tasks.filter { it.scoreValid }
+    val uiItems by ocrQueueViewModel.ocrQueueTasksUiItems.collectAsState()
+    val doneTasks = uiItems.filter { it.status == OcrQueueTaskStatus.DONE }
+    val scoreValidTasks = uiItems.filter { it.scoreValid }
     val queueRunning by ocrQueueViewModel.queueRunning.collectAsState()
 
-    val onSaveScore = fun(task: OcrQueueTask) {
-        if (task.score == null) return
-
+    val onSaveScore = fun(taskId: Int) {
         coroutineScope.launch {
-            databaseCommonFunctionsViewModel.upsertScore(task.score!!)
-            ocrQueueViewModel.deleteTask(task.id)
+            ocrQueueViewModel.saveTaskScore(taskId, context)
         }
     }
 
@@ -57,29 +49,32 @@ fun OcrQueue(
             Text(buildAnnotatedString {
                 append(doneTasks.size.toString())
                 withStyle(SpanStyle(fontSize = 0.75.em)) {
-                    append("/${tasks.size}")
+                    append("/${uiItems.size}")
                 }
             })
 
             Spacer(Modifier.weight(1f))
 
             IconButton(
-                onClick = { coroutineScope.launch { ocrQueueViewModel.startQueue(context) } },
+                onClick = { ocrQueueViewModel.startQueue(context) },
                 enabled = !queueRunning,
             ) {
                 Icon(Icons.Default.PlayArrow, null)
             }
-            IconButton(onClick = { ocrQueueViewModel.tryStopQueue() }, enabled = queueRunning) {
+            IconButton(
+                onClick = { ocrQueueViewModel.tryStopQueue(context) },
+                enabled = queueRunning,
+            ) {
                 Icon(Icons.Default.Stop, null)
             }
             IconButton(
-                onClick = { scoreValidTasks.forEach { onSaveScore(it) } },
+                onClick = { scoreValidTasks.forEach { onSaveScore(it.id) } },
                 enabled = !queueRunning && scoreValidTasks.isNotEmpty()
             ) {
                 Icon(Icons.Default.SaveAlt, null)
             }
             IconButton(
-                onClick = { tasks.map { it.id }.forEach { ocrQueueViewModel.deleteTask(it) } },
+                onClick = { uiItems.map { it.id }.forEach { ocrQueueViewModel.deleteTask(it) } },
                 enabled = !queueRunning,
             ) {
                 Icon(

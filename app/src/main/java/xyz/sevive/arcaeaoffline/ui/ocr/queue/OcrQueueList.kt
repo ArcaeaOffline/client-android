@@ -13,18 +13,18 @@ import xyz.sevive.arcaeaoffline.R
 @Composable
 fun OcrQueueList(
     ocrQueueViewModel: OcrQueueViewModel,
-    onSaveScore: (OcrQueueTask) -> Unit,
+    onSaveScore: (Int) -> Unit,
 ) {
-    val tasks by ocrQueueViewModel.ocrQueueTasks.collectAsState()
+    val uiItems by ocrQueueViewModel.ocrQueueTasksUiItems.collectAsState()
     val queueRunning by ocrQueueViewModel.queueRunning.collectAsState()
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
-        items(tasks, key = { it.id }) { task ->
+        items(uiItems, key = { it.id }) { uiItem ->
             OcrQueueItem(
-                task,
-                onDeleteTask = { ocrQueueViewModel.deleteTask(it.id) },
+                uiItem,
+                onDeleteTask = { ocrQueueViewModel.deleteTask(it) },
                 deleteEnabled = !queueRunning,
-                onEditScore = { ocrQueueViewModel.editScore(task.id, it) },
+                onEditScore = { taskId, score -> ocrQueueViewModel.modifyTaskScore(taskId, score) },
                 onSaveScore = onSaveScore,
             )
         }
