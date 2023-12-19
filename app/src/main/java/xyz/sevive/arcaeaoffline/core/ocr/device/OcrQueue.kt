@@ -269,9 +269,10 @@ class OcrQueue {
 
             val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
             val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
+            val imgCropped = CropBlackEdges.crop(img)
 
-            val rois = DeviceAutoRoisT2(img.width(), img.height())
-            val extractor = DeviceRoisExtractor(rois, img)
+            val rois = DeviceAutoRoisT2(imgCropped.width(), imgCropped.height())
+            val extractor = DeviceRoisExtractor(rois, imgCropped)
             val masker = DeviceAutoRoisMaskerT2()
             val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
 

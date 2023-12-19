@@ -112,4 +112,11 @@
     <string name="arcaea_score_comment">备注</string>
     <string name="arcaea_max_recall">MAX RECALL</string>
     <string name="ocr_queue_user_cancel_exception_message">用户终止了队列。\n* 按开始按钮重试该任务。</string>
+    <string name="general_stop">停止</string>
+    <string name="ocr_queue_title">OCR 队列</string>
+    <string name="ocr_queue_add_images_button">多选图像</string>
+    <string name="ocr_queue_import_folder_button">导入文件夹</string>
+    <string name="ocr_queue_add_image_options_title">添加图片</string>
+    <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
+    <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
 </resources>

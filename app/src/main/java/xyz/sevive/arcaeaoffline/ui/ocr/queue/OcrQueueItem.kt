@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.ocr.queue
 
 import android.graphics.BitmapFactory
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -81,17 +82,14 @@ fun OcrQueueItemImagePreview(uiItem: OcrQueueTaskUiItem, onDismissRequest: () ->
     ) {
         Column(Modifier.fillMaxSize()) {
             Surface(Modifier.fillMaxWidth()) {
-                if (showFileUri) {
-                    Text(
-                        uiItem.fileUri.toString(),
-                        Modifier.clickable { showFileUri = !showFileUri },
-                    )
-                } else {
-                    Text(
-                        filename,
-                        Modifier.clickable { showFileUri = !showFileUri },
-                    )
-                }
+                val displayText = if (showFileUri) uiItem.fileUri.toString() else filename
+                Text(
+                    displayText,
+                    Modifier
+                        .clickable { showFileUri = !showFileUri }
+                        .padding(dimensionResource(R.dimen.general_card_padding))
+                        .animateContentSize(),
+                )
             }
 
             // TODO: minSdk 24
@@ -225,10 +223,10 @@ fun OcrQueueItem(
                     ArcaeaScoreCard(score!!, chart = uiItem.chart, colors = scoreCardColors)
                 }
 
-                OcrQueueTaskStatus.ERROR -> Text(
-                    uiItem.exception!!.message ?: uiItem.status.toString(),
-                    color = MaterialTheme.colorScheme.error,
-                )
+                OcrQueueTaskStatus.ERROR -> {
+                    val exception = uiItem.exception!!
+                    Text(exception.toString(), color = MaterialTheme.colorScheme.error)
+                }
 
                 else -> {}
             }

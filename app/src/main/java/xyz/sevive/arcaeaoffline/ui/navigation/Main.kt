@@ -30,7 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseEntryScreen
-import xyz.sevive.arcaeaoffline.ui.ocr.OcrScreen
+import xyz.sevive.arcaeaoffline.ui.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.settings.SettingsScreen
 
@@ -121,7 +121,7 @@ enum class MainScreen(
         R.string.nav_database,
     ),
     Ocr(
-        "ocr",
+        OcrNavRouteRoot,
         { ImageVector.vectorResource(R.drawable.ic_ocr) },
         R.string.nav_ocr,
     ),
@@ -145,7 +145,7 @@ fun MainNavigationGraph(mainNavController: NavHostController, modifier: Modifier
         }
 
         composable(MainScreen.Ocr.route) {
-            OcrScreen()
+            OcrEntryScreen()
         }
 
         composable(MainScreen.Settings.route) {

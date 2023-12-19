@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,12 +76,9 @@ fun OcrQueue(ocrQueueViewModel: OcrQueueViewModel) {
             IconButton(
                 onClick = { uiItems.map { it.id }.forEach { ocrQueueViewModel.deleteTask(it) } },
                 enabled = !queueRunning,
+                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) {
-                Icon(
-                    Icons.Default.ClearAll,
-                    null,
-                    tint = if (!queueRunning) MaterialTheme.colorScheme.error else LocalContentColor.current
-                )
+                Icon(Icons.Default.ClearAll, null)
             }
         }
 

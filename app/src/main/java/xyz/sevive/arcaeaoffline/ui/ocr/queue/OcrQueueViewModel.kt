@@ -5,7 +5,9 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -38,6 +40,7 @@ data class OcrQueueTaskUiItem(
         }
 }
 
+
 class OcrQueueViewModel : ViewModel() {
     private val ocrQueue = xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueue()
 
@@ -58,6 +61,20 @@ class OcrQueueViewModel : ViewModel() {
     val addImagesProgress = ocrQueue.addImagesProgress
     val addImagesProgressTotal = ocrQueue.addImagesProgressTotal
 
+    private val _checkIsImage = MutableStateFlow(true)
+    val checkIsImage = _checkIsImage.asStateFlow()
+
+    private val _detectScreenshot = MutableStateFlow(true)
+    val detectScreenshot = _detectScreenshot.asStateFlow()
+
+    fun setCheckIsImage(value: Boolean) {
+        _checkIsImage.value = value
+    }
+
+    fun setDetectScreenshot(value: Boolean) {
+        _detectScreenshot.value = value
+    }
+
     fun deleteTask(taskId: Int) {
         ocrQueue.deleteTask(taskId)
     }
@@ -77,25 +94,22 @@ class OcrQueueViewModel : ViewModel() {
         }
     }
 
-    suspend fun addImageFiles(
-        uris: List<Uri>,
-        context: Context,
-        detectScreenshot: Boolean = true,
-    ) {
-        ocrQueue.addImageFiles(uris, context, detectScreenshot)
+    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
+        ocrQueue.addImageFiles(
+            uris,
+            context,
+            checkIsImage = checkIsImage.value,
+            detectScreenshot = detectScreenshot.value,
+        )
+    }
+
+    suspend fun addFolder(folder: DocumentFile, context: Context) {
+        val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
+        this.addImageFiles(uris, context)
     }
 
     fun stopAddImageFiles() {
         ocrQueue.stopAddImageFiles()
-    }
-
-    suspend fun addFolder(
-        folder: DocumentFile,
-        context: Context,
-        detectScreenshot: Boolean = true,
-    ) {
-        val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
-        addImageFiles(uris, context, detectScreenshot)
     }
 
     fun tryStopQueue(context: Context? = null) {

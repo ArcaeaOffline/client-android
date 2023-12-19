@@ -21,6 +21,7 @@ CC BY-SA 3.0
     <string name="general_delete">Delete</string>
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
+    <string name="general_stop">Stop</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
@@ -145,6 +146,13 @@ CC BY-SA 3.0
     <string name="datetime_picker_date_tab">Date</string>
     <string name="datetime_picker_time_tab">Time</string>
 
+    <string name="ocr_queue_title">OCR Queue</string>
+
+    <string name="ocr_queue_add_images_button">Add Images</string>
+    <string name="ocr_queue_import_folder_button">Import Folder</string>
+    <string name="ocr_queue_add_image_options_title">Adding Images</string>
+    <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
+    <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
     <string name="ocr_queue_user_cancel_exception_message">User cancelled the queue.\n* Press start button to retry this task.</string>
 
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
