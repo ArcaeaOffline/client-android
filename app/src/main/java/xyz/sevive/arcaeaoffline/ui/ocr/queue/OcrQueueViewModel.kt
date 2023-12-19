@@ -5,12 +5,14 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.calculate.calculateArcaeaScoreRange
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
@@ -58,6 +60,9 @@ class OcrQueueViewModel : ViewModel() {
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(10000L), listOf())
     val queueRunning = ocrQueue.queueRunning
+
+    private val _addImagesProcessing = MutableStateFlow(false)
+    val addImagesProcessing = _addImagesProcessing.asStateFlow()
     val addImagesProgress = ocrQueue.addImagesProgress
     val addImagesProgressTotal = ocrQueue.addImagesProgressTotal
 
@@ -94,7 +99,7 @@ class OcrQueueViewModel : ViewModel() {
         }
     }
 
-    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
+    private suspend fun addImageFilesToQueue(uris: List<Uri>, context: Context) {
         ocrQueue.addImageFiles(
             uris,
             context,
@@ -103,9 +108,19 @@ class OcrQueueViewModel : ViewModel() {
         )
     }
 
+    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
+        _addImagesProcessing.value = true
+        addImageFilesToQueue(uris, context)
+        _addImagesProcessing.value = false
+    }
+
     suspend fun addFolder(folder: DocumentFile, context: Context) {
-        val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
-        this.addImageFiles(uris, context)
+        _addImagesProcessing.value = true
+        withContext(Dispatchers.IO) {
+            val uris = folder.listFiles().sortedBy { it.name }.filter { it.isFile }.map { it.uri }
+            addImageFiles(uris, context)
+        }
+        _addImagesProcessing.value = false
     }
 
     fun stopAddImageFiles() {

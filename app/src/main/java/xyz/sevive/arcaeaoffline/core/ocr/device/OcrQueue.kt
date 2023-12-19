@@ -8,10 +8,11 @@ import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
@@ -177,30 +178,25 @@ class OcrQueue {
         return isImage(byteArray)
     }
 
-    private fun addImageFile(imageUri: Uri) {
-        val task = getNewTask(imageUri)
-        addTask(task)
-    }
-
-    fun addImageFile(
+    private fun getTaskFromImageFile(
         imageUri: Uri,
         context: Context,
         checkIsImage: Boolean = true,
         detectScreenshot: Boolean = true,
-    ) {
-        if (checkIsImage && !isImage(imageUri, context)) return
+    ): OcrQueueTask? {
+        if (checkIsImage && !isImage(imageUri, context)) return null
 
         if (detectScreenshot) {
-            val inputStream = context.contentResolver.openInputStream(imageUri) ?: return
+            val inputStream = context.contentResolver.openInputStream(imageUri) ?: return null
             val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
 
             val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
             val imgHsv = Mat()
             Imgproc.cvtColor(img, imgHsv, Imgproc.COLOR_BGR2HSV)
-            if (!ScreenshotDetect.isArcaeaScreenshot(imgHsv)) return
+            if (!ScreenshotDetect.isArcaeaScreenshot(imgHsv)) return null
         }
 
-        addImageFile(imageUri)
+        return getNewTask(imageUri)
     }
 
     suspend fun addImageFiles(
@@ -213,10 +209,10 @@ class OcrQueue {
         _addImagesProgressTotal.value = uris.size
 
         val jobHandle = addImagesScope.launch {
-            uris.forEach {
-                launch {
+            val tasks = uris.map {
+                async {
                     try {
-                        addImageFile(
+                        return@async getTaskFromImageFile(
                             it,
                             context,
                             checkIsImage = checkIsImage,
@@ -224,11 +220,14 @@ class OcrQueue {
                         )
                     } catch (e: Exception) {
                         Log.e(LOG_TAG, "Error adding uri $it", e)
+                        return@async null
                     } finally {
                         _addImagesProgress.value += 1
                     }
                 }
-            }
+            }.awaitAll()
+
+            tasks.filterNotNull().forEach { addTask(it) }
         }
 
         jobHandle.join()
@@ -253,11 +252,8 @@ class OcrQueue {
         context: Context,
         knnModel: KNearest,
         phashDatabase: ImagePhashDatabase,
-        stopFlag: Boolean = false,
     ) {
         if (task.status == OcrQueueTaskStatus.DONE) return
-
-        if (stopFlag) return
 
         var taskCopy = task.copy(status = OcrQueueTaskStatus.PROCESSING)
         Log.d(LOG_TAG, "Processing task ${taskCopy.id}")
@@ -349,12 +345,10 @@ class OcrQueue {
             val knnModel = KNearest.load(ocrDependencyPaths.knnModelFile.path)
             val phashDatabase = ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
 
-            _ocrQueueTasksMap.values.forEach {
+            _ocrQueueTasksMap.values.map {
                 val task = it.copy()
-                launch {
-                    processTask(task, context, knnModel, phashDatabase, stopFlag = !this.isActive)
-                }
-            }
+                async { processTask(task, context, knnModel, phashDatabase) }
+            }.awaitAll()
         }
 
         jobHandle.join()

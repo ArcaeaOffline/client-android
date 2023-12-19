@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.PermMedia
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
@@ -70,8 +71,20 @@ fun OcrQueueAddImageFilesSettingsDialog(
 
 @Composable
 fun OcrQueueAddImageFilesProgressDialog(ocrQueueViewModel: OcrQueueViewModel) {
+    val addImagesProcessing by ocrQueueViewModel.addImagesProcessing.collectAsState()
     val addImagesProgress by ocrQueueViewModel.addImagesProgress.collectAsState()
     val addImagesProgressTotal by ocrQueueViewModel.addImagesProgressTotal.collectAsState()
+
+    if (addImagesProcessing && addImagesProgressTotal < 0) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {},
+            icon = { Icon(Icons.Default.HourglassBottom, null) },
+            title = { Text(stringResource(R.string.general_please_wait)) },
+            text = { LinearProgressIndicator() },
+        )
+    }
+
     if (addImagesProgressTotal > -1) {
         AlertDialog(
             onDismissRequest = {},
