@@ -15,8 +15,11 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
 import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
@@ -41,9 +44,21 @@ class DeviceOcrHelper {
             val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
             val imgCropped = CropBlackEdges.crop(img)
 
-            val rois = DeviceRoisAutoT2(imgCropped.width(), imgCropped.height())
+            val roisAutoType = DeviceRoisAutoSelector.getAutoType(img)
+            val rois = when (roisAutoType) {
+                DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisAutoT1(
+                    imgCropped.width(), imgCropped.height()
+                )
+
+                DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisAutoT2(
+                    imgCropped.width(), imgCropped.height()
+                )
+            }
             val extractor = DeviceRoisExtractor(rois, imgCropped)
-            val masker = DeviceRoisMaskerAutoT2()
+            val masker = when (roisAutoType) {
+                DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisMaskerAutoT1()
+                DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisMaskerAutoT2()
+            }
             val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
             val phashDatabase =
                 customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)

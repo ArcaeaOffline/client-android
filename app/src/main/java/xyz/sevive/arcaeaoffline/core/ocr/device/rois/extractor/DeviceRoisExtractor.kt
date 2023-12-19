@@ -5,16 +5,16 @@ import org.opencv.core.Rect
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import kotlin.math.roundToInt
 
-class DeviceRoisExtractor(val rois: DeviceRois, val img: Mat) {
-    private fun doubleArrayRoundToRect(array: DoubleArray): Rect {
-        return Rect(
-            array[0].roundToInt(),
-            array[1].roundToInt(),
-            array[2].roundToInt(),
-            array[3].roundToInt(),
-        )
-    }
+fun doubleArrayRoundToRect(array: DoubleArray): Rect {
+    return Rect(
+        array[0].roundToInt(),
+        array[1].roundToInt(),
+        array[2].roundToInt(),
+        array[3].roundToInt(),
+    )
+}
 
+class DeviceRoisExtractor(private val rois: DeviceRois, private val img: Mat) {
     val pureRect: Rect
         get() = doubleArrayRoundToRect(rois.pure)
 
