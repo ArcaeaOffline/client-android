@@ -6,8 +6,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -16,16 +14,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.IntentCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModelProvider
 import org.apache.commons.io.IOUtils
-import org.opencv.core.MatOfByte
-import org.opencv.imgcodecs.Imgcodecs
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
-import org.threeten.bp.format.DateTimeFormatter
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceAutoRoisT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceAutoRoisMaskerT2
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
@@ -152,58 +142,10 @@ class OcrFromShareActivity : ComponentActivity() {
         val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
         ocrFromShareViewModel.setImageBitmap(imgBitmap)
 
-        // decode the byte array to a Mat object using OpenCV
-        val imgMat = Imgcodecs.imdecode(MatOfByte(*inputStreamRead), Imgcodecs.IMREAD_UNCHANGED)
-
         val ocrDependencyPaths = OcrDependencyPaths(this.applicationContext)
-        ocrDependencyViewModel.loadKnnModel(ocrDependencyPaths.knnModelFile)
-        ocrDependencyViewModel.loadPhashDatabase(ocrDependencyPaths.phashDatabaseFile)
+        ocrDependencyViewModel.setOcrDependencyPaths(ocrDependencyPaths)
+        ocrDependencyViewModel.reload()
 
-        val knnModel = ocrDependencyViewModel.knnModelState.value.model
-        val phashDb = ocrDependencyViewModel.phashDatabaseState.value.db
-        if (knnModel == null || phashDb == null) {
-            ocrFromShareViewModel.setException(
-                IllegalArgumentException("OCR dependency missing, cannot continue")
-            )
-            return
-        }
-
-        val imageFileName = try {
-            val returnCursor = contentResolver.query(uri, null, null, null, null)!!
-            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            returnCursor.moveToFirst()
-            val fileName = returnCursor.getString(nameIndex)
-            returnCursor.close()
-
-            fileName
-        } catch (e: Exception) {
-            Log.w("OCR", "Cannot extract file name from Uri: $uri", e)
-
-            null
-        }
-
-        val imgExif = ExifInterface(inputStreamRead.inputStream())
-        val imgExifDateTimeOriginal = imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
-
-        val imgDate = if (imgExifDateTimeOriginal != null) {
-            LocalDateTime.parse(
-                imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
-            ).toInstant(ZoneOffset.UTC).epochSecond
-        } else {
-            null
-        }
-
-        val rois = DeviceAutoRoisT2(imgMat.size().width.toInt(), imgMat.size().height.toInt())
-        val masker = DeviceAutoRoisMaskerT2()
-        ocrFromShareViewModel.startOcr(
-            imgMat,
-            assets,
-            rois,
-            masker,
-            knnModel,
-            phashDb,
-            date = imgDate,
-            comment = if (imageFileName != null) "OCR $imageFileName" else null,
-        )
+        ocrFromShareViewModel.startOcr(uri, this)
     }
 }

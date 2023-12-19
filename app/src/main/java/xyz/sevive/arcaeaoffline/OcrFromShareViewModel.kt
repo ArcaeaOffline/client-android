@@ -1,7 +1,8 @@
 package xyz.sevive.arcaeaoffline
 
-import android.content.res.AssetManager
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -10,18 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import org.opencv.core.Mat
-import org.opencv.ml.KNearest
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
-import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
-import xyz.sevive.arcaeaoffline.data.clearStatusToClearType
+import xyz.sevive.arcaeaoffline.core.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
@@ -97,50 +91,17 @@ class OcrFromShareViewModel(
         }
     }
 
-    fun startOcr(
-        image: Mat,
-        assetManager: AssetManager,
-        rois: DeviceRois,
-        masker: DeviceRoisMasker,
-        knnModel: KNearest,
-        phashDb: ImagePhashDatabase,
-        date: Long? = null,
-        comment: String? = null
-    ) {
+    fun startOcr(imageUri: Uri, context: Context) {
         try {
-            val extractor = DeviceRoisExtractor(rois, image)
-
-            val ocr = DeviceOcr(extractor, masker, knnModel, phashDb)
-            val ocrResult = ocr.ocr()
-
-            if (ocrResult.songId == null) {
-                throw Exception("songId is null")
-            }
-
-            val arcaeaPartnerModifiers = ArcaeaPartnerModifiers(assetManager)
-            val scoreModifier = if (ocrResult.partnerId != null) {
-                arcaeaPartnerModifiers[ocrResult.partnerId]
-            } else null
-            val clearType = if (scoreModifier != null && ocrResult.clearStatus != null) {
-                clearStatusToClearType(ocrResult.clearStatus, scoreModifier)
-            } else null
-
-            val ocrScore = Score(
-                0,
-                ocrResult.songId,
-                ocrResult.ratingClass,
-                ocrResult.score,
-                ocrResult.pure,
-                ocrResult.far,
-                ocrResult.lost,
-                date,
-                ocrResult.maxRecall,
-                scoreModifier?.value,
-                clearType?.value,
-                comment,
+            val ocrResult = DeviceOcrHelper.ocrImage(imageUri, context)
+            val score = DeviceOcrHelper.ocrResultToScore(
+                imageUri,
+                context,
+                ocrResult,
+                fallbackDate = Instant.now().epochSecond,
             )
 
-            _score.value = ocrScore
+            _score.value = score
             _exception.value = null
 
             runBlocking {

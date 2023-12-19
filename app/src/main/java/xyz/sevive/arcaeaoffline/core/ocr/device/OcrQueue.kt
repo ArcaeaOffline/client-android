@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,22 +18,13 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import org.opencv.ml.KNearest
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
-import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceAutoRoisT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceAutoRoisMaskerT2
-import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.core.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
-import java.io.FileNotFoundException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -252,12 +242,7 @@ class OcrQueue {
         )
     }
 
-    private suspend fun processTask(
-        task: OcrQueueTask,
-        context: Context,
-        knnModel: KNearest,
-        phashDatabase: ImagePhashDatabase,
-    ) {
+    private suspend fun processTask(task: OcrQueueTask, context: Context) {
         if (task.status == OcrQueueTaskStatus.DONE) return
 
         var taskCopy = task.copy(status = OcrQueueTaskStatus.PROCESSING)
@@ -265,34 +250,13 @@ class OcrQueue {
         modifyTask(task)
 
         try {
-            val inputStream = context.contentResolver.openInputStream(task.fileUri)
-                ?: throw FileNotFoundException("Cannot open a input stream for ${task.fileUri}")
-
-            val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
-            val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
-            val imgCropped = CropBlackEdges.crop(img)
-
-            val rois = DeviceAutoRoisT2(imgCropped.width(), imgCropped.height())
-            val extractor = DeviceRoisExtractor(rois, imgCropped)
-            val masker = DeviceAutoRoisMaskerT2()
-            val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
-
-            val imgExif = ExifInterface(byteArray.inputStream())
-            val imgExifDateTimeOriginal = imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
-
-            val imgDate = if (imgExifDateTimeOriginal != null) {
-                LocalDateTime.parse(
-                    imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
-                ).toInstant(ZoneOffset.UTC).epochSecond
-            } else {
-                null
-            }
-
-            val arcaeaPartnerModifiers = ArcaeaPartnerModifiers(context.assets)
-
-            val ocrResult = ocr.ocr()
-
-            if (ocrResult.songId == null) throw Exception("OCR result invalid: no `song_id`")
+            val ocrResult = DeviceOcrHelper.ocrImage(task.fileUri, context)
+            val score = DeviceOcrHelper.ocrResultToScore(
+                task.fileUri,
+                context,
+                ocrResult,
+                fallbackDate = Instant.now().epochSecond,
+            )
 
             val arcaeaOfflineDatabaseRepositoryContainer =
                 ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
@@ -303,10 +267,7 @@ class OcrQueue {
             taskCopy = taskCopy.copy(
                 status = OcrQueueTaskStatus.DONE,
                 ocrResult = ocrResult,
-                score = ocrResult.toScore(
-                    date = imgDate,
-                    arcaeaPartnerModifiers = arcaeaPartnerModifiers,
-                ),
+                score = score,
                 chart = chart,
             )
         } catch (e: Exception) {
@@ -346,13 +307,9 @@ class OcrQueue {
         _queueRunning.value = true
 
         val jobHandle = ocrQueueScope.launch {
-            val ocrDependencyPaths = OcrDependencyPaths(context)
-            val knnModel = KNearest.load(ocrDependencyPaths.knnModelFile.path)
-            val phashDatabase = ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
-
             _ocrQueueTasksMap.values.map {
                 val task = it.copy()
-                async { processTask(task, context, knnModel, phashDatabase) }
+                async { processTask(task, context) }
             }.awaitAll()
         }
 
