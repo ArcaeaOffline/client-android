@@ -26,10 +26,10 @@ data class DeviceOcrResult(
     val lost: Int,
     val score: Int,
     val maxRecall: Int?,
-    val songId: String?,
+    val songId: String,
     val songIdPossibility: Double?,
     val clearStatus: Int?,
-    val partnerId: String?,
+    val partnerId: String,
     val partnerIdPossibility: Double?,
 )
 
@@ -38,10 +38,8 @@ fun DeviceOcrResult.toScore(
     arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
     date: Long? = null,
     comment: String? = null,
-): Score? {
-    if (this.songId == null) return null
-
-    val scoreModifier = if (arcaeaPartnerModifiers != null && this.partnerId != null) {
+): Score {
+    val scoreModifier = if (arcaeaPartnerModifiers != null) {
         arcaeaPartnerModifiers[this.partnerId]
     } else null
     val clearType = if (scoreModifier != null && this.clearStatus != null) {
@@ -98,7 +96,7 @@ class DeviceOcr(
                     MatOfPoint(Point(0.0, h), Point(w / 2, h), Point(0.0, h / 2)),
                     MatOfPoint(Point(w, h), Point(w / 2, h), Point(w, h / 2))
                 ),
-                Scalar(128.0)
+                Scalar(128.0),
             )
             return iconSquared
         }
