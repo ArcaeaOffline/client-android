@@ -1,47 +1,138 @@
 package xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker
 
 import org.opencv.core.Core
+import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
+import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+
 
 interface DeviceAutoRoisMasker : DeviceRoisMasker
 
-//class DeviceAutoRoisMaskerT1 : DeviceAutoRoisMasker {
-//    val GRAY_BGR_MIN = Scalar(50.0, 50.0, 50.0)
-//    val GRAY_BGR_MAX = Scalar(160.0, 160.0, 160.0)
-//
-//    val WHITE_HSV_MIN = Scalar(0.0, 0.0, 240.0)
-//    val WHITE_HSV_MAX = Scalar(179.0, 10.0, 255.0)
-//
-//    val PST_HSV_MIN = Scalar(100.0, 50.0, 80.0)
-//    val PST_HSV_MAX = Scalar(100.0, 255.0, 255.0)
-//
-//    val PRS_HSV_MIN = Scalar(43.0, 40.0, 75.0)
-//    val PRS_HSV_MAX = Scalar(50.0, 155.0, 190.0)
-//
-//    val FTR_HSV_MIN = Scalar(149.0, 30.0, 0.0)
-//    val FTR_HSV_MAX = Scalar(155.0, 181.0, 150.0)
-//
-//    val BYD_HSV_MIN = Scalar(170.0, 50.0, 50.0)
-//    val BYD_HSV_MAX = Scalar(179.0, 210.0, 198.0)
-//
-//    val TRACK_LOST_HSV_MIN = Scalar(170.0, 75.0, 90.0)
-//    val TRACK_LOST_HSV_MAX = Scalar(175.0, 170.0, 160.0)
-//
-//    val TRACK_COMPLETE_HSV_MIN = Scalar(140.0, 0.0, 50.0)
-//    val TRACK_COMPLETE_HSV_MAX = Scalar(145.0, 50.0, 130.0)
-//
-//    val FULL_RECALL_HSV_MIN = Scalar(140.0, 60.0, 80.0)
-//    val FULL_RECALL_HSV_MAX = Scalar(150.0, 130.0, 145.0)
-//
-//    val PURE_MEMORY_HSV_MIN = Scalar(90.0, 70.0, 80.0)
-//    val PURE_MEMORY_HSV_MAX = Scalar(110.0, 200.0, 175.0)
-//
-//    fun gray(roiBgr: Mat) {
-//
-//    }
-//}
+class DeviceAutoRoisMaskerT1 : DeviceAutoRoisMasker {
+    private val grayBgrLower = Scalar(50.0, 50.0, 50.0)
+    private val grayBgrUpper = Scalar(160.0, 160.0, 160.0)
+
+    private val whiteHsvLower = Scalar(0.0, 0.0, 180.0)
+    private val whiteHsvUpper = Scalar(179.0, 255.0, 255.0)
+
+    private val pstHsvLower = Scalar(100.0, 50.0, 80.0)
+    private val pstHsvUpper = Scalar(100.0, 255.0, 255.0)
+
+    private val prsHsvLower = Scalar(43.0, 40.0, 75.0)
+    private val prsHsvUpper = Scalar(50.0, 155.0, 190.0)
+
+    private val ftrHsvLower = Scalar(149.0, 30.0, 0.0)
+    private val ftrHsvUpper = Scalar(155.0, 181.0, 150.0)
+
+    private val bydHsvLower = Scalar(170.0, 50.0, 50.0)
+    private val bydHsvUpper = Scalar(179.0, 210.0, 198.0)
+
+    private val trackLostHsvLower = Scalar(170.0, 75.0, 90.0)
+    private val trackLostHsvUpper = Scalar(175.0, 170.0, 160.0)
+
+    private val trackCompleteHsvLower = Scalar(140.0, 0.0, 50.0)
+    private val trackCompleteHsvUpper = Scalar(145.0, 50.0, 130.0)
+
+    private val fullRecallHsvLower = Scalar(140.0, 60.0, 80.0)
+    private val fullRecallHsvUpper = Scalar(150.0, 130.0, 145.0)
+
+    private val pureMemoryHsvLower = Scalar(90.0, 70.0, 80.0)
+    private val pureMemoryHsvUpper = Scalar(110.0, 200.0, 175.0)
+
+    fun gray(roiBgr: Mat): Mat {
+        val bgrValueEqualMask = Mat.zeros(roiBgr.rows(), roiBgr.cols(), CvType.CV_8UC1)
+        for (h in 0 until roiBgr.height()) {
+            for (w in 0 until roiBgr.width()) {
+                val pixel = roiBgr[h, w]
+                if (pixel.max() - pixel.min() <= 5.0) {
+                    bgrValueEqualMask.put(h, w, 255.0)
+                }
+            }
+        }
+
+        val roiBgrMasked = Mat()
+        Core.bitwise_and(roiBgr, roiBgr, roiBgrMasked, bgrValueEqualMask)
+        Core.inRange(roiBgrMasked, grayBgrLower, grayBgrUpper, roiBgrMasked)
+        return roiBgrMasked
+    }
+
+    private fun pfl(roiBgr: Mat): Mat {
+        val grayMasked = gray(roiBgr)
+        Imgproc.dilate(
+            grayMasked,
+            grayMasked,
+            Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(2.0, 2.0)),
+        )
+        Imgproc.erode(
+            grayMasked,
+            grayMasked,
+            Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(1.0, 1.0)),
+        )
+        return grayMasked
+    }
+
+    override fun pure(roiBgr: Mat): Mat {
+        return pfl(roiBgr)
+    }
+
+    override fun far(roiBgr: Mat): Mat {
+        return pfl(roiBgr)
+    }
+
+    override fun lost(roiBgr: Mat): Mat {
+        return pfl(roiBgr)
+    }
+
+    override fun maxRecall(roiBgr: Mat): Mat {
+        return gray(roiBgr)
+    }
+
+    private fun maskHsv(roiBgr: Mat, hsvLower: Scalar, hsvUpper: Scalar): Mat {
+        val roiHsv = Mat()
+        val dst = Mat()
+        Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
+        Core.inRange(roiHsv, hsvLower, hsvUpper, dst)
+        return dst
+    }
+
+    override fun score(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, whiteHsvLower, whiteHsvUpper)
+    }
+
+    override fun ratingClassPst(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, pstHsvLower, pstHsvUpper)
+    }
+
+    override fun ratingClassPrs(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, prsHsvLower, prsHsvUpper)
+    }
+
+    override fun ratingClassFtr(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, ftrHsvLower, ftrHsvUpper)
+    }
+
+    override fun ratingClassByd(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, bydHsvLower, bydHsvUpper)
+    }
+
+    override fun clearStatusTrackLost(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, trackLostHsvLower, trackLostHsvUpper)
+    }
+
+    override fun clearStatusTrackComplete(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, trackCompleteHsvLower, trackCompleteHsvUpper)
+    }
+
+    override fun clearStatusFullRecall(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, fullRecallHsvLower, fullRecallHsvUpper)
+    }
+
+    override fun clearStatusPureMemory(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, pureMemoryHsvLower, pureMemoryHsvUpper)
+    }
+}
 
 class DeviceAutoRoisMaskerT2 : DeviceAutoRoisMasker {
     private val pflHsvLower = Scalar(0.0, 0.0, 245.0)
