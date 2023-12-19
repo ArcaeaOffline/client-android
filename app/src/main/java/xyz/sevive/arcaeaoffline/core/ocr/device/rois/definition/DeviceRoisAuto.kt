@@ -2,11 +2,11 @@ package xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition
 
 import kotlin.math.max
 
-abstract class DeviceAutoRois(open val w: Int, open val h: Int) : DeviceRois {
+abstract class DeviceRoisAuto(open val w: Int, open val h: Int) : DeviceRois {
     abstract val factor: Double
 }
 
-class DeviceAutoRoisT1(override val w: Int, override val h: Int) : DeviceAutoRois(w, h) {
+class DeviceRoisAutoT1(override val w: Int, override val h: Int) : DeviceRoisAuto(w, h) {
     override val factor: Double
         get() {
             return if (this.w.toDouble() / this.h.toDouble() < 16.0 / 9.0) ((this.w / 16.0) * 9.0) / 720.0 else this.h / 720.0
@@ -104,7 +104,7 @@ class DeviceAutoRoisT1(override val w: Int, override val h: Int) : DeviceAutoRoi
         }
 }
 
-class DeviceAutoRoisT2(override val w: Int, override val h: Int) : DeviceAutoRois(w, h) {
+class DeviceRoisAutoT2(override val w: Int, override val h: Int) : DeviceRoisAuto(w, h) {
     override val factor: Double
         get() {
             return if (this.w.toDouble() / this.h.toDouble() < 16.0 / 9.0) ((this.w / 16.0) * 9.0) / 1080.0 else this.h / 1080.0

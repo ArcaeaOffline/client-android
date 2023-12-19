@@ -8,9 +8,9 @@ import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 
 
-interface DeviceAutoRoisMasker : DeviceRoisMasker
+interface DeviceRoisMaskerAuto : DeviceRoisMasker
 
-class DeviceAutoRoisMaskerT1 : DeviceAutoRoisMasker {
+class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
     private val grayBgrLower = Scalar(50.0, 50.0, 50.0)
     private val grayBgrUpper = Scalar(160.0, 160.0, 160.0)
 
@@ -134,7 +134,7 @@ class DeviceAutoRoisMaskerT1 : DeviceAutoRoisMasker {
     }
 }
 
-class DeviceAutoRoisMaskerT2 : DeviceAutoRoisMasker {
+class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
     private val pflHsvLower = Scalar(0.0, 0.0, 245.0)
     private val pflHsvUpper = Scalar(179.0, 30.0, 255.0)
 
