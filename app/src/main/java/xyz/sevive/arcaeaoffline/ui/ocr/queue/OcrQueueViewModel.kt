@@ -84,6 +84,10 @@ class OcrQueueViewModel : ViewModel() {
         ocrQueue.deleteTask(taskId)
     }
 
+    fun clearTasks() {
+        ocrQueue.clear()
+    }
+
     fun modifyTaskScore(taskId: Int, score: Score) {
         ocrQueue.modifyTaskScore(taskId, score)
     }

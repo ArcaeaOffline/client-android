@@ -162,6 +162,11 @@ class OcrQueue {
         syncQueueStateFlow()
     }
 
+    fun clear() {
+        _ocrQueueTasksMap.clear()
+        syncQueueStateFlow()
+    }
+
     private fun isImage(byteArray: ByteArray): Boolean {
         // Know if a file is a image in Java/Android
         // https://stackoverflow.com/a/18499840/16484891

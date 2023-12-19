@@ -74,7 +74,7 @@ fun OcrQueue(ocrQueueViewModel: OcrQueueViewModel) {
                 Icon(Icons.Default.SaveAlt, null)
             }
             IconButton(
-                onClick = { uiItems.map { it.id }.forEach { ocrQueueViewModel.deleteTask(it) } },
+                onClick = { ocrQueueViewModel.clearTasks() },
                 enabled = !queueRunning,
                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) {
