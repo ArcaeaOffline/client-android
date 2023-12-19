@@ -16,8 +16,8 @@ import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.calculate.calculateArcaeaScoreRange
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
-import xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
 
@@ -44,7 +44,7 @@ data class OcrQueueTaskUiItem(
 
 
 class OcrQueueViewModel : ViewModel() {
-    private val ocrQueue = xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueue()
+    private val ocrQueue = xyz.sevive.arcaeaoffline.core.helpers.OcrQueue()
 
     val ocrQueueTasksUiItems = ocrQueue.ocrQueueTasks.map { tasks ->
         tasks.map {

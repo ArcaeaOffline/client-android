@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr.device
+package xyz.sevive.arcaeaoffline.core.helpers
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -23,7 +23,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
-import xyz.sevive.arcaeaoffline.core.helpers.DeviceOcrHelper
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
+import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock

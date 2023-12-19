@@ -25,7 +25,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
 
 
 @Composable

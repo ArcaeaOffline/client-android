@@ -52,7 +52,7 @@ import com.origeek.imageViewer.viewer.rememberViewerState
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.ocr.device.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
