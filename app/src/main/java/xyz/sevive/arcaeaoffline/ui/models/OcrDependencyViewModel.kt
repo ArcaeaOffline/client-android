@@ -1,56 +1,31 @@
 package xyz.sevive.arcaeaoffline.ui.models
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import java.io.File
-import java.io.FileNotFoundException
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import xyz.sevive.arcaeaoffline.core.helpers.OcrDependencyHelper
 
 class OcrDependencyViewModel : ViewModel() {
-    private val _knnModelState = MutableStateFlow(KnnModelState())
-    val knnModelState: StateFlow<KnnModelState> = _knnModelState.asStateFlow()
+    val knnModelState = OcrDependencyHelper.kNearestModel.combine(
+        OcrDependencyHelper.kNearestModelException
+    ) { model, exception -> KnnModelState(model = model, error = exception) }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(TIMEOUT_MILLIS), KnnModelState()
+    )
 
-    private val _phashDatabaseState = MutableStateFlow(PhashDatabaseState())
-    val phashDatabaseState: StateFlow<PhashDatabaseState> = _phashDatabaseState.asStateFlow()
+    val phashDatabaseState = OcrDependencyHelper.imagePhashDatabase.combine(
+        OcrDependencyHelper.imagePhashDatabaseException
+    ) { db, exception -> PhashDatabaseState(db = db, error = exception) }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(TIMEOUT_MILLIS), PhashDatabaseState()
+    )
 
-    private var ocrDependencyPaths: OcrDependencyPaths? = null
-
-    fun setOcrDependencyPaths(paths: OcrDependencyPaths) {
-        ocrDependencyPaths = paths
+    fun reload(context: Context) {
+        OcrDependencyHelper.loadAll(context)
     }
 
-    fun reload(ocrDependencyPaths: OcrDependencyPaths? = null) {
-        val paths = ocrDependencyPaths ?: this.ocrDependencyPaths ?: throw IllegalArgumentException(
-            "Cannot load from a null `ocrDependencyPaths`"
-        )
-
-        loadKnnModel(paths.knnModelFile)
-        loadPhashDatabase(paths.phashDatabaseFile)
-    }
-
-    fun loadKnnModel(file: File) {
-        val newKnnModelState = try {
-            if (!file.exists()) throw FileNotFoundException("${file.path} does not exist.")
-            KnnModelState(model = KNearest.load(file.path), error = null)
-        } catch (e: Exception) {
-            Log.e("OcrDependencyViewModel", "Error loading knn model", e)
-            KnnModelState(model = null, error = e)
-        }
-        _knnModelState.value = newKnnModelState
-    }
-
-    fun loadPhashDatabase(file: File) {
-        val newPhashDatabaseState = try {
-            PhashDatabaseState(db = ImagePhashDatabase(file.path), error = null)
-        } catch (e: Exception) {
-            Log.e("OcrDependencyViewModel", "Error loading phash database", e)
-            PhashDatabaseState(db = null, error = e)
-        }
-        _phashDatabaseState.value = newPhashDatabaseState
+    companion object {
+        const val TIMEOUT_MILLIS = 2500L
     }
 }

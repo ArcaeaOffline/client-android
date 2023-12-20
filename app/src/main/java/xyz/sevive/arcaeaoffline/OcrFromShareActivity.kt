@@ -16,7 +16,6 @@ import androidx.core.content.IntentCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModelProvider
 import org.apache.commons.io.IOUtils
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -141,11 +140,6 @@ class OcrFromShareActivity : ComponentActivity() {
 
         val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
         ocrFromShareViewModel.setImageBitmap(imgBitmap)
-
-        val ocrDependencyPaths = OcrDependencyPaths(this.applicationContext)
-        ocrDependencyViewModel.setOcrDependencyPaths(ocrDependencyPaths)
-        ocrDependencyViewModel.reload()
-
         ocrFromShareViewModel.startOcr(uri, this)
     }
 }

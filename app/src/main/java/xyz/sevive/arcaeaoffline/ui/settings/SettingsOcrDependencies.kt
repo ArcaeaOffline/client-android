@@ -60,8 +60,7 @@ fun SettingsOcrDependencies(
     val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
 
     val ocrDependencyPaths = OcrDependencyPaths(context)
-    ocrDependencyViewModel.setOcrDependencyPaths(ocrDependencyPaths)
-    ocrDependencyViewModel.reload()
+    ocrDependencyViewModel.reload(context)
 
     val importKnnLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
@@ -70,7 +69,7 @@ fun SettingsOcrDependencies(
             settingsViewModel.importKnnModel(
                 context.contentResolver.openInputStream(it), ocrDependencyPaths,
             )
-            ocrDependencyViewModel.reload()
+            ocrDependencyViewModel.reload(context)
         }
     }
 
@@ -81,7 +80,7 @@ fun SettingsOcrDependencies(
             settingsViewModel.importPhashDatabase(
                 context.contentResolver.openInputStream(it), ocrDependencyPaths,
             )
-            ocrDependencyViewModel.reload()
+            ocrDependencyViewModel.reload(context)
         }
     }
 
@@ -116,7 +115,7 @@ fun SettingsOcrDependencies(
                                 context,
                                 ocrDependencyPaths,
                             )
-                            ocrDependencyViewModel.reload()
+                            ocrDependencyViewModel.reload(context)
                             showBuildPhashDatabaseDialog = false
                         }
                     }) {

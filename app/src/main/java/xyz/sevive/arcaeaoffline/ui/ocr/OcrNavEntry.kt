@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
@@ -38,8 +37,7 @@ fun OcrNavEntry(
 ) {
     val context = LocalContext.current
 
-    ocrDependencyViewModel.setOcrDependencyPaths(OcrDependencyPaths(context))
-    ocrDependencyViewModel.reload()
+    ocrDependencyViewModel.reload(context)
 
     val knnModelStatus by ocrDependencyViewModel.knnModelState.collectAsState()
     val phashDatabaseState by ocrDependencyViewModel.phashDatabaseState.collectAsState()
