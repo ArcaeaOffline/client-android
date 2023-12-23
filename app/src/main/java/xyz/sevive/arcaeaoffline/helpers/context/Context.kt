@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.utils
+package xyz.sevive.arcaeaoffline.helpers.context
 
 import android.app.Activity
 import android.content.ContentResolver

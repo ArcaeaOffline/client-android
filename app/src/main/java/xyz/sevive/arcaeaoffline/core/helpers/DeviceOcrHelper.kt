@@ -24,7 +24,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
 import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.ui.utils.getFilename
+import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import java.io.FileNotFoundException
 
 class DeviceOcrHelper {
