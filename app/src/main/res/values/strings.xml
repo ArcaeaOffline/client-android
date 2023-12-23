@@ -49,6 +49,12 @@ CC BY-SA 3.0
     <string name="crash_report_toast_report_save_failed">Failed to save crash report</string>
     <string name="crash_report_toast_report_ignored">Crash report ignored</string>
 
+    <string name="permission_required_dialog_title">Permission Required</string>
+    <plurals name="permission_required_dialog_content">
+        <item quantity="many">[%s] function needs these permissions:</item>
+        <item quantity="other">[%s] function needs this permission:</item>
+    </plurals>
+
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image pHash Database</string>
     <string name="arcaea_chart">Chart</string>

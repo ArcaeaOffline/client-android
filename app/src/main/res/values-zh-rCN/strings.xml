@@ -18,6 +18,10 @@
     <string name="crash_report_textfield_placeholder_contact">当我们需要更多有关信息时，该如何联系你？</string>
     <string name="crash_report_send_button">发送</string>
     <string name="crash_report_save_button">暂存但不发送</string>
+    <string name="permission_required_dialog_title">未授予权限</string>
+    <plurals name="permission_required_dialog_content">
+        <item quantity="other">【%s】需要以下权限：</item>
+    </plurals>
     <string name="ocr_dependency_knn_model">KNearest 模型</string>
     <string name="arcaea_score">分数</string>
     <string name="database_manage_import_title">导入</string>
