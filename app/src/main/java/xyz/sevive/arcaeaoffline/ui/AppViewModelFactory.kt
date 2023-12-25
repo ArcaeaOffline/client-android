@@ -7,7 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
-import xyz.sevive.arcaeaoffline.OcrFromShareViewModel
+import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel

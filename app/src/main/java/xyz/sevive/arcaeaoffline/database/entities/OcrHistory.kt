@@ -87,7 +87,7 @@ interface OcrHistoryDao {
     fun findById(id: Int): Flow<OcrHistory>
 
     @Insert
-    suspend fun insert(item: OcrHistory)
+    suspend fun insert(item: OcrHistory): Long
 
     @Insert
     suspend fun insertAll(vararg items: OcrHistory)

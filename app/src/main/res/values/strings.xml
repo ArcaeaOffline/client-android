@@ -55,6 +55,8 @@ CC BY-SA 3.0
         <item quantity="other">[%s] function needs this permission:</item>
     </plurals>
 
+    <string name="permission_function_save_image">Save image</string>
+
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image pHash Database</string>
     <string name="arcaea_chart">Chart</string>
@@ -68,6 +70,7 @@ CC BY-SA 3.0
     <string name="arcaea_score_comment">Comment</string>
 
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
+    <string name="ocr_from_share_save_image_button">Save Image</string>
     <string name="ocr_from_share_cache_score_button">Cache</string>
     <string name="ocr_from_share_score_saved">Score saved</string>
     <string name="ocr_from_share_return_to_share_source">Return to previous app</string>

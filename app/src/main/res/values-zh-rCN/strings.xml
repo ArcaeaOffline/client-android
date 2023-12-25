@@ -123,4 +123,6 @@
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
+    <string name="permission_function_save_image">保存图片</string>
+    <string name="ocr_from_share_save_image_button">保存图片</string>
 </resources>
