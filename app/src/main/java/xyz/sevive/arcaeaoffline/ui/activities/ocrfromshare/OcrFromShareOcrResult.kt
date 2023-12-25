@@ -19,8 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
 
 
 @Composable

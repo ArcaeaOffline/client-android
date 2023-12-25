@@ -54,9 +54,9 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
 
 
 @Composable
@@ -153,17 +153,11 @@ fun OcrQueueItem(
     if (showScoreEditor && score != null) {
         scoreEditorViewModel.setArcaeaScore(score)
 
-        Dialog(
-            onDismissRequest = { showScoreEditor = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-        ) {
-            Surface(Modifier.fillMaxWidth(0.95f)) {
-                ScoreEditor(
-                    onScoreCommit = { onEditScore(uiItem.id, it); showScoreEditor = false },
-                    viewModel = scoreEditorViewModel
-                )
-            }
-        }
+        ScoreEditorDialog(
+            onDismiss = { showScoreEditor = false },
+            onScoreCommit = { onEditScore(uiItem.id, it) },
+            scoreEditorViewModel = scoreEditorViewModel,
+        )
     }
 
     Card {

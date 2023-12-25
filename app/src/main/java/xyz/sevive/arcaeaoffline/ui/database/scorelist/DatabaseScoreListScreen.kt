@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -28,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,17 +43,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
 
 @Composable
@@ -184,25 +180,19 @@ fun DatabaseScoreListScreen(
     }
 
     if (showScoreEditor) {
-        Dialog(
-            onDismissRequest = { showScoreEditor = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Surface(Modifier.padding(dimensionResource(R.dimen.general_page_padding))) {
-                ScoreEditor(
-                    onScoreCommit = {
-                        coroutineScope.launch {
-                            databaseScoreListViewModel.updateScore(it)
-                        }
-                        Toast.makeText(
-                            context, "Update score ${it.id}", Toast.LENGTH_SHORT
-                        ).show()
-                        showScoreEditor = false
-                    },
-                    scoreEditorViewModel,
-                )
-            }
-        }
+        ScoreEditorDialog(
+            onDismiss = { showScoreEditor = false },
+            onScoreCommit = {
+                coroutineScope.launch {
+                    databaseScoreListViewModel.updateScore(it)
+                }
+                Toast.makeText(
+                    context, "Update score ${it.id}", Toast.LENGTH_SHORT
+                ).show()
+                showScoreEditor = false
+            },
+            scoreEditorViewModel = scoreEditorViewModel,
+        )
     }
 
     if (showDeleteConfirmDialog) {

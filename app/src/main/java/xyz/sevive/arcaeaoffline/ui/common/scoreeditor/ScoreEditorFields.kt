@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
+package xyz.sevive.arcaeaoffline.ui.common.scoreeditor
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Checkbox
@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
 import xyz.sevive.arcaeaoffline.ui.components.CustomComboBox
 
 // TODO: a more elegant way...?

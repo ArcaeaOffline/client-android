@@ -1,16 +1,17 @@
-package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
+package xyz.sevive.arcaeaoffline.ui.common.scoreeditor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -20,7 +21,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.helpers.activity.calculateWindowSizeClass
+import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 class ScoreTextVisualTransformation : VisualTransformation {
@@ -46,12 +48,18 @@ class ScoreTextVisualTransformation : VisualTransformation {
 
 @Composable
 fun ScoreEditor(
-    onScoreCommit: (Score) -> Unit,
     viewModel: ScoreEditorViewModel = viewModel(),
-    expanded: Boolean = false,
+    overrideExpanded: Boolean? = null,
 ) {
+    val context = LocalContext.current
+
     val score by viewModel.score.collectAsState()
     val comment by viewModel.comment.collectAsState()
+
+    val expanded = if (overrideExpanded != null) overrideExpanded else {
+        val windowSizeClass = context.findActivity()?.calculateWindowSizeClass()
+        windowSizeClass != null && windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Expanded
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
         NullableNumberInput(
@@ -107,17 +115,19 @@ fun ScoreEditor(
                 label = { Text(stringResource(R.string.score_editor_comment_field)) },
             )
         }
-
-        Button(onClick = { onScoreCommit(viewModel.toArcaeaScore()) }) {
-            Text(stringResource(R.string.score_editor_commit_button))
-        }
     }
 }
 
 @Preview
 @Composable
 private fun ScoreEditorPreview() {
+    val scoreEditorViewModel: ScoreEditorViewModel = viewModel()
+    scoreEditorViewModel.setChart("test", 2)
+
     ArcaeaOfflineTheme {
-        ScoreEditor({})
+        Column {
+            Text(scoreEditorViewModel.toArcaeaScore().toString())
+            ScoreEditor(scoreEditorViewModel)
+        }
     }
 }

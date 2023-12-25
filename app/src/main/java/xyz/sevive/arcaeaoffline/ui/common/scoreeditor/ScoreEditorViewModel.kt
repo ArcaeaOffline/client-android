@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
+package xyz.sevive.arcaeaoffline.ui.common.scoreeditor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -165,9 +165,8 @@ class ScoreEditorViewModel : ViewModel() {
         }
     }
 
-    // this should only be used by `setArcaeaScore` and `toArcaeaScore`...
-    // ...by now, maybe we should expose `setScoreId` later
     private val _scoreId = MutableStateFlow<Int?>(null)
+    val scoreId = _scoreId.asStateFlow()
 
     fun setArcaeaScore(score: Score) {
         _songId.value = score.songId

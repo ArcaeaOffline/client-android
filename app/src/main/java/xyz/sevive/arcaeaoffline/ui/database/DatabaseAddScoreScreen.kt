@@ -1,15 +1,22 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -23,7 +30,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,11 +41,11 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditor
+import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.RatingClassSelector
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelector
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditor
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorViewModel
 
 @Composable
 fun DatabaseAddScoreScreenChartSelector(
@@ -105,14 +114,38 @@ fun DatabaseAddScoreScreen(
                         AnimatedContent(
                             targetState = score != null,
                             transitionSpec = {
-                                slideInVertically { -it }.togetherWith(slideOutVertically { -it } + fadeOut())
+                                slideInHorizontally { it }.togetherWith(slideOutHorizontally { -it })
                             },
-                            label = "",
+                            label = "scoreStatusCard",
                         ) {
-                            if (it) {
-                                ArcaeaScoreCard(score!!, chart = selectedChart)
-                            } else {
-                                Text("Score Invalid")
+                            when (it) {
+                                true -> Row(verticalAlignment = Alignment.Bottom) {
+                                    ArcaeaScoreCard(
+                                        score!!,
+                                        modifier = Modifier.weight(1f),
+                                        chart = selectedChart,
+                                    )
+                                    Column {
+                                        IconButton(onClick = {
+                                            coroutineScope.launch {
+                                                databaseAddScoreViewModel.saveScore(score!!)
+                                            }
+                                        }) {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = stringResource(R.string.general_confirm),
+                                            )
+                                        }
+                                    }
+                                }
+
+                                false -> Card(Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Score Invalid",
+                                        Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
                             }
                         }
                     }
@@ -138,14 +171,7 @@ fun DatabaseAddScoreScreen(
 
                     1 -> LazyColumn {
                         item {
-                            ScoreEditor(
-                                {
-                                    coroutineScope.launch {
-                                        databaseAddScoreViewModel.saveScore(it)
-                                    }
-                                },
-                                viewModel = scoreEditorViewModel,
-                            )
+                            ScoreEditor(viewModel = scoreEditorViewModel, overrideExpanded = false)
                         }
                     }
                 }
