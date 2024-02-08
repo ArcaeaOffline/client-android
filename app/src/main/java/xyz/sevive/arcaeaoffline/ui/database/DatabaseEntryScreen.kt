@@ -11,6 +11,7 @@ import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.calculateListDetailPaneScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +29,9 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
 @Composable
 fun DatabaseEntryScreen() {
     var detailPaneRole by rememberSaveable { mutableStateOf(ListDetailPaneScaffoldRole.List) }
-    val state = calculateListDetailPaneScaffoldState(currentPaneDestination = detailPaneRole)
+    val state = calculateListDetailPaneScaffoldState(
+        currentDestination = ThreePaneScaffoldDestinationItem(detailPaneRole, null)
+    )
     var selectedScreenRoute: String? by rememberSaveable { mutableStateOf(null) }
 
     val handleNavigateUp = {
