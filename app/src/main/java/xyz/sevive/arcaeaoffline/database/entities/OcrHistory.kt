@@ -1,24 +1,23 @@
 package xyz.sevive.arcaeaoffline.database.entities
 
 import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Entity
-import androidx.room.Insert
 import androidx.room.PrimaryKey
-import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 
 @Entity(tableName = "ocr_history")
 data class OcrHistory(
     @PrimaryKey(autoGenerate = true) val id: Int,
-    @ColumnInfo(name = "source_package_name") val sourcePackageName: String? = "",
+    @ColumnInfo(name = "source_package_name") val sourcePackageName: String?,
     @ColumnInfo(name = "store_date") val storeDate: Long,
 
-    @ColumnInfo(name = "song_id") val songId: String,
+    @ColumnInfo(name = "song_id") val songId: String?,
     @ColumnInfo(name = "rating_class") val ratingClass: Int,
     @ColumnInfo(name = "score") val score: Int,
     @ColumnInfo(name = "pure") val pure: Int?,
@@ -29,7 +28,9 @@ data class OcrHistory(
     @ColumnInfo(name = "modifier") val modifier: Int?,
     @ColumnInfo(name = "clear_type") val clearType: Int?,
 ) {
-    fun toArcaeaScore(comment: String? = ""): Score {
+    fun toArcaeaScore(comment: String? = ""): Score? {
+        if (songId == null || ratingClass < 0) return null
+
         return Score(
             id = 0,
             songId = songId,
@@ -44,7 +45,20 @@ data class OcrHistory(
             clearType = clearType,
             comment = when (comment) {
                 null -> null
-                "" -> "Restored from OCR history, id = $id, source = $sourcePackageName, timestamp = $storeDate"
+                "" -> {
+                    val stringArr = mutableListOf("From OCR cache")
+                    if (sourcePackageName != null) stringArr.add("source `$sourcePackageName`")
+                    stringArr.add(
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+                            LocalDateTime.ofInstant(
+                                Instant.ofEpochSecond(storeDate), ZoneId.systemDefault()
+                            )
+                        )
+                    )
+
+                    stringArr.joinToString(", ")
+                }
+
                 else -> comment
             },
         )
@@ -74,25 +88,3 @@ data class OcrHistory(
         }
     }
 }
-
-@Dao
-interface OcrHistoryDao {
-    @Query("SELECT * FROM ocr_history")
-    fun findAll(): Flow<List<OcrHistory>>
-
-    @Query("SELECT * FROM ocr_history WHERE id IN (:ids)")
-    fun findAllByIds(ids: IntArray): Flow<List<OcrHistory>>
-
-    @Query("SELECT * FROM ocr_history WHERE id = (:id)")
-    fun findById(id: Int): Flow<OcrHistory>
-
-    @Insert
-    suspend fun insert(item: OcrHistory): Long
-
-    @Insert
-    suspend fun insertAll(vararg items: OcrHistory)
-
-    @Delete
-    suspend fun delete(item: OcrHistory)
-}
-

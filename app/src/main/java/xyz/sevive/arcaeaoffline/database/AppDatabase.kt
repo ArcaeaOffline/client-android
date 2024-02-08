@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
-import xyz.sevive.arcaeaoffline.database.entities.OcrHistoryDao
 
 
 @Database(entities = [OcrHistory::class], version = 1)

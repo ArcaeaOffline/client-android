@@ -67,7 +67,7 @@ object AppViewModelProvider {
         initializer {
             OcrFromShareViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer,
-                application().appDatabase
+                application().appDatabaseRepositoryContainer
             )
         }
     }

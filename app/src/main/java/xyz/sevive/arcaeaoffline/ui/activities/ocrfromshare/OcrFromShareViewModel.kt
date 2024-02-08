@@ -23,16 +23,16 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
-import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.File
 
 
 class OcrFromShareViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    private val appDatabase: AppDatabase,
+    private val appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer,
 ) : ViewModel() {
     private val _bitmap = MutableStateFlow<Bitmap?>(null)
     private val bitmap = _bitmap.asStateFlow()
@@ -125,7 +125,7 @@ class OcrFromShareViewModel(
         val score = score.value
         if (score != null) {
             val ocrHistory = OcrHistory.fromArcaeaScore(score, shareSourceAppPackageName.value)
-            val id = appDatabase.ocrHistoryDao().insert(ocrHistory)
+            val id = appDatabaseRepositoryContainer.ocrHistoryRepository.insert(ocrHistory)
 
             val bitmap = bitmap.value
             if (bitmap != null) {
