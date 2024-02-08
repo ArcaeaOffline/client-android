@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.overview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -37,7 +37,7 @@ fun OverviewScreen(
 
     Column(
         modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(dimensionResource(R.dimen.general_page_padding))
     ) {
         LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
