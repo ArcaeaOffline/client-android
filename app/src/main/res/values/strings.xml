@@ -130,6 +130,8 @@ CC BY-SA 3.0
         <item quantity="other">Are you sure to delete %d score?</item>
     </plurals>
 
+    <string name="database_b30_list_title">Best30 List</string>
+
     <plurals name="database_packlist_imported">
         <item quantity="many">%d packs imported</item>
         <item quantity="other">%d pack imported</item>

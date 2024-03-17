@@ -11,6 +11,7 @@ import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddScoreViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
+import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListViewModel
 import xyz.sevive.arcaeaoffline.ui.models.DatabaseCommonFunctionsViewModel
@@ -48,6 +49,12 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseScoreListViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            DatabaseB30ListViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

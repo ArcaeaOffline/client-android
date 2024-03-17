@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListScreen
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
@@ -68,6 +69,10 @@ fun DatabaseEntryScreen() {
 
                 DatabaseScreen.ScoreList.route -> {
                     DatabaseScoreListScreen(onNavigateUp = handleNavigateUp)
+                }
+
+                DatabaseScreen.B30.route -> {
+                    DatabaseB30ListScreen(onNavigateUp = handleNavigateUp)
                 }
 
                 else -> {

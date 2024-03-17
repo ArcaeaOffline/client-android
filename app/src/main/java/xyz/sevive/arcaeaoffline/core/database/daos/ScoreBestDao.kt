@@ -15,5 +15,8 @@ interface ScoreBestDao {
 
     @Query("SELECT * FROM scores_best WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<ScoreBest>>
+
+    @Query("SELECT * FROM scores_best ORDER BY potential DESC LIMIT :limit")
+    fun listDescWithLimit(limit: Int): Flow<List<ScoreBest>>
 }
 

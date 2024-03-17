@@ -8,6 +8,7 @@ interface ScoreBestRepository {
     fun find(songId: String, ratingClass: Int): Flow<ScoreBest?>
     fun findAll(): Flow<List<ScoreBest>>
     fun findAllBySongId(songId: String): Flow<List<ScoreBest>>
+    fun listDescWithLimit(limit: Int): Flow<List<ScoreBest>>
 }
 
 class ScoreBestRepositoryImpl(private val dao: ScoreBestDao) : ScoreBestRepository {
@@ -18,5 +19,7 @@ class ScoreBestRepositoryImpl(private val dao: ScoreBestDao) : ScoreBestReposito
 
     override fun findAllBySongId(songId: String): Flow<List<ScoreBest>> =
         dao.findAllBySongId(songId)
+
+    override fun listDescWithLimit(limit: Int): Flow<List<ScoreBest>> = dao.listDescWithLimit(limit)
 }
 

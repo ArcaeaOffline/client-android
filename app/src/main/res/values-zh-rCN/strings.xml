@@ -55,6 +55,7 @@
     <plurals name="database_songlist_difficulty_imported">
         <item quantity="other">已导入 %d 个难度</item>
     </plurals>
+    <string name="database_b30_list_title">B30 列表</string>
     <string name="database_chart_info_imported">已导入 %d 个谱面信息</string>
     <string name="database_manage_title">管理</string>
     <plurals name="database_pack_entries">

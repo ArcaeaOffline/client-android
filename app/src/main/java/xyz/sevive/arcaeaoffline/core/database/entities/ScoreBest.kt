@@ -32,3 +32,20 @@ data class ScoreBest(
     val potential: Double,
     val comment: String?,
 )
+
+fun ScoreBest.toScore(): Score {
+    return Score(
+        id = this.id,
+        songId = this.songId,
+        ratingClass = this.ratingClass,
+        score = this.score,
+        pure = this.pure,
+        far = this.far,
+        lost = this.lost,
+        date = this.date,
+        maxRecall = this.maxRecall,
+        modifier = this.modifier,
+        clearType = this.clearType,
+        comment = this.comment,
+    )
+}
