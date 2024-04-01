@@ -31,8 +31,8 @@ fun CustomComboBox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable () -> Unit = {},
-    leadingIcon: @Composable () -> Unit = {},
-    trailingIcon: @Composable () -> Unit = { Icon(Icons.Default.ArrowDropDown, null) }
+    leadingIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = { Icon(Icons.Default.ArrowDropDown, null) }
 ) {
     val labels = options.map { it.first }
 
@@ -58,8 +58,10 @@ fun CustomComboBox(
             enabled = enabled,
             singleLine = true,
             label = { label() },
-            leadingIcon = { leadingIcon() },
-            trailingIcon = { Box(Modifier.rotate(trailingIconRotateDegree)) { trailingIcon() } },
+            leadingIcon = leadingIcon,
+            trailingIcon = if (trailingIcon != null) {
+                { Box(Modifier.rotate(trailingIconRotateDegree)) { trailingIcon() } }
+            } else null,
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
