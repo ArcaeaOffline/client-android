@@ -23,7 +23,7 @@ import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 enum class RatingClassSelectorStyle(val columns: Int) {
-    Vertical(1), Grid(2), Horizontal(4),
+    Vertical(1), Grid(2), Horizontal(5),
 }
 
 
