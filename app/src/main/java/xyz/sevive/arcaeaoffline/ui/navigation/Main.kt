@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
@@ -53,7 +54,10 @@ fun MainNavigationBar(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
 
-    NavigationBar(containerColor = MaterialTheme.colorScheme.inverseOnSurface) {
+    NavigationBar(
+        Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
+    ) {
         MainScreen.entries.forEach { item ->
             NavigationBarItem(
                 icon = { Icon(item.icon(), null) },
