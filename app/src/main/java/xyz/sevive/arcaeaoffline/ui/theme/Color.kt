@@ -14,7 +14,7 @@ val Pink40 = Color(0xFF7D5260)
 
 @Immutable
 data class ArcaeaDifficultyColors(
-    val past: Color, val present: Color, val future: Color, val beyond: Color
+    val past: Color, val present: Color, val future: Color, val beyond: Color, val eternal: Color,
 )
 
 val ArcaeaPastSvgMain = Color(0xFF5CBAD3)
@@ -36,6 +36,7 @@ val ArcaeaDifficultyExtendedColors = staticCompositionLocalOf {
         present = Color.Unspecified,
         future = Color.Unspecified,
         beyond = Color.Unspecified,
+        eternal = Color.Unspecified,
     )
 }
 
@@ -44,6 +45,7 @@ val lightArcaeaDifficultyColors = ArcaeaDifficultyColors(
     present = Color(0xFF829438),
     future = Color(0xFF913A79),
     beyond = Color(0xFFBF0D25),
+    eternal = Color(0xFF8B77A4),
 )
 
 val darkArcaeaDifficultyColors = ArcaeaDifficultyColors(
@@ -51,6 +53,7 @@ val darkArcaeaDifficultyColors = ArcaeaDifficultyColors(
     present = Color(0xFFB5C76F),
     future = Color(0xFFC56DAC),
     beyond = Color(0xFFF24058),
+    eternal = Color(0xFFD3B5F9),
 )
 
 @Immutable
