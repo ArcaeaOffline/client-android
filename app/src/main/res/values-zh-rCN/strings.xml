@@ -88,6 +88,7 @@
     <string name="datetime_picker_time_tab">时间</string>
     <string name="general_ok">OK</string>
     <string name="general_cancel">取消</string>
+    <string name="score_editor_main_fields">主要字段</string>
     <string name="score_editor_set_null">置空</string>
     <string name="score_editor_comment_field">备注</string>
     <string name="datetime_picker_label">日期</string>
@@ -126,4 +127,5 @@
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
     <string name="permission_function_save_image">保存图片</string>
     <string name="ocr_from_share_save_image_button">保存图片</string>
+    <string name="score_editor_other_fields">其他字段</string>
 </resources>
