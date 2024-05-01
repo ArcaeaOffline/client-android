@@ -46,24 +46,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorDialog
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
+import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
 import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
 
 @Composable
 internal fun DatabaseScoreListItem(
     uiItem: DatabaseScoreListUiItem,
-    onRequestEdit: () -> Unit,
+    onScoreChange: (Score) -> Unit,
     inSelectMode: Boolean,
     selected: Boolean,
     onSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val (score, scoreCalculated, chart) = uiItem
+
+    var showScoreEditor by rememberSaveable { mutableStateOf(false) }
+
+    if (showScoreEditor) {
+        ScoreEditorDialog(
+            onDismiss = { showScoreEditor = false },
+            score = score,
+            onScoreChange = onScoreChange,
+        )
+    }
 
     Row(
         modifier.clickable(inSelectMode) { onSelectedChange(!selected) },
@@ -84,7 +94,7 @@ internal fun DatabaseScoreListItem(
                 if (it) {
                     Checkbox(checked = selected, onCheckedChange = onSelectedChange)
                 } else {
-                    IconButton(onClick = onRequestEdit) {
+                    IconButton(onClick = { showScoreEditor = true }) {
                         Icon(Icons.Default.Edit, null)
                     }
                 }
@@ -97,21 +107,19 @@ internal fun DatabaseScoreListItem(
 @Composable
 fun DatabaseScoreListScreen(
     onNavigateUp: () -> Unit,
-    databaseScoreListViewModel: DatabaseScoreListViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    scoreEditorViewModel: ScoreEditorViewModel = viewModel(),
+    viewModel: DatabaseScoreListViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val uiItems by databaseScoreListViewModel.uiItems.collectAsState()
-    var showScoreEditor by rememberSaveable { mutableStateOf(false) }
+    val uiItems by viewModel.uiItems.collectAsState()
 
     var inSelectMode by rememberSaveable { mutableStateOf(false) }
-    val selectedItemIds by databaseScoreListViewModel.selectedUiItemIds.collectAsState()
+    val selectedItemIds by viewModel.selectedUiItemIds.collectAsState()
     var showDeleteConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
     val exitSelectMode = {
-        databaseScoreListViewModel.clearSelectedItems()
+        viewModel.clearSelectedItems()
         inSelectMode = false
     }
 
@@ -129,7 +137,7 @@ fun DatabaseScoreListScreen(
                     if (it) {
                         Row {
                             IconButton(
-                                onClick = { databaseScoreListViewModel.clearSelectedItems() },
+                                onClick = { viewModel.clearSelectedItems() },
                                 enabled = selectedItemIds.isNotEmpty(),
                             ) {
                                 Icon(Icons.Default.Deselect, null)
@@ -162,37 +170,25 @@ fun DatabaseScoreListScreen(
 
                 Box(Modifier.animateItemPlacement()) {
                     DatabaseScoreListItem(
-                        it,
-                        {
-                            scoreEditorViewModel.setArcaeaScore(it.score)
-                            showScoreEditor = true
+                        uiItem = it,
+                        onScoreChange = { scoreEdited ->
+                            // TODO: debouncing / only trigger when dialog dismiss?
+                            coroutineScope.launch { viewModel.updateScore(scoreEdited) }
+
+                            Toast.makeText(
+                                context, "Update score ${it.id}", Toast.LENGTH_SHORT
+                            ).show()
                         },
                         inSelectMode = inSelectMode,
                         selected = itemSelected,
                         onSelectedChange = { checked ->
-                            if (checked) databaseScoreListViewModel.selectItem(it)
-                            else databaseScoreListViewModel.deselectItem(it)
+                            if (checked) viewModel.selectItem(it)
+                            else viewModel.deselectItem(it)
                         },
                     )
                 }
             }
         }
-    }
-
-    if (showScoreEditor) {
-        ScoreEditorDialog(
-            onDismiss = { showScoreEditor = false },
-            onScoreCommit = {
-                coroutineScope.launch {
-                    databaseScoreListViewModel.updateScore(it)
-                }
-                Toast.makeText(
-                    context, "Update score ${it.id}", Toast.LENGTH_SHORT
-                ).show()
-                showScoreEditor = false
-            },
-            scoreEditorViewModel = scoreEditorViewModel,
-        )
     }
 
     if (showDeleteConfirmDialog) {
@@ -204,7 +200,7 @@ fun DatabaseScoreListScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        coroutineScope.launch { databaseScoreListViewModel.deleteSelection() }
+                        coroutineScope.launch { viewModel.deleteSelection() }
                         showDeleteConfirmDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(

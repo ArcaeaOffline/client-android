@@ -37,15 +37,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorDialog
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
+import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
 
 
 @Composable
@@ -99,7 +97,6 @@ fun OcrQueueItem(
     deleteEnabled: Boolean = true,
     onEditScore: (Int, Score) -> Unit,
     onSaveScore: (Int) -> Unit,
-    scoreEditorViewModel: ScoreEditorViewModel = viewModel(),
 ) {
     val context = LocalContext.current
 
@@ -113,12 +110,10 @@ fun OcrQueueItem(
 
     val score = uiItem.score
     if (showScoreEditor && score != null) {
-        scoreEditorViewModel.setArcaeaScore(score)
-
         ScoreEditorDialog(
             onDismiss = { showScoreEditor = false },
-            onScoreCommit = { onEditScore(uiItem.id, it) },
-            scoreEditorViewModel = scoreEditorViewModel,
+            score = score,
+            onScoreChange = { onEditScore(uiItem.id, it) },
         )
     }
 
