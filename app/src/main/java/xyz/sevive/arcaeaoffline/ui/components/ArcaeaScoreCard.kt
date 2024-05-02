@@ -56,10 +56,10 @@ import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaDifficultyExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaGradeGradientExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
+import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
 /**
  * https://stackoverflow.com/a/70508246/16484891
@@ -83,16 +83,6 @@ fun MeasureTextWidth(
             contentPlaceable.place(0, 0)
         }
     }
-}
-
-@Composable
-fun ratingClassColor(ratingClass: Int): Color {
-    return arrayOf(
-        ArcaeaDifficultyExtendedColors.current.past,
-        ArcaeaDifficultyExtendedColors.current.present,
-        ArcaeaDifficultyExtendedColors.current.future,
-        ArcaeaDifficultyExtendedColors.current.beyond,
-    )[ratingClass]
 }
 
 fun scoreText(score: Int): String {
@@ -198,7 +188,7 @@ fun ArcaeaScoreCard(
                     )
                     Text(
                         ratingClassDisplayText,
-                        color = ratingClassColor(score.ratingClass),
+                        color = ratingClassColor(ArcaeaScoreRatingClass.fromInt(score.ratingClass)),
                     )
                 }
 

@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.core.graphics.ColorUtils
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaDifficultyExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
 
 class RatingClassShape(private val isFirst: Boolean = false) : Shape {
@@ -238,13 +238,12 @@ fun RatingClassSelector(
 ) {
     @Composable
     fun RatingClassBoxWrapper(
-        baseColor: Color,
         ratingClass: ArcaeaScoreRatingClass,
         isFirst: Boolean = false,
     ) {
         RatingClassBox(
             onClick = { onRatingClassChange(ratingClass) },
-            baseColor = baseColor,
+            baseColor = ratingClassColor(ratingClass),
             ratingClass = ratingClass,
             selected = selectedRatingClass == ratingClass,
             disabled = !enabledRatingClasses.contains(ratingClass),
@@ -255,29 +254,24 @@ fun RatingClassSelector(
 
     RatingClassRowLayout {
         RatingClassBoxWrapper(
-            baseColor = ArcaeaDifficultyExtendedColors.current.past,
             ratingClass = ArcaeaScoreRatingClass.PAST,
             isFirst = true,
         )
         RatingClassBoxWrapper(
-            baseColor = ArcaeaDifficultyExtendedColors.current.present,
             ratingClass = ArcaeaScoreRatingClass.PRESENT,
         )
         RatingClassBoxWrapper(
-            baseColor = ArcaeaDifficultyExtendedColors.current.future,
             ratingClass = ArcaeaScoreRatingClass.FUTURE,
         )
 
         if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.BEYOND)) {
             RatingClassBoxWrapper(
-                baseColor = ArcaeaDifficultyExtendedColors.current.beyond,
                 ratingClass = ArcaeaScoreRatingClass.BEYOND,
             )
         }
 
         if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.ETERNAL)) {
             RatingClassBoxWrapper(
-                baseColor = ArcaeaDifficultyExtendedColors.current.eternal,
                 ratingClass = ArcaeaScoreRatingClass.ETERNAL,
             )
         }
