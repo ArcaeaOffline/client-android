@@ -13,37 +13,67 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 
-class SongIdSelectorViewModel(private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer) :
-    ViewModel() {
-
+class SongIdSelectorViewModel(
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+) : ViewModel() {
     val packList = repositoryContainer.packRepository.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
     )
 
-    val basePackMap = packList.map { packs ->
-        packs.mapNotNull {
-            val basePack = repositoryContainer.packRepository.findBasePack(it.id).firstOrNull()
-            if (basePack != null) (it.id to basePack) else null
-        }.toMap()
-    }.stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = mapOf()
-    )
+    private val _chartOnly = MutableStateFlow(false)
+    private val chartOnly = _chartOnly.asStateFlow()
+
+    fun setChartOnly(value: Boolean) {
+        _chartOnly.value = value
+    }
 
     private val _songList = MutableStateFlow<List<Song>>(listOf())
     val songList = _songList.asStateFlow()
 
-    suspend fun setSongListBySet(set: String, chartOnly: Boolean = false) {
+    suspend fun setSongListBySet(set: String) {
         _songList.value = repositoryContainer.songRepository.findBySet(set).map { songs ->
-            if (chartOnly) {
+            if (chartOnly.value) {
                 songs.filter {
                     repositoryContainer.chartRepository.findAllBySongId(it.id).first().isNotEmpty()
                 }
             } else songs
         }.first()
+    }
+
+    private val _selectedPackIndex = MutableStateFlow(-1)
+    val selectedPackIndex = _selectedPackIndex.asStateFlow()
+
+    private val _selectedSongIndex = MutableStateFlow(-1)
+    val selectedSongIndex = _selectedSongIndex.asStateFlow()
+
+    fun getSelectedSongId(): String? {
+        val idx = selectedSongIndex.value
+        return if (idx > -1) songList.value[idx].id else null
+    }
+
+    suspend fun selectPackIndex(idx: Int) {
+        _selectedPackIndex.value = idx
+        _selectedSongIndex.value = -1
+
+        setSongListBySet(packList.value[idx].id)
+    }
+
+    fun selectSongIndex(idx: Int) {
+        _selectedSongIndex.value = idx
+    }
+
+    suspend fun initialSelect(songId: String) {
+        val song = repositoryContainer.songRepository.find(songId).firstOrNull() ?: return
+
+        val packIdx = packList.value.indexOfFirst { it.id == song.set }
+        if (packIdx < 0) return
+        selectPackIndex(packIdx)
+
+        val songIdx = songList.value.indexOfFirst { it.id == song.id }
+        if (songIdx < 0) return
+        selectSongIndex(songIdx)
     }
 
     companion object {

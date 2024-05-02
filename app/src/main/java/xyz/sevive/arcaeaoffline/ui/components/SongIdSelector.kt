@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,6 +18,7 @@ import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 
 @Composable
 fun SongIdSelector(
+    songId: String?,
     onSongIdChanged: (songId: String?) -> Unit,
     modifier: Modifier = Modifier,
     chartOnly: Boolean = false,
@@ -30,19 +29,26 @@ fun SongIdSelector(
     val packList by viewModel.packList.collectAsState()
     val songList by viewModel.songList.collectAsState()
 
-    var selectedPackIndex by remember { mutableIntStateOf(-1) }
-    var selectedSongIndex by remember { mutableIntStateOf(-1) }
+    val selectedPackIndex by viewModel.selectedPackIndex.collectAsState()
+    val selectedSongIndex by viewModel.selectedSongIndex.collectAsState()
+
+    LaunchedEffect(chartOnly) {
+        viewModel.setChartOnly(chartOnly)
+    }
 
     val selectPack: (Int) -> Unit = { i ->
-        selectedPackIndex = i
-        selectedSongIndex = -1
         coroutineScope.launch {
-            viewModel.setSongListBySet(packList[selectedPackIndex].id, chartOnly)
+            viewModel.selectPackIndex(i)
+            onSongIdChanged(viewModel.getSelectedSongId())
         }
     }
     val selectSong: (Int) -> Unit = { i ->
-        selectedSongIndex = i
-        onSongIdChanged(songList[i].id)
+        viewModel.selectSongIndex(i)
+        onSongIdChanged(viewModel.getSelectedSongId())
+    }
+
+    LaunchedEffect(songId) {
+        if (songId != null) viewModel.initialSelect(songId)
     }
 
     Column(
