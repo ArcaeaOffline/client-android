@@ -52,7 +52,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
-import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
 internal fun DatabaseScoreListItem(
@@ -86,7 +86,7 @@ internal fun DatabaseScoreListItem(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("PTT", fontWeight = FontWeight.Thin, style = MaterialTheme.typography.labelSmall)
             Text(
-                potentialToText(scoreCalculated?.potential),
+                ArcaeaFormatters.potentialToText(scoreCalculated?.potential),
                 style = MaterialTheme.typography.labelMedium,
             )
 

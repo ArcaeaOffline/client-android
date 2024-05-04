@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
-import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
 fun B30R10Label(label: String, value: String) {
@@ -42,7 +42,7 @@ fun OverviewScreen(
     ) {
         LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
             item {
-                B30R10Label(label = "B30", value = potentialToText(b30))
+                B30R10Label(label = "B30", value = ArcaeaFormatters.potentialToText(b30))
             }
 
             item {

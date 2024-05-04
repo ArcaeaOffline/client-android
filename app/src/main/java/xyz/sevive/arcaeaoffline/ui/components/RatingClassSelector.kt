@@ -27,19 +27,15 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.core.graphics.ColorUtils
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
@@ -70,23 +66,6 @@ class RatingClassShape(private val isFirst: Boolean = false) : Shape {
         }
 
         return Outline.Generic(ratingClassPath)
-    }
-}
-
-internal fun ratingClassConstantAnnotatedString(constant: Int?): AnnotatedString {
-    if (constant == null) return buildAnnotatedString { append("?") }
-
-    return buildAnnotatedString {
-        append((constant / 10).toString())
-
-        if ((78..79).contains(constant) || (89..89).contains(constant) || (97..99).contains(constant) || (107..109).contains(
-                constant
-            )
-        ) {
-            withStyle(SpanStyle(fontSize = 0.7.em)) {
-                append('+')
-            }
-        }
     }
 }
 
@@ -151,7 +130,7 @@ internal fun RatingClassBox(
     else if (selected) colors.selectedTextColor
     else colors.notSelectedTextColor
 
-    val constantText = ratingClassConstantAnnotatedString(constant)
+    val constantText = ArcaeaFormatters.constantToRatingClassAnnotatedString(constant)
     val label = ratingClass.toString()
 
 //    val constantMaxHeight = height * 0.9f

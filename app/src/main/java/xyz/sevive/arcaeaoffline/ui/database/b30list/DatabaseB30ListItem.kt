@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.toScore
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.utils.potentialToText
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
 internal fun DatabaseB30ListItem(
@@ -61,7 +61,7 @@ internal fun DatabaseB30ListItem(
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
             Text(
-                potentialToText(scoreBest.potential),
+                ArcaeaFormatters.potentialToText(scoreBest.potential),
                 style = MaterialTheme.typography.labelMedium,
             )
         }
