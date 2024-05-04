@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaHelper
+import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaPackageHelper
 
 @Composable
 fun ArcaeaButtonWrapper(
@@ -32,10 +32,10 @@ fun ArcaeaButtonWrapper(
         (iconSize ?: Icons.Default.Cancel.defaultHeight).toPx()
     }.toInt()
 
-    val arcaeaHelper = ArcaeaHelper(context)
+    val arcaeaPackageHelper = ArcaeaPackageHelper(context)
 
-    val arcaeaIcon = if (arcaeaHelper.isInstalled()) {
-        arcaeaHelper.getIcon()
+    val arcaeaIcon = if (arcaeaPackageHelper.isInstalled()) {
+        arcaeaPackageHelper.getIcon()
     } else null
     val arcaeaIconBitmap = arcaeaIcon?.toBitmap(iconPx, iconPx)?.asImageBitmap()
     val arcaeaIconBitmapPainter = remember(arcaeaIconBitmap) {
@@ -45,7 +45,7 @@ fun ArcaeaButtonWrapper(
     val iconPainter: Painter =
         arcaeaIconBitmapPainter ?: rememberVectorPainter(Icons.Default.Cancel)
 
-    content(iconPainter, arcaeaHelper.isInstalled())
+    content(iconPainter, arcaeaPackageHelper.isInstalled())
 }
 
 

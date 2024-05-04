@@ -21,7 +21,7 @@ class ArcaeaNotInstalledException : Exception() {
     override val message = "Arcaea not installed!"
 }
 
-class ArcaeaHelper(context: Context) {
+class ArcaeaPackageHelper(context: Context) {
     private val packageManager = context.packageManager
 
     val jacketsCacheDir = File(context.cacheDir, "arcaea" + File.separator + "jackets")

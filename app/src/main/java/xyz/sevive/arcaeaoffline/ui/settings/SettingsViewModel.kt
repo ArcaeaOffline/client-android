@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaHelper
+import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import java.io.InputStream
 
@@ -48,11 +48,11 @@ class SettingsViewModel : ViewModel() {
     suspend fun buildPhashDatabaseFromArcaea(
         context: Context, ocrDependencyPaths: OcrDependencyPaths,
     ) {
-        val arcaeaHelper = ArcaeaHelper(context)
+        val arcaeaPackageHelper = ArcaeaPackageHelper(context)
 
         _phashDatabaseBuildProgress.value = 0
         withContext(Dispatchers.IO) {
-            arcaeaHelper.buildPhashDatabase(progressCallback = { progress, total ->
+            arcaeaPackageHelper.buildPhashDatabase(progressCallback = { progress, total ->
                 _phashDatabaseBuildProgress.value = progress
                 _phashDatabaseBuildProgressTotal.value = total
             })
@@ -60,6 +60,9 @@ class SettingsViewModel : ViewModel() {
         _phashDatabaseBuildProgress.value = -1
         _phashDatabaseBuildProgressTotal.value = -1
 
-        importPhashDatabase(arcaeaHelper.tempPhashDatabaseFile.inputStream(), ocrDependencyPaths)
+        importPhashDatabase(
+            arcaeaPackageHelper.tempPhashDatabaseFile.inputStream(),
+            ocrDependencyPaths
+        )
     }
 }
