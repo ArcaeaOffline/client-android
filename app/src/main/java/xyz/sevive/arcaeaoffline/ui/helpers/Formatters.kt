@@ -5,6 +5,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
+import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -68,6 +71,64 @@ class ArcaeaFormatters {
                     append('+')
                 }
             }
+        }
+
+        private fun ratingText(
+            ratingClass: Int,
+            rating: Int,
+            ratingPlus: Boolean,
+            constant: Int = 0,
+        ): String {
+            var text = ArcaeaScoreRatingClass.fromInt(ratingClass).toString()
+            text += ' '
+
+            if (constant != 0) {
+                val decimalFormat = DecimalFormat("0.0")
+                text += decimalFormat.format(constant / 10.0)
+            } else {
+                text += rating.toString()
+                if (ratingPlus) {
+                    text += '+'
+                }
+            }
+
+            return text
+        }
+
+        /**
+         * Returns the readable rating text for the given difficulty.
+         *
+         * For example:
+         * * `Difficulty(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
+         * * `Difficulty(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
+         */
+        fun ratingText(difficulty: Difficulty): String {
+            return ratingText(
+                ratingClass = difficulty.ratingClass,
+                rating = difficulty.rating,
+                ratingPlus = difficulty.ratingPlus
+            )
+        }
+
+        /**
+         * Returns the readable rating text for the given chart.
+         *
+         * If the `constant` is not null, return it.
+         * Otherwise, return the `rating` and `ratingPlus` fields.
+         *
+         * For example:
+         * * `Chart(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
+         * * `Chart(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
+         * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
+         * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=0)` > "FUTURE 10+"
+         */
+        fun ratingText(chart: Chart): String {
+            return ratingText(
+                ratingClass = chart.ratingClass,
+                rating = chart.rating,
+                ratingPlus = chart.ratingPlus,
+                constant = chart.constant,
+            )
         }
     }
 }
