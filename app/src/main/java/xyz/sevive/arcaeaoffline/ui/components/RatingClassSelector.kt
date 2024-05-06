@@ -27,15 +27,18 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.core.graphics.ColorUtils
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
-import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
@@ -115,7 +118,8 @@ internal fun RatingClassBox(
     selected: Boolean = false,
     disabled: Boolean = false,
     isFirst: Boolean = false,
-    constant: Int? = null,
+    rating: Int? = null,
+    ratingPlus: Boolean = false,
 ) {
     val height = 50.dp
     val width = height * 1.4f
@@ -130,7 +134,18 @@ internal fun RatingClassBox(
     else if (selected) colors.selectedTextColor
     else colors.notSelectedTextColor
 
-    val constantText = ArcaeaFormatters.constantToRatingClassAnnotatedString(constant)
+    val constantText = buildAnnotatedString {
+        if (rating == null) {
+            append("?")
+        } else {
+            append(rating.toString())
+            if (ratingPlus) {
+                withStyle(SpanStyle(fontSize = 0.7.em)) {
+                    append('+')
+                }
+            }
+        }
+    }
     val label = ratingClass.toString()
 
 //    val constantMaxHeight = height * 0.9f
@@ -213,13 +228,17 @@ fun RatingClassSelector(
     selectedRatingClass: ArcaeaScoreRatingClass?,
     onRatingClassChange: (ArcaeaScoreRatingClass) -> Unit,
     enabledRatingClasses: List<ArcaeaScoreRatingClass> = listOf(),
-    constants: Map<ArcaeaScoreRatingClass, Int?> = mapOf(),
+    ratingDetails: Map<ArcaeaScoreRatingClass, Pair<Int, Boolean>> = mapOf(),
 ) {
     @Composable
     fun RatingClassBoxWrapper(
         ratingClass: ArcaeaScoreRatingClass,
         isFirst: Boolean = false,
     ) {
+        val ratingGroup = ratingDetails[ratingClass]
+        val rating = ratingGroup?.first
+        val ratingPlus = ratingGroup?.second ?: false
+
         RatingClassBox(
             onClick = { onRatingClassChange(ratingClass) },
             baseColor = ratingClassColor(ratingClass),
@@ -227,7 +246,8 @@ fun RatingClassSelector(
             selected = selectedRatingClass == ratingClass,
             disabled = !enabledRatingClasses.contains(ratingClass),
             isFirst = isFirst,
-            constant = constants[ratingClass],
+            rating = rating,
+            ratingPlus = ratingPlus,
         )
     }
 
@@ -236,23 +256,15 @@ fun RatingClassSelector(
             ratingClass = ArcaeaScoreRatingClass.PAST,
             isFirst = true,
         )
-        RatingClassBoxWrapper(
-            ratingClass = ArcaeaScoreRatingClass.PRESENT,
-        )
-        RatingClassBoxWrapper(
-            ratingClass = ArcaeaScoreRatingClass.FUTURE,
-        )
+        RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.PRESENT)
+        RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.FUTURE)
 
         if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.BEYOND)) {
-            RatingClassBoxWrapper(
-                ratingClass = ArcaeaScoreRatingClass.BEYOND,
-            )
+            RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.BEYOND)
         }
 
         if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.ETERNAL)) {
-            RatingClassBoxWrapper(
-                ratingClass = ArcaeaScoreRatingClass.ETERNAL,
-            )
+            RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.ETERNAL)
         }
     }
 }
@@ -283,12 +295,12 @@ private fun RatingClassSelectorDevicePreview() {
     val ratingClassesWithEternal = ratingClasses.toMutableList()
     ratingClassesWithEternal.remove(ArcaeaScoreRatingClass.BEYOND)
 
-    val constants = mapOf(
-        ArcaeaScoreRatingClass.PAST to 30,
-        ArcaeaScoreRatingClass.PRESENT to 78,
-        ArcaeaScoreRatingClass.FUTURE to 107,
-        ArcaeaScoreRatingClass.BEYOND to 120,
-        ArcaeaScoreRatingClass.ETERNAL to 109,
+    val ratingDetails = mapOf(
+        ArcaeaScoreRatingClass.PAST to Pair(3, false),
+        ArcaeaScoreRatingClass.PRESENT to Pair(7, true),
+        ArcaeaScoreRatingClass.FUTURE to Pair(10, true),
+        ArcaeaScoreRatingClass.BEYOND to Pair(12, false),
+        ArcaeaScoreRatingClass.ETERNAL to Pair(10, true),
     )
 
     ArcaeaOfflineTheme {
@@ -308,7 +320,7 @@ private fun RatingClassSelectorDevicePreview() {
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesCommon,
-                    constants = constants,
+                    ratingDetails = ratingDetails,
                 )
 
                 Text("With beyond")
@@ -316,7 +328,7 @@ private fun RatingClassSelectorDevicePreview() {
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesWithBeyond,
-                    constants = constants,
+                    ratingDetails = ratingDetails,
                 )
 
                 Text("With eternal")
@@ -324,7 +336,7 @@ private fun RatingClassSelectorDevicePreview() {
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesWithEternal,
-                    constants = constants,
+                    ratingDetails = ratingDetails,
                 )
 
                 Text("Last | ???")
@@ -332,7 +344,7 @@ private fun RatingClassSelectorDevicePreview() {
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = listOf(ArcaeaScoreRatingClass.BEYOND),
-                    constants = constants,
+                    ratingDetails = ratingDetails,
                 )
 
                 Text("wtf")
@@ -340,7 +352,7 @@ private fun RatingClassSelectorDevicePreview() {
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClasses,
-                    constants = constants,
+                    ratingDetails = ratingDetails,
                 )
             }
         }
