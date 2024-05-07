@@ -165,6 +165,8 @@ dependencies {
 
     implementation(libs.github.jvziyaoyao.imageviewer)
 
+    implementation(libs.github.cheonjaeung.gridlayout)
+
     // test & debug
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
