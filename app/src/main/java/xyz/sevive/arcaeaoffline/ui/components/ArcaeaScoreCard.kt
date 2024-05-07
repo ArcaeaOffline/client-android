@@ -2,15 +2,14 @@ package xyz.sevive.arcaeaoffline.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
@@ -18,7 +17,6 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,21 +27,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cheonjaeung.compose.grid.SimpleGridCells
+import com.cheonjaeung.compose.grid.VerticalGrid
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
@@ -53,13 +55,12 @@ import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaGradeGradientExtendedColors
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
-import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
+import xyz.sevive.arcaeaoffline.ui.theme.scoreGradientBrush
 
 /**
  * https://stackoverflow.com/a/70508246/16484891
@@ -67,7 +68,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
  * CC BY-SA 4.0
  */
 @Composable
-fun MeasureTextWidth(
+internal fun MeasureTextWidth(
     viewToMeasure: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (measuredWidth: Dp) -> Unit,
@@ -79,76 +80,46 @@ fun MeasureTextWidth(
         val contentPlaceable = subcompose("content") {
             content(measuredWidth)
         }[0].measure(constraints)
-        layout(contentPlaceable.width, contentPlaceable.height) {
+
+        // extra 5px for idk, maybe padding
+        layout(contentPlaceable.width + 5, contentPlaceable.height) {
             contentPlaceable.place(0, 0)
         }
     }
 }
 
-fun scoreText(score: Int): String {
-    return when {
-        score >= 9900000 -> "EX+"
-        score >= 9800000 -> "EX"
-        score >= 9500000 -> "AA"
-        score >= 9200000 -> "A"
-        score >= 8900000 -> "B"
-        score >= 8600000 -> "C"
-        else -> "D"
+@Composable
+internal fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
+    return buildAnnotatedString {
+        withStyle(SpanStyle(fontSize = MaterialTheme.typography.labelMedium.fontSize)) {
+            append(label)
+            append(' ')
+        }
+        append(number?.toString() ?: "-")
     }
 }
 
 @Composable
-fun scoreGradientBrush(score: Int): Brush {
-    val colors = when {
-        score >= 9900000 -> ArcaeaGradeGradientExtendedColors.current.exPlus
-        score >= 9800000 -> ArcaeaGradeGradientExtendedColors.current.ex
-        score >= 9500000 -> ArcaeaGradeGradientExtendedColors.current.aa
-        score >= 9200000 -> ArcaeaGradeGradientExtendedColors.current.a
-        score >= 8900000 -> ArcaeaGradeGradientExtendedColors.current.b
-        score >= 8600000 -> ArcaeaGradeGradientExtendedColors.current.c
-        else -> ArcaeaGradeGradientExtendedColors.current.d
-    }
-    return Brush.verticalGradient(colors)
-}
-
-@Composable
-fun ScorePflText(
-    string: String, number: Int?, modifier: Modifier = Modifier, color: Color = Color.Unspecified
-) {
-    Row(modifier.padding(end = 8.dp)) {
-        Text(
-            string,
-            Modifier
-                .alignByBaseline()
-                .padding(end = 1.5.dp),
-            style = MaterialTheme.typography.labelMedium,
-            color = color
-        )
-        Text(number?.toString() ?: "-", Modifier.alignByBaseline(), color = color)
-    }
-}
-
-@Composable
-private fun DetailsTextWithLabel(label: String, text: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.text_label_padding)),
-    ) {
-        Text(
-            label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelSmall,
-        )
-        Text(text, style = MaterialTheme.typography.labelMedium)
-    }
+internal fun DetailsTextWithLabel(label: String, text: String, modifier: Modifier = Modifier) {
+    TextWithLabel(
+        text = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
+        label = { color, _ ->
+            Text(
+                text = label,
+                color = color,
+                style = MaterialTheme.typography.labelSmall,
+            )
+        },
+        modifier = modifier,
+    )
 }
 
 @Composable
 fun ArcaeaScoreCard(
     score: Score,
     modifier: Modifier = Modifier,
-    chart: Chart? = null,
-    colors: CardColors? = null,
+    shape: Shape = CardDefaults.shape,
+    colors: CardColors? = CardDefaults.cardColors(),
 ) {
     val cardColors = colors ?: CardDefaults.cardColors()
 
@@ -157,101 +128,72 @@ fun ArcaeaScoreCard(
         targetValue = if (showDetails) 180f else 0f, label = "expandArrow"
     )
 
-    val title = chart?.title ?: score.songId
-
-    val rating = chart?.rating
-    val ratingPlus = chart?.ratingPlus
-
-    val ratingClassName = ArcaeaScoreRatingClass.fromInt(score.ratingClass).name
-    val ratingClassDisplayText = if (chart != null) {
-        if (ratingPlus != null && ratingPlus) {
-            "$ratingClassName $rating+"
-        } else {
-            "$ratingClassName $rating"
-        }
-    } else {
-        "$ratingClassName ?"
-    }
-
     val scoreText =
         score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
-    Card({ showDetails = !showDetails }, modifier, colors = cardColors) {
+    Card(
+        onClick = { showDetails = !showDetails },
+        modifier = modifier,
+        shape = shape,
+        colors = cardColors,
+    ) {
         Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
-            Row(verticalAlignment = Alignment.Top) {
-                Column {
-                    Text(
-                        title,
-                        Modifier.animateContentSize(),
-                        maxLines = if (showDetails) 2 else 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        ratingClassDisplayText,
-                        color = ratingClassColor(ArcaeaScoreRatingClass.fromInt(score.ratingClass)),
-                    )
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                if (score.id > 0) {
-                    Text("ID ${score.id}", style = MaterialTheme.typography.labelMedium)
-                }
-            }
-
-            Row {
-                Row(Modifier.weight(1f)) {
-                    MeasureTextWidth(
-                        viewToMeasure = {
-                            Text(
-                                "EX+",
-                                Modifier.padding(end = 10.dp),
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }, Modifier.align(Alignment.CenterVertically)
-                    ) { measuredWidth ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MeasureTextWidth(
+                    viewToMeasure = {
                         Text(
-                            scoreText(score.score),
-                            Modifier
-                                .width(measuredWidth)
-                                .padding(end = 8.dp)
-                                .align(Alignment.CenterVertically),
-                            style = MaterialTheme.typography.headlineSmall.merge(
-                                TextStyle(brush = scoreGradientBrush(score.score))
-                            ),
+                            "EX+",
+                            style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Right,
-                            maxLines = 1,
+                        )
+                    }, Modifier.padding(end = 4.dp)
+                ) { measuredWidth ->
+                    Text(
+                        ArcaeaFormatters.scoreToLevelText(score.score),
+                        Modifier.width(measuredWidth),
+                        style = MaterialTheme.typography.headlineMedium.merge(
+                            TextStyle(brush = scoreGradientBrush(score.score))
+                        ),
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Right,
+                        maxLines = 1,
+                    )
+                }
+
+                Column(Modifier.weight(1f)) {
+                    Text(scoreText, style = MaterialTheme.typography.titleLarge)
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            pflAnnotatedString("P", score.pure),
+                            color = ArcaeaPflExtendedColors.current.pure,
+                        )
+
+                        Text(
+                            pflAnnotatedString("F", score.far),
+                            color = ArcaeaPflExtendedColors.current.far,
+                        )
+
+                        Text(
+                            pflAnnotatedString("L", score.lost),
+                            color = ArcaeaPflExtendedColors.current.lost,
                         )
                     }
 
-                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                        Text(scoreText, fontWeight = FontWeight.Bold)
-
-                        Row {
-                            ScorePflText(
-                                "P", score.pure, color = ArcaeaPflExtendedColors.current.pure
-                            )
-                            ScorePflText(
-                                "F", score.far, color = ArcaeaPflExtendedColors.current.far
-                            )
-                            ScorePflText(
-                                "L", score.lost, color = ArcaeaPflExtendedColors.current.lost
-                            )
-                        }
-
-                        ScorePflText(stringResource(R.string.arcaea_max_recall), score.maxRecall)
-                    }
-                }
-
-                IconButton(onClick = { showDetails = !showDetails }) {
-                    Icon(
-                        Icons.Default.KeyboardArrowDown,
-                        null,
-                        Modifier.graphicsLayer { rotationZ = expandArrowRotateDegree },
+                    Text(
+                        pflAnnotatedString(
+                            stringResource(R.string.arcaea_max_recall), score.maxRecall
+                        )
                     )
                 }
+
+                Icon(
+                    Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    Modifier.graphicsLayer { rotationZ = expandArrowRotateDegree },
+                )
             }
 
             Text(
@@ -265,11 +207,9 @@ fun ArcaeaScoreCard(
             )
 
             AnimatedVisibility(showDetails) {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding))
-                ) {
+                Column(Modifier.fillMaxWidth()) {
                     HorizontalDivider(
+                        Modifier.padding(vertical = 2.dp),
                         thickness = 1.dp,
                         color = LocalContentColor.current.copy(0.5f),
                     )
@@ -282,23 +222,36 @@ fun ArcaeaScoreCard(
                         ArcaeaScoreModifier.fromInt(score.modifier).toDisplayString()
                     } else stringResource(R.string.score_no_modifier)
 
-                    Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                    VerticalGrid(
+                        columns = SimpleGridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        DetailsTextWithLabel(
+                            label = "ID",
+                            text = if (score.id == 0) "/" else score.id.toString(),
+                        )
+
+                        DetailsTextWithLabel(
+                            label = "sI.rC",
+                            text = "${score.songId}.${score.ratingClass}",
+                        )
+
                         DetailsTextWithLabel(
                             label = stringResource(R.string.arcaea_score_clear_type),
                             text = clearTypeText,
-                            modifier = Modifier.weight(1f),
                         )
+
                         DetailsTextWithLabel(
                             label = stringResource(R.string.arcaea_score_modifier),
                             text = modifierText,
-                            modifier = Modifier.weight(1f),
+                        )
+
+                        DetailsTextWithLabel(
+                            label = stringResource(R.string.arcaea_score_comment),
+                            text = score.comment ?: stringResource(R.string.score_no_comment),
+                            modifier = Modifier.span(2),
                         )
                     }
-
-                    DetailsTextWithLabel(
-                        label = stringResource(R.string.arcaea_score_comment),
-                        text = score.comment ?: stringResource(R.string.score_no_comment)
-                    )
                 }
             }
         }
@@ -307,73 +260,63 @@ fun ArcaeaScoreCard(
 
 
 @Composable
+fun ArcaeaScoreCard(
+    score: Score,
+    modifier: Modifier = Modifier,
+    chart: Chart?,
+    colors: CardColors? = CardDefaults.cardColors(),
+) {
+    if (chart == null) {
+        ArcaeaScoreCard(score = score, modifier = modifier, colors = colors)
+        return
+    }
+
+    val cornerSize = 8.dp
+
+    val upperCardShape = RoundedCornerShape(topStart = cornerSize, topEnd = cornerSize)
+    val lowerCardShape = RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize)
+
+    Column(modifier) {
+        ArcaeaChartCard(chart = chart, shape = upperCardShape)
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = CardDefaults.cardColors().containerColor.copy(alpha = 0.5f),
+        )
+        ArcaeaScoreCard(score = score, shape = lowerCardShape, colors = colors)
+    }
+}
+
+
+@Composable
 private fun previewCharts(): Array<Chart> {
-    val songIdx = 75
-    val songId = "test"
-    val title = "Wow Super Cool and Super Loooooooooooooooooooooooooooooong Title"
-    val artist = "283375"
-    val set = "test"
-    val side = 0
-    val audioOverride = false
-    val jacketOverride = false
+    fun chart(
+        ratingClass: Int,
+        rating: Int,
+        ratingPlus: Boolean,
+        constant: Int,
+    ): Chart {
+        return Chart(
+            songIdx = 75,
+            songId = "test",
+            title = "TestTitle",
+            artist = "TestArtist",
+            set = "test",
+            side = 0,
+            audioOverride = false,
+            jacketOverride = false,
+
+            ratingClass = ratingClass,
+            rating = rating,
+            ratingPlus = ratingPlus,
+            constant = constant
+        )
+    }
 
     return arrayOf(
-        Chart(
-            songIdx = songIdx,
-            songId = songId,
-            ratingClass = 0,
-            rating = 2,
-            ratingPlus = false,
-            title = title,
-            artist = artist,
-            set = set,
-            side = side,
-            audioOverride = audioOverride,
-            jacketOverride = jacketOverride,
-            constant = 20
-        ),
-        Chart(
-            songIdx = songIdx,
-            songId = songId,
-            ratingClass = 1,
-            rating = 6,
-            ratingPlus = false,
-            title = title,
-            artist = artist,
-            set = set,
-            side = side,
-            audioOverride = audioOverride,
-            jacketOverride = jacketOverride,
-            constant = 65
-        ),
-        Chart(
-            songIdx = songIdx,
-            songId = songId,
-            ratingClass = 2,
-            rating = 9,
-            ratingPlus = true,
-            title = title,
-            artist = artist,
-            set = set,
-            side = side,
-            audioOverride = audioOverride,
-            jacketOverride = jacketOverride,
-            constant = 96
-        ),
-        Chart(
-            songIdx = songIdx,
-            songId = songId,
-            ratingClass = 3,
-            rating = 12,
-            ratingPlus = false,
-            title = title,
-            artist = artist,
-            set = set,
-            side = side,
-            audioOverride = audioOverride,
-            jacketOverride = jacketOverride,
-            constant = 120
-        ),
+        chart(ratingClass = 0, rating = 2, ratingPlus = false, constant = 20),
+        chart(ratingClass = 1, rating = 6, ratingPlus = false, constant = 65),
+        chart(ratingClass = 2, rating = 9, ratingPlus = true, constant = 96),
+        chart(ratingClass = 3, rating = 12, ratingPlus = false, constant = 120),
     )
 }
 
@@ -381,9 +324,9 @@ private fun previewCharts(): Array<Chart> {
 private fun previewScores(): Array<Score> {
     return arrayOf(
         Score(0, "test", 0, 9900000, null, null, null, 283375, 75, 0, 1, "Test Only"),
-        Score(0, "test", 1, 9800000, 543, 2, 1, 283375, 75, 0, 1, "Test Only"),
-        Score(0, "test", 2, 9700000, 1023, 45, 23, 283375, 75, 0, 1, "Test Only"),
-        Score(0, "test", 3, 895000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
+        Score(1, "test", 1, 9800000, 543, 2, 1, 283375, 75, 0, 1, "Test Only"),
+        Score(2, "test", 2, 9700000, 1023, 45, 23, 283375, 75, 0, 1, "Test Only"),
+        Score(3, "test", 3, 895000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
     )
 }
 
@@ -400,9 +343,11 @@ private fun ScoreCardPreview(
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
-                ArcaeaScoreCard(
-                    chart = charts[i], score = scores[i], modifier = modifier
-                )
+                if (i >= 1) {
+                    ArcaeaScoreCard(score = scores[i], chart = charts[i], modifier = modifier)
+                } else {
+                    ArcaeaScoreCard(score = scores[i], modifier = modifier)
+                }
             }
         }
     }
@@ -422,9 +367,11 @@ private fun ScoreCardDarkPreview(
     ArcaeaOfflineTheme {
         Column {
             for (i in 0..3) {
-                ArcaeaScoreCard(
-                    chart = charts[i], score = scores[i], modifier = modifier
-                )
+                if (i >= 1) {
+                    ArcaeaScoreCard(score = scores[i], chart = charts[i], modifier = modifier)
+                } else {
+                    ArcaeaScoreCard(score = scores[i], modifier = modifier)
+                }
             }
         }
     }

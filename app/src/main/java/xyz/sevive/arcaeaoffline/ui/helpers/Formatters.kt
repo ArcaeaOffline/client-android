@@ -34,6 +34,23 @@ class ArcaeaFormatters {
         }
 
         /**
+         * Format the given score to a level text.
+         *
+         * For example, 9900000 > "EX+"
+         */
+        fun scoreToLevelText(score: Int): String {
+            return when {
+                score >= 9900000 -> "EX+"
+                score >= 9800000 -> "EX"
+                score >= 9500000 -> "AA"
+                score >= 9200000 -> "A"
+                score >= 8900000 -> "B"
+                score >= 8600000 -> "C"
+                else -> "D"
+            }
+        }
+
+        /**
          * Format the given constant to a "rating class text".
          * For example, 70 to "7", 109 to "10+".
          *
