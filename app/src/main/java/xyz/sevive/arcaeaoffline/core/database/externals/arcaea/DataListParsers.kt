@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.arcaea
 
+import android.util.Log
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
@@ -63,6 +64,14 @@ class SonglistParser(private val content: String) {
         val result = mutableListOf<Difficulty>()
         for (song in contentDecoded.songs) {
             for (difficulty in song.difficulties) {
+                if (difficulty.rating == 0) {
+                    Log.d(
+                        "SonglistParser",
+                        "Skipping ${song.id}@${difficulty.ratingClass}: rating is 0"
+                    )
+                    continue
+                }
+
                 result.add(
                     Difficulty(
                         songId = song.id,
