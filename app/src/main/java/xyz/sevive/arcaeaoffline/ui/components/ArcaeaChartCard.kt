@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,11 @@ import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
 
 @Composable
-fun ArcaeaChartCard(chart: Chart, modifier: Modifier = Modifier) {
+fun ArcaeaChartCard(
+    chart: Chart,
+    modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.shape,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     val jacketSize by animateDpAsState(
@@ -47,7 +53,8 @@ fun ArcaeaChartCard(chart: Chart, modifier: Modifier = Modifier) {
 
     Card(
         onClick = { expanded = !expanded },
-        modifier,
+        modifier = modifier,
+        shape = shape,
     ) {
         Row(
             Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
@@ -102,7 +109,25 @@ private fun ArcaeaChartCardPreview() {
         constant = 109,
     )
 
+    val chartLongTitle = Chart(
+        songIdx = 2,
+        songId = "verylong",
+        ratingClass = 2,
+        rating = 10,
+        ratingPlus = true,
+        title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",
+        artist = "Example VS Case VS Lorem VS Ipsum VS dolor VS sit VS amet feat. Preview",
+        set = "example",
+        side = 1,
+        audioOverride = false,
+        jacketOverride = false,
+        constant = 109,
+    )
+
     ArcaeaOfflineTheme {
-        ArcaeaChartCard(chart = chart, Modifier.fillMaxWidth())
+        Column {
+            ArcaeaChartCard(chart = chart, Modifier.fillMaxWidth())
+            ArcaeaChartCard(chart = chartLongTitle, Modifier.fillMaxWidth())
+        }
     }
 }
