@@ -128,4 +128,33 @@
     <string name="permission_function_save_image">保存图片</string>
     <string name="ocr_from_share_save_image_button">保存图片</string>
     <string name="score_editor_other_fields">其他字段</string>
+
+    <!-- Score validator warnings -->
+    <plurals name="score_validator_warning_count">
+        <item quantity="other">%d 条警告</item>
+    </plurals>
+
+    <string name="score_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
+    <string name="score_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
+
+    <string name="score_validator_PFL_OVERFLOW_title">Note 溢出</string>
+    <string name="score_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
+
+    <string name="score_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
+    <string name="score_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数要大</string>
+
+    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL 有误</string>
+    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
+
+    <string name="score_validator_CLEAR_PFL_MISMATCH_title">Note 有误</string>
+    <string name="score_validator_CLEAR_PFL_MISMATCH_message">非 HARD LOST 结算的游玩结果，其 PURE、FAR、LOST 的和应与谱面总物件数相等</string>
+
+    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_title">真全想起来了？</string>
+    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_message">FULL RECALL 时，LOST 应为 0</string>
+
+    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">真纯净回忆？</string>
+    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
+
+    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier 与 Clear Type 不匹配</string>
+    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY CLEAR 同理</string>
 </resources>

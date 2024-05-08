@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.calculate
+package xyz.sevive.arcaeaoffline.core.calculators
 
 import kotlin.math.floor
 

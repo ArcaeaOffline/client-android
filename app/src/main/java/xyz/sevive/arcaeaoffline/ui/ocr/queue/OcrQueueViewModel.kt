@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import xyz.sevive.arcaeaoffline.core.calculate.calculateArcaeaScoreRange
+import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus

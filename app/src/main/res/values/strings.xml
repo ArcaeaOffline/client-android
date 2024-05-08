@@ -177,4 +177,34 @@ CC BY-SA 3.0
     <string name="settings_about_version_code">Version code</string>
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
+
+    <!-- Score validator warnings -->
+    <plurals name="score_validator_warning_count">
+        <item quantity="many">%d warnings</item>
+        <item quantity="other">%d warning</item>
+    </plurals>
+
+    <string name="score_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
+    <string name="score_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
+
+    <string name="score_validator_PFL_OVERFLOW_title">Notes overflow</string>
+    <string name="score_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
+
+    <string name="score_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
+    <string name="score_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart.</string>
+
+    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL mismatch</string>
+    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_message">The max recall of a FULL RECALL / PURE MEMORY play result should be equal to the total notes of the chart.</string>
+
+    <string name="score_validator_CLEAR_PFL_MISMATCH_title">Notes mismatch</string>
+    <string name="score_validator_CLEAR_PFL_MISMATCH_message">The sum of pure, far, lost of a non HARD LOST play result should be equal to the total notes of the chart.</string>
+
+    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_title">FULL RECALL?</string>
+    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_message">The lost of a FULL RECALL play result should be zero.</string>
+
+    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">PURE MEMORY?</string>
+    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">The far and lost of a PURE MEMORY play result should be zero.</string>
+
+    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier &amp; Clear Type mismatch</string>
+    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">A HARD CLEAR clear type should have the HARD modifier, and the same for EASY CLEAR.</string>
 </resources>
