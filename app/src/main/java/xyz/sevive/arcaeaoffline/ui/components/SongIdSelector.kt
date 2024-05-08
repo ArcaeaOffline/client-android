@@ -48,7 +48,7 @@ fun SongIdSelector(
     }
 
     LaunchedEffect(songId) {
-        if (songId != null) viewModel.initialSelect(songId)
+        viewModel.initialSelect(songId)
     }
 
     Column(

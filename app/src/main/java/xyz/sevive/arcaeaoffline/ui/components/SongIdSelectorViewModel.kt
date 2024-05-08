@@ -64,8 +64,24 @@ class SongIdSelectorViewModel(
         _selectedSongIndex.value = idx
     }
 
-    suspend fun initialSelect(songId: String) {
-        val song = repositoryContainer.songRepository.find(songId).firstOrNull() ?: return
+    private fun reset() {
+        _selectedPackIndex.value = -1
+        _selectedSongIndex.value = -1
+        _songList.value = listOf()
+    }
+
+    suspend fun initialSelect(songId: String?) {
+        if (songId == null) {
+            reset()
+            return
+        }
+
+        val song = repositoryContainer.songRepository.find(songId).firstOrNull()
+
+        if (song == null) {
+            reset()
+            return
+        }
 
         val packIdx = packList.value.indexOfFirst { it.id == song.set }
         if (packIdx < 0) return
