@@ -72,6 +72,12 @@ object AppViewModelProvider {
         }
 
         initializer {
+            ChartSelectorViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
             OcrFromShareViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer,
                 application().appDatabaseRepositoryContainer
