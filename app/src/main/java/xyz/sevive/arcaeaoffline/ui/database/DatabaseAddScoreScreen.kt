@@ -1,89 +1,223 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaScoreValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditor
-import xyz.sevive.arcaeaoffline.ui.common.scoreeditor.ScoreEditorViewModel
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.RatingClassSelector
-import xyz.sevive.arcaeaoffline.ui.components.SongIdSelector
+import xyz.sevive.arcaeaoffline.ui.components.ChartSelector
+import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.ScoreValidatorWarningDetails
+import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
+
 
 @Composable
-fun DatabaseAddScoreScreenChartSelector(
-    databaseAddScoreViewModel: DatabaseAddScoreViewModel,
-    scoreEditorViewModel: ScoreEditorViewModel,
+fun SelectChartDialog(
+    onDismiss: () -> Unit,
+    chart: Chart?,
+    onChartChange: (Chart?) -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface {
+            Card {
+                ChartSelector(chart = chart, onChartChange = onChartChange)
+            }
+        }
+    }
+}
+
+@Composable
+internal fun DelimiterWithText(text: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.padding(bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text)
+        HorizontalDivider(Modifier.padding(start = 20.dp))
+    }
+}
+
+@Composable
+internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        if (chart != null) {
+            ArcaeaChartCard(chart = chart, Modifier.weight(1f))
+        } else {
+            Card(
+                onClick = onOpenSelectChartDialogRequest,
+                Modifier.weight(1f),
+            ) {
+                IconRow(
+                    modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                    icon = {
+                        Icon(Icons.Default.TouchApp, null)
+                    },
+                ) {
+                    Text(stringResource(R.string.database_add_score_click_select_chart))
+                }
+            }
+        }
+
+        IconButton(onClick = onOpenSelectChartDialogRequest) {
+            Icon(Icons.Default.Edit, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+internal fun ScoreWarningsCard(
+    warnings: List<ArcaeaScoreValidatorWarning>,
     modifier: Modifier = Modifier,
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
 
-    val enabledRatingClasses by databaseAddScoreViewModel.enabledRatingClasses.collectAsState()
-
-    var songId by remember { mutableStateOf("") }
-    var ratingClass by remember { mutableStateOf<ArcaeaScoreRatingClass?>(null) }
-
-    LaunchedEffect(songId, ratingClass) {
-        if (songId != "" && ratingClass != null) {
-            databaseAddScoreViewModel.setChart(songId, ratingClass!!.value)
-            scoreEditorViewModel.setChart(songId, ratingClass!!.value)
+    if (showWarningsDialog) {
+        Dialog(onDismissRequest = { showWarningsDialog = false }) {
+            Surface {
+                Card {
+                    ScoreValidatorWarningDetails(
+                        warnings = warnings,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
         }
     }
 
-    Column(modifier) {
-        SongIdSelector({
-            if (it != null) {
-                songId = it
-                coroutineScope.launch {
-                    databaseAddScoreViewModel.updateEnabledRatingClasses(it)
+    Card(onClick = { showWarningsDialog = true }, modifier = modifier) {
+        IconRow(
+            modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+            icon = {
+                Icon(Icons.Default.Warning, null)
+            },
+        ) {
+            Text(
+                pluralStringResource(
+                    R.plurals.score_validator_warning_count,
+                    warnings.size,
+                    warnings.size
+                )
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ScoreAction(
+    score: Score?,
+    scoreEditEnabled: Boolean,
+    onOpenScoreEditorDialogRequest: () -> Unit,
+    warnings: List<ArcaeaScoreValidatorWarning>,
+) {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        if (score != null) {
+            Column(Modifier.weight(1f)) {
+                AnimatedVisibility(warnings.isNotEmpty()) {
+                    ScoreWarningsCard(
+                        warnings = warnings,
+                        Modifier.fillMaxWidth()
+                    )
+                }
+
+                ArcaeaScoreCard(score = score)
+            }
+        } else {
+            Card(Modifier.weight(1f)) {
+                IconRow(
+                    modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                    icon = {
+                        Icon(Icons.Default.Block, null)
+                    },
+                ) {
+                    Text(stringResource(R.string.database_add_score_select_chart_first))
                 }
             }
-        })
+        }
 
-        RatingClassSelector(
-            ratingClass = ratingClass,
-            onRatingClassChange = {
-                ratingClass = it
-            },
-            enabledRatingClasses = enabledRatingClasses,
-        )
+        IconButton(
+            onClick = onOpenScoreEditorDialogRequest,
+            enabled = scoreEditEnabled,
+        ) {
+            Icon(Icons.Default.Edit, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+internal fun BottomActionsBar(
+    onReset: () -> Unit,
+    onSave: () -> Unit,
+    saveEnabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(modifier.padding(bottom = 4.dp)) {
+        OutlinedButton(
+            onClick = onReset,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+        ) {
+            IconRow(icon = { Icon(Icons.Default.RestartAlt, contentDescription = null) }) {
+                Text(stringResource(R.string.general_reset))
+            }
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        Button(onClick = onSave, enabled = saveEnabled) {
+            IconRow(icon = { Icon(Icons.Default.Save, contentDescription = null) }) {
+                Text(stringResource(R.string.general_save))
+            }
+        }
     }
 }
 
@@ -91,89 +225,78 @@ fun DatabaseAddScoreScreenChartSelector(
 fun DatabaseAddScoreScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    databaseAddScoreViewModel: DatabaseAddScoreViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    scoreEditorViewModel: ScoreEditorViewModel = viewModel()
+    viewModel: DatabaseAddScoreViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    var currentTab by remember { mutableIntStateOf(0) }
+    val chart by viewModel.chart.collectAsState()
+    val score by viewModel.score.collectAsState()
 
-    val selectedChart by databaseAddScoreViewModel.chart.collectAsState()
-    val score by scoreEditorViewModel.arcaeaScoreFlow.collectAsState(initial = null)
+    val scoreWarnings by viewModel.scoreWarnings.collectAsState()
 
-    val tabs = listOf(R.string.arcaea_chart, R.string.arcaea_score)
+    val scoreEditEnabled = score != null
+
+    var showSelectChartDialog by rememberSaveable { mutableStateOf(false) }
+    var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
+
+    if (showSelectChartDialog) {
+        SelectChartDialog(
+            onDismiss = { showSelectChartDialog = false },
+            chart = chart,
+            onChartChange = { viewModel.setChart(it) },
+        )
+    }
+
+    if (showScoreEditorDialog && scoreEditEnabled) {
+        ScoreEditorDialog(
+            onDismiss = { showScoreEditorDialog = false },
+            score = score!!,
+            onScoreChange = { viewModel.setScore(it) },
+        )
+    }
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp, title = stringResource(R.string.database_add_score_title)
     ) {
-        Scaffold(
-            modifier,
-            topBar = {
-                Column {
-                    Box(Modifier.defaultMinSize(minHeight = 20.dp)) {
-                        AnimatedContent(
-                            targetState = score != null,
-                            transitionSpec = {
-                                slideInHorizontally { it }.togetherWith(slideOutHorizontally { -it })
-                            },
-                            label = "scoreStatusCard",
-                        ) {
-                            when (it) {
-                                true -> Row(verticalAlignment = Alignment.Bottom) {
-                                    ArcaeaScoreCard(
-                                        score!!,
-                                        modifier = Modifier.weight(1f),
-                                        chart = selectedChart,
-                                    )
-                                    Column {
-                                        IconButton(onClick = {
-                                            coroutineScope.launch {
-                                                databaseAddScoreViewModel.saveScore(score!!)
-                                            }
-                                        }) {
-                                            Icon(
-                                                Icons.Default.Check,
-                                                contentDescription = stringResource(R.string.general_confirm),
-                                            )
-                                        }
-                                    }
-                                }
-
-                                false -> Card(Modifier.fillMaxWidth()) {
-                                    Text(
-                                        "Score Invalid",
-                                        Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
-                                        color = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    TabRow(selectedTabIndex = currentTab) {
-                        tabs.forEachIndexed { i, stringResId ->
-                            Tab(
-                                text = { Text(stringResource(stringResId)) },
-                                selected = currentTab == i,
-                                onClick = { currentTab = i },
-                            )
-                        }
-                    }
+        Scaffold(modifier = modifier, bottomBar = {
+            BottomActionsBar(
+                onReset = { viewModel.reset() },
+                onSave = { coroutineScope.launch { viewModel.saveScore() } },
+                saveEnabled = scoreEditEnabled,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }) {
+            LazyColumn(Modifier.padding(it)) {
+                item {
+                    DelimiterWithText(stringResource(R.string.database_add_score_select_chart_header))
                 }
-            },
-        ) {
-            Box(Modifier.padding(it)) {
-                when (currentTab) {
-                    0 -> DatabaseAddScoreScreenChartSelector(
-                        databaseAddScoreViewModel = databaseAddScoreViewModel,
-                        scoreEditorViewModel = scoreEditorViewModel,
-                    )
 
-                    1 -> LazyColumn {
-                        item {
-                            ScoreEditor(viewModel = scoreEditorViewModel, overrideExpanded = false)
-                        }
-                    }
+                item {
+                    ChartAction(
+                        chart = chart,
+                        onOpenSelectChartDialogRequest = { showSelectChartDialog = true },
+                    )
+                }
+
+                item {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensionResource(R.dimen.general_page_padding)),
+                    ) {}
+                }
+
+                item {
+                    DelimiterWithText(stringResource(R.string.database_add_score_edit_score_header))
+                }
+
+                item {
+                    ScoreAction(
+                        score = score,
+                        scoreEditEnabled = scoreEditEnabled,
+                        onOpenScoreEditorDialogRequest = { showScoreEditorDialog = true },
+                        warnings = scoreWarnings,
+                    )
                 }
             }
         }

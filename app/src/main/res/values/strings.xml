@@ -19,6 +19,7 @@ CC BY-SA 3.0
     <string name="general_save">Save</string>
     <string name="general_edit">Edit</string>
     <string name="general_delete">Delete</string>
+    <string name="general_reset">Reset</string>
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
     <string name="general_stop">Stop</string>
@@ -123,6 +124,10 @@ CC BY-SA 3.0
     <string name="database_manage_export_scores">Scores</string>
 
     <string name="database_add_score_title">Add Score</string>
+    <string name="database_add_score_select_chart_header">Select a chart…</string>
+    <string name="database_add_score_edit_score_header">Then edit your score…</string>
+    <string name="database_add_score_click_select_chart">Click here to select a chart.</string>
+    <string name="database_add_score_select_chart_first">Select a chart first.</string>
 
     <string name="database_score_list_title">Score List</string>
     <plurals name="database_score_list_delete_confirm_dialog_content">
