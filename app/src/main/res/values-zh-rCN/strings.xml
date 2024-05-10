@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Arcaea Offline</string>
+
+    <!-- General icon descriptions -->
+    <string name="icon_desc_navigate_back">返回</string>
+    <string name="icon_desc_edit">编辑此项</string>
+    <string name="icon_desc_delete">删除此项</string>
+
+    <!-- General strings -->
+    <string name="general_ok">OK</string>
+    <string name="general_confirm">确认</string>
+    <string name="general_cancel">取消</string>
     <string name="general_save">保存</string>
     <string name="general_edit">编辑</string>
+    <string name="general_delete">删除</string>
+    <string name="general_reset">重置</string>
+    <string name="general_please_wait">请稍候……</string>
+    <string name="general_import">导入</string>
+    <string name="general_stop">停止</string>
+
+    <string name="general_arcaea_not_installed">未安装 Arcaea</string>
+
+    <!-- ArcaeaScoreCard -->
     <string name="score_no_date">// 无日期 //</string>
     <string name="score_no_clear_type">// 无 Clear Type //</string>
     <string name="score_no_modifier">// 无 Modifier //</string>
     <string name="score_no_comment">// 无备注 //</string>
+
+    <!-- CrashReportActivity -->
     <string name="crash_report_title_app_crashed">应用崩溃。</string>
     <string name="crash_report_title_error_occurred">发生错误。</string>
     <string name="crash_report_report_id">报告 ID</string>
@@ -18,46 +39,52 @@
     <string name="crash_report_textfield_placeholder_contact">当我们需要更多有关信息时，该如何联系你？</string>
     <string name="crash_report_send_button">发送</string>
     <string name="crash_report_save_button">暂存但不发送</string>
-    <string name="permission_required_dialog_title">未授予权限</string>
-    <plurals name="permission_required_dialog_content">
-        <item quantity="other">【%s】需要以下权限：</item>
-    </plurals>
-    <string name="ocr_dependency_knn_model">KNearest 模型</string>
-    <string name="arcaea_score">分数</string>
-    <string name="database_manage_import_title">导入</string>
-    <string name="database_manage_import_packlist">packlist</string>
-    <string name="database_manage_import_songlist">songlist</string>
-    <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
-    <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
-    <string name="ocr_from_share_cache_score_button">暂存</string>
-    <string name="ocr_from_share_score_saved">成绩已保存</string>
-    <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
-    <string name="ocr_from_share_stay_in_app">留在 %s</string>
-    <string name="nav_overview">概览</string>
-    <string name="nav_database">数据库</string>
-    <string name="nav_ocr">OCR</string>
-    <string name="nav_settings">设置</string>
     <string name="crash_report_ignore_button">忽略</string>
+    <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
     <string name="crash_report_toast_report_send_success">崩溃报告已发送</string>
     <string name="crash_report_toast_report_send_failed">崩溃报告发送失败</string>
     <string name="crash_report_toast_report_save_success">崩溃报告已保存</string>
     <string name="crash_report_toast_report_save_failed">崩溃报告保存失败</string>
     <string name="crash_report_toast_report_ignored">崩溃报告已忽略</string>
-    <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
-    <string name="database_manage_import_from_arcaea_apk">从 Arcaea 安装包导入</string>
-    <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
-    <plurals name="database_packlist_imported">
-        <item quantity="other">已导入 %d 个曲包</item>
+
+    <!-- Permission helpers -->
+    <string name="permission_required_dialog_title">未授予权限</string>
+    <plurals name="permission_required_dialog_content">
+        <item quantity="other">【%s】需要以下权限：</item>
     </plurals>
-    <plurals name="database_songlist_song_imported">
-        <item quantity="other">已导入 %d 首歌曲</item>
-    </plurals>
-    <plurals name="database_songlist_difficulty_imported">
-        <item quantity="other">已导入 %d 个难度</item>
-    </plurals>
-    <string name="database_b30_list_title">B30 列表</string>
-    <string name="database_chart_info_imported">已导入 %d 个谱面信息</string>
-    <string name="database_manage_title">管理</string>
+    <!-- Functions that need permissions -->
+    <string name="permission_function_save_image">保存图片</string>
+
+    <string name="ocr_dependency_knn_model">KNearest 模型</string>
+    <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
+
+    <!-- Arcaea terms -->
+    <string name="arcaea_chart">谱面</string>
+    <string name="arcaea_score">分数</string>
+    <string name="arcaea_pure" translatable="false">PURE</string>
+    <string name="arcaea_far" translatable="false">FAR</string>
+    <string name="arcaea_lost" translatable="false">LOST</string>
+    <string name="arcaea_max_recall">MAX RECALL</string>
+    <string name="arcaea_score_clear_type">通关状态</string>
+    <string name="arcaea_score_modifier">Modifier</string>
+    <string name="arcaea_score_comment">备注</string>
+
+    <!-- OcrFromShareActivity -->
+    <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
+    <string name="ocr_from_share_save_image_button">保存图片</string>
+    <string name="ocr_from_share_cache_score_button">暂存</string>
+    <string name="ocr_from_share_score_saved">成绩已保存</string>
+    <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
+    <string name="ocr_from_share_stay_in_app">留在 %s</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_overview">概览</string>
+    <string name="nav_database">数据库</string>
+    <string name="nav_ocr">OCR</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- Database info/status labels -->
+    <string name="database_version_label">版本 %d</string>
     <plurals name="database_pack_entries">
         <item quantity="other">%d 个曲包</item>
     </plurals>
@@ -73,66 +100,91 @@
     <plurals name="database_score_entries">
         <item quantity="other">%d 个分数记录</item>
     </plurals>
-    <string name="database_status_not_initialized">数据库未初始化</string>
-    <string name="database_status_initialize_button">初始化</string>
+
     <string name="database_status_title">数据库状态</string>
-    <string name="datetime_picker_date_tab">日期</string>
-    <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
+    <string name="database_status_initialize_button">初始化</string>
+    <string name="database_status_not_initialized">数据库未初始化</string>
+
+    <!-- Database manage pane -->
+    <string name="database_manage_title">管理</string>
+
+    <string name="database_manage_import_title">导入</string>
+    <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
+    <string name="database_manage_import_packlist">packlist</string>
+    <string name="database_manage_import_songlist">songlist</string>
+    <string name="database_manage_import_from_arcaea_apk">从 Arcaea 安装包导入</string>
     <string name="database_manage_import_from_arcaea_apk_please_wait">正在读取安装包文件，请稍候……</string>
-    <string name="song_id_selector_select_pack">选择曲包</string>
-    <string name="song_id_selector_select_song">选择歌曲</string>
-    <string name="settings_about_title">关于</string>
-    <string name="settings_about_application_id">应用 ID</string>
-    <string name="settings_about_version">版本</string>
-    <string name="settings_about_version_code">版本代号</string>
-    <string name="datetime_picker_time_tab">时间</string>
-    <string name="general_ok">OK</string>
-    <string name="general_cancel">取消</string>
-    <string name="score_editor_main_fields">主要字段</string>
-    <string name="score_editor_set_null">置空</string>
-    <string name="score_editor_comment_field">备注</string>
-    <string name="datetime_picker_label">日期</string>
-    <string name="arcaea_chart">谱面</string>
+    <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
+    <string name="database_manage_import_chart_info_title">谱面信息</string>
+    <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
+
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_scores">分数</string>
+
+    <!-- Database add score pane -->
     <string name="database_add_score_title">添加分数</string>
     <string name="database_add_score_select_chart_header">选择谱面……</string>
+    <string name="database_add_score_edit_score_header">编辑分数……</string>
+    <string name="database_add_score_click_select_chart">点此选择谱面</string>
+    <string name="database_add_score_select_chart_first">请先选择谱面</string>
+
+
+    <!-- Database score list pane -->
     <string name="database_score_list_title">分数列表</string>
     <plurals name="database_score_list_delete_confirm_dialog_content">
         <item quantity="other">删除 %d 个分数？</item>
     </plurals>
+
+    <!-- Database b30 list pane -->
+    <string name="database_b30_list_title">B30 列表</string>
+
+    <!-- Database toasts -->
+    <plurals name="database_packlist_imported">
+        <item quantity="other">已导入 %d 个曲包</item>
+    </plurals>
+    <plurals name="database_songlist_song_imported">
+        <item quantity="other">已导入 %d 首歌曲</item>
+    </plurals>
+    <plurals name="database_songlist_difficulty_imported">
+        <item quantity="other">已导入 %d 个难度</item>
+    </plurals>
+
+    <string name="database_chart_info_imported">已导入 %d 个谱面信息</string>
+
+    <!-- components -->
+    <string name="song_id_selector_select_pack">选择曲包</string>
+    <string name="song_id_selector_select_song">选择歌曲</string>
+
+    <string name="score_editor_main_fields">主要字段</string>
+    <string name="score_editor_other_fields">其他字段</string>
+    <string name="score_editor_set_null">置空</string>
+    <string name="score_editor_comment_field">备注</string>
     <string name="score_editor_commit_button">提交</string>
-    <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
-    <string name="icon_desc_navigate_back">返回</string>
-    <string name="settings_ocr_phash_database_build_from_arcaea">从 Arcaea 构建</string>
-    <string name="general_please_wait">请稍候……</string>
-    <string name="general_arcaea_not_installed">未安装 Arcaea</string>
-    <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
-    <string name="general_import">导入</string>
-    <string name="database_version_label">版本 %d</string>
-    <string name="database_manage_import_chart_info_title">谱面信息</string>
-    <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
-    <string name="general_delete">删除</string>
-    <string name="general_confirm">确认</string>
-    <string name="arcaea_score_clear_type">通关状态</string>
-    <string name="arcaea_score_modifier">Modifier</string>
-    <string name="arcaea_score_comment">备注</string>
-    <string name="arcaea_max_recall">MAX RECALL</string>
-    <string name="ocr_queue_user_cancel_exception_message">用户终止了队列。\n* 按开始按钮重试该任务。</string>
-    <string name="general_stop">停止</string>
+
+    <string name="datetime_picker_label">日期</string>
+    <string name="datetime_picker_date_tab">日期</string>
+    <string name="datetime_picker_time_tab">时间</string>
+
+    <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR 队列</string>
+
     <string name="ocr_queue_add_images_button">多选图像</string>
     <string name="ocr_queue_import_folder_button">导入文件夹</string>
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
-    <string name="permission_function_save_image">保存图片</string>
-    <string name="ocr_from_share_save_image_button">保存图片</string>
-    <string name="score_editor_other_fields">其他字段</string>
-    <string name="database_add_score_edit_score_header">编辑分数……</string>
-    <string name="database_add_score_click_select_chart">点此选择谱面</string>
-    <string name="general_reset">重置</string>
-    <string name="database_add_score_select_chart_first">请先选择谱面</string>
+    <string name="ocr_queue_user_cancel_exception_message">用户终止了队列。\n* 按开始按钮重试该任务。</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
+    <string name="settings_ocr_phash_database_build_from_arcaea">从 Arcaea 构建</string>
+
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_application_id">应用 ID</string>
+    <string name="settings_about_version">版本</string>
+    <string name="settings_about_version_code">版本代号</string>
+
+    <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
 
     <!-- Score validator warnings -->
     <plurals name="score_validator_warning_count">

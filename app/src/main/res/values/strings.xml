@@ -10,9 +10,12 @@ CC BY-SA 3.0
 
     <!-- General icon descriptions -->
     <string name="icon_desc_navigate_back">Go back</string>
+    <string name="icon_desc_edit">Edit this</string>
+    <string name="icon_desc_delete">Delete this</string>
 
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
 
+    <!-- General strings -->
     <string name="general_ok">OK</string>
     <string name="general_confirm">Confirm</string>
     <string name="general_cancel">Cancel</string>
@@ -26,11 +29,13 @@ CC BY-SA 3.0
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
+    <!-- ArcaeaScoreCard -->
     <string name="score_no_date">// No date //</string>
     <string name="score_no_clear_type">// No clear type //</string>
     <string name="score_no_modifier">// No modifier //</string>
     <string name="score_no_comment">// No comment //</string>
 
+    <!-- CrashReportActivity -->
     <string name="crash_report_title_app_crashed">App Crashed.</string>
     <string name="crash_report_title_error_occurred">Error Occurred.</string>
     <string name="crash_report_report_id">Report ID</string>
@@ -50,16 +55,19 @@ CC BY-SA 3.0
     <string name="crash_report_toast_report_save_failed">Failed to save crash report</string>
     <string name="crash_report_toast_report_ignored">Crash report ignored</string>
 
+    <!-- Permission helpers -->
     <string name="permission_required_dialog_title">Permission Required</string>
     <plurals name="permission_required_dialog_content">
         <item quantity="many">[%s] function needs these permissions:</item>
         <item quantity="other">[%s] function needs this permission:</item>
     </plurals>
-
+    <!-- Functions that need permissions -->
     <string name="permission_function_save_image">Save image</string>
 
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image pHash Database</string>
+
+    <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
     <string name="arcaea_score">Score</string>
     <string name="arcaea_pure" translatable="false">PURE</string>
@@ -70,6 +78,7 @@ CC BY-SA 3.0
     <string name="arcaea_score_modifier">Modifier</string>
     <string name="arcaea_score_comment">Comment</string>
 
+    <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
     <string name="ocr_from_share_save_image_button">Save Image</string>
     <string name="ocr_from_share_cache_score_button">Cache</string>
@@ -77,11 +86,13 @@ CC BY-SA 3.0
     <string name="ocr_from_share_return_to_share_source">Return to previous app</string>
     <string name="ocr_from_share_stay_in_app">Stay in %s</string>
 
+    <!-- Bottom navigation -->
     <string name="nav_overview">Overview</string>
     <string name="nav_database">Database</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
+    <!-- Database info/status labels -->
     <string name="database_version_label">Version %d</string>
     <plurals name="database_pack_entries">
         <item quantity="many">%d pack entries</item>
@@ -108,6 +119,7 @@ CC BY-SA 3.0
     <string name="database_status_initialize_button">Initialize</string>
     <string name="database_status_not_initialized">Database not initialized</string>
 
+    <!-- Database manage pane -->
     <string name="database_manage_title">Manage</string>
 
     <string name="database_manage_import_title">Import…</string>
@@ -123,20 +135,24 @@ CC BY-SA 3.0
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_scores">Scores</string>
 
+    <!-- Database add score pane -->
     <string name="database_add_score_title">Add Score</string>
     <string name="database_add_score_select_chart_header">Select a chart…</string>
     <string name="database_add_score_edit_score_header">Then edit your score…</string>
     <string name="database_add_score_click_select_chart">Click here to select a chart.</string>
     <string name="database_add_score_select_chart_first">Select a chart first.</string>
 
+    <!-- Database score list pane -->
     <string name="database_score_list_title">Score List</string>
     <plurals name="database_score_list_delete_confirm_dialog_content">
         <item quantity="many">Are you sure to delete %d scores?</item>
         <item quantity="other">Are you sure to delete %d score?</item>
     </plurals>
 
+    <!-- Database b30 list pane -->
     <string name="database_b30_list_title">Best30 List</string>
 
+    <!-- Database toasts -->
     <plurals name="database_packlist_imported">
         <item quantity="many">%d packs imported</item>
         <item quantity="other">%d pack imported</item>
@@ -151,6 +167,7 @@ CC BY-SA 3.0
     </plurals>
     <string name="database_chart_info_imported">%d chart info imported</string>
 
+    <!-- components -->
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
 
@@ -164,6 +181,7 @@ CC BY-SA 3.0
     <string name="datetime_picker_date_tab">Date</string>
     <string name="datetime_picker_time_tab">Time</string>
 
+    <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR Queue</string>
 
     <string name="ocr_queue_add_images_button">Add Images</string>
@@ -173,6 +191,7 @@ CC BY-SA 3.0
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
     <string name="ocr_queue_user_cancel_exception_message">User cancelled the queue.\n* Press start button to retry this task.</string>
 
+    <!-- SettingsScreen -->
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
     <string name="settings_ocr_phash_database_build_from_arcaea">Build from Arcaea</string>
 
