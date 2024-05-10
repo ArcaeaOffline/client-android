@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -116,13 +117,13 @@ fun DatabaseStatus(
             }
         },
         modifier = modifier,
-        titleContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(0.5f),
-        titleContentColor = MaterialTheme.colorScheme.primary,
     ) { padding ->
-        if (!databaseInitialized) {
-            DatabaseStatusNotInitialized(viewModel, Modifier.padding(padding))
-        } else {
-            DatabaseStatusInitialized(viewModel, Modifier.padding(padding))
+        Box(Modifier.padding(padding)) {
+            if (!databaseInitialized) {
+                DatabaseStatusNotInitialized(viewModel)
+            } else {
+                DatabaseStatusInitialized(viewModel)
+            }
         }
     }
 }
