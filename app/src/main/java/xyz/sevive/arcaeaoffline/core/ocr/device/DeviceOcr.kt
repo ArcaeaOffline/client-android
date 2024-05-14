@@ -7,6 +7,7 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
@@ -37,7 +38,7 @@ data class DeviceOcrResult(
 
 fun DeviceOcrResult.toScore(
     arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
-    date: Long? = null,
+    date: Instant? = null,
     comment: String? = null,
 ): Score {
     val scoreModifier = if (arcaeaPartnerModifiers != null) {

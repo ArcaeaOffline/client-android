@@ -56,10 +56,12 @@ fun ScoreEditor(
                     onScoreChange(viewModel.editLost(score, it))
                 })
 
-                ScoreEditorDateTimeField(dateTime = viewModel.longToLocalDateTime(score.date),
-                    onDateTimeChange = {
+                ScoreEditorDateTimeField(
+                    instant = score.date,
+                    onInstantChange = {
                         onScoreChange(viewModel.editDate(score, it))
-                    })
+                    },
+                )
 
                 ScoreEditorMaxRecallField(maxRecall = score.maxRecall, onMaxRecallChange = {
                     onScoreChange(viewModel.editMaxRecall(score, it))
@@ -67,17 +69,13 @@ fun ScoreEditor(
             }
 
             1 -> {
-                ScoreEditorModifierField(
-                    scoreModifier = score.modifier,
-                    onScoreModifierChange = {
-                        onScoreChange(viewModel.editModifier(score, it))
-                    })
+                ScoreEditorModifierField(scoreModifier = score.modifier, onScoreModifierChange = {
+                    onScoreChange(viewModel.editModifier(score, it))
+                })
 
-                ScoreEditorClearTypeField(
-                    clearType = score.clearType,
-                    onClearTypeChange = {
-                        onScoreChange(viewModel.editClearType(score, it))
-                    })
+                ScoreEditorClearTypeField(clearType = score.clearType, onClearTypeChange = {
+                    onScoreChange(viewModel.editClearType(score, it))
+                })
 
                 ScoreEditorCommentField(comment = score.comment, onCommentChange = {
                     onScoreChange(viewModel.editComment(score, it))

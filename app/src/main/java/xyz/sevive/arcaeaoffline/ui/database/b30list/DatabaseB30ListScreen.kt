@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jakewharton.threetenabp.AndroidThreeTen
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
@@ -109,7 +110,7 @@ fun DatabaseB30ListItemPreview() {
                     shinyPure = null,
                     far = null,
                     lost = null,
-                    date = 0,
+                    date = Instant.ofEpochMilli(0),
                     maxRecall = null,
                     modifier = null,
                     clearType = null,

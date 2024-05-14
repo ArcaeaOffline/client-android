@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
+import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.core.database.daos.CalculatedPotentialDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
@@ -52,6 +54,7 @@ import kotlin.math.floor
     views = [Chart::class, ScoreCalculated::class, ScoreBest::class, CalculatedPotential::class],
     version = 4
 )
+@TypeConverters(InstantConverters::class)
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun propertyDao(): PropertyDao
     abstract fun packDao(): PackDao

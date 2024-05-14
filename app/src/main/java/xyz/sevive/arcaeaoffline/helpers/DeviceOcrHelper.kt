@@ -7,7 +7,9 @@ import org.apache.commons.io.IOUtils
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
+import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
 import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
@@ -71,8 +73,8 @@ class DeviceOcrHelper {
             imageUri: Uri,
             context: Context,
             ocrResult: DeviceOcrResult,
-            fallbackDate: Long? = null,
-            overrideDate: Long? = null,
+            fallbackDate: Instant? = null,
+            overrideDate: Instant? = null,
             customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
         ): Score {
             val arcaeaPartnerModifiers =
@@ -88,9 +90,20 @@ class DeviceOcrHelper {
                     imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
 
                 if (imgExifDateTimeOriginal != null) {
-                    LocalDateTime.parse(
+                    val localDateTime = LocalDateTime.parse(
                         imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
-                    ).toInstant(ZoneOffset.UTC).epochSecond
+                    )
+                    val zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
+
+                    val imgExifOffsetTimeOriginal =
+                        imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)
+
+                    if (imgExifOffsetTimeOriginal != null) {
+                        val zoneOffset = ZoneOffset.of(imgExifOffsetTimeOriginal)
+                        zonedDateTime.withZoneSameLocal(zoneOffset)
+                    }
+
+                    zonedDateTime.toInstant()
                 } else {
                     fallbackDate
                 }

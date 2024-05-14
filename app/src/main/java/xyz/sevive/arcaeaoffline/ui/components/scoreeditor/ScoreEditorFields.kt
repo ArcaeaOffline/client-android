@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
@@ -159,19 +161,24 @@ fun ScoreEditorMaxRecallField(
 
 @Composable
 fun ScoreEditorDateTimeField(
-    dateTime: LocalDateTime?,
-    onDateTimeChange: (LocalDateTime?) -> Unit,
+    instant: Instant?,
+    onInstantChange: (Instant?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     GeneralNullableFieldWrapper(
-        value = dateTime,
-        defaultValueConstructor = { LocalDateTime.now() },
-        onValueChange = onDateTimeChange,
+        value = instant,
+        defaultValueConstructor = { Instant.now() },
+        onValueChange = onInstantChange,
         modifier = modifier,
     ) {
         NullableDateTimeEditor(
-            date = dateTime,
-            onDateChange = { onDateTimeChange(it) },
+            date = if (instant != null) LocalDateTime.ofInstant(
+                instant,
+                ZoneId.systemDefault()
+            ) else null,
+            onDateChange = {
+                onInstantChange(it.toInstant(ZoneId.systemDefault().rules.getOffset(it)))
+            },
             Modifier.weight(1f),
         )
     }

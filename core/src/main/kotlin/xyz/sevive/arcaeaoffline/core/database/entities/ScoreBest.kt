@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
@@ -28,7 +29,7 @@ data class ScoreBest(
     @ColumnInfo(name = "shiny_pure") val shinyPure: Int?,
     val far: Int?,
     val lost: Int?,
-    val date: Long?,
+    val date: Instant?,
     @ColumnInfo(name = "max_recall") val maxRecall: Int?,
     val modifier: ArcaeaScoreModifier?,
     @ColumnInfo(name = "clear_type") val clearType: ArcaeaScoreClearType?,

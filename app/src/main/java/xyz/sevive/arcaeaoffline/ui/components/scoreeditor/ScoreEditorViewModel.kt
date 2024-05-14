@@ -1,17 +1,12 @@
 package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
 
 import androidx.lifecycle.ViewModel
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 class ScoreEditorViewModel : ViewModel() {
-    fun longToLocalDateTime(date: Long?): LocalDateTime? {
-        return if (date != null) LocalDateTime.ofEpochSecond(date, 0, ZoneOffset.UTC) else null
-    }
-
     fun editScore(_score: Score, score: Int): Score {
         return _score.copy(score = score)
     }
@@ -28,8 +23,8 @@ class ScoreEditorViewModel : ViewModel() {
         return score.copy(lost = lost)
     }
 
-    fun editDate(score: Score, date: LocalDateTime?): Score {
-        return score.copy(date = date?.toEpochSecond(ZoneOffset.UTC))
+    fun editDate(score: Score, date: Instant?): Score {
+        return score.copy(date = date)
     }
 
     fun editMaxRecall(score: Score, maxRecall: Int?): Score {

@@ -200,9 +200,7 @@ fun ArcaeaScoreCard(
             Text(
                 if (score.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                     .format(
-                        LocalDateTime.ofInstant(
-                            Instant.ofEpochSecond(score.date!!.toLong()), ZoneId.systemDefault()
-                        )
+                        LocalDateTime.ofInstant(score.date, ZoneId.systemDefault())
                     ) else stringResource(R.string.score_no_date),
                 style = MaterialTheme.typography.labelMedium,
             )
@@ -354,7 +352,7 @@ private fun previewScores(): Array<Score> {
             pure = pure,
             far = far,
             lost = lost,
-            date = 123456,
+            date = Instant.ofEpochSecond(123456),
             maxRecall = 75,
             modifier = ArcaeaScoreModifier.NORMAL,
             clearType = ArcaeaScoreClearType.NORMAL_CLEAR,

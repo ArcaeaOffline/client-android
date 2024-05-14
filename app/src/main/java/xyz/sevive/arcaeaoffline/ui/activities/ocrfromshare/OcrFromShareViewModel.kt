@@ -152,7 +152,7 @@ class OcrFromShareViewModel(
                     imageUri,
                     context,
                     ocrResult,
-                    fallbackDate = Instant.now().epochSecond,
+                    fallbackDate = Instant.now(),
                 )
 
                 _score.value = score

@@ -255,7 +255,7 @@ class OcrQueue {
                 task.fileUri,
                 context,
                 ocrResult,
-                fallbackDate = Instant.now().epochSecond,
+                fallbackDate = Instant.now(),
             )
 
             val arcaeaOfflineDatabaseRepositoryContainer =

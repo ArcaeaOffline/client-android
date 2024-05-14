@@ -26,7 +26,7 @@ data class OcrHistory(
     @ColumnInfo(name = "pure") val pure: Int?,
     @ColumnInfo(name = "far") val far: Int?,
     @ColumnInfo(name = "lost") val lost: Int?,
-    @ColumnInfo(name = "date") val date: Long?,
+    @ColumnInfo(name = "date") val date: Instant?,
     @ColumnInfo(name = "max_recall") val maxRecall: Int?,
     @ColumnInfo(name = "modifier") val modifier: ArcaeaScoreModifier?,
     @ColumnInfo(name = "clear_type") val clearType: ArcaeaScoreClearType?,

@@ -50,7 +50,7 @@ class ArcaeaOfflineExportScore(private val scoreRepository: ScoreRepository) {
                     pure = score.pure,
                     far = score.far,
                     lost = score.lost,
-                    date = score.date,
+                    date = score.date?.toEpochMilli(),
                     maxRecall = score.maxRecall,
                     modifier = score.modifier,
                     clearType = score.clearType,
