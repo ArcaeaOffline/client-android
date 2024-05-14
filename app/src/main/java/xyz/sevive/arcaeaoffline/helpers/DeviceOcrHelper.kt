@@ -93,14 +93,14 @@ class DeviceOcrHelper {
                     val localDateTime = LocalDateTime.parse(
                         imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
                     )
-                    val zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
+                    var zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
 
                     val imgExifOffsetTimeOriginal =
                         imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)
 
                     if (imgExifOffsetTimeOriginal != null) {
                         val zoneOffset = ZoneOffset.of(imgExifOffsetTimeOriginal)
-                        zonedDateTime.withZoneSameLocal(zoneOffset)
+                        zonedDateTime = zonedDateTime.withZoneSameLocal(zoneOffset)
                     }
 
                     zonedDateTime.toInstant()
