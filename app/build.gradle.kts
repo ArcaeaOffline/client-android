@@ -113,40 +113,40 @@ dependencies {
     implementation(libs.kotlinx.serialization)
 
     // android & androidx
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    implementation(androidx.room.runtime)
+    implementation(androidx.room.ktx)
+    ksp(androidx.room.compiler)
 
-    implementation(libs.androidx.datastore)
-    implementation(libs.androidx.datastore.preferences)
+    implementation(androidx.datastore)
+    implementation(androidx.datastore.preferences)
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity.compose)
+    implementation(androidx.core.ktx)
+    implementation(androidx.activity.compose)
 
-    val composeBom = platform(libs.androidx.compose.bom)
+    val composeBom = platform(androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(androidx.compose.ui)
+    implementation(androidx.compose.ui.graphics)
+    implementation(androidx.compose.ui.tooling.preview)
+    debugImplementation(androidx.compose.ui.tooling)
+    implementation(androidx.compose.material.icons.extended)
 
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.window.size.cls)
-    implementation(libs.androidx.compose.material3.adaptive)
+    implementation(androidx.compose.material3)
+    implementation(androidx.compose.material3.window.size.cls)
+    implementation(androidx.compose.material3.adaptive)
 
-    implementation(libs.androidx.window)
+    implementation(androidx.window)
 
-    implementation(libs.androidx.appcompact)
+    implementation(androidx.appcompact)
 
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(androidx.lifecycle.runtime.ktx)
+    implementation(androidx.lifecycle.viewmodel.compose)
 
-    implementation(libs.androidx.exifinterface)
+    implementation(androidx.exifinterface)
 
-    implementation(libs.androidx.navigation.compose)
+    implementation(androidx.navigation.compose)
 
     implementation(libs.android.material)
 
@@ -169,11 +169,11 @@ dependencies {
 
     // test & debug
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(androidx.test.ext.junit)
+    androidTestImplementation(androidx.test.espresso.core)
+    androidTestImplementation(androidx.compose.ui.test.junit4)
 
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(androidx.compose.ui.test.manifest)
 
     implementation(project(":opencv"))
 }

@@ -17,6 +17,12 @@ dependencyResolutionManagement {
             setUrl("https://jitpack.io")
         }
     }
+
+    versionCatalogs {
+        create("androidx") {
+            from(files("gradle/androidx.versions.toml"))
+        }
+    }
 }
 
 rootProject.name = "Arcaea Offline"
