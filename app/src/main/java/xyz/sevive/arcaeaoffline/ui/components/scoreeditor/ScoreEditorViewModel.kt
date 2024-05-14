@@ -37,11 +37,11 @@ class ScoreEditorViewModel : ViewModel() {
     }
 
     fun editModifier(score: Score, modifier: ArcaeaScoreModifier?): Score {
-        return score.copy(modifier = modifier?.value)
+        return score.copy(modifier = modifier)
     }
 
     fun editClearType(score: Score, clearType: ArcaeaScoreClearType?): Score {
-        return score.copy(clearType = clearType?.value)
+        return score.copy(clearType = clearType)
     }
 
     fun editComment(score: Score, comment: String?): Score {

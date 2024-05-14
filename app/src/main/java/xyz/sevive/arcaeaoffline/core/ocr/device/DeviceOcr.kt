@@ -9,6 +9,7 @@ import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
@@ -20,7 +21,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
 
 data class DeviceOcrResult(
-    val ratingClass: Int,
+    val ratingClass: ArcaeaScoreRatingClass,
     val pure: Int,
     val far: Int,
     val lost: Int,
@@ -56,8 +57,8 @@ fun DeviceOcrResult.toScore(
         this.lost,
         date,
         this.maxRecall,
-        scoreModifier?.value,
-        clearType?.value,
+        scoreModifier,
+        clearType,
         comment,
     )
 }
@@ -146,15 +147,16 @@ class DeviceOcr(
         return ocrDigitsByContourKnn(roi, knnModel)
     }
 
-    fun ratingClass(): Int {
+    fun ratingClass(): ArcaeaScoreRatingClass {
         val roi = extractor.ratingClass
         val results = listOf(
             masker.ratingClassPst(roi),
             masker.ratingClassPrs(roi),
             masker.ratingClassFtr(roi),
             masker.ratingClassByd(roi),
+            // TODO: ETR
         )
-        return results.indices.maxBy { Core.countNonZero(results[it]) }
+        return ArcaeaScoreRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
     }
 
     fun maxRecall(): Int = ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), knnModel)

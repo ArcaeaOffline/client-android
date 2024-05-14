@@ -91,12 +91,12 @@ class ArcaeaFormatters {
         }
 
         private fun ratingText(
-            ratingClass: Int,
+            ratingClass: ArcaeaScoreRatingClass,
             rating: Int,
             ratingPlus: Boolean,
             constant: Int = 0,
         ): String {
-            var text = ArcaeaScoreRatingClass.fromInt(ratingClass).toString()
+            var text = ratingClass.toString()
             text += ' '
 
             if (constant != 0) {

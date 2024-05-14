@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
@@ -162,7 +163,10 @@ class DatabaseManageViewModel(
                 val notes = it.getIntOrNull(it.getColumnIndex("notes"))
 
                 val chartInfo = ChartInfo(
-                    songId = songId, ratingClass = ratingClass, constant = constant, notes = notes
+                    songId = songId,
+                    ratingClass = ArcaeaScoreRatingClass.fromInt(ratingClass),
+                    constant = constant,
+                    notes = notes
                 )
                 chartInfoList.add(chartInfo)
             } while (it.moveToNext())

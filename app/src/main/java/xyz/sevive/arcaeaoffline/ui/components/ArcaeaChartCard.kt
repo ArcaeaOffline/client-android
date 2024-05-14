@@ -76,7 +76,7 @@ fun ArcaeaChartCard(
 
                 Text(
                     text = ArcaeaFormatters.ratingText(chart),
-                    color = ratingClassColor(ArcaeaScoreRatingClass.fromInt(chart.ratingClass))
+                    color = ratingClassColor(chart.ratingClass)
                 )
             }
 
@@ -97,7 +97,7 @@ private fun ArcaeaChartCardPreview() {
     val chart = Chart(
         songIdx = 1,
         songId = "example",
-        ratingClass = 2,
+        ratingClass = ArcaeaScoreRatingClass.FUTURE,
         rating = 10,
         ratingPlus = true,
         title = "Example",
@@ -112,7 +112,7 @@ private fun ArcaeaChartCardPreview() {
     val chartLongTitle = Chart(
         songIdx = 2,
         songId = "verylong",
-        ratingClass = 2,
+        ratingClass = ArcaeaScoreRatingClass.FUTURE,
         rating = 10,
         ratingPlus = true,
         title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",

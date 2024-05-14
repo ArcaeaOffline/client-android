@@ -2,12 +2,13 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 
 
 @Entity(tableName = "difficulties", primaryKeys = ["song_id", "rating_class"])
 data class Difficulty(
     @ColumnInfo(name = "song_id") val songId: String,
-    @ColumnInfo(name = "rating_class") val ratingClass: Int,
+    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaScoreRatingClass,
     val rating: Int,
     @ColumnInfo(name = "rating_plus") val ratingPlus: Boolean,
     @ColumnInfo(name = "chart_designer") val chartDesigner: String?,

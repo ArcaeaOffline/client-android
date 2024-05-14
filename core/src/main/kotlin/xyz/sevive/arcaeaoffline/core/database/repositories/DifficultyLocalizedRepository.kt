@@ -1,11 +1,12 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 
 interface DifficultyLocalizedRepository {
-    fun find(songId: String, ratingClass: Int): Flow<DifficultyLocalized?>
+    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<DifficultyLocalized?>
     fun findAll(): Flow<List<DifficultyLocalized>>
     fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>>
     suspend fun upsert(item: DifficultyLocalized)
@@ -16,7 +17,10 @@ interface DifficultyLocalizedRepository {
 
 class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao) :
     DifficultyLocalizedRepository {
-    override fun find(songId: String, ratingClass: Int): Flow<DifficultyLocalized?> =
+    override fun find(
+        songId: String,
+        ratingClass: ArcaeaScoreRatingClass
+    ): Flow<DifficultyLocalized?> =
         dao.find(songId, ratingClass)
 
     override fun findAll(): Flow<List<DifficultyLocalized>> = dao.findAll()

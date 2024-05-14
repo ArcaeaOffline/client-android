@@ -5,13 +5,14 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 
 
 @Dao
 interface ChartInfoDao {
     @Query("SELECT * FROM charts_info WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: Int): Flow<ChartInfo>
+    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<ChartInfo>
 
     @Query("SELECT * FROM charts_info")
     fun findAll(): Flow<List<ChartInfo>>

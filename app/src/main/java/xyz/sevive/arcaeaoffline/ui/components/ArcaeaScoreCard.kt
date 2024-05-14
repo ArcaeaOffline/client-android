@@ -55,6 +55,7 @@ import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
@@ -215,11 +216,11 @@ fun ArcaeaScoreCard(
                     )
 
                     val clearTypeText = if (score.clearType != null) {
-                        ArcaeaScoreClearType.fromInt(score.clearType!!).toDisplayString()
+                        score.clearType!!.toDisplayString()
                     } else stringResource(R.string.score_no_clear_type)
 
                     val modifierText = if (score.modifier != null) {
-                        ArcaeaScoreModifier.fromInt(score.modifier!!).toDisplayString()
+                        score.modifier!!.toDisplayString()
                     } else stringResource(R.string.score_no_modifier)
 
                     VerticalGrid(
@@ -290,7 +291,7 @@ fun ArcaeaScoreCard(
 @Composable
 private fun previewCharts(): Array<Chart> {
     fun chart(
-        ratingClass: Int,
+        ratingClass: ArcaeaScoreRatingClass,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int,
@@ -313,20 +314,87 @@ private fun previewCharts(): Array<Chart> {
     }
 
     return arrayOf(
-        chart(ratingClass = 0, rating = 2, ratingPlus = false, constant = 20),
-        chart(ratingClass = 1, rating = 6, ratingPlus = false, constant = 65),
-        chart(ratingClass = 2, rating = 9, ratingPlus = true, constant = 96),
-        chart(ratingClass = 3, rating = 12, ratingPlus = false, constant = 120),
+        chart(
+            ratingClass = ArcaeaScoreRatingClass.PAST,
+            rating = 2,
+            ratingPlus = false,
+            constant = 20
+        ),
+        chart(
+            ratingClass = ArcaeaScoreRatingClass.PRESENT,
+            rating = 6,
+            ratingPlus = false,
+            constant = 65
+        ),
+        chart(
+            ratingClass = ArcaeaScoreRatingClass.FUTURE,
+            rating = 9,
+            ratingPlus = true,
+            constant = 96
+        ),
+        chart(
+            ratingClass = ArcaeaScoreRatingClass.BEYOND,
+            rating = 12,
+            ratingPlus = false,
+            constant = 120
+        ),
     )
 }
 
 @Composable
 private fun previewScores(): Array<Score> {
+    fun score(
+        id: Int, ratingClass: ArcaeaScoreRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
+    ): Score {
+        return Score(
+            id = id,
+            songId = "test",
+            ratingClass = ratingClass,
+            score = score,
+            pure = pure,
+            far = far,
+            lost = lost,
+            date = 123456,
+            maxRecall = 75,
+            modifier = ArcaeaScoreModifier.NORMAL,
+            clearType = ArcaeaScoreClearType.NORMAL_CLEAR,
+            comment = "Test Only",
+        )
+    }
+
     return arrayOf(
-        Score(0, "test", 0, 9900000, null, null, null, 283375, 75, 0, 1, "Test Only"),
-        Score(1, "test", 1, 9800000, 543, 2, 1, 283375, 75, 0, 1, "Test Only"),
-        Score(2, "test", 2, 9700000, 1023, 45, 23, 283375, 75, 0, 1, "Test Only"),
-        Score(3, "test", 3, 895000, 1234, 56, 78, 283375, 75, 0, 1, "Test Only"),
+        score(
+            id = 0,
+            ratingClass = ArcaeaScoreRatingClass.PAST,
+            score = 9900000,
+            pure = null,
+            far = null,
+            lost = null
+        ),
+        score(
+            id = 1,
+            ratingClass = ArcaeaScoreRatingClass.PRESENT,
+            score = 9800000,
+            pure = 543,
+            far = 2,
+            lost = 1
+        ),
+        score(
+            id = 2,
+            ratingClass = ArcaeaScoreRatingClass.FUTURE,
+            score = 9700000,
+            pure = 1023,
+            far = 45,
+            lost = 23
+        ),
+        score(
+            id = 3,
+            ratingClass = ArcaeaScoreRatingClass.BEYOND,
+            score = 895000,
+            pure = 1234,
+            far = 56,
+            lost = 78
+        ),
     )
 }
 

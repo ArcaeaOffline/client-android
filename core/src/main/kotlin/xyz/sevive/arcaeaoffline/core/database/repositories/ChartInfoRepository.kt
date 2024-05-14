@@ -1,11 +1,12 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 
 interface ChartInfoRepository {
-    fun find(songId: String, ratingClass: Int): Flow<ChartInfo?>
+    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<ChartInfo?>
     fun findAll(): Flow<List<ChartInfo>>
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
     suspend fun upsert(item: ChartInfo)
@@ -15,7 +16,7 @@ interface ChartInfoRepository {
 }
 
 class ChartInfoRepositoryImpl(private val dao: ChartInfoDao) : ChartInfoRepository {
-    override fun find(songId: String, ratingClass: Int): Flow<ChartInfo?> =
+    override fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<ChartInfo?> =
         dao.find(songId, ratingClass)
 
     override fun findAll(): Flow<List<ChartInfo>> = dao.findAll()

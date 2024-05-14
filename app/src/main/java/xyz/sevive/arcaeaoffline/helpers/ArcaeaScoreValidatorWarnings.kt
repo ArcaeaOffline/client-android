@@ -109,7 +109,10 @@ class ArcaeaScoreValidatorFrPmMaxRecallMismatchWarning : ArcaeaScoreValidatorWar
     override val messageId = R.string.score_validator_FR_PM_MAX_RECALL_MISMATCH_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        if (score.clearType != ArcaeaScoreClearType.FULL_RECALL.value || score.clearType != ArcaeaScoreClearType.PURE_MEMORY.value) {
+        if (score.clearType !in listOf(
+                ArcaeaScoreClearType.FULL_RECALL, ArcaeaScoreClearType.PURE_MEMORY
+            )
+        ) {
             return false
         }
 
@@ -133,7 +136,7 @@ class ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWarning 
         }
 
         // HARD LOST does not conform to this rule
-        if (score.clearType == ArcaeaScoreClearType.TRACK_LOST.value && score.modifier == ArcaeaScoreModifier.HARD.value) {
+        if (score.clearType == ArcaeaScoreClearType.TRACK_LOST && score.modifier == ArcaeaScoreModifier.HARD) {
             return false
         }
 
@@ -155,7 +158,7 @@ class ArcaeaScoreValidatorFullRecallLostNotZeroWarning : ArcaeaScoreValidatorWar
     override val messageId = R.string.score_validator_FULL_RECALL_LOST_NOT_ZERO_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        if (score.clearType != ArcaeaScoreClearType.FULL_RECALL.value) {
+        if (score.clearType != ArcaeaScoreClearType.FULL_RECALL) {
             return false
         }
 
@@ -173,7 +176,7 @@ class ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning : ArcaeaScoreValidator
     override val messageId = R.string.score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        if (score.clearType != ArcaeaScoreClearType.PURE_MEMORY.value) {
+        if (score.clearType != ArcaeaScoreClearType.PURE_MEMORY) {
             return false
         }
 
@@ -191,7 +194,7 @@ class ArcaeaScoreValidatorModifierClearTypeMismatchWarning : ArcaeaScoreValidato
     override val messageId = R.string.score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        return (score.clearType == ArcaeaScoreClearType.EASY_CLEAR.value && score.modifier != ArcaeaScoreModifier.EASY.value) || (score.clearType == ArcaeaScoreClearType.HARD_CLEAR.value && score.modifier != ArcaeaScoreModifier.HARD.value)
+        return (score.clearType == ArcaeaScoreClearType.EASY_CLEAR && score.modifier != ArcaeaScoreModifier.EASY) || (score.clearType == ArcaeaScoreClearType.HARD_CLEAR && score.modifier != ArcaeaScoreModifier.HARD)
     }
 }
 

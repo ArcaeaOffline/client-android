@@ -50,11 +50,9 @@ class ChartSelectorViewModel(
             return
         }
 
-        _enabledRatingClasses.value = difficulties.map {
-            ArcaeaScoreRatingClass.fromInt(it.ratingClass)
-        }
+        _enabledRatingClasses.value = difficulties.map { it.ratingClass }
         _ratingDetails.value = difficulties.associate {
-            ArcaeaScoreRatingClass.fromInt(it.ratingClass) to Pair(it.rating, it.ratingPlus)
+            it.ratingClass to Pair(it.rating, it.ratingPlus)
         }
     }
 
@@ -63,11 +61,8 @@ class ChartSelectorViewModel(
 
         updateRatingClassSelectorParams(songId)
 
-        if (
-            !enabledRatingClasses.value.contains(ratingClass.value)
-            && enabledRatingClasses.value.isNotEmpty()
-        ) {
-            setRatingClass(enabledRatingClasses.value.last())
+        if (!enabledRatingClasses.value.contains(ratingClass.value) && enabledRatingClasses.value.isNotEmpty()) {
+            setRatingClass(enabledRatingClasses.value.maxBy { it.value })
         }
 
         updateChart()
@@ -80,7 +75,7 @@ class ChartSelectorViewModel(
 
     private suspend fun updateChart() {
         val songId = songId.value
-        val ratingClass = ratingClass.value?.value
+        val ratingClass = ratingClass.value
 
         if (songId == null || ratingClass == null) {
             _chart.value = null
@@ -106,6 +101,6 @@ class ChartSelectorViewModel(
         }
 
         setSongId(chart.songId)
-        setRatingClass(ArcaeaScoreRatingClass.fromInt(chart.ratingClass))
+        setRatingClass(chart.ratingClass)
     }
 }

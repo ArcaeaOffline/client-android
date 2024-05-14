@@ -15,7 +15,6 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListViewModel
-import xyz.sevive.arcaeaoffline.ui.models.DatabaseCommonFunctionsViewModel
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewModel
 
 /**
@@ -56,12 +55,6 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseB30ListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
-
-        initializer {
-            DatabaseCommonFunctionsViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

@@ -2,6 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 
 @DatabaseView(
     """
@@ -19,7 +22,7 @@ import androidx.room.DatabaseView
 data class ScoreBest(
     val id: Int,
     @ColumnInfo(name = "song_id") val songId: String,
-    @ColumnInfo(name = "rating_class") val ratingClass: Int,
+    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaScoreRatingClass,
     val score: Int,
     val pure: Int?,
     @ColumnInfo(name = "shiny_pure") val shinyPure: Int?,
@@ -27,8 +30,8 @@ data class ScoreBest(
     val lost: Int?,
     val date: Long?,
     @ColumnInfo(name = "max_recall") val maxRecall: Int?,
-    val modifier: Int?,
-    @ColumnInfo(name = "clear_type") val clearType: Int?,
+    val modifier: ArcaeaScoreModifier?,
+    @ColumnInfo(name = "clear_type") val clearType: ArcaeaScoreClearType?,
     val potential: Double,
     val comment: String?,
 )

@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jakewharton.threetenabp.AndroidThreeTen
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -102,7 +103,7 @@ fun DatabaseB30ListItemPreview() {
                 scoreBest = ScoreBest(
                     id = 1,
                     songId = "test",
-                    ratingClass = 2,
+                    ratingClass = ArcaeaScoreRatingClass.FUTURE,
                     score = 99500000,
                     pure = null,
                     shinyPure = null,

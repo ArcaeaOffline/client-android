@@ -4,6 +4,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreRepository
 
 @Serializable
@@ -11,15 +14,15 @@ data class ArcaeaOfflineExportScoreItem(
     val id: Int,
     val uuid: Nothing? = null,
     val songId: String,
-    val ratingClass: Int,
+    val ratingClass: ArcaeaScoreRatingClass,
     val score: Int,
     val pure: Int? = null,
     val far: Int? = null,
     val lost: Int? = null,
     val date: Long? = null,
     val maxRecall: Int? = null,
-    val modifier: Int? = null,
-    val clearType: Int? = null,
+    val modifier: ArcaeaScoreModifier? = null,
+    val clearType: ArcaeaScoreClearType? = null,
     val comment: String? = null,
 )
 
