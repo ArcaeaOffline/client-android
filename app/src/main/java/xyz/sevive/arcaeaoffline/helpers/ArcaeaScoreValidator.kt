@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.helpers
+package xyz.sevive.arcaeaoffline.helpers
 
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo

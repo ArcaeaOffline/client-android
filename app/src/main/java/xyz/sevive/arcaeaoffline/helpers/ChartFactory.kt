@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.helpers
+package xyz.sevive.arcaeaoffline.helpers
 
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass

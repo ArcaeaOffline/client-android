@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.helpers.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard

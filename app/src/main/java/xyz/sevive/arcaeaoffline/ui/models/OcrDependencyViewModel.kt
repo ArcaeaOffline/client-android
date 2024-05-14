@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import xyz.sevive.arcaeaoffline.core.helpers.OcrDependencyHelper
+import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
 
 class OcrDependencyViewModel : ViewModel() {
     val knnModelState = OcrDependencyHelper.kNearestModel.combine(

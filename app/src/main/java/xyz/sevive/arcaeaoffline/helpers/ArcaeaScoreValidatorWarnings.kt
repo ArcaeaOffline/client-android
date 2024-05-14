@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.helpers
+package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
 import androidx.core.content.res.ResourcesCompat

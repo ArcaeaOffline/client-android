@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaScoreValidator
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidator
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 class DatabaseAddScoreViewModel(

@@ -7,8 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import java.io.InputStream
 
 class SettingsViewModel : ViewModel() {

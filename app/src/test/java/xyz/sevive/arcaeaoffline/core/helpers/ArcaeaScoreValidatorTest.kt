@@ -5,6 +5,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidator
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorMaxRecallOverflowWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning
 
 class ArcaeaScoreValidatorTest {
     private fun validateScoreResultIds(score: Score, chartInfo: ChartInfo?): List<String> {

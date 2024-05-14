@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 
 @Composable
 fun ArcaeaButtonWrapper(

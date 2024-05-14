@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreCalculated
-import xyz.sevive.arcaeaoffline.core.helpers.ChartFactory
+import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 data class DatabaseScoreListUiItem(

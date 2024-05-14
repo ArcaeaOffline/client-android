@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
 
 @Composable
 internal fun ScoreValidatorWarningDetailItem(warning: ArcaeaScoreValidatorWarning) {
