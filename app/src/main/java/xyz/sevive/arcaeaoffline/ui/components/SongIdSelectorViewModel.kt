@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
@@ -16,11 +18,13 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 class SongIdSelectorViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    val packList = repositoryContainer.packRepository.findAll().stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = listOf()
-    )
+    private val _packs = MutableStateFlow<List<Pack>>(listOf())
+    val packs = _packs.asStateFlow()
+
+    private val packSongsMap: MutableMap<String, List<Song>> = mutableMapOf()
+
+    private val _songs = MutableStateFlow<List<Song>>(listOf())
+    val songs = _songs.asStateFlow()
 
     private val _chartOnly = MutableStateFlow(false)
     private val chartOnly = _chartOnly.asStateFlow()
@@ -29,17 +33,29 @@ class SongIdSelectorViewModel(
         _chartOnly.value = value
     }
 
-    private val _songList = MutableStateFlow<List<Song>>(listOf())
-    val songList = _songList.asStateFlow()
+    init {
+        viewModelScope.launch {
+            _packs.value = repositoryContainer.packRepository.findAll().first()
 
-    suspend fun setSongListBySet(set: String) {
-        _songList.value = repositoryContainer.songRepository.findBySet(set).map { songs ->
-            if (chartOnly.value) {
-                songs.filter {
-                    repositoryContainer.chartRepository.findAllBySongId(it.id).first().isNotEmpty()
+            for (pack in packs.value) {
+                var songs = repositoryContainer.songRepository.findBySet(pack.id).first()
+
+                if (chartOnly.value) {
+                    songs = songs.filter {
+                        repositoryContainer.chartRepository.findAllBySongId(it.id).first()
+                            .isNotEmpty()
+                    }
                 }
-            } else songs
-        }.first()
+
+                if (songs.isNotEmpty()) {
+                    packSongsMap[pack.id] = songs
+                }
+            }
+        }
+    }
+
+    private fun setSongListBySet(set: String) {
+        _songs.value = packSongsMap[set] ?: listOf()
     }
 
     private val _selectedPackIndex = MutableStateFlow(-1)
@@ -48,16 +64,19 @@ class SongIdSelectorViewModel(
     private val _selectedSongIndex = MutableStateFlow(-1)
     val selectedSongIndex = _selectedSongIndex.asStateFlow()
 
-    fun getSelectedSongId(): String? {
-        val idx = selectedSongIndex.value
-        return if (idx > -1) songList.value[idx].id else null
-    }
+    val selectedSongId = selectedSongIndex.map {
+        if (it > -1) songs.value[it].id else null
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
 
-    suspend fun selectPackIndex(idx: Int) {
+    fun selectPackIndex(idx: Int) {
         _selectedPackIndex.value = idx
         _selectedSongIndex.value = -1
 
-        setSongListBySet(packList.value[idx].id)
+        setSongListBySet(packs.value[idx].id)
     }
 
     fun selectSongIndex(idx: Int) {
@@ -67,7 +86,7 @@ class SongIdSelectorViewModel(
     private fun reset() {
         _selectedPackIndex.value = -1
         _selectedSongIndex.value = -1
-        _songList.value = listOf()
+        _songs.value = listOf()
     }
 
     suspend fun initialSelect(songId: String?) {
@@ -83,16 +102,12 @@ class SongIdSelectorViewModel(
             return
         }
 
-        val packIdx = packList.value.indexOfFirst { it.id == song.set }
+        val packIdx = packs.value.indexOfFirst { it.id == song.set }
         if (packIdx < 0) return
         selectPackIndex(packIdx)
 
-        val songIdx = songList.value.indexOfFirst { it.id == song.id }
+        val songIdx = songs.value.indexOfFirst { it.id == song.id }
         if (songIdx < 0) return
         selectSongIndex(songIdx)
-    }
-
-    companion object {
-        private const val TIMEOUT_MILLIS = 5000L
     }
 }

@@ -7,11 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 
@@ -24,27 +22,27 @@ fun SongIdSelector(
     chartOnly: Boolean = false,
     viewModel: SongIdSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
-    val packList by viewModel.packList.collectAsState()
-    val songList by viewModel.songList.collectAsState()
+    val packs by viewModel.packs.collectAsState()
+    val songs by viewModel.songs.collectAsState()
 
     val selectedPackIndex by viewModel.selectedPackIndex.collectAsState()
     val selectedSongIndex by viewModel.selectedSongIndex.collectAsState()
+
+    val selectedSongId by viewModel.selectedSongId.collectAsState()
+
+    LaunchedEffect(key1 = selectedSongId) {
+        if (selectedSongId != songId) onSongIdChanged(selectedSongId)
+    }
 
     LaunchedEffect(chartOnly) {
         viewModel.setChartOnly(chartOnly)
     }
 
     val selectPack: (Int) -> Unit = { i ->
-        coroutineScope.launch {
-            viewModel.selectPackIndex(i)
-            onSongIdChanged(viewModel.getSelectedSongId())
-        }
+        viewModel.selectPackIndex(i)
     }
     val selectSong: (Int) -> Unit = { i ->
         viewModel.selectSongIndex(i)
-        onSongIdChanged(viewModel.getSelectedSongId())
     }
 
     LaunchedEffect(songId) {
@@ -56,15 +54,17 @@ fun SongIdSelector(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
     ) {
         ArcaeaPackSelector(
-            packs = packList,
+            packs = packs,
             onSelect = { selectPack(it) },
             selectedIndex = selectedPackIndex,
+            disableIfEmpty = true,
         )
 
         ArcaeaSongSelector(
-            songs = songList,
+            songs = songs,
             onSelect = { selectSong(it) },
             selectedIndex = selectedSongIndex,
+            disableIfEmpty = true,
         )
     }
 }
