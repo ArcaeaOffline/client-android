@@ -17,13 +17,15 @@ fun ReadonlyClickableTextField(
     value: TextFieldValue?,
     onClick: () -> Unit,
     label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    modifier: Modifier,
 ) {
     TextField(
         value = value ?: TextFieldValue(),
         onValueChange = {},
+        enabled = enabled,
         readOnly = true,
         label = label,
         leadingIcon = leadingIcon,

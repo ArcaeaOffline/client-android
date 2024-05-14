@@ -24,6 +24,7 @@ fun ArcaeaSongSelector(
     songs: List<Song>,
     onSelect: (index: Int) -> Unit,
     selectedIndex: Int = -1,
+    disableIfEmpty: Boolean = true,
 ) {
     val labels = songs.map { buildAnnotatedString { append(it.title) } }
 
@@ -43,6 +44,7 @@ fun ArcaeaSongSelector(
     ReadonlyClickableTextField(
         value = if (selectedIndex > -1) TextFieldValue(labels[selectedIndex]) else null,
         onClick = { showSelectDialog = true },
+        enabled = if (disableIfEmpty) songs.isNotEmpty() else true,
         label = { Text(stringResource(R.string.song_id_selector_select_song)) },
         leadingIcon = { Icon(Icons.AutoMirrored.Default.QueueMusic, null) },
         trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },

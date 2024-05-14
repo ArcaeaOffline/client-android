@@ -28,6 +28,7 @@ fun ArcaeaPackSelector(
     packs: List<Pack>,
     onSelect: (index: Int) -> Unit,
     selectedIndex: Int = -1,
+    disableIfEmpty: Boolean = true,
 ) {
     val basePackMap: Map<String, Pack> = packs.filter { !it.isAppendPack() }
         .associateBy(keySelector = { it.id }, valueTransform = { it })
@@ -64,6 +65,7 @@ fun ArcaeaPackSelector(
     ReadonlyClickableTextField(
         value = if (selectedIndex > -1) TextFieldValue(labels[selectedIndex]) else null,
         onClick = { showSelectDialog = true },
+        enabled = if (disableIfEmpty) packs.isNotEmpty() else true,
         label = { Text(stringResource(R.string.song_id_selector_select_pack)) },
         leadingIcon = { Icon(painterResource(R.drawable.ic_pack), null) },
         trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
