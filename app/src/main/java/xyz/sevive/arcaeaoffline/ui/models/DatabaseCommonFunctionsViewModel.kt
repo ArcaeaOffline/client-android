@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.models
 import androidx.lifecycle.ViewModel
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
+import xyz.sevive.arcaeaoffline.core.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 class DatabaseCommonFunctionsViewModel(

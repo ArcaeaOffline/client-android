@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.constants.arcaea.score
+package xyz.sevive.arcaeaoffline.core.constants
 
 val ArcaeaScoreClearTypeRange = 0..5
 

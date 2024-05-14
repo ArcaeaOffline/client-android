@@ -7,6 +7,8 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
+import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
@@ -16,8 +18,6 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
-import xyz.sevive.arcaeaoffline.data.ArcaeaPartnerModifiers
-import xyz.sevive.arcaeaoffline.data.clearStatusToClearType
 
 data class DeviceOcrResult(
     val ratingClass: Int,

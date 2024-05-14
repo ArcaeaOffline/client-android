@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import org.threeten.bp.LocalDateTime
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
 import xyz.sevive.arcaeaoffline.ui.components.CustomComboBox
 

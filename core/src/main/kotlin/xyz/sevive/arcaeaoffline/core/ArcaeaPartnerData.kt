@@ -1,11 +1,11 @@
-package xyz.sevive.arcaeaoffline.data
+package xyz.sevive.arcaeaoffline.core
 
 import android.content.res.AssetManager
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.IOUtils
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifierRange
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifierRange
 import java.nio.charset.StandardCharsets
 
 

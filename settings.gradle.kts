@@ -28,3 +28,4 @@ dependencyResolutionManagement {
 rootProject.name = "Arcaea Offline"
 include("app")
 include("opencv")
+include(":core")

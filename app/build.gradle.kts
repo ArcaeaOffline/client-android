@@ -3,10 +3,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
     alias(libs.plugins.secrets.gradle.plugin)
-
-    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 secrets {
@@ -70,7 +67,8 @@ android {
         }
     }
 
-    flavorDimensions.add("app_stable")
+//    flavorDimensions.add("app_stable")
+    flavorDimensionList.add("app_stable")
 
     productFlavors {
         create("stable") {
@@ -110,12 +108,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinx.serialization)
-
     // android & androidx
     implementation(androidx.room.runtime)
-    implementation(androidx.room.ktx)
-    ksp(androidx.room.compiler)
 
     implementation(androidx.datastore)
     implementation(androidx.datastore.preferences)
@@ -176,4 +170,5 @@ dependencies {
     debugImplementation(androidx.compose.ui.test.manifest)
 
     implementation(project(":opencv"))
+    implementation(project(":core"))
 }

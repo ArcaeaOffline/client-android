@@ -1,7 +1,7 @@
-package xyz.sevive.arcaeaoffline.core.database.helpers
+package xyz.sevive.arcaeaoffline.core.helpers
 
 import kotlinx.coroutines.flow.firstOrNull
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song

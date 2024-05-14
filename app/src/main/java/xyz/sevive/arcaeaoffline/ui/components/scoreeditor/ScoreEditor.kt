@@ -18,8 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 @Composable
@@ -70,14 +70,14 @@ fun ScoreEditor(
 
             1 -> {
                 ScoreEditorModifierField(scoreModifier = if (score.modifier != null) ArcaeaScoreModifier.fromInt(
-                    score.modifier
+                    score.modifier!!
                 ) else null,
                     onScoreModifierChange = {
                         onScoreChange(viewModel.editModifier(score, it))
                     })
 
                 ScoreEditorClearTypeField(clearType = if (score.clearType != null) ArcaeaScoreClearType.fromInt(
-                    score.clearType
+                    score.clearType!!
                 ) else null,
                     onClearTypeChange = {
                         onScoreChange(viewModel.editClearType(score, it))

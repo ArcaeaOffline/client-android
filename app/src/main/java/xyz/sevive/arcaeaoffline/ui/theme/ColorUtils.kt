@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 
 @Composable
 fun ratingClassColor(ratingClass: ArcaeaScoreRatingClass): Color {

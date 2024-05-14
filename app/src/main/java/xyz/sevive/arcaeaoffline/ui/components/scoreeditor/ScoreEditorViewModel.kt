@@ -3,8 +3,8 @@ package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
 import androidx.lifecycle.ViewModel
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 class ScoreEditorViewModel : ViewModel() {

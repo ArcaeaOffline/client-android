@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.constants.arcaea.score
+package xyz.sevive.arcaeaoffline.core.constants
 
 val ArcaeaScoreRatingClassRange = 0..4
 

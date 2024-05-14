@@ -37,7 +37,11 @@ data class OcrQueueTaskUiItem(
             return if (chart?.notes == null || score == null || score.pure == null || score.far == null) {
                 false
             } else {
-                calculateArcaeaScoreRange(chart.notes, score.pure, score.far).contains(score.score)
+                calculateArcaeaScoreRange(
+                    chart.notes!!,
+                    score.pure!!,
+                    score.far!!
+                ).contains(score.score)
             }
         }
 }

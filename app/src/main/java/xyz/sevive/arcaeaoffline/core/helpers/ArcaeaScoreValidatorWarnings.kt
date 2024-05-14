@@ -3,9 +3,9 @@ package xyz.sevive.arcaeaoffline.core.helpers
 import android.content.Context
 import androidx.core.content.res.ResourcesCompat
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
@@ -53,7 +53,7 @@ class ArcaeaScoreValidateScoreOutOfRangeWarning : ArcaeaScoreValidatorWarning {
             return false
         }
 
-        val scoreRange = calculateArcaeaScoreRange(chartInfo.notes, score.pure, score.far)
+        val scoreRange = calculateArcaeaScoreRange(chartInfo.notes!!, score.pure!!, score.far!!)
         return scoreRange.contains(score.score)
     }
 }
@@ -77,7 +77,7 @@ class ArcaeaScoreValidatorPflOverflowWarning : ArcaeaScoreValidatorWarning {
         sum += score.far ?: 0
         sum += score.lost ?: 0
 
-        return sum > chartInfo.notes
+        return sum > chartInfo.notes!!
     }
 }
 
@@ -95,7 +95,7 @@ class ArcaeaScoreValidatorMaxRecallOverflowWarning : ArcaeaScoreValidatorWarning
             return false
         }
 
-        return score.maxRecall > chartInfo.notes
+        return score.maxRecall!! > chartInfo.notes!!
     }
 }
 
@@ -141,7 +141,7 @@ class ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWarning 
             return false
         }
 
-        return score.pure + score.far + score.lost != chartInfo?.notes
+        return score.pure!! + score.far!! + score.lost!! != chartInfo?.notes
     }
 }
 

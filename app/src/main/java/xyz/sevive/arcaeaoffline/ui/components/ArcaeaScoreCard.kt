@@ -53,8 +53,8 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.constants.arcaea.score.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
@@ -200,7 +200,7 @@ fun ArcaeaScoreCard(
                 if (score.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                     .format(
                         LocalDateTime.ofInstant(
-                            Instant.ofEpochSecond(score.date.toLong()), ZoneId.systemDefault()
+                            Instant.ofEpochSecond(score.date!!.toLong()), ZoneId.systemDefault()
                         )
                     ) else stringResource(R.string.score_no_date),
                 style = MaterialTheme.typography.labelMedium,
@@ -215,11 +215,11 @@ fun ArcaeaScoreCard(
                     )
 
                     val clearTypeText = if (score.clearType != null) {
-                        ArcaeaScoreClearType.fromInt(score.clearType).toDisplayString()
+                        ArcaeaScoreClearType.fromInt(score.clearType!!).toDisplayString()
                     } else stringResource(R.string.score_no_clear_type)
 
                     val modifierText = if (score.modifier != null) {
-                        ArcaeaScoreModifier.fromInt(score.modifier).toDisplayString()
+                        ArcaeaScoreModifier.fromInt(score.modifier!!).toDisplayString()
                     } else stringResource(R.string.score_no_modifier)
 
                     VerticalGrid(
