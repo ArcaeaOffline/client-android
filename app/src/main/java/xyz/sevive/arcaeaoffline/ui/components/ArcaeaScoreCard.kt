@@ -29,20 +29,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
@@ -62,32 +60,6 @@ import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
 import xyz.sevive.arcaeaoffline.ui.theme.scoreGradientBrush
-
-/**
- * https://stackoverflow.com/a/70508246/16484891
- *
- * CC BY-SA 4.0
- */
-@Composable
-internal fun MeasureTextWidth(
-    viewToMeasure: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable (measuredWidth: Dp) -> Unit,
-) {
-    SubcomposeLayout(modifier) { constraints ->
-        val measuredWidth =
-            subcompose("viewToMeasure", viewToMeasure)[0].measure(Constraints()).width.toDp()
-
-        val contentPlaceable = subcompose("content") {
-            content(measuredWidth)
-        }[0].measure(constraints)
-
-        // extra 5px for idk, maybe padding
-        layout(contentPlaceable.width + 5, contentPlaceable.height) {
-            contentPlaceable.place(0, 0)
-        }
-    }
-}
 
 @Composable
 internal fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
@@ -132,6 +104,15 @@ fun ArcaeaScoreCard(
     val scoreText =
         score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
 
+    val textMeasurer = rememberTextMeasurer()
+    val levelTextTextStyle = MaterialTheme.typography.headlineMedium.copy(
+        fontWeight = FontWeight.Bold,
+        brush = scoreGradientBrush(score.score),
+    )
+    val exPlusWidthDp = LocalDensity.current.run {
+        textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp()
+    }
+
     Card(
         onClick = { showDetails = !showDetails },
         modifier = modifier,
@@ -140,26 +121,15 @@ fun ArcaeaScoreCard(
     ) {
         Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MeasureTextWidth(
-                    viewToMeasure = {
-                        Text(
-                            "EX+",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }, Modifier.padding(end = 4.dp)
-                ) { measuredWidth ->
-                    Text(
-                        ArcaeaFormatters.scoreToLevelText(score.score),
-                        Modifier.width(measuredWidth),
-                        style = MaterialTheme.typography.headlineMedium.merge(
-                            TextStyle(brush = scoreGradientBrush(score.score))
-                        ),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Right,
-                        maxLines = 1,
-                    )
-                }
+                Text(
+                    ArcaeaFormatters.scoreToLevelText(score.score),
+                    Modifier
+                        .width(exPlusWidthDp)
+                        .padding(end = 4.dp),
+                    style = levelTextTextStyle,
+                    textAlign = TextAlign.Right,
+                    maxLines = 1,
+                )
 
                 Column(Modifier.weight(1f)) {
                     Text(scoreText, style = MaterialTheme.typography.titleLarge)
@@ -313,10 +283,7 @@ private fun previewCharts(): Array<Chart> {
 
     return arrayOf(
         chart(
-            ratingClass = ArcaeaScoreRatingClass.PAST,
-            rating = 2,
-            ratingPlus = false,
-            constant = 20
+            ratingClass = ArcaeaScoreRatingClass.PAST, rating = 2, ratingPlus = false, constant = 20
         ),
         chart(
             ratingClass = ArcaeaScoreRatingClass.PRESENT,
