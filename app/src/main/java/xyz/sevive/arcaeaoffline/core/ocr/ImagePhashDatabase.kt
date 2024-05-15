@@ -3,6 +3,8 @@ package xyz.sevive.arcaeaoffline.core.ocr
 import android.content.ContentValues
 import android.database.Cursor
 import io.requery.android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -45,17 +47,16 @@ fun matToBooleanArray(mat: Mat): BooleanArray {
 class ImagePhashDatabase(path: String) {
     var hashSize = 0
         private set
-    var highFreqFactor = 0
-        private set
+    private var highFreqFactor = 0
     var builtTime: Instant? = null
         private set
 
     private val ids = mutableListOf<String>()
     private val hashes = mutableListOf<BooleanArray>()
 
-    val jacketIds = mutableListOf<String>()
+    private val jacketIds = mutableListOf<String>()
     val jacketHashes = mutableListOf<BooleanArray>()
-    val partnerIconIds = mutableListOf<String>()
+    private val partnerIconIds = mutableListOf<String>()
     val partnerIconHashes = mutableListOf<BooleanArray>()
 
     private fun getColumnIndex(cursor: Cursor, columnName: String): Int {
@@ -129,7 +130,7 @@ class ImagePhashDatabase(path: String) {
         }
     }
 
-    fun calculateImagePhash(imgGray: Mat) =
+    private fun calculateImagePhash(imgGray: Mat) =
         calculatePhash(imgGray, this.hashSize, this.highFreqFactor)
 
     /**
@@ -139,7 +140,7 @@ class ImagePhashDatabase(path: String) {
      *         that has the smallest Hamming distance with the given hash, and the second element
      *         is the value of that distance.
      */
-    fun lookupHashes(
+    private fun lookupHashes(
         hash: BooleanArray, ids: List<String>, hashes: List<BooleanArray>, limit: Int = 5
     ): List<Pair<String, Int>> {
         val xorResults =
@@ -155,10 +156,12 @@ class ImagePhashDatabase(path: String) {
         return lookupHashes(hash, ids, hashes)
     }
 
-    fun lookupJackets(imgGray: Mat) = lookupImagesHelper(imgGray, this.jacketIds, this.jacketHashes)
+    private fun lookupJackets(imgGray: Mat) =
+        lookupImagesHelper(imgGray, this.jacketIds, this.jacketHashes)
+
     fun lookupJacket(imgGray: Mat) = lookupJackets(imgGray)[0]
 
-    fun lookupPartnerIcons(imgGray: Mat) =
+    private fun lookupPartnerIcons(imgGray: Mat) =
         lookupImagesHelper(imgGray, this.partnerIconIds, this.partnerIconHashes)
 
     fun lookupPartnerIcon(imgGray: Mat) = lookupPartnerIcons(imgGray)[0]
@@ -169,7 +172,7 @@ class ImagePhashDatabase(path: String) {
             return arr1.zip(arr2).count { it.first xor it.second }
         }
 
-        fun build(
+        suspend fun build(
             databaseFile: File,
             images: List<Mat>,
             labels: List<String>,
@@ -179,24 +182,18 @@ class ImagePhashDatabase(path: String) {
         ) {
             assert(images.size == labels.size) { "`images` and `labels` should have the same size" }
 
-            val db = SQLiteDatabase.openOrCreateDatabase(databaseFile, null)
+            var result = 0
+            fun reportProgress() {
+                result++
+                progressCallback(result, images.size)
+            }
 
-            db.use {
-                it.execSQL("CREATE TABLE properties (`key` TEXT, value TEXT)")
+            val labelResultMap = mutableMapOf<String, ByteArray>()
 
-                val hashSizeContentValues = ContentValues()
-                hashSizeContentValues.put("key", "hash_size")
-                hashSizeContentValues.put("value", hashSize)
-
-                val highFreqFactorContentValues = ContentValues()
-                highFreqFactorContentValues.put("key", "highfreq_factor")
-                highFreqFactorContentValues.put("value", highFreqFactor)
-
-                it.insert("properties", null, hashSizeContentValues)
-                it.insert("properties", null, highFreqFactorContentValues)
-
-                it.execSQL("CREATE TABLE hashes (id TEXT, hash BLOB(${hashSize * hashSize}))")
-                images.zip(labels).forEachIndexed { i, pair ->
+            withContext(Dispatchers.Default) {
+                // calculate the phash of each image, then convert the boolean array to byte array
+                // for later database insert convenience
+                images.zip(labels).forEach { pair ->
                     val mat = pair.first
                     val label = pair.second
 
@@ -206,18 +203,47 @@ class ImagePhashDatabase(path: String) {
                         hashByteArray[index] = if (b) 1.toByte() else 0.toByte()
                     }
 
-                    val hashContentValues = ContentValues()
-                    hashContentValues.put("id", label)
-                    hashContentValues.put("hash", hashByteArray)
-                    it.insert("hashes", null, hashContentValues)
-
-                    progressCallback(i + 1, images.size)
+                    labelResultMap[label] = hashByteArray
+                    reportProgress()
                 }
+            }
+
+            SQLiteDatabase.openOrCreateDatabase(databaseFile, null).use { db ->
+                db.execSQL("CREATE TABLE properties (`key` TEXT, value TEXT)")
+
+                val hashSizeContentValues = ContentValues()
+                hashSizeContentValues.put("key", "hash_size")
+                hashSizeContentValues.put("value", hashSize)
+
+                val highFreqFactorContentValues = ContentValues()
+                highFreqFactorContentValues.put("key", "highfreq_factor")
+                highFreqFactorContentValues.put("value", highFreqFactor)
+
+                db.insert("properties", null, hashSizeContentValues)
+                db.insert("properties", null, highFreqFactorContentValues)
+
+                db.execSQL("CREATE TABLE hashes (id TEXT, hash BLOB(${hashSize * hashSize}))")
+                db.execSQL("CREATE INDEX idx_hash_id ON hashes(id)")
+
+                // bulk insert
+                // https://stackoverflow.com/a/47642316/16484891, CC BY-SA 3.0
+                val sql = "INSERT INTO hashes VALUES(?, ?)"
+                val statement = db.compileStatement(sql)
+
+                db.beginTransaction()
+                labelResultMap.entries.forEach { entry ->
+                    statement.clearBindings()
+                    statement.bindString(1, entry.key)
+                    statement.bindBlob(2, entry.value)
+                    statement.execute()
+                }
+                db.setTransactionSuccessful()
+                db.endTransaction()
 
                 val buildTimestampContentValues = ContentValues()
                 buildTimestampContentValues.put("key", "built_timestamp")
                 buildTimestampContentValues.put("value", Instant.now().epochSecond)
-                it.insert("properties", null, buildTimestampContentValues)
+                db.insert("properties", null, buildTimestampContentValues)
             }
         }
     }
