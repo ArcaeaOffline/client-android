@@ -90,15 +90,21 @@ internal fun DatabaseScoreListItem(
                 style = MaterialTheme.typography.labelMedium,
             )
 
-            AnimatedContent(inSelectMode, label = "") {
-                if (it) {
+            /*
+             * This AnimatedContent will cause
+             * [java.lang.IllegalArgumentException: Error: Placement happened before lookahead.]
+             *
+             * Possible the same of https://github.com/android/nowinandroid/issues/1371
+             */
+//            AnimatedContent(inSelectMode, label = "") {
+            if (inSelectMode) {
                     Checkbox(checked = selected, onCheckedChange = onSelectedChange)
                 } else {
                     IconButton(onClick = { showScoreEditor = true }) {
                         Icon(Icons.Default.Edit, null)
                     }
                 }
-            }
+//            }
         }
     }
 }
