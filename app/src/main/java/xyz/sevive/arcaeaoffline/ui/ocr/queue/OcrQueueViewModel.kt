@@ -125,7 +125,7 @@ class OcrQueueViewModel : ViewModel() {
     suspend fun addFolder(folder: DocumentFile, context: Context) {
         _addImagesProcessing.value = true
         withContext(Dispatchers.IO) {
-            val uris = folder.listFiles().sortedBy { it.name }.filter { it.isFile }.map { it.uri }
+            val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
             addImageFiles(uris, context)
         }
         _addImagesProcessing.value = false

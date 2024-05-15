@@ -40,8 +40,6 @@ data class OcrQueueTask(
     var exception: Exception? = null,
 )
 
-class OcrQueueAddImageFilesManualCancellationException : CancellationException()
-
 class OcrQueueManualCancellationException : CancellationException {
     constructor() : super("User cancelled the queue.\n* Press start button to retry this task.")
 
@@ -66,6 +64,7 @@ class OcrQueue {
     val addImagesProgress = _addImagesProgress.asStateFlow()
     private val _addImagesProgressTotal = MutableStateFlow(-1)
     val addImagesProgressTotal = _addImagesProgressTotal.asStateFlow()
+    private var addImagesStopFlag = false
 
     private var lastTaskId = 1
     private val taskIdAllocLock = ReentrantLock()
@@ -202,33 +201,34 @@ class OcrQueue {
     ) {
         _addImagesProgress.value = 0
         _addImagesProgressTotal.value = uris.size
+        addImagesStopFlag = false
 
-        val jobHandle = addImagesScope.launch {
-            val tasks = uris.map {
-                async {
-                    try {
-                        return@async getTaskFromImageFile(
-                            it,
-                            context,
-                            checkIsImage = checkIsImage,
-                            detectScreenshot = detectScreenshot,
-                        )
-                    } catch (e: Exception) {
-                        Log.e(LOG_TAG, "Error adding uri $it", e)
-                        return@async null
-                    } finally {
-                        _addImagesProgress.value += 1
-                    }
+        val tasks = uris.map {
+            addImagesScope.async {
+                try {
+                    if (addImagesStopFlag) return@async null
+
+                    getTaskFromImageFile(
+                        it,
+                        context,
+                        checkIsImage = checkIsImage,
+                        detectScreenshot = detectScreenshot,
+                    )
+                } catch (e: Exception) {
+                    Log.e(LOG_TAG, "Error adding uri $it", e)
+                    return@async null
+                } finally {
+                    _addImagesProgress.value += 1
                 }
-            }.awaitAll()
+            }
+        }.awaitAll()
 
-            tasks.filterNotNull().forEach { addTask(it) }
-        }
+        tasks.filterNotNull().sortedBy { it.id }.forEach { addTask(it) }
 
-        jobHandle.join()
-
+        addImagesStopFlag = false
         _addImagesProgress.value = -1
         _addImagesProgressTotal.value = -1
+        Runtime.getRuntime().gc()
     }
 
     fun stopAddImageFiles() {
@@ -237,9 +237,7 @@ class OcrQueue {
             return
         }
 
-        addImagesScope.coroutineContext.cancelChildren(
-            OcrQueueAddImageFilesManualCancellationException()
-        )
+        addImagesStopFlag = true
     }
 
     private suspend fun processTask(task: OcrQueueTask, context: Context) {
@@ -306,15 +304,14 @@ class OcrQueue {
 
         _queueRunning.value = true
 
-        val jobHandle = ocrQueueScope.launch {
-            _ocrQueueTasksMap.values.map {
-                val task = it.copy()
+        ocrQueueScope.launch {
+            _ocrQueueTasksMap.values.map { task ->
                 async { processTask(task, context) }
             }.awaitAll()
-        }
+        }.join()
 
-        jobHandle.join()
         _queueRunning.value = false
+        Runtime.getRuntime().gc()
     }
 
 
