@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -21,21 +22,26 @@ class ArcaeaNotInstalledException : Exception() {
     override val message = "Arcaea not installed!"
 }
 
+class ArcaeaAssetAbsenceException : Exception() {
+    override val message = "Cannot find the requested asset in Arcaea!"
+}
+
 class ArcaeaPackageHelper(context: Context) {
     private val packageManager = context.packageManager
 
-    val jacketsCacheDir = File(context.cacheDir, "arcaea" + File.separator + "jackets")
-    val partnerIconsCacheDir = File(context.cacheDir, "arcaea" + File.separator + "partner_icons")
+    private val arcaeaExtractRootCacheDir = File(context.cacheDir, "arcaea")
+    private val jacketsCacheDir = File(arcaeaExtractRootCacheDir, "jackets")
+    private val partnerIconsCacheDir = File(arcaeaExtractRootCacheDir, "partner_icons")
 
     // debug only
     // val jacketsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/jackets")
     // val partnerIconsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/partner_icons")
 
-    val tempPhashDatabaseFile = File(context.cacheDir, tempPhashDatabaseFilename)
+    val tempPhashDatabaseFile = File(context.cacheDir, TEMP_PHASH_DATABASE_FILENAME)
 
-    fun getPackageInfo(): PackageInfo? {
+    private fun getPackageInfo(): PackageInfo? {
         return try {
-            packageManager.getPackageInfo(ArcaeaPackageName, 0)
+            packageManager.getPackageInfo(ARCAEA_PACKAGE_NAME, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -44,7 +50,7 @@ class ArcaeaPackageHelper(context: Context) {
     /**
      * @throws ArcaeaNotInstalledException if Arcaea isn't installed
      */
-    fun getPackageInfoOrFail(): PackageInfo {
+    private fun getPackageInfoOrFail(): PackageInfo {
         return getPackageInfo() ?: throw ArcaeaNotInstalledException()
     }
 
@@ -56,119 +62,147 @@ class ArcaeaPackageHelper(context: Context) {
         getPackageInfoOrFail()
 
         return try {
-            packageManager.getApplicationIcon(ArcaeaPackageName)
+            packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
     }
 
-    suspend fun getApkZipFile(): ZipFile {
+    private fun getApkZipFile(): ZipFile {
         getPackageInfoOrFail()
 
-        val appInfo = packageManager.getApplicationInfo(ArcaeaPackageName, 0)
+        val appInfo = packageManager.getApplicationInfo(ARCAEA_PACKAGE_NAME, 0)
 
-        return withContext(Dispatchers.IO) {
-            ZipFile(appInfo.publicSourceDir)
+        return ZipFile(appInfo.publicSourceDir)
+    }
+
+    /**
+     * If the [filename] matches a jacket file's naming pattern, return the
+     * extract output filename of it.
+     * Otherwise, return null.
+     *
+     * Example [filename]s are:
+     * - assets/songs/dl_climax/1080_base.jpg
+     * - assets/songs/dl_antithese/1080_3.jpg
+     * - files/cb/active/songs/dl_climax/1080_base.jpg
+     * - files/cb/active/songs/dl_antithese/1080_3.jpg
+     */
+    private fun jacketExtractFilename(filename: String): String? {
+        val filenameParts = filename.split("/")
+
+        if (filenameParts.size < 2) return null
+
+        val tailFilename = FilenameUtils.getName(filenameParts[filenameParts.size - 1])
+        if (JACKET_FILENAME_REGEX.find(tailFilename) == null) return null
+
+        val songId = filenameParts[filenameParts.size - 2].replace("dl_", "")
+
+        val baseFilename = FilenameUtils.getBaseName(filename)
+        val difficulty = baseFilename.replace("1080_", "")
+        val ext = FilenameUtils.getExtension(filename)
+
+        val finalFilename = if (difficulty == "base") {
+            "${songId}.${ext}"
+        } else {
+            "${songId}_${difficulty}.${ext}"
+        }
+        Log.d(LOG_TAG, "jacketExtractFilename: mapping [$filename] to [$finalFilename]")
+        return finalFilename
+    }
+
+    /**
+     * If the [filename] matches a partner icon file's naming pattern, return the
+     * extract output filename of it.
+     * Otherwise, return null.
+     *
+     * Example [filename]s are:
+     * - assets/char/75_icon.png
+     * - files/cb/active/char/75_icon.png
+     */
+    private fun partnerIconExtractFilename(filename: String): String? {
+        val filenameParts = filename.split("/")
+
+        if (filenameParts.size < 2) return null
+        if (filenameParts[filenameParts.size - 2] != "char") return null
+
+        val tailFilename = FilenameUtils.getName(filenameParts[filenameParts.size - 1])
+        if (PARTNER_ICON_FILENAME_REGEX.find(tailFilename) == null) return null
+
+        val baseFilename = FilenameUtils.getBaseName(filenameParts[filenameParts.size - 1])
+        val partnerId = baseFilename.replace("_icon", "")
+        val ext = FilenameUtils.getExtension(filename)
+
+        val finalFilename = "${partnerId}.${ext}"
+        Log.d(LOG_TAG, "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]")
+        return finalFilename
+    }
+
+    private suspend fun extractAssetBase(zipEntryOutput: (ZipEntry, ZipFile) -> File?) {
+        withContext(Dispatchers.IO) {
+            val apkZipFile = getApkZipFile()
+
+            val outputMap = mutableMapOf<ZipEntry, File>()
+            val zipEntries = apkZipFile.entries()
+            while (zipEntries.hasMoreElements()) {
+                val zipEntry = zipEntries.nextElement()
+
+                val outputFile = zipEntryOutput(zipEntry, apkZipFile) ?: continue
+                outputMap[zipEntry] = outputFile
+            }
+
+            if (outputMap.isEmpty()) {
+                Log.d(LOG_TAG, "extractAssetBase: outputMap empty, returning")
+                return@withContext
+            }
+
+            Log.d(LOG_TAG, "extractAssetBase: extracting ${outputMap.size} entries")
+
+            outputMap.entries.forEach { outputItem ->
+                val zipEntry = outputItem.key
+                val outputFile = outputItem.value
+
+                outputFile.outputStream().use {
+                    IOUtils.copy(apkZipFile.getInputStream(zipEntry), it)
+                }
+            }
         }
     }
 
     private suspend fun extractJackets() {
-        val apkZipFile = getApkZipFile()
-        val entries = apkZipFile.entries()
-
         if (!jacketsCacheDir.exists()) {
             jacketsCacheDir.mkdirs()
         }
 
-        // Map<songId, List<ZipEntry>>
-        val jacketZipEntries = mutableMapOf<String, MutableList<ZipEntry>>()
-
-        while (entries.hasMoreElements()) {
-            val entry = entries.nextElement()
-
-            // checks if this entry is under the `assets/songs` folder
-            val entryInSongFolder = entry.name.startsWith(SongsFolderEntryName)
-            if (!entryInSongFolder) continue
+        extractAssetBase { entry, _ ->
+            // check file parent
+            val entryInSongFolder = entry.name.startsWith(APK_SONGS_FOLDER_ENTRY_NAME)
+            if (!entryInSongFolder) return@extractAssetBase null
 
             // checks the directory depth
             val entryParts = entry.name.split("/")
-            if (entryParts.size != 4) continue
+            if (entryParts.size != 4) return@extractAssetBase null
 
-            // prepare entry map
-            val songId = entryParts[2].replace("dl_", "")
-            if (jacketZipEntries[songId] == null) {
-                jacketZipEntries[songId] = mutableListOf()
-            }
-
-            // checks the filename
-            val filename = entryParts[3]
-            if (JacketFilenameRegex.find(filename) != null) {
-                jacketZipEntries[songId]!!.add(entry)
-            }
-        }
-
-        jacketZipEntries.entries.forEach { mapEntry ->
-            val songId = mapEntry.key
-            val zipEntries = mapEntry.value
-
-            zipEntries.forEach { entry ->
-                val entryFilename = FilenameUtils.getBaseName(entry.name).replace("1080_", "")
-                val entryExtension = FilenameUtils.getExtension(entry.name)
-
-                val filename = if (entryFilename.contains("base")) {
-                    "$songId.$entryExtension"
-                } else {
-                    "${songId}_$entryFilename.$entryExtension"
-                }
-
-                File(jacketsCacheDir, filename).outputStream().use {
-                    IOUtils.copy(apkZipFile.getInputStream(entry), it)
-                }
-            }
+            val filename = jacketExtractFilename(entry.name) ?: return@extractAssetBase null
+            return@extractAssetBase File(jacketsCacheDir, filename)
         }
     }
 
     private suspend fun extractPartnerIcons() {
-        val apkZipFile = getApkZipFile()
-        val entries = apkZipFile.entries()
-
         if (!partnerIconsCacheDir.exists()) {
             partnerIconsCacheDir.mkdirs()
         }
 
-        // Map<iconId, ZipEntry>
-        val partnerIconZipEntries = mutableMapOf<String, ZipEntry>()
-
-        while (entries.hasMoreElements()) {
-            val entry = entries.nextElement()
-
-            // checks if this entry is under the `assets/char/` folder
-            val entryInCharFolder = entry.name.startsWith(CharFolderEntryName)
-            if (!entryInCharFolder) continue
+        extractAssetBase { entry, _ ->
+            // check file parent
+            val entryInCharFolder = entry.name.startsWith(APK_CHAR_FOLDER_ENTRY_NAME)
+            if (!entryInCharFolder) return@extractAssetBase null
 
             // checks the directory depth
             val entryParts = entry.name.split("/")
-            if (entryParts.size != 3) continue
+            if (entryParts.size != 3) return@extractAssetBase null
 
-            // checks the filename
-            val filename = FilenameUtils.getBaseName(entryParts[2])
-            if (PartnerIconFilenameRegex.find(filename) != null) {
-                val partnerIcon = filename.replace("_icon", "")
-                partnerIconZipEntries[partnerIcon] = entry
-            }
-        }
-
-        partnerIconZipEntries.entries.forEach { mapEntry ->
-            val partnerId = mapEntry.key
-            val zipEntry = mapEntry.value
-
-            val entryExtension = FilenameUtils.getExtension(zipEntry.name)
-
-            val filename = "$partnerId.$entryExtension"
-
-            File(partnerIconsCacheDir, filename).outputStream().use {
-                IOUtils.copy(apkZipFile.getInputStream(zipEntry), it)
-            }
+            val filename = partnerIconExtractFilename(entry.name) ?: return@extractAssetBase null
+            return@extractAssetBase File(partnerIconsCacheDir, filename)
         }
     }
 
@@ -192,7 +226,7 @@ class ArcaeaPackageHelper(context: Context) {
 
             jacketsCacheDir.listFiles()?.forEach {
                 mats.add(Imgcodecs.imread(it.path, Imgcodecs.IMREAD_GRAYSCALE))
-                labels.add(FilenameUtils.getBaseName(it.name).replace(JacketRenameRegex, ""))
+                labels.add(FilenameUtils.getBaseName(it.name).replace(JACKET_RENAME_REGEX, ""))
             }
 
             partnerIconsCacheDir.listFiles()?.forEach {
@@ -213,17 +247,19 @@ class ArcaeaPackageHelper(context: Context) {
     }
 
     companion object {
-        const val ArcaeaPackageName = "moe.low.arc"
-        // const val PacklistEntryName = "assets/songs/packlist"
-        // const val SonglistEntryName = "assets/songs/songlist"
+        const val LOG_TAG = "ArcaeaPackageHelper"
 
-        const val SongsFolderEntryName = "assets/songs/"
-        val JacketFilenameRegex = """^(1080_)?(0|1|2|3|base)\.(jpg|png)$""".toRegex()
-        val JacketRenameRegex = """_.*$""".toRegex()
+        const val ARCAEA_PACKAGE_NAME = "moe.low.arc"
+        const val APK_PACKLIST_FILE_ENTRY_NAME = "assets/songs/packlist"
+        const val APK_SONGLIST_FILE_ENTRY_NAME = "assets/songs/songlist"
+        const val APK_SONGS_FOLDER_ENTRY_NAME = "assets/songs/"
+        const val APK_CHAR_FOLDER_ENTRY_NAME = "assets/char/"
 
-        const val CharFolderEntryName = "assets/char/"
-        val PartnerIconFilenameRegex = """^\d+u?_icon$""".toRegex()
+        val JACKET_FILENAME_REGEX = """^(1080_)?(0|1|2|3|4|base)\.(jpg|png)$""".toRegex()
+        val JACKET_RENAME_REGEX = """_.*$""".toRegex()
 
-        const val tempPhashDatabaseFilename = "phash_temp.db"
+        val PARTNER_ICON_FILENAME_REGEX = """^\d+u?_icon\.(jpg|png)$""".toRegex()
+
+        const val TEMP_PHASH_DATABASE_FILENAME = "phash_temp.db"
     }
 }
