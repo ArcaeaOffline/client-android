@@ -2,15 +2,13 @@ package xyz.sevive.arcaeaoffline.ui.database.b30list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
 import xyz.sevive.arcaeaoffline.helpers.ChartFactory
@@ -27,24 +25,38 @@ data class DatabaseB30ListUiItem(
 class DatabaseB30ListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    private val _limit = MutableStateFlow(40)
+    private val _limit = MutableStateFlow(INIT_LIMIT)
     val limit = _limit.asStateFlow()
 
-    fun setLimit(newLimit: Int) {
-        _limit.value = newLimit
+    private val _b30List = MutableStateFlow<List<ScoreBest>?>(null)
+    private val b30List = _b30List.asStateFlow()
+
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
+
+    private suspend fun updateB30ListWithLimit(limit: Int) {
+        _loading.value = true
+
+        val scores = repositoryContainer.scoreBestRepository.listDescWithLimit(limit).firstOrNull()
+        _b30List.value = scores
+
+        _loading.value = false
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    private val b30List = limit.debounce(500L).flatMapLatest { limit ->
-        repositoryContainer.scoreBestRepository.listDescWithLimit(limit).stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-            initialValue = listOf(),
-        )
+    suspend fun setLimit(newLimit: Int) {
+        _limit.value = newLimit
+
+        updateB30ListWithLimit(newLimit)
+    }
+
+    init {
+        viewModelScope.launch {
+            setLimit(limit.value)
+        }
     }
 
     val uiItems = b30List.map { scoreBests ->
-        scoreBests.mapIndexed { i, scoreBest ->
+        scoreBests?.mapIndexed { i, scoreBest ->
             DatabaseB30ListUiItem(
                 index = i,
                 scoreBest = scoreBest,
@@ -63,5 +75,6 @@ class DatabaseB30ListViewModel(
 
     companion object {
         const val STOP_TIMEOUT_MILLIS = 7500L
+        const val INIT_LIMIT = 40
     }
 }
