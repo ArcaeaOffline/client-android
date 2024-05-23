@@ -5,6 +5,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +26,7 @@ import java.io.InputStream
 fun ImagePreviewDialog(
     imageBitmap: ImageBitmap,
     onDismiss: () -> Unit,
-    topBarContent: (@Composable () -> Unit)? = null,
+    topBarContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val imageViewerState = rememberViewerState()
 
@@ -38,10 +39,11 @@ fun ImagePreviewDialog(
                 Surface(
                     Modifier
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.general_card_padding))
                         .animateContentSize()
                 ) {
-                    topBarContent()
+                    Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
+                        topBarContent()
+                    }
                 }
             }
 
@@ -68,7 +70,7 @@ fun ImagePreviewDialog(
 fun ImagePreviewDialog(
     inputStream: InputStream?,
     onDismiss: () -> Unit,
-    topBarContent: (@Composable () -> Unit)? = null,
+    topBarContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val context = LocalContext.current
 
