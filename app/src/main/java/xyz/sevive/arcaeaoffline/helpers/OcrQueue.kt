@@ -4,29 +4,29 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import org.threeten.bp.Instant
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 enum class OcrQueueTaskStatus { IDLE, PROCESSING, DONE, ERROR }
 
@@ -40,43 +40,70 @@ data class OcrQueueTask(
     var exception: Exception? = null,
 )
 
-class OcrQueueManualCancellationException : CancellationException {
-    constructor() : super("User cancelled the queue.\n* Press start button to retry this task.")
-
-    constructor(context: Context) : super(
-        context.getString(R.string.ocr_queue_user_cancel_exception_message)
-    )
-}
-
 class OcrQueue {
-    private val _ocrQueueTasksMap = mutableMapOf<Int, OcrQueueTask>()
-    private val _ocrQueueTasks = MutableStateFlow(listOf<OcrQueueTask>())
-    val ocrQueueTasks = _ocrQueueTasks.asStateFlow()
-    private val queueStateFlowSyncLock = ReentrantLock()
+    private val _channelCapacity = MutableStateFlow(20)
+    val channelCapacity = _channelCapacity.asStateFlow()
+
+    private val _parallelCount = MutableStateFlow(Runtime.getRuntime().availableProcessors())
+    val parallelCount = _parallelCount.asStateFlow()
+
+    val ocrQueueTasksMap = ConcurrentHashMap<Int, OcrQueueTask>()
+    private val _taskUpdatedFlow = MutableSharedFlow<Int>()
+    val taskUpdatedFlow = _taskUpdatedFlow.asSharedFlow()
 
     private val addImagesScope = CoroutineScope(Dispatchers.IO)
     private val ocrQueueScope = CoroutineScope(Dispatchers.Default)
 
-    private val _queueRunning = MutableStateFlow(false)
-    val queueRunning = _queueRunning.asStateFlow()
+    private val addImagesChannelQueue = SimpleChannelTaskQueue<Uri>(
+        coroutineScope = addImagesScope
+    )
+    private val ocrTasksChannelQueue = SimpleChannelTaskQueue<OcrQueueTask>(
+        coroutineScope = ocrQueueScope
+    )
 
-    private val _addImagesProgress = MutableStateFlow(-1)
-    val addImagesProgress = _addImagesProgress.asStateFlow()
-    private val _addImagesProgressTotal = MutableStateFlow(-1)
-    val addImagesProgressTotal = _addImagesProgressTotal.asStateFlow()
-    private var addImagesStopFlag = false
+    init {
+        setChannelCapacity(channelCapacity.value)
+        setParallelCount(parallelCount.value)
+
+        Log.i(
+            LOG_TAG,
+            "Channel queues ready, addImages: ${addImagesChannelQueue.logHashCode()}, ocrTasks: ${ocrTasksChannelQueue.logHashCode()}"
+        )
+    }
+
+    val queueRunning = ocrTasksChannelQueue.isRunning
+    val addImagesProgress = addImagesChannelQueue.progress
+    val addImagesProgressTotal = addImagesChannelQueue.progressTotal
 
     private var lastTaskId = 1
-    private val taskIdAllocLock = ReentrantLock()
+    private val taskIdAllocLock = Mutex()
 
-    private fun getNewTaskId(): Int {
+    fun setChannelCapacity(capacity: Int) {
+        _channelCapacity.value = capacity
+        addImagesChannelQueue.capacity = capacity
+        ocrTasksChannelQueue.capacity = capacity
+    }
+
+    fun setParallelCount(parallelCount: Int) {
+        _parallelCount.value = parallelCount
+        addImagesChannelQueue.parallelCount = parallelCount
+        ocrTasksChannelQueue.parallelCount = parallelCount
+    }
+
+    private fun emitTaskUpdated(taskId: Int) {
+        MainScope().launch {
+            _taskUpdatedFlow.emit(taskId)
+        }
+    }
+
+    private suspend fun getNewTaskId(): Int {
         taskIdAllocLock.withLock {
             lastTaskId += 1
             return lastTaskId - 1
         }
     }
 
-    private fun getNewTask(fileUri: Uri): OcrQueueTask {
+    private suspend fun getNewTask(fileUri: Uri): OcrQueueTask {
         return OcrQueueTask(
             id = getNewTaskId(),
             fileUri = fileUri,
@@ -84,76 +111,48 @@ class OcrQueue {
         )
     }
 
-    private fun syncQueueStateFlow() {
-        queueStateFlowSyncLock.withLock {
-            _ocrQueueTasks.value = _ocrQueueTasksMap.values.toList()
-        }
-    }
-
-    private fun guardNoModifyWhenQueueRunning(message: String? = null): Boolean {
-        return if (queueRunning.value) {
-            Log.w(LOG_TAG, message ?: "Cannot modify queue while running!")
-            false
-        } else true
-    }
-
-    private fun guardTaskInList(taskId: Int, message: String? = null): Boolean {
-        val taskInList = _ocrQueueTasksMap.keys.find { it == taskId } != null
-        if (!taskInList) Log.e(LOG_TAG, message ?: "Cannot find task $taskId in queue!")
-        return taskInList
-    }
-
-    private fun guardTaskInList(task: OcrQueueTask, message: String? = null): Boolean {
-        return guardTaskInList(task.id, message)
-    }
-
-    private fun guardTaskNotInList(taskId: Int, message: String? = null): Boolean {
-        val taskInList = _ocrQueueTasksMap.keys.find { it == taskId } != null
-        if (taskInList) Log.e(LOG_TAG, message ?: "Task $taskId already in queue!")
-        return !taskInList
-    }
-
-    fun getTask(taskId: Int): OcrQueueTask? {
-        return _ocrQueueTasksMap[taskId]
-    }
-
     private fun addTask(task: OcrQueueTask) {
-        if (!guardNoModifyWhenQueueRunning()) return
-        if (!guardTaskNotInList(task.id)) return
-
-        _ocrQueueTasksMap[task.id] = task
-        syncQueueStateFlow()
-    }
-
-    private val modifyTaskLock = ReentrantLock()
-
-    private fun modifyTask(task: OcrQueueTask) {
-        if (!guardTaskInList(task)) return
-
-        modifyTaskLock.withLock {
-            _ocrQueueTasksMap[task.id] = task
+        if (ocrTasksChannelQueue.isRunning.value) {
+            Log.e(LOG_TAG, "Cannot add task ${task.id}, queue running!")
+            return
         }
-        syncQueueStateFlow()
+        if (ocrQueueTasksMap[task.id] != null) {
+            Log.e(LOG_TAG, "Cannot add task ${task.id}, task already in queue!")
+            return
+        }
+
+        ocrQueueTasksMap[task.id] = task
+        emitTaskUpdated(task.id)
     }
 
-    fun modifyTaskScore(taskId: Int, score: Score) {
-        if (!guardTaskInList(taskId)) return
+    fun editTaskScore(taskId: Int, score: Score) {
+        val task = ocrQueueTasksMap[taskId]
+        if (task == null) {
+            Log.e(LOG_TAG, "Cannot modify task ${taskId}, task not found!")
+            return
+        }
 
-        val task = _ocrQueueTasksMap[taskId]!!
-        modifyTask(task.copy(score = score))
+        task.score = score
+        emitTaskUpdated(task.id)
     }
 
     fun deleteTask(taskId: Int) {
-        if (!guardNoModifyWhenQueueRunning()) return
-        if (!guardTaskInList(taskId)) return
+        if (ocrTasksChannelQueue.isRunning.value) {
+            Log.e(LOG_TAG, "Cannot delete task ${taskId}, queue running!")
+            return
+        }
+        if (ocrQueueTasksMap[taskId] == null) {
+            Log.e(LOG_TAG, "Cannot delete task ${taskId}, task not found!")
+            return
+        }
 
-        _ocrQueueTasksMap.remove(taskId)
-        syncQueueStateFlow()
+        ocrQueueTasksMap.remove(taskId)
+        emitTaskUpdated(taskId)
     }
 
     fun clear() {
-        _ocrQueueTasksMap.clear()
-        syncQueueStateFlow()
+        ocrQueueTasksMap.clear()
+        emitTaskUpdated(-1)
     }
 
     private fun isImage(byteArray: ByteArray): Boolean {
@@ -172,7 +171,7 @@ class OcrQueue {
         return isImage(byteArray)
     }
 
-    private fun getTaskFromImageFile(
+    private suspend fun getTaskFromImageFile(
         imageUri: Uri,
         context: Context,
         checkIsImage: Boolean = true,
@@ -199,53 +198,37 @@ class OcrQueue {
         checkIsImage: Boolean = true,
         detectScreenshot: Boolean = true,
     ) {
-        _addImagesProgress.value = 0
-        _addImagesProgressTotal.value = uris.size
-        addImagesStopFlag = false
+        if (addImagesChannelQueue.isRunning.value) return
 
-        val tasks = uris.map {
-            addImagesScope.async {
-                try {
-                    if (addImagesStopFlag) return@async null
+        runBlocking {
+            addImagesChannelQueue.start(uris) { uri ->
+                val task = getTaskFromImageFile(
+                    imageUri = uri,
+                    context = context,
+                    checkIsImage = checkIsImage,
+                    detectScreenshot = detectScreenshot,
+                )
 
-                    getTaskFromImageFile(
-                        it,
-                        context,
-                        checkIsImage = checkIsImage,
-                        detectScreenshot = detectScreenshot,
-                    )
-                } catch (e: Exception) {
-                    Log.e(LOG_TAG, "Error adding uri $it", e)
-                    return@async null
-                } finally {
-                    _addImagesProgress.value += 1
-                }
+                if (task != null) addTask(task)
             }
-        }.awaitAll()
+        }
 
-        tasks.filterNotNull().sortedBy { it.id }.forEach { addTask(it) }
-
-        addImagesStopFlag = false
-        _addImagesProgress.value = -1
-        _addImagesProgressTotal.value = -1
         Runtime.getRuntime().gc()
     }
 
     fun stopAddImageFiles() {
-        if (_addImagesProgressTotal.value < 0) {
-            Log.w(LOG_TAG, "There's no active add image progress currently!")
-            return
-        }
-
-        addImagesStopFlag = true
+        addImagesChannelQueue.stop()
     }
 
     private suspend fun processTask(task: OcrQueueTask, context: Context) {
         if (task.status == OcrQueueTaskStatus.DONE) return
 
-        var taskCopy = task.copy(status = OcrQueueTaskStatus.PROCESSING)
-        Log.d(LOG_TAG, "Processing task ${taskCopy.id}")
-        modifyTask(task)
+        fun emitUpdated() {
+            emitTaskUpdated(task.id)
+        }
+
+        task.status = OcrQueueTaskStatus.PROCESSING
+        emitUpdated()
 
         try {
             val ocrResult = DeviceOcrHelper.ocrImage(task.fileUri, context)
@@ -262,58 +245,33 @@ class OcrQueue {
                 arcaeaOfflineDatabaseRepositoryContainer, ocrResult.songId, ocrResult.ratingClass
             )
 
-            taskCopy = taskCopy.copy(
-                status = OcrQueueTaskStatus.DONE,
-                ocrResult = ocrResult,
-                score = score,
-                chart = chart,
-            )
+            task.status = OcrQueueTaskStatus.DONE
+            task.ocrResult = ocrResult
+            task.score = score
+            task.chart = chart
         } catch (e: Exception) {
-            taskCopy = taskCopy.copy(
-                status = OcrQueueTaskStatus.ERROR,
-                exception = e,
-            )
-            if (e !is OcrQueueManualCancellationException) {
-                Log.e(LOG_TAG, "Error occurred at task ${task.id} ${task.fileUri}", e)
-            }
+            task.status = OcrQueueTaskStatus.ERROR
+            task.exception = e
+
+            Log.e(LOG_TAG, "Error occurred at task ${task.id} ${task.fileUri}", e)
         }
 
-        modifyTask(taskCopy)
-    }
-
-    fun tryStopQueue(context: Context? = null) {
-        if (!_queueRunning.value) {
-            Log.w(LOG_TAG, "Queue hasn't started!")
-            return
-        }
-
-        ocrQueueScope.coroutineContext.cancelChildren(
-            if (context != null) {
-                OcrQueueManualCancellationException(context)
-            } else {
-                OcrQueueManualCancellationException()
-            }
-        )
+        emitUpdated()
     }
 
     suspend fun startQueue(context: Context) {
-        if (_queueRunning.value) {
-            Log.w(LOG_TAG, "Queue has already started!")
-            return
+        runBlocking {
+            ocrTasksChannelQueue.start(ocrQueueTasksMap.values) {
+                processTask(it, context)
+            }
         }
 
-        _queueRunning.value = true
-
-        ocrQueueScope.launch {
-            _ocrQueueTasksMap.values.map { task ->
-                async { processTask(task, context) }
-            }.awaitAll()
-        }.join()
-
-        _queueRunning.value = false
         Runtime.getRuntime().gc()
     }
 
+    fun stopQueue() {
+        ocrTasksChannelQueue.stop()
+    }
 
     companion object {
         const val LOG_TAG = "OcrQueueCore"

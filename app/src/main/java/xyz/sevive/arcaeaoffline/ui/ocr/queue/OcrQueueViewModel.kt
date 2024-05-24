@@ -7,16 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
+import xyz.sevive.arcaeaoffline.helpers.OcrQueueTask
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
@@ -44,25 +42,43 @@ data class OcrQueueTaskUiItem(
                 ).contains(score.score)
             }
         }
+
+    companion object {
+        fun fromTask(task: OcrQueueTask): OcrQueueTaskUiItem {
+            return OcrQueueTaskUiItem(
+                id = task.id,
+                fileUri = task.fileUri,
+                status = task.status,
+                ocrResult = task.ocrResult,
+                score = task.score,
+                chart = task.chart,
+                exception = task.exception,
+            )
+        }
+    }
 }
 
 
 class OcrQueueViewModel : ViewModel() {
     private val ocrQueue = xyz.sevive.arcaeaoffline.helpers.OcrQueue()
 
-    val ocrQueueTasksUiItems = ocrQueue.ocrQueueTasks.map { tasks ->
-        tasks.map {
-            OcrQueueTaskUiItem(
-                id = it.id,
-                fileUri = it.fileUri,
-                status = it.status,
-                ocrResult = it.ocrResult,
-                score = it.score,
-                chart = it.chart,
-                exception = it.exception,
-            )
+    private val _uiItems = MutableStateFlow<List<OcrQueueTaskUiItem>>(emptyList())
+    val uiItems = _uiItems.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            ocrQueue.taskUpdatedFlow.collect {
+                updateUiItems()
+            }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(10000L), listOf())
+    }
+
+    private fun updateUiItems() {
+        _uiItems.value = ocrQueue.ocrQueueTasksMap.values.map {
+            OcrQueueTaskUiItem.fromTask(it)
+        }
+    }
+
     val queueRunning = ocrQueue.queueRunning
 
     private val _addImagesProcessing = MutableStateFlow(false)
@@ -93,15 +109,15 @@ class OcrQueueViewModel : ViewModel() {
     }
 
     fun modifyTaskScore(taskId: Int, score: Score) {
-        ocrQueue.modifyTaskScore(taskId, score)
+        ocrQueue.editTaskScore(taskId, score)
     }
 
     suspend fun saveTaskScore(taskId: Int, context: Context) {
-        val task = ocrQueue.getTask(taskId)!!
+        val uiItem = uiItems.value.find { it.id == taskId } ?: return
 
         val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).scoreRepository
 
-        task.score?.let {
+        uiItem.score?.let {
             scoreRepository.upsert(it)
             ocrQueue.deleteTask(taskId)
         }
@@ -135,12 +151,12 @@ class OcrQueueViewModel : ViewModel() {
         ocrQueue.stopAddImageFiles()
     }
 
-    fun tryStopQueue(context: Context? = null) {
-        ocrQueue.tryStopQueue(context)
+    fun tryStopQueue() {
+        ocrQueue.stopQueue()
     }
 
-    fun startQueue(context: Context) {
-        viewModelScope.launch {
+    suspend fun startQueue(context: Context) {
+        withContext(Dispatchers.Default) {
             ocrQueue.startQueue(context)
         }
     }
