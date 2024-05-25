@@ -2,69 +2,118 @@
 # https://github.com/Droid-ify/client/blob/3cfc5e58e20c982b8c4b2e254089ec50c732a4e0/.github/workflows/release_build.yml
 # https://github.com/Droid-ify/client/blob/3cfc5e58e20c982b8c4b2e254089ec50c732a4e0/.github/workflows/build_debug.yml
 
-name: Build Unstable Release APK
+name: Build unstableRelease APK
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+  discussions: write
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-24.04
 
-        steps:
-            -   name: Check out repository
-                uses: actions/checkout@v4
-                with:
-                    fetch-depth: 0
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            # we will run `chmod +x gradlew` later, and this permission change would cause
-            # ```
-            # $ git diff
-            #
-            # diff --git a/gradlew b/gradlew
-            # old mode 100644
-            # new mode 100755
-            # ```
-            # then the auto-generated version name by `git describe` would include a "dirty" in it.
-            # we definitely don't want it, so we tell git to ignore the permission changes
-            -   name: Configure git
-                run: git config core.fileMode false
+      # we will run `chmod +x gradlew` later, and this permission change would cause
+      # ```
+      # $ git diff
+      #
+      # diff --git a/gradlew b/gradlew
+      # old mode 100644
+      # new mode 100755
+      # ```
+      # then the auto-generated version name by `git describe` would include a "dirty" in it.
+      # we definitely don't want it, so we tell git to ignore the permission changes
+      - name: Configure git
+        run: git config core.fileMode false
 
-            -   name: Validate Gradle Wrapper
-                uses: gradle/wrapper-validation-action@v1
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
 
-            -   name: Set up Java 17
-                uses: actions/setup-java@v4
-                with:
-                    java-version: 17
-                    distribution: 'adopt'
-                    cache: gradle
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'adopt'
+          cache: gradle
 
-            -   name: Grant execution permission to Gradle Wrapper
-                run: chmod +x gradlew
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
 
-            -   name: Build APK
-                uses: gradle/gradle-build-action@v2.10.0
-                with:
-                    arguments: assembleUnstableRelease
+      - name: Release keystore file
+        uses: timheuer/base64-to-file@v1.2.4
+        with:
+          fileName: 'arcaea_offline.jks'
+          fileDir: ${{ github.workspace }}
+          encodedString: ${{ secrets.KEYSTORE_FILE_BASE64 }}
 
-            -   name: Checks
-                run: find . -type f -name "*.apk"
+      - name: Release local.properties file
+        uses: timheuer/base64-to-file@v1.2.4
+        with:
+          fileName: 'local.properties'
+          fileDir: ${{ github.workspace }}
+          encodedString: ${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}
 
-            -   name: Upload `arm` Releases
-                uses: actions/upload-artifact@v3
-                with:
-                    name: armeabi-v7a & arm64-v8a
-                    path: app/build/outputs/apk/unstable/release/app-unstable-arm*-signed.apk
+      - name: Build APK
+        uses: gradle/gradle-build-action@v2.10.0
+        with:
+          arguments: assembleUnstableRelease
 
-            -   name: Upload `x86` Releases
-                uses: actions/upload-artifact@v3
-                with:
-                    name: x86 & x86_64
-                    path: app/build/outputs/apk/unstable/release/app-unstable-x86*-signed.apk
+      - name: Check if the APK files exist
+        run: find . -type f -name "*.apk"
 
-            -   name: Upload `universal` Release
-                uses: actions/upload-artifact@v3
-                with:
-                    name: universal
-                    path: app/build/outputs/apk/unstable/release/app-unstable-universal*-signed.apk
+      - name: Verify APK signing
+        run: |
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify -v --min-sdk-version 21 app/build/outputs/apk/unstable/release/app-unstable-arm64-v8a-release.apk
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify -v --min-sdk-version 21 app/build/outputs/apk/unstable/release/app-unstable-armeabi-v7a-release.apk
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify -v --min-sdk-version 21 app/build/outputs/apk/unstable/release/app-unstable-x86_64-release.apk
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify -v --min-sdk-version 21 app/build/outputs/apk/unstable/release/app-unstable-x86-release.apk
+          $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify -v --min-sdk-version 21 app/build/outputs/apk/unstable/release/app-unstable-universal-release.apk
+
+      - name: Upload build result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm64-v8a
+          path: app/build/outputs/apk/unstable/release/app-unstable-arm64-v8a-release.apk
+
+      - name: Upload build result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: armeabi-v7a
+          path: app/build/outputs/apk/unstable/release/app-unstable-armeabi-v7a-release.apk
+
+      - name: Upload build result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64
+          path: app/build/outputs/apk/unstable/release/app-unstable-x86_64-release.apk
+
+      - name: Upload build result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86
+          path: app/build/outputs/apk/unstable/release/app-unstable-x86-release.apk
+
+      - name: Upload build result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal
+          path: app/build/outputs/apk/unstable/release/app-unstable-universal-release.apk
+
+      - name: Draft a release
+        uses: softprops/action-gh-release@v2
+        with:
+          discussion_category_name: New releases
+          draft: true
+          generate_release_notes: true
+          files: app/build/outputs/apk/unstable/release/app-unstable-*-release.apk
