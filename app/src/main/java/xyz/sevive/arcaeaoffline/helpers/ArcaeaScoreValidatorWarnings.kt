@@ -39,7 +39,7 @@ sealed interface ArcaeaScoreValidatorWarning {
     fun conditionsMet(score: Score, chartInfo: ChartInfo? = null): Boolean
 }
 
-class ArcaeaScoreValidateScoreOutOfRangeWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidateScoreOutOfRangeWarning : ArcaeaScoreValidatorWarning {
     override val id = "SCORE_OUT_OF_RANGE"
 
     override val title = "Score out of range"
@@ -58,7 +58,7 @@ class ArcaeaScoreValidateScoreOutOfRangeWarning : ArcaeaScoreValidatorWarning {
     }
 }
 
-class ArcaeaScoreValidatorPflOverflowWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorPflOverflowWarning : ArcaeaScoreValidatorWarning {
     override val id = "PFL_OVERFLOW"
 
     override val title = "Notes overflow"
@@ -81,7 +81,7 @@ class ArcaeaScoreValidatorPflOverflowWarning : ArcaeaScoreValidatorWarning {
     }
 }
 
-class ArcaeaScoreValidatorMaxRecallOverflowWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorMaxRecallOverflowWarning : ArcaeaScoreValidatorWarning {
     override val id = "MAX_RECALL_OVERFLOW"
 
     override val title = "Max recall overflow"
@@ -99,7 +99,7 @@ class ArcaeaScoreValidatorMaxRecallOverflowWarning : ArcaeaScoreValidatorWarning
     }
 }
 
-class ArcaeaScoreValidatorFrPmMaxRecallMismatchWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorFrPmMaxRecallMismatchWarning : ArcaeaScoreValidatorWarning {
     override val id = "FR_PM_MAX_RECALL_MISMATCH"
 
     override val title = "FR/PM max recall mismatch"
@@ -121,7 +121,7 @@ class ArcaeaScoreValidatorFrPmMaxRecallMismatchWarning : ArcaeaScoreValidatorWar
 }
 
 
-class ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWarning {
     override val id = "CLEAR_PFL_MISMATCH"
 
     override val title = "Notes mismatch"
@@ -148,7 +148,7 @@ class ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWarning 
     }
 }
 
-class ArcaeaScoreValidatorFullRecallLostNotZeroWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorFullRecallLostNotZeroWarning : ArcaeaScoreValidatorWarning {
     override val id = "FULL_RECALL_LOST_NOT_ZERO"
 
     override val title = "FULL RECALL?"
@@ -166,7 +166,7 @@ class ArcaeaScoreValidatorFullRecallLostNotZeroWarning : ArcaeaScoreValidatorWar
     }
 }
 
-class ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning : ArcaeaScoreValidatorWarning {
     override val id = "PURE_MEMORY_FAR_LOST_NOT_ZERO"
 
     override val title = "PURE MEMORY?"
@@ -184,7 +184,7 @@ class ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning : ArcaeaScoreValidator
     }
 }
 
-class ArcaeaScoreValidatorModifierClearTypeMismatchWarning : ArcaeaScoreValidatorWarning {
+data object ArcaeaScoreValidatorModifierClearTypeMismatchWarning : ArcaeaScoreValidatorWarning {
     override val id = "MODIFIER_CLEAR_TYPE_MISMATCH"
 
     override val title = "Modifier <> Clear type mismatch"
