@@ -54,7 +54,7 @@ class ArcaeaScoreValidateScoreOutOfRangeWarning : ArcaeaScoreValidatorWarning {
         }
 
         val scoreRange = calculateArcaeaScoreRange(chartInfo.notes!!, score.pure!!, score.far!!)
-        return scoreRange.contains(score.score)
+        return !scoreRange.contains(score.score)
     }
 }
 
