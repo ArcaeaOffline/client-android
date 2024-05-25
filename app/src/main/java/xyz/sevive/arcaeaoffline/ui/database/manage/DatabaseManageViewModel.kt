@@ -55,7 +55,7 @@ class DatabaseManageViewModel(
 
             toast(context, packText)
         }
-        Log.i("Database", "${packs.size} pack(s) updated")
+        Log.i(LOG_TAG, "${packs.size} pack(s) updated")
     }
 
     suspend fun importSonglist(inputStream: InputStream, context: Context? = null) {
@@ -79,8 +79,8 @@ class DatabaseManageViewModel(
 
             toast(context, songText + "\n" + difficultyText)
         }
-        Log.i("Database", "${songs.size} song(s) updated")
-        Log.i("Database", "${difficulties.size} difficulty(ies) updated")
+        Log.i(LOG_TAG, "${songs.size} song(s) updated")
+        Log.i(LOG_TAG, "${difficulties.size} difficulty(ies) updated")
     }
 
     suspend fun importArcaeaApkFromSelect(
@@ -189,6 +189,7 @@ class DatabaseManageViewModel(
     }
 
     companion object {
+        const val LOG_TAG = "DatabaseManageViewModel"
         const val PacklistEntryName = "assets/songs/packlist"
         const val SonglistEntryName = "assets/songs/songlist"
     }

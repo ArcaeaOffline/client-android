@@ -15,7 +15,7 @@ fun OcrQueueList(
     ocrQueueViewModel: OcrQueueViewModel,
     onSaveScore: (Int) -> Unit,
 ) {
-    val uiItems by ocrQueueViewModel.ocrQueueTasksUiItems.collectAsState()
+    val uiItems by ocrQueueViewModel.uiItems.collectAsState()
     val queueRunning by ocrQueueViewModel.queueRunning.collectAsState()
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {

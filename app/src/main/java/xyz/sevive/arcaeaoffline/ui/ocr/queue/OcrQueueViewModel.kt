@@ -2,18 +2,23 @@ package xyz.sevive.arcaeaoffline.ui.ocr.queue
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidator
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTask
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -28,20 +33,11 @@ data class OcrQueueTaskUiItem(
     var chart: Chart? = null,
     var exception: Exception? = null,
 ) {
-    val scoreValid: Boolean
-        get() {
-            val chart = chart?.copy()
-            val score = score?.copy()
-            return if (chart?.notes == null || score == null || score.pure == null || score.far == null) {
-                false
-            } else {
-                calculateArcaeaScoreRange(
-                    chart.notes!!,
-                    score.pure!!,
-                    score.far!!
-                ).contains(score.score)
-            }
-        }
+    fun scoreValidatorWarnings(): List<ArcaeaScoreValidatorWarning> {
+        return score?.let {
+            ArcaeaScoreValidator.validateScore(it, chart)
+        } ?: emptyList()
+    }
 
     companion object {
         fun fromTask(task: OcrQueueTask): OcrQueueTaskUiItem {
@@ -58,47 +54,127 @@ data class OcrQueueTaskUiItem(
     }
 }
 
+class OcrQueueViewModel(
+    private val preferencesRepository: OcrQueuePreferencesRepository
+) : ViewModel() {
+    companion object {
+        const val LOG_TAG = "OcrQueueViewModel"
+    }
 
-class OcrQueueViewModel : ViewModel() {
     private val ocrQueue = xyz.sevive.arcaeaoffline.helpers.OcrQueue()
+
+    // #region Preferences
+    private val _checkIsImage = MutableStateFlow(true)
+    val checkIsImage = _checkIsImage.asStateFlow()
+
+    private val _checkIsArcaeaImage = MutableStateFlow(true)
+    val checkIsArcaeaImage = _checkIsArcaeaImage.asStateFlow()
+
+    val channelCapacity = ocrQueue.channelCapacity
+    val parallelCount = ocrQueue.parallelCount
+
+    val parallelCountMin = 2
+    val parallelCountMax = Runtime.getRuntime().availableProcessors() * 4
+
+    /*
+     * Instead of directly modifying the preferences values, they're handled
+     * by the `referencesFlow` below.
+     *
+     * All these `set*` functions only triggers a save to the preferences (data store),
+     * then the `preferencesFlow` is collected to reflect the changes.
+     */
+    suspend fun setCheckIsImage(value: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setCheckIsImage(value)
+        }
+    }
+
+    suspend fun setCheckIsArcaeaImage(value: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setCheckIsArcaeaImage(value)
+        }
+    }
+
+    suspend fun setChannelCapacity(value: Int) {
+        viewModelScope.launch {
+            preferencesRepository.setChannelCapacity(value)
+        }
+    }
+
+    suspend fun setParallelCount(value: Int) {
+        viewModelScope.launch {
+            preferencesRepository.setParallelCount(value)
+        }
+    }
+
+    private val preferencesFlow = preferencesRepository.preferencesFlow
+
+    init {
+        viewModelScope.launch {
+            preferencesFlow.collect {
+                _checkIsImage.value = it.checkIsImage
+                _checkIsArcaeaImage.value = it.checkIsArcaeaImage
+
+                if (it.channelCapacity != null) {
+                    ocrQueue.setChannelCapacity(it.channelCapacity)
+                }
+
+                if (it.parallelCount != null) {
+                    ocrQueue.setParallelCount(it.parallelCount)
+                }
+            }
+        }
+    }
+    // #endregion
 
     private val _uiItems = MutableStateFlow<List<OcrQueueTaskUiItem>>(emptyList())
     val uiItems = _uiItems.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            ocrQueue.taskUpdatedFlow.collect {
-                updateUiItems()
-            }
-        }
-    }
-
+    private var lastUpdateTimeMillis = System.currentTimeMillis()
     private fun updateUiItems() {
         _uiItems.value = ocrQueue.ocrQueueTasksMap.values.map {
             OcrQueueTaskUiItem.fromTask(it)
+        }
+        lastUpdateTimeMillis = System.currentTimeMillis()
+    }
+
+
+    private var lastDelayUpdateJob: Job? = null
+    private val uiItemsUpdateIntervalMillis = 300L
+
+    init {
+        viewModelScope.launch {
+            ocrQueue.taskUpdatedFlow.collect {
+                // Once a new value is collected, we check if the ui items update is needed.
+
+                // Firstly, if the last update interval is long enough, update immediately.
+                if (System.currentTimeMillis() - lastUpdateTimeMillis >= uiItemsUpdateIntervalMillis) {
+                    updateUiItems()
+                    Log.v(LOG_TAG, "uiItemsUpdate: interval update at $lastUpdateTimeMillis")
+                    return@collect
+                }
+
+                // Otherwise, request a debounced update, so the latest value is ensured to be shown.
+                // See this SO answer https://stackoverflow.com/a/57252799/16484891
+                // CC BY-SA 4.0
+                lastDelayUpdateJob?.cancel()
+                lastDelayUpdateJob = viewModelScope.launch {
+                    delay(uiItemsUpdateIntervalMillis)
+                    if (this.isActive) {
+                        updateUiItems()
+                        Log.v(LOG_TAG, "uiItemsUpdate: delayed update at $lastUpdateTimeMillis")
+                    }
+                }
+            }
         }
     }
 
     val queueRunning = ocrQueue.queueRunning
 
-    private val _addImagesProcessing = MutableStateFlow(false)
-    val addImagesProcessing = _addImagesProcessing.asStateFlow()
+    private val _addImagesFromFolderProcessing = MutableStateFlow(false)
+    val addImagesFromFolderProcessing = _addImagesFromFolderProcessing.asStateFlow()
     val addImagesProgress = ocrQueue.addImagesProgress
     val addImagesProgressTotal = ocrQueue.addImagesProgressTotal
-
-    private val _checkIsImage = MutableStateFlow(true)
-    val checkIsImage = _checkIsImage.asStateFlow()
-
-    private val _detectScreenshot = MutableStateFlow(true)
-    val detectScreenshot = _detectScreenshot.asStateFlow()
-
-    fun setCheckIsImage(value: Boolean) {
-        _checkIsImage.value = value
-    }
-
-    fun setDetectScreenshot(value: Boolean) {
-        _detectScreenshot.value = value
-    }
 
     fun deleteTask(taskId: Int) {
         ocrQueue.deleteTask(taskId)
@@ -123,28 +199,22 @@ class OcrQueueViewModel : ViewModel() {
         }
     }
 
-    private suspend fun addImageFilesToQueue(uris: List<Uri>, context: Context) {
+    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
         ocrQueue.addImageFiles(
             uris,
             context,
             checkIsImage = checkIsImage.value,
-            detectScreenshot = detectScreenshot.value,
+            detectScreenshot = checkIsArcaeaImage.value,
         )
     }
 
-    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
-        _addImagesProcessing.value = true
-        addImageFilesToQueue(uris, context)
-        _addImagesProcessing.value = false
-    }
-
     suspend fun addFolder(folder: DocumentFile, context: Context) {
-        _addImagesProcessing.value = true
+        _addImagesFromFolderProcessing.value = true
         withContext(Dispatchers.IO) {
             val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
             addImageFiles(uris, context)
         }
-        _addImagesProcessing.value = false
+        _addImagesFromFolderProcessing.value = false
     }
 
     fun stopAddImageFiles() {

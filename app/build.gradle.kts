@@ -161,6 +161,9 @@ dependencies {
 
     implementation(libs.github.cheonjaeung.gridlayout)
 
+    implementation(libs.com.github.alorma.composeSettings.ui)
+    implementation(libs.com.github.alorma.composeSettings.ui.extended)
+
     // test & debug
     testImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)

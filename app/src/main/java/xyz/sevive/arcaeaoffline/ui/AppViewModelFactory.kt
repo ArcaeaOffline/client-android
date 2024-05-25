@@ -15,6 +15,9 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListViewModel
+import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueuePreferencesRepository
+import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueViewModel
+import xyz.sevive.arcaeaoffline.ui.ocr.queue.ocrQueueDataStore
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewModel
 
 /**
@@ -68,6 +71,12 @@ object AppViewModelProvider {
         initializer {
             ChartSelectorViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            OcrQueueViewModel(
+                OcrQueuePreferencesRepository(application().ocrQueueDataStore)
             )
         }
 

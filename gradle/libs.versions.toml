@@ -12,6 +12,7 @@ threetenabp = "1.4.6"
 compose-richtext = "0.17.0"
 github-jvziyaoyao-imageviewer = "1.0.2-alpha.8"
 github-cheonjaeung-gridlayout = "2.0.0"
+compose-settings = "2.3.0"
 
 junit = "4.13.2"
 
@@ -30,6 +31,8 @@ compose-richtext-commonmark = { module = "com.halilibo.compose-richtext:richtext
 compose-richtext-ui-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "compose-richtext" }
 github-jvziyaoyao-imageviewer = { module = "com.github.jvziyaoyao:ImageViewer", version.ref = "github-jvziyaoyao-imageviewer" }
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
+com-github-alorma-composeSettings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
+com-github-alorma-composeSettings-ui-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 

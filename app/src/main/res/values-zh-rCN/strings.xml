@@ -173,7 +173,13 @@
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
-    <string name="ocr_queue_user_cancel_exception_message">用户终止了队列。\n* 按开始按钮重试该任务。</string>
+    <string name="ocr_queue_queue_options_title">队列</string>
+    <string name="ocr_queue_queue_options_channel_capacity">缓冲区容量</string>
+    <string name="ocr_queue_queue_options_parallel_count">并行数量</string>
+    <string name="ocr_queue_status_idle">待命</string>
+    <string name="ocr_queue_status_processing">正在处理</string>
+    <string name="ocr_queue_status_done">完成</string>
+    <string name="ocr_queue_status_error">出错</string>
 
     <!-- SettingsScreen -->
     <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
