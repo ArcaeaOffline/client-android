@@ -1,4 +1,6 @@
 import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -39,6 +41,11 @@ fun getVersionName(): String? {
     }
 }
 
+// https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
+val localProperties = Properties().apply {
+    load(FileInputStream(File(rootDir, "local.properties")))
+}
+
 android {
     namespace = "xyz.sevive.arcaeaoffline"
     compileSdk = 34
@@ -56,8 +63,23 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = File(rootDir, "arcaea_offline.jks")
+            storePassword = localProperties.getProperty("SIGNING_STORE_PASSWORD")
+            keyAlias = localProperties.getProperty("SIGNING_KEY_ALIAS")
+            keyPassword = localProperties.getProperty("SIGNING_KEY_PASSWORD")
+
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(

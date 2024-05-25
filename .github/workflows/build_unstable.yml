@@ -51,18 +51,6 @@ jobs:
             -   name: Checks
                 run: find . -type f -name "*.apk"
 
-            -   name: Sign app APK
-                uses: r0adkll/sign-android-release@v1
-                id: sign_app
-                with:
-                    releaseDirectory: app/build/outputs/apk/unstable/release
-                    signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-                    alias: release
-                    keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-                    keyPassword: ${{ secrets.KEY_PASSWORD }}
-                env:
-                    BUILD_TOOLS_VERSION: "34.0.0"
-
             -   name: Upload `arm` Releases
                 uses: actions/upload-artifact@v3
                 with:
