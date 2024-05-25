@@ -8,6 +8,7 @@ import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
+import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
@@ -43,7 +44,7 @@ class ArcaeaOfflineApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        System.loadLibrary("opencv_java4")
+        OpenCVLoader.initLocal()
 
         AndroidThreeTen.init(this)
 

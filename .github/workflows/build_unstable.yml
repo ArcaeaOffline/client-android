@@ -40,20 +40,6 @@ jobs:
                     distribution: 'adopt'
                     cache: gradle
 
-            -   name: Download OpenCV Android SDK
-                uses: robinraju/release-downloader@v1.8
-                with:
-                    repository: "opencv/opencv"
-                    tag: "4.8.0"
-                    fileName: "opencv-4.8.0-android-sdk.zip"
-
-            -   name: Configure OpenCV Android SDK
-                run: |
-                    unzip -q opencv-4.8.0-android-sdk.zip "OpenCV-android-sdk/sdk/*" -d .
-                    mv ./OpenCV-android-sdk/sdk/* ./opencv/
-                    rm ./opencv/build.gradle
-                    git checkout .
-
             -   name: Grant execution permission to Gradle Wrapper
                 run: chmod +x gradlew
 

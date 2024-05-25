@@ -145,6 +145,8 @@ dependencies {
     implementation(libs.android.material)
 
     // 3rd party
+    implementation(libs.opencv)
+
     implementation(libs.apache.commons.io)
 
     implementation(libs.github.requery.sqlite.android)
@@ -172,6 +174,5 @@ dependencies {
 
     debugImplementation(androidx.compose.ui.test.manifest)
 
-    implementation(project(":opencv"))
     implementation(project(":core"))
 }

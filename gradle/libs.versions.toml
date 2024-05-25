@@ -5,6 +5,8 @@ kotlin = "1.9.20"
 
 android-material = "1.11.0"
 
+opencv = "4.9.0"
+
 apache-commons-io = "2.4"
 github-requery-sqlite-android = "3.43.0"
 acra = "5.11.3"
@@ -21,6 +23,8 @@ junit = "4.13.2"
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0" }
 
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
+
+opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 github-requery-sqlite-android = { module = "com.github.requery:sqlite-android", version.ref = "github-requery-sqlite-android" }
