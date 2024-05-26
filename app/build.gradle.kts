@@ -80,8 +80,8 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -89,8 +89,7 @@ android {
         }
     }
 
-//    flavorDimensions.add("app_stable")
-    flavorDimensionList.add("app_stable")
+    flavorDimensions += "app_stable"
 
     productFlavors {
         create("stable") {
@@ -99,7 +98,6 @@ android {
         create("unstable") {
             dimension = "app_stable"
             applicationIdSuffix = ".unstable"
-            versionNameSuffix = "-unstable"
         }
     }
     compileOptions {
