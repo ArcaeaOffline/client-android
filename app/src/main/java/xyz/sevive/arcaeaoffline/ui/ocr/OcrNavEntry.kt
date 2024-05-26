@@ -26,7 +26,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
-import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 
 
 @Composable
@@ -66,8 +66,8 @@ fun OcrNavEntry(
 
             item {
                 ActionButton(
-                    onClick = { onNavigateToSubRoute(OcrScreen.Queue.route) },
-                    title = stringResource(OcrScreen.Queue.title),
+                    onClick = { onNavigateToSubRoute(OcrScreenDestinations.Queue.route) },
+                    title = stringResource(OcrScreenDestinations.Queue.title),
                     headSlot = {
                         Icon(Icons.Default.Queue, null)
                     },

@@ -9,7 +9,7 @@ import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListScreen
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListScreen
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -27,21 +27,19 @@ fun DatabaseEntryScreen() {
         },
     ) {
         when (it) {
-            DatabaseScreen.Empty.route -> {}
-
-            DatabaseScreen.Manage.route -> {
+            DatabaseScreenDestinations.Manage.route -> {
                 DatabaseManageScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
 
-            DatabaseScreen.AddScore.route -> {
+            DatabaseScreenDestinations.AddScore.route -> {
                 DatabaseAddScoreScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
 
-            DatabaseScreen.ScoreList.route -> {
+            DatabaseScreenDestinations.ScoreList.route -> {
                 DatabaseScoreListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
 
-            DatabaseScreen.B30.route -> {
+            DatabaseScreenDestinations.B30.route -> {
                 DatabaseB30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
         }

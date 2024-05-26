@@ -6,7 +6,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
-import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueScreen
 
 
@@ -26,7 +26,7 @@ fun OcrEntryScreen() {
         },
     ) {
         when (it) {
-            OcrScreen.Queue.route -> {
+            OcrScreenDestinations.Queue.route -> {
                 OcrQueueScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
         }

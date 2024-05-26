@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                         label = "unstableVersionScreenSlideOut",
                     ) {
                         when (it) {
-                            true -> MainScreen(windowSizeClass)
+                            true -> MainScreen()
                             false -> UnstableVersionAlertScreen(
                                 onConfirm = {
                                     coroutineScope.launch {

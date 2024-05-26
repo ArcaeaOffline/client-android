@@ -44,7 +44,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
@@ -66,7 +66,7 @@ fun DatabaseB30ListScreen(
         topBar = {
             SubScreenTopAppBar(
                 onNavigateUp = onNavigateUp,
-                title = { Text(stringResource(DatabaseScreen.B30.title)) },
+                title = { Text(stringResource(DatabaseScreenDestinations.B30.title)) },
                 actions = {
                     IconButton(onClick = { coroutineScope.launch { viewModel.setLimit(limit) } }) {
                         Icon(Icons.Default.Refresh, null)

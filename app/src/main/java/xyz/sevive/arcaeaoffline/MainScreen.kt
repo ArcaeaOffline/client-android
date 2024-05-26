@@ -1,34 +1,61 @@
 package xyz.sevive.arcaeaoffline
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationBar
 import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationGraph
-import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationRail
-import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenNavigationType
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 
-@Composable
-fun MainScreen(windowSizeClass: WindowSizeClass, modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-    val navigationType = MainScreenNavigationType.getNavigationType(windowSizeClass)
 
-    Row(modifier.fillMaxSize()) {
-        AnimatedVisibility(navigationType == MainScreenNavigationType.RAIL) {
-            MainNavigationRail(navController, Modifier.fillMaxHeight())
-        }
-
-        Column(Modifier.fillMaxSize()) {
-            MainNavigationGraph(navController, Modifier.weight(1f))
-            AnimatedVisibility(navigationType == MainScreenNavigationType.BAR) {
-                MainNavigationBar(navController)
+internal fun mainNavControllerNavigateToRoute(navController: NavController, route: String) {
+    navController.navigate(route) {
+        navController.graph.startDestinationRoute?.let { screenRoute ->
+            popUpTo(screenRoute) {
+                saveState = true
             }
         }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+@Composable
+fun MainScreen(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRouteRoot = currentRoute?.split("/")
+
+    val navigationSuiteColors = NavigationSuiteDefaults.colors(
+        navigationBarContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+        navigationRailContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+    )
+
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            MainScreenDestinations.entries.forEach {
+                item(
+                    icon = { Icon(it.icon(), contentDescription = null) },
+                    label = { Text(stringResource(it.title)) },
+                    alwaysShowLabel = true,
+                    selected = if (currentRouteRoot != null) currentRouteRoot[0] == it.route else false,
+                    onClick = { mainNavControllerNavigateToRoute(navController, it.route) },
+                )
+            }
+        },
+        modifier = modifier,
+        navigationSuiteColors = navigationSuiteColors,
+    ) {
+        MainNavigationGraph(navController)
     }
 }

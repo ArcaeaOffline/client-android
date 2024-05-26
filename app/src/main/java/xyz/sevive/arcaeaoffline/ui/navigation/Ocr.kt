@@ -5,6 +5,6 @@ import xyz.sevive.arcaeaoffline.R
 
 const val OcrNavRouteRoot = "ocr"
 
-enum class OcrScreen(val route: String, @StringRes val title: Int) {
+enum class OcrScreenDestinations(val route: String, @StringRes val title: Int) {
     Queue("$OcrNavRouteRoot/queue", R.string.ocr_queue_title),
 }

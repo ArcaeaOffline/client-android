@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 
 
 @Composable
@@ -51,8 +51,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionButton(
-                    onClick = { onNavigateToSubRoute(DatabaseScreen.Manage.route) },
-                    title = stringResource(DatabaseScreen.Manage.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreenDestinations.Manage.route) },
+                    title = stringResource(DatabaseScreenDestinations.Manage.title),
                     headSlot = {
                         Icon(Icons.Default.Build, null)
                     },
@@ -64,8 +64,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionButton(
-                    onClick = { onNavigateToSubRoute(DatabaseScreen.AddScore.route) },
-                    title = stringResource(DatabaseScreen.AddScore.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreenDestinations.AddScore.route) },
+                    title = stringResource(DatabaseScreenDestinations.AddScore.title),
                     headSlot = {
                         Icon(Icons.Default.Add, null)
                     },
@@ -77,8 +77,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionButton(
-                    onClick = { onNavigateToSubRoute(DatabaseScreen.ScoreList.route) },
-                    title = stringResource(DatabaseScreen.ScoreList.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreenDestinations.ScoreList.route) },
+                    title = stringResource(DatabaseScreenDestinations.ScoreList.title),
                     headSlot = {
                         Icon(Icons.AutoMirrored.Default.List, null)
                     },
@@ -90,8 +90,8 @@ fun DatabaseNavEntry(
 
             item {
                 ActionButton(
-                    onClick = { onNavigateToSubRoute(DatabaseScreen.B30.route) },
-                    title = stringResource(DatabaseScreen.B30.title),
+                    onClick = { onNavigateToSubRoute(DatabaseScreenDestinations.B30.route) },
+                    title = stringResource(DatabaseScreenDestinations.B30.title),
                     headSlot = {
                         Icon(Icons.Default.Star, null)
                     },
