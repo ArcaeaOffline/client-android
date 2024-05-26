@@ -9,7 +9,6 @@ import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
 import org.opencv.android.OpenCVLoader
-import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -51,7 +50,5 @@ class ArcaeaOfflineApplication : Application() {
         arcaeaOfflineDatabaseRepositoryContainer =
             ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
         appDatabaseRepositoryContainer = AppDatabaseRepositoryContainer(this)
-
-        OcrDependencyHelper.loadAll(this)
     }
 }

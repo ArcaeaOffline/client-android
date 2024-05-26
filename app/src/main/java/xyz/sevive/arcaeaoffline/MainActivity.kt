@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.screens.unstablealert.UnstableVersionAlertScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -56,6 +58,13 @@ class MainActivity : ComponentActivity() {
             _unstableAlertReadState.value = baseContext.unstableDataStore.data.map { preferences ->
                 preferences[UNSTABLE_ALERT_READ] ?: false
             }.first()
+        }
+
+        try {
+            // TODO: refactor this shit
+            OcrDependencyHelper.loadAll(this)
+        } catch (e: Exception) {
+            Log.e("InitOCR", "Error loading all ocr dependencies", e)
         }
 
         setContent {
