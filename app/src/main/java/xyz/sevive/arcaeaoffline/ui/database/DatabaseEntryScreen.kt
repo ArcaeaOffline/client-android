@@ -1,26 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.database
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuOpen
-import androidx.compose.material3.Icon
-import androidx.compose.material3.adaptive.AnimatedPane
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.ListDetailPaneScaffold
-import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.ThreePaneScaffoldDestinationItem
-import androidx.compose.material3.adaptive.calculateListDetailPaneScaffoldState
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListScreen
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListScreen
@@ -29,63 +14,35 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreen
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun DatabaseEntryScreen() {
-    var detailPaneRole by rememberSaveable { mutableStateOf(ListDetailPaneScaffoldRole.List) }
-    val state = calculateListDetailPaneScaffoldState(
-        currentDestination = ThreePaneScaffoldDestinationItem(detailPaneRole, null)
-    )
-    var selectedScreenRoute: String? by rememberSaveable { mutableStateOf(null) }
+    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
 
-    val handleNavigateUp = {
-        selectedScreenRoute = null
-        detailPaneRole = ListDetailPaneScaffoldRole.List
-    }
+    val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
-    BackHandler(detailPaneRole == ListDetailPaneScaffoldRole.Detail) {
-        handleNavigateUp()
-    }
-
-    ListDetailPaneScaffold(
-        scaffoldState = state,
+    GeneralEntryScreen(
+        navigator = navigator,
         listPane = {
-            AnimatedPane(Modifier) {
-                DatabaseNavEntry({
-                    selectedScreenRoute = it
-                    detailPaneRole = ListDetailPaneScaffoldRole.Detail
-                })
-            }
+            DatabaseNavEntry(onNavigateToSubRoute = {
+                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+            })
         },
     ) {
-        AnimatedPane(Modifier.fillMaxSize()) {
-            when (selectedScreenRoute) {
-                DatabaseScreen.Empty.route -> {}
+        when (it) {
+            DatabaseScreen.Empty.route -> {}
 
-                DatabaseScreen.Manage.route -> {
-                    DatabaseManageScreen(onNavigateUp = handleNavigateUp)
-                }
+            DatabaseScreen.Manage.route -> {
+                DatabaseManageScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+            }
 
-                DatabaseScreen.AddScore.route -> {
-                    DatabaseAddScoreScreen(onNavigateUp = handleNavigateUp)
-                }
+            DatabaseScreen.AddScore.route -> {
+                DatabaseAddScoreScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+            }
 
-                DatabaseScreen.ScoreList.route -> {
-                    DatabaseScoreListScreen(onNavigateUp = handleNavigateUp)
-                }
+            DatabaseScreen.ScoreList.route -> {
+                DatabaseScoreListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+            }
 
-                DatabaseScreen.B30.route -> {
-                    DatabaseB30ListScreen(onNavigateUp = handleNavigateUp)
-                }
-
-                else -> {
-                    Box {
-                        Icon(
-                            Icons.AutoMirrored.Default.MenuOpen,
-                            null,
-                            Modifier
-                                .size(150.dp)
-                                .align(Alignment.Center)
-                        )
-                    }
-                }
+            DatabaseScreen.B30.route -> {
+                DatabaseB30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
         }
     }

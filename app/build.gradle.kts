@@ -155,6 +155,8 @@ dependencies {
     implementation(androidx.compose.material3)
     implementation(androidx.compose.material3.window.size.cls)
     implementation(androidx.compose.material3.adaptive)
+    implementation(androidx.compose.material3.adaptive.layout)
+    implementation(androidx.compose.material3.adaptive.navigation)
 
     implementation(androidx.window)
 
