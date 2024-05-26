@@ -10,6 +10,11 @@ plugins {
 
 secrets {
     defaultPropertiesFileName = "local.defaults.properties"
+    ignoreList += listOf(
+        "SIGNING_STORE_PASSWORD",
+        "SIGNING_KEY_ALIAS",
+        "SIGNING_KEY_PASSWORD",
+    )
 }
 
 // automatic version generating from https://stackoverflow.com/a/24121734/16484891
