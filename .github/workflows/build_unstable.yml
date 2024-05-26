@@ -111,7 +111,7 @@ jobs:
           path: app/build/outputs/mapping/unstableRelease/*
 
       - name: Zip mappings for release
-        run: zip app/build/outputs/mappings.zip app/build/outputs/mapping/unstableRelease/*
+        run: zip app/build/outputs/mappings.zip -j app/build/outputs/mapping/unstableRelease/*
 
       - name: Draft a release
         uses: softprops/action-gh-release@v2
