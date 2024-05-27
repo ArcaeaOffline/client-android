@@ -123,7 +123,7 @@ class DatabaseManageViewModel(
         withAction {
             context?.let {
                 appendMessage(
-                    context.resources.getString(R.string.database_manage_import_from_arcaea_apk_please_wait)
+                    context.resources.getString(R.string.database_manage_import_reading_apk)
                 )
             }
 
