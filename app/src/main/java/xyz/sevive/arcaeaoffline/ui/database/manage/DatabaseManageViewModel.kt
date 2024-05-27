@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.database.manage
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -19,6 +18,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -26,7 +26,6 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
-import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 
 
@@ -41,7 +40,7 @@ class DatabaseManageViewModel(
         }
     }
 
-    suspend fun importPacklist(inputStream: InputStream, context: Context? = null) {
+    private suspend fun importPacklist(inputStream: InputStream, context: Context? = null) {
         val result = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
         val packs = PacklistParser(result).parsePack().toTypedArray()
         repositoryContainer.packRepository.upsertAll(*packs)
@@ -55,10 +54,15 @@ class DatabaseManageViewModel(
 
             toast(context, packText)
         }
-        Log.i(LOG_TAG, "${packs.size} pack(s) updated")
+        Log.i(LOG_TAG, "${packs.size} packs updated")
     }
 
-    suspend fun importSonglist(inputStream: InputStream, context: Context? = null) {
+    suspend fun importPacklist(uri: Uri, context: Context) {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return
+        importPacklist(inputStream, context)
+    }
+
+    private suspend fun importSonglist(inputStream: InputStream, context: Context? = null) {
         val result = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
         val songs = SonglistParser(result).parseSong().toTypedArray()
         val difficulties = SonglistParser(result).parseDifficulty().toTypedArray()
@@ -79,23 +83,32 @@ class DatabaseManageViewModel(
 
             toast(context, songText + "\n" + difficultyText)
         }
-        Log.i(LOG_TAG, "${songs.size} song(s) updated")
-        Log.i(LOG_TAG, "${difficulties.size} difficulty(ies) updated")
+        Log.i(LOG_TAG, "${songs.size} songs updated")
+        Log.i(LOG_TAG, "${difficulties.size} difficulties updated")
     }
 
-    suspend fun importArcaeaApkFromSelect(
+    suspend fun importSonglist(uri: Uri, context: Context) {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return
+        importSonglist(inputStream, context)
+    }
+
+    private suspend fun importArcaeaApkFromZipInputStream(
         zipInputStream: ZipInputStream, context: Context? = null
     ) {
         var entry = zipInputStream.nextEntry
 
+        var packlistFound = false
+        var songlistFound = false
         while (entry != null) {
-            if (entry.name == PacklistEntryName) {
+            if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
+                packlistFound = true
                 val buffer = ByteArrayOutputStream()
                 IOUtils.copy(zipInputStream, buffer)
                 importPacklist(ByteArrayInputStream(buffer.toByteArray()), context)
             }
 
-            if (entry.name == SonglistEntryName) {
+            if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
+                songlistFound = true
                 val buffer = ByteArrayOutputStream()
                 IOUtils.copy(zipInputStream, buffer)
                 importSonglist(ByteArrayInputStream(buffer.toByteArray()), context)
@@ -103,32 +116,34 @@ class DatabaseManageViewModel(
 
             entry = zipInputStream.nextEntry
         }
+
+        if (context != null) {
+            if (!packlistFound) toast(context, "packlist not found!")
+            if (!songlistFound) toast(context, "songlist not found!")
+        }
+    }
+
+    suspend fun importArcaeaApkFromInputStream(inputStream: InputStream, context: Context) {
+        ZipInputStream(inputStream).use {
+            importArcaeaApkFromZipInputStream(it, context)
+        }
     }
 
     suspend fun importArcaeaApkFromInstalled(context: Context) {
-        val packageManager = context.packageManager
-        val arcaeaAppInfo = packageManager.getApplicationInfo("moe.low.arc", 0)
+        ArcaeaPackageHelper(context).getApkZipFile().use { zipFile ->
+            val packlistEntry = zipFile.getEntry(ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME)
+            val songlistEntry = zipFile.getEntry(ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME)
 
-        val arcaeaApkPath = arcaeaAppInfo.publicSourceDir
+            withContext(Dispatchers.IO) {
+                val packlistInputStream = zipFile.getInputStream(packlistEntry)
+                importPacklist(packlistInputStream, context)
 
-        val arcaeaApkZipFile = withContext(Dispatchers.IO) {
-            ZipFile(arcaeaApkPath)
+                val songlistInputStream = zipFile.getInputStream(songlistEntry)
+                importSonglist(songlistInputStream, context)
+            }
         }
-        val packlistZipEntry = arcaeaApkZipFile.getEntry(PacklistEntryName)
-        val songlistZipEntry = arcaeaApkZipFile.getEntry(SonglistEntryName)
-
-        val packlistInputStream = withContext(Dispatchers.IO) {
-            arcaeaApkZipFile.getInputStream(packlistZipEntry)
-        }
-        importPacklist(packlistInputStream, context)
-
-        val songlistInputStream = withContext(Dispatchers.IO) {
-            arcaeaApkZipFile.getInputStream(songlistZipEntry)
-        }
-        importSonglist(songlistInputStream, context)
     }
 
-    @SuppressLint("Range")
     suspend fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
         val inputStream = context.contentResolver.openInputStream(fileUri) ?: return
 
@@ -139,46 +154,63 @@ class DatabaseManageViewModel(
             IOUtils.copy(it, databaseCopied.outputStream())
         }
 
-        val db = SQLiteDatabase.openDatabase(
-            databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
-        )
-
-        val cursor = db.query(
-            "charts_info",
-            arrayOf("song_id", "rating_class", "constant", "notes"),
-            null,
-            null,
-            null,
-            null,
-            null,
-        )
-
         val chartInfoList = mutableListOf<ChartInfo>()
-        cursor.moveToFirst()
-        cursor.use {
-            do {
-                val songId = it.getString(it.getColumnIndex("song_id"))
-                val ratingClass = it.getInt(it.getColumnIndex("rating_class"))
-                val constant = it.getInt(it.getColumnIndex("constant"))
-                val notes = it.getIntOrNull(it.getColumnIndex("notes"))
+        SQLiteDatabase.openDatabase(
+            databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
+        ).use { db ->
+            val cursor = db.query(
+                "charts_info",
+                arrayOf("song_id", "rating_class", "constant", "notes"),
+                null,
+                null,
+                null,
+                null,
+                null,
+            )
 
-                val chartInfo = ChartInfo(
-                    songId = songId,
-                    ratingClass = ArcaeaScoreRatingClass.fromInt(ratingClass),
-                    constant = constant,
-                    notes = notes
-                )
-                chartInfoList.add(chartInfo)
-            } while (it.moveToNext())
+            cursor.moveToFirst()
+            cursor.use {
+                val songIdColumnIndex = it.getColumnIndex("song_id")
+                val ratingClassColumnIndex = it.getColumnIndex("rating_class")
+                val constantColumnIndex = it.getColumnIndex("constant")
+                try {
+                    assert(songIdColumnIndex >= 0)
+                    assert(ratingClassColumnIndex >= 0)
+                    assert(constantColumnIndex >= 0)
+                } catch (e: AssertionError) {
+                    toast(context, "Database invalid!")
+                    return
+                }
+
+                do {
+                    val songId = it.getString(songIdColumnIndex)
+                    val ratingClass = it.getInt(ratingClassColumnIndex)
+                    val constant = it.getInt(constantColumnIndex)
+                    val notes = it.getIntOrNull(it.getColumnIndex("notes"))
+
+                    val chartInfo = ChartInfo(
+                        songId = songId,
+                        ratingClass = ArcaeaScoreRatingClass.fromInt(ratingClass),
+                        constant = constant,
+                        notes = notes
+                    )
+                    chartInfoList.add(chartInfo)
+                } while (it.moveToNext())
+            }
         }
-        repositoryContainer.chartInfoRepository.upsertAll(*chartInfoList.toTypedArray())
+
+        val affectedRows = repositoryContainer.chartInfoRepository.insertAll(
+            *chartInfoList.toTypedArray()
+        )
 
         toast(
             context, String.format(
                 context.resources.getString(R.string.database_chart_info_imported),
-                chartInfoList.size,
+                affectedRows.size,
             )
         )
+
+        databaseCopied.delete()
     }
 
     suspend fun exportScores(outputStream: OutputStream) {
@@ -190,7 +222,5 @@ class DatabaseManageViewModel(
 
     companion object {
         const val LOG_TAG = "DatabaseManageViewModel"
-        const val PacklistEntryName = "assets/songs/packlist"
-        const val SonglistEntryName = "assets/songs/songlist"
     }
 }

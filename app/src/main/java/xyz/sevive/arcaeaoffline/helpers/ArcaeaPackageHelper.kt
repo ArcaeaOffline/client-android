@@ -68,7 +68,7 @@ class ArcaeaPackageHelper(context: Context) {
         }
     }
 
-    private fun getApkZipFile(): ZipFile {
+    fun getApkZipFile(): ZipFile {
         getPackageInfoOrFail()
 
         val appInfo = packageManager.getApplicationInfo(ARCAEA_PACKAGE_NAME, 0)

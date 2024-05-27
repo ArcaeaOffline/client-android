@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.Button
@@ -19,14 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
-import java.util.zip.ZipInputStream
 
 
 @Composable
@@ -37,43 +35,30 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
     val importPacklistLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { fileUri ->
-        if (fileUri != null) {
-            val inputStream = context.contentResolver.openInputStream(fileUri)
-            if (inputStream != null) {
-                coroutineScope.launch { viewModel.importPacklist(inputStream, context) }
-            }
+        fileUri?.let {
+            coroutineScope.launch { viewModel.importPacklist(it, context) }
         }
     }
 
     val importSonglistLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { fileUri ->
-        if (fileUri != null) {
-            val inputStream = context.contentResolver.openInputStream(fileUri)
-            if (inputStream != null) {
-                coroutineScope.launch { viewModel.importSonglist(inputStream, context) }
-            }
+        fileUri?.let {
+            coroutineScope.launch { viewModel.importSonglist(it, context) }
         }
     }
 
     val importArcaeaApkLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { fileUri ->
-        if (fileUri != null) {
-            val inputStream = context.contentResolver.openInputStream(fileUri)
-            if (inputStream != null) {
+        fileUri?.let { uri ->
+            context.contentResolver.openInputStream(uri)?.let {
                 Toast.makeText(
                     context,
                     R.string.database_manage_import_from_arcaea_apk_please_wait,
                     Toast.LENGTH_LONG
                 ).show()
-                coroutineScope.launch {
-                    withContext(Dispatchers.IO) {
-                        ZipInputStream(inputStream).use {
-                            viewModel.importArcaeaApkFromSelect(it, context)
-                        }
-                    }
-                }
+                coroutineScope.launch { viewModel.importArcaeaApkFromInputStream(it, context) }
             }
         }
     }
@@ -122,7 +107,7 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
                     }
 
                     Button({ importArcaeaApkLauncher.launch("*/*") }) {
-                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                        IconRow(icon = { Icon(Icons.Default.Android, null) }) {
                             Text(stringResource(R.string.database_manage_import_from_arcaea_apk))
                         }
                     }
