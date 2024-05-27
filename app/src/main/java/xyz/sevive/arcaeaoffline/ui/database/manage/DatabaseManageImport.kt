@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.database.manage
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -53,11 +52,6 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
     ) { fileUri ->
         fileUri?.let { uri ->
             context.contentResolver.openInputStream(uri)?.let {
-                Toast.makeText(
-                    context,
-                    R.string.database_manage_import_from_arcaea_apk_please_wait,
-                    Toast.LENGTH_LONG
-                ).show()
                 coroutineScope.launch { viewModel.importArcaeaApkFromInputStream(it, context) }
             }
         }
