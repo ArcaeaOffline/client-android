@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -52,7 +53,10 @@ import kotlin.math.floor
         Score::class,
     ],
     views = [Chart::class, ScoreCalculated::class, ScoreBest::class, CalculatedPotential::class],
-    version = 4,
+    autoMigrations = [
+        AutoMigration(from = 4, to = 5),
+    ],
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(InstantConverters::class)
