@@ -22,7 +22,7 @@ interface SongDao {
     suspend fun upsert(item: Song)
 
     @Upsert
-    suspend fun upsertAll(vararg items: Song)
+    suspend fun upsertAll(vararg items: Song): LongArray
 
     @Delete
     suspend fun delete(item: Song)

@@ -23,7 +23,7 @@ interface DifficultyDao {
     suspend fun upsert(item: Difficulty)
 
     @Upsert
-    suspend fun upsertAll(vararg items: Difficulty)
+    suspend fun upsertAll(vararg items: Difficulty): LongArray
 
     @Delete
     suspend fun delete(item: Difficulty)

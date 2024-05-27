@@ -20,7 +20,7 @@ interface PackDao {
     suspend fun upsert(item: Pack)
 
     @Upsert
-    suspend fun upsertAll(vararg items: Pack)
+    suspend fun upsertAll(vararg items: Pack): LongArray
 
     @Delete
     suspend fun delete(item: Pack)

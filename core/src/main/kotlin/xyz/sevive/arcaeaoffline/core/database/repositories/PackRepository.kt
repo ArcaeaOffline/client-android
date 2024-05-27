@@ -11,7 +11,7 @@ interface PackRepository {
     fun findAll(): Flow<List<Pack>>
     fun findBasePack(id: String): Flow<Pack?>
     suspend fun upsert(item: Pack)
-    suspend fun upsertAll(vararg items: Pack)
+    suspend fun upsertAll(vararg items: Pack): LongArray
     suspend fun delete(item: Pack)
     suspend fun deleteAll(vararg items: Pack)
 }
