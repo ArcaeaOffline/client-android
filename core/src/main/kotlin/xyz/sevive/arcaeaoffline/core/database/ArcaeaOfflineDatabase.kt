@@ -52,7 +52,8 @@ import kotlin.math.floor
         Score::class,
     ],
     views = [Chart::class, ScoreCalculated::class, ScoreBest::class, CalculatedPotential::class],
-    version = 4
+    version = 4,
+    exportSchema = true,
 )
 @TypeConverters(InstantConverters::class)
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {

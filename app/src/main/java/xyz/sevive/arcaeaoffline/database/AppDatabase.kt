@@ -9,7 +9,11 @@ import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 
 
-@Database(entities = [OcrHistory::class], version = 1)
+@Database(
+    entities = [OcrHistory::class],
+    version = 1,
+    exportSchema = true,
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun ocrHistoryDao(): OcrHistoryDao
 

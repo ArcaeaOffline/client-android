@@ -1,8 +1,10 @@
 plugins {
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.plugin.serialization)
+
+    alias(androidx.plugins.room)
 }
 
 android {
@@ -14,6 +16,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        room {
+            schemaDirectory("$projectDir/schemas")
+        }
     }
 
     buildTypes {

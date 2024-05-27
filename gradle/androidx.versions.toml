@@ -52,3 +52,4 @@ compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", ve
 
 
 [plugins]
+room = { id = "androidx.room", version.ref = "room" }

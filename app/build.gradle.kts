@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.secrets.gradle.plugin)
+
+    alias(androidx.plugins.room)
 }
 
 secrets {
@@ -65,6 +67,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        room {
+            schemaDirectory("$projectDir/schemas")
         }
     }
 
