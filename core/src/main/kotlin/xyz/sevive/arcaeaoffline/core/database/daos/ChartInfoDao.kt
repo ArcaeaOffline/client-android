@@ -2,8 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -20,11 +21,11 @@ interface ChartInfoDao {
     @Query("SELECT * FROM charts_info WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
 
-    @Upsert
-    suspend fun upsert(item: ChartInfo)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: ChartInfo)
 
-    @Upsert
-    suspend fun upsertAll(vararg items: ChartInfo)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(vararg items: ChartInfo): LongArray
 
     @Delete
     suspend fun delete(item: ChartInfo)
