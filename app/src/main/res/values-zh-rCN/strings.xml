@@ -22,6 +22,9 @@
 
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
 
+    <!-- ArcaeaButton -->
+    <string name="arcaea_button_resource_unavailable">Arcaea 资源不可用</string>
+
     <!-- ArcaeaScoreCard -->
     <string name="score_no_date">// 无日期 //</string>
     <string name="score_no_clear_type">// 无 Clear Type //</string>

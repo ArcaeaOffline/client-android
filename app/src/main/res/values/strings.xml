@@ -30,6 +30,9 @@ CC BY-SA 3.0
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
+    <!-- ArcaeaButton -->
+    <string name="arcaea_button_resource_unavailable">Arcaea resource unavailable</string>
+
     <!-- ArcaeaScoreCard -->
     <string name="score_no_date">// No date //</string>
     <string name="score_no_clear_type">// No clear type //</string>
