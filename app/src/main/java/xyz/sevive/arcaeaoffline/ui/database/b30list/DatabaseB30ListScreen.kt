@@ -102,7 +102,7 @@ fun DatabaseB30ListScreen(
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 items(uiItems!!, key = { it.id }) {
-                    Box(Modifier.animateItemPlacement()) {
+                    Box(Modifier.animateItem()) {
                         DatabaseB30ListItem(it)
                     }
                 }

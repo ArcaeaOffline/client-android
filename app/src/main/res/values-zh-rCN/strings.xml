@@ -65,9 +65,6 @@
     <!-- Arcaea terms -->
     <string name="arcaea_chart">谱面</string>
     <string name="arcaea_score">分数</string>
-    <string name="arcaea_pure" translatable="false">PURE</string>
-    <string name="arcaea_far" translatable="false">FAR</string>
-    <string name="arcaea_lost" translatable="false">LOST</string>
     <string name="arcaea_max_recall">MAX RECALL</string>
     <string name="arcaea_score_clear_type">通关状态</string>
     <string name="arcaea_score_modifier">Modifier</string>
@@ -163,7 +160,6 @@
     <string name="score_editor_other_fields">其他字段</string>
     <string name="score_editor_set_null">置空</string>
     <string name="score_editor_comment_field">备注</string>
-    <string name="score_editor_commit_button">提交</string>
 
     <string name="datetime_picker_label">日期</string>
     <string name="datetime_picker_date_tab">日期</string>

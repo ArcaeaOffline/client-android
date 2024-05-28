@@ -98,12 +98,12 @@ internal fun DatabaseScoreListItem(
              */
 //            AnimatedContent(inSelectMode, label = "") {
             if (inSelectMode) {
-                    Checkbox(checked = selected, onCheckedChange = onSelectedChange)
-                } else {
-                    IconButton(onClick = { showScoreEditor = true }) {
-                        Icon(Icons.Default.Edit, null)
-                    }
+                Checkbox(checked = selected, onCheckedChange = onSelectedChange)
+            } else {
+                IconButton(onClick = { showScoreEditor = true }) {
+                    Icon(Icons.Default.Edit, null)
                 }
+            }
 //            }
         }
     }
@@ -174,7 +174,7 @@ fun DatabaseScoreListScreen(
             items(uiItems, key = { it.id }) {
                 val itemSelected = selectedItemIds.contains(it.id)
 
-                Box(Modifier.animateItemPlacement()) {
+                Box(Modifier.animateItem()) {
                     DatabaseScoreListItem(
                         uiItem = it,
                         onScoreChange = { scoreEdited ->
