@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.screens.unstablealert.UnstableVersionAlertScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -59,6 +60,8 @@ class MainActivity : ComponentActivity() {
                 preferences[UNSTABLE_ALERT_READ] ?: false
             }.first()
         }
+
+        OpenCVLoader.initLocal()
 
         try {
             // TODO: refactor this shit

@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.IOUtils
+import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareScreen
@@ -28,6 +29,8 @@ class OcrFromShareActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        OpenCVLoader.initLocal()
 
         ocrDependencyViewModel = ViewModelProvider(this)[OcrDependencyViewModel::class.java]
         ocrFromShareViewModel = ViewModelProvider(
