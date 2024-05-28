@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import java.io.InputStream
 
 class SettingsViewModel : ViewModel() {
@@ -45,10 +47,27 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
+    private fun arcaeaAssetsAvailable(arcaeaPackageHelper: ArcaeaPackageHelper): Boolean {
+        if (!arcaeaPackageHelper.isInstalled()) return false
+        return arcaeaPackageHelper.apkJacketZipEntries().size + arcaeaPackageHelper.apkPartnerIconZipEntries().size > 0
+    }
+
+    fun buildPhashDatabaseFromArcaeaButtonState(context: Context): ArcaeaButtonState {
+        val defaultState = ArcaeaButtonDefaults.state(context)
+        val arcaeaPackageHelper = ArcaeaPackageHelper(context)
+        if (defaultState != ArcaeaButtonState.NORMAL) return defaultState
+        return if (arcaeaAssetsAvailable(arcaeaPackageHelper)) {
+            defaultState
+        } else {
+            ArcaeaButtonState.RESOURCE_UNAVAILABLE
+        }
+    }
+
     suspend fun buildPhashDatabaseFromArcaea(
         context: Context, ocrDependencyPaths: OcrDependencyPaths,
     ) {
         val arcaeaPackageHelper = ArcaeaPackageHelper(context)
+        if (!arcaeaAssetsAvailable(arcaeaPackageHelper)) return
 
         _phashDatabaseBuildProgress.value = 0
         withContext(Dispatchers.IO) {

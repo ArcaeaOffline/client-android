@@ -59,13 +59,8 @@ class ArcaeaPackageHelper(context: Context) {
     }
 
     fun getIcon(): Drawable? {
-        getPackageInfoOrFail()
-
-        return try {
-            packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
-        } catch (e: PackageManager.NameNotFoundException) {
-            null
-        }
+        if (!isInstalled()) return null
+        return packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
     }
 
     fun getApkZipFile(): ZipFile {
@@ -74,6 +69,20 @@ class ArcaeaPackageHelper(context: Context) {
         val appInfo = packageManager.getApplicationInfo(ARCAEA_PACKAGE_NAME, 0)
 
         return ZipFile(appInfo.publicSourceDir)
+    }
+
+    fun getPacklistEntry(): ZipEntry? {
+        if (!isInstalled()) return null
+        return getApkZipFile().use {
+            it.getEntry(APK_PACKLIST_FILE_ENTRY_NAME)
+        }
+    }
+
+    fun getSonglistEntry(): ZipEntry? {
+        if (!isInstalled()) return null
+        return getApkZipFile().use {
+            it.getEntry(APK_SONGLIST_FILE_ENTRY_NAME)
+        }
     }
 
     /**
@@ -137,34 +146,53 @@ class ArcaeaPackageHelper(context: Context) {
         return finalFilename
     }
 
-    private suspend fun extractAssetBase(zipEntryOutput: (ZipEntry, ZipFile) -> File?) {
-        withContext(Dispatchers.IO) {
-            val apkZipFile = getApkZipFile()
+    private suspend fun extractAssetBase(outputMapping: Map<ZipEntry, File>) {
+        if (outputMapping.isEmpty()) {
+            Log.w(LOG_TAG, "extractAssetBase: outputMapping empty, returning")
+            return
+        }
 
-            val outputMap = mutableMapOf<ZipEntry, File>()
+        withContext(Dispatchers.IO) {
+            Log.d(LOG_TAG, "extractAssetBase: extracting ${outputMapping.size} entries")
+            getApkZipFile().use { zipFile ->
+                outputMapping.entries.forEach { mapEntry ->
+                    val zipEntry = mapEntry.key
+                    val outputFile = mapEntry.value
+
+                    outputFile.outputStream().use {
+                        IOUtils.copy(zipFile.getInputStream(zipEntry), it)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun filterApkEntries(filterBlock: (ZipEntry) -> Boolean): List<ZipEntry> {
+        val apkZipFile = getApkZipFile()
+        val entries = mutableListOf<ZipEntry>()
+        apkZipFile.use {
             val zipEntries = apkZipFile.entries()
             while (zipEntries.hasMoreElements()) {
                 val zipEntry = zipEntries.nextElement()
 
-                val outputFile = zipEntryOutput(zipEntry, apkZipFile) ?: continue
-                outputMap[zipEntry] = outputFile
+                if (!filterBlock(zipEntry)) continue
+                entries.add(zipEntry)
             }
+        }
+        return entries.toList()
+    }
 
-            if (outputMap.isEmpty()) {
-                Log.d(LOG_TAG, "extractAssetBase: outputMap empty, returning")
-                return@withContext
-            }
+    fun apkJacketZipEntries(): List<ZipEntry> {
+        return filterApkEntries {
+            // check file parent
+            val entryInSongFolder = it.name.startsWith(APK_SONGS_FOLDER_ENTRY_NAME)
+            if (!entryInSongFolder) return@filterApkEntries false
 
-            Log.d(LOG_TAG, "extractAssetBase: extracting ${outputMap.size} entries")
+            // checks the directory depth
+            val entryParts = it.name.split("/")
+            if (entryParts.size != 4) return@filterApkEntries false
 
-            outputMap.entries.forEach { outputItem ->
-                val zipEntry = outputItem.key
-                val outputFile = outputItem.value
-
-                outputFile.outputStream().use {
-                    IOUtils.copy(apkZipFile.getInputStream(zipEntry), it)
-                }
-            }
+            jacketExtractFilename(it.name) != null
         }
     }
 
@@ -173,17 +201,26 @@ class ArcaeaPackageHelper(context: Context) {
             jacketsCacheDir.mkdirs()
         }
 
-        extractAssetBase { entry, _ ->
+        val entries = apkJacketZipEntries()
+        val outputMapping = entries.mapNotNull { zipEntry ->
+            jacketExtractFilename(zipEntry.name)?.let { filename ->
+                Pair(zipEntry, File(jacketsCacheDir, filename))
+            }
+        }.toMap()
+        extractAssetBase(outputMapping)
+    }
+
+    fun apkPartnerIconZipEntries(): List<ZipEntry> {
+        return filterApkEntries {
             // check file parent
-            val entryInSongFolder = entry.name.startsWith(APK_SONGS_FOLDER_ENTRY_NAME)
-            if (!entryInSongFolder) return@extractAssetBase null
+            val entryInCharFolder = it.name.startsWith(APK_CHAR_FOLDER_ENTRY_NAME)
+            if (!entryInCharFolder) return@filterApkEntries false
 
             // checks the directory depth
-            val entryParts = entry.name.split("/")
-            if (entryParts.size != 4) return@extractAssetBase null
+            val entryParts = it.name.split("/")
+            if (entryParts.size != 3) return@filterApkEntries false
 
-            val filename = jacketExtractFilename(entry.name) ?: return@extractAssetBase null
-            return@extractAssetBase File(jacketsCacheDir, filename)
+            partnerIconExtractFilename(it.name) != null
         }
     }
 
@@ -192,18 +229,13 @@ class ArcaeaPackageHelper(context: Context) {
             partnerIconsCacheDir.mkdirs()
         }
 
-        extractAssetBase { entry, _ ->
-            // check file parent
-            val entryInCharFolder = entry.name.startsWith(APK_CHAR_FOLDER_ENTRY_NAME)
-            if (!entryInCharFolder) return@extractAssetBase null
-
-            // checks the directory depth
-            val entryParts = entry.name.split("/")
-            if (entryParts.size != 3) return@extractAssetBase null
-
-            val filename = partnerIconExtractFilename(entry.name) ?: return@extractAssetBase null
-            return@extractAssetBase File(partnerIconsCacheDir, filename)
-        }
+        val entries = apkPartnerIconZipEntries()
+        val outputMapping = entries.mapNotNull { zipEntry ->
+            partnerIconExtractFilename(zipEntry.name)?.let { filename ->
+                Pair(zipEntry, File(partnerIconsCacheDir, filename))
+            }
+        }.toMap()
+        extractAssetBase(outputMapping)
     }
 
     private fun buildPhashDatabaseCleanUp() {

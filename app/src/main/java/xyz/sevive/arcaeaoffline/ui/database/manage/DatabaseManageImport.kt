@@ -106,9 +106,12 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
                         }
                     }
 
-                    ArcaeaButton({
-                        coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
-                    }) {
+                    ArcaeaButton(
+                        onClick = {
+                            coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
+                        },
+                        state = viewModel.importArcaeaApkFromInstalledButtonState(context),
+                    ) {
                         Text(stringResource(R.string.database_manage_import_from_arcaea_installed))
                     }
                 }

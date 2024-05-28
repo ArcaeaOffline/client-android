@@ -108,17 +108,20 @@ fun SettingsOcrDependencies(
                         Text(stringResource(R.string.general_import))
                     }
 
-                    ArcaeaButton({
-                        showBuildPhashDatabaseDialog = true
-                        coroutineScope.launch {
-                            settingsViewModel.buildPhashDatabaseFromArcaea(
-                                context,
-                                ocrDependencyPaths,
-                            )
-                            ocrDependencyViewModel.reload(context)
-                            showBuildPhashDatabaseDialog = false
-                        }
-                    }) {
+                    ArcaeaButton(
+                        onClick = {
+                            showBuildPhashDatabaseDialog = true
+                            coroutineScope.launch {
+                                settingsViewModel.buildPhashDatabaseFromArcaea(
+                                    context,
+                                    ocrDependencyPaths,
+                                )
+                                ocrDependencyViewModel.reload(context)
+                                showBuildPhashDatabaseDialog = false
+                            }
+                        },
+                        state = settingsViewModel.buildPhashDatabaseFromArcaeaButtonState(context),
+                    ) {
                         Text(stringResource(R.string.settings_ocr_phash_database_build_from_arcaea))
                     }
                 }

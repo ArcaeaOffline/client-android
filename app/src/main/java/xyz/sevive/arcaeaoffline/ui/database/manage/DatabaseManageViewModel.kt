@@ -7,6 +7,7 @@ import androidx.core.database.getIntOrNull
 import androidx.lifecycle.ViewModel
 import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
@@ -18,6 +19,8 @@ import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -170,21 +173,43 @@ class DatabaseManageViewModel(
         }
     }
 
+    fun importArcaeaApkFromInstalledButtonState(context: Context): ArcaeaButtonState {
+        val defaultState = ArcaeaButtonDefaults.state(context)
+        if (defaultState != ArcaeaButtonState.NORMAL) return defaultState
+
+        val helper = ArcaeaPackageHelper(context)
+        val hasPacklist = helper.getPacklistEntry() != null
+        val hasSonglist = helper.getSonglistEntry() != null
+        if (!hasPacklist && !hasSonglist) return ArcaeaButtonState.RESOURCE_UNAVAILABLE
+        return defaultState
+    }
+
     suspend fun importArcaeaApkFromInstalled(context: Context) {
-        ArcaeaPackageHelper(context).getApkZipFile().use { zipFile ->
-            val packlistEntry = zipFile.getEntry(ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME)
-            val songlistEntry = zipFile.getEntry(ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME)
+        val packageHelper = ArcaeaPackageHelper(context)
+        withAction {
+            packageHelper.getApkZipFile().use {
+                val packlistEntry = packageHelper.getPacklistEntry()
+                val songlistEntry = packageHelper.getSonglistEntry()
 
-            withContext(Dispatchers.IO) {
-                val packlistInputStream = zipFile.getInputStream(packlistEntry)
-                importPacklist(
-                    IOUtils.toString(packlistInputStream, StandardCharsets.UTF_8), context
-                )
+                if (packlistEntry != null) {
+                    val packlistInputStream = it.getInputStream(packlistEntry)
+                    importPacklist(
+                        IOUtils.toString(packlistInputStream, StandardCharsets.UTF_8), context
+                    )
+                } else {
+                    delay(100L)  // ensuring a recomposition, same for below
+                    appendMessage("packlist not found!")
+                }
 
-                val songlistInputStream = zipFile.getInputStream(songlistEntry)
-                importSonglist(
-                    IOUtils.toString(songlistInputStream, StandardCharsets.UTF_8), context
-                )
+                if (songlistEntry != null) {
+                    val songlistInputStream = it.getInputStream(songlistEntry)
+                    importSonglist(
+                        IOUtils.toString(songlistInputStream, StandardCharsets.UTF_8), context
+                    )
+                } else {
+                    delay(100L)
+                    appendMessage("songlist not found!")
+                }
             }
         }
     }
