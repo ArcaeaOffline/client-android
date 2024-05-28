@@ -44,11 +44,9 @@ dependencies {
     implementation(libs.kotlinx.serialization)
 
     // android & androidx
-    implementation(androidx.room.runtime)
-    implementation(androidx.room.ktx)
+    api(androidx.room.runtime)
     ksp(androidx.room.compiler)
-
-    implementation(androidx.exifinterface)
+    implementation(androidx.room.ktx)
 
     // 3rd party
     implementation(libs.apache.commons.io)
@@ -57,6 +55,6 @@ dependencies {
 
     // test & debug
     testImplementation(libs.junit)
+    androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
-    androidTestImplementation(androidx.test.espresso.core)
 }

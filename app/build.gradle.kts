@@ -142,7 +142,6 @@ dependencies {
     // android & androidx
     implementation(androidx.room.runtime)
 
-    implementation(androidx.datastore)
     implementation(androidx.datastore.preferences)
 
     implementation(androidx.core.ktx)
@@ -165,18 +164,13 @@ dependencies {
     implementation(androidx.compose.material3.adaptive.layout)
     implementation(androidx.compose.material3.adaptive.navigation)
 
-    implementation(androidx.window)
-
-    implementation(androidx.appcompact)
-
-    implementation(androidx.lifecycle.runtime.ktx)
     implementation(androidx.lifecycle.viewmodel.compose)
 
     implementation(androidx.exifinterface)
 
     implementation(androidx.navigation.compose)
 
-    implementation(libs.android.material)
+    implementation(androidx.documentfile)
 
     // 3rd party
     implementation(libs.opencv)
