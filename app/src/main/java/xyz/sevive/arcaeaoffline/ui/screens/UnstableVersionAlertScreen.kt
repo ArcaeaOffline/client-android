@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.unstablealert
+package xyz.sevive.arcaeaoffline.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

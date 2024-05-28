@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
-import xyz.sevive.arcaeaoffline.ui.screens.unstablealert.UnstableVersionAlertScreen
+import xyz.sevive.arcaeaoffline.ui.screens.UnstableVersionAlertScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 val Context.unstableDataStore: DataStore<Preferences> by preferencesDataStore(name = "unstable")

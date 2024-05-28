@@ -38,7 +38,7 @@ import androidx.core.util.TypedValueCompat.pxToDp
 import kotlinx.coroutines.delay
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.constants.IS_UNSTABLE_VERSION
+import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.TextWithLabel
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
