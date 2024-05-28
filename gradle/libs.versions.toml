@@ -19,6 +19,8 @@ compose-settings = "2.3.0"
 
 junit = "4.13.2"
 
+dependencyAnalysis = "1.32.0"
+
 
 [libraries]
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0" }
@@ -52,3 +54,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
