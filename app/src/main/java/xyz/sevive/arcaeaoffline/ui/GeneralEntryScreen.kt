@@ -34,7 +34,7 @@ fun <T> GeneralEntryScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.general_page_padding))
+            .padding(dimensionResource(R.dimen.page_padding))
     ) {
         BackHandler(navigator.canNavigateBack()) {
             navigator.navigateBack()

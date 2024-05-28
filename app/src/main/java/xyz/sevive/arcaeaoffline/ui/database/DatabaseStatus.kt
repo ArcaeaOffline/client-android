@@ -97,7 +97,7 @@ fun DatabaseStatus(
         title = { padding ->
             Row(
                 modifier.padding(padding),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(

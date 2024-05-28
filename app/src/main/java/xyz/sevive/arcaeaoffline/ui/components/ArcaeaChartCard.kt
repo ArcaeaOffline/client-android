@@ -57,8 +57,8 @@ fun ArcaeaChartCard(
         shape = shape,
     ) {
         Row(
-            Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+            Modifier.padding(dimensionResource(R.dimen.card_padding)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(

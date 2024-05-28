@@ -103,7 +103,7 @@ fun SettingsOcrDependencies(
                 }
 
                 OcrDependencyPhashDatabaseStatus(state = phashDatabaseState.value)
-                Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+                Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                     Button(onClick = { importPhashDbLauncher.launch("*/*") }) {
                         Text(stringResource(R.string.general_import))
                     }

@@ -18,7 +18,7 @@ fun OcrQueueList(
     val uiItems by ocrQueueViewModel.uiItems.collectAsState()
     val queueRunning by ocrQueueViewModel.queueRunning.collectAsState()
 
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
         items(uiItems, key = { it.id }) { uiItem ->
             OcrQueueItem(
                 uiItem,

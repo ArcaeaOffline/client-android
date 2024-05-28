@@ -42,7 +42,7 @@ internal fun AppIconLabelButton(
 
             Column(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
             ) {
                 appLabel()
 

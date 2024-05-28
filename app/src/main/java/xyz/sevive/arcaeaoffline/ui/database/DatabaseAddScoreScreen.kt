@@ -96,7 +96,7 @@ internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Un
                 Modifier.weight(1f),
             ) {
                 IconRow(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                    modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
                     icon = {
                         Icon(Icons.Default.TouchApp, null)
                     },
@@ -134,7 +134,7 @@ internal fun ScoreWarningsCard(
 
     Card(onClick = { showWarningsDialog = true }, modifier = modifier) {
         IconRow(
-            modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+            modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
             icon = {
                 Icon(Icons.Default.Warning, null)
             },
@@ -175,7 +175,7 @@ internal fun ScoreAction(
         } else {
             Card(Modifier.weight(1f)) {
                 IconRow(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                    modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
                     icon = {
                         Icon(Icons.Default.Block, null)
                     },
@@ -282,7 +282,7 @@ fun DatabaseAddScoreScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .padding(bottom = dimensionResource(R.dimen.general_page_padding)),
+                            .padding(bottom = dimensionResource(R.dimen.page_padding)),
                     ) {}
                 }
 

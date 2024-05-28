@@ -152,7 +152,7 @@ fun OcrQueueScreen(
         )
 
         Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+            Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 Button(
                     onClick = { pickImagesLauncher.launch("image/*") },
                     Modifier.weight(1f),

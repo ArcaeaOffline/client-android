@@ -152,17 +152,17 @@ fun UnstableVersionAlertScreenExpanded(
 
             Column(
                 Modifier.weight(3f),
-                Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     TitleContent(titleTextStyle = MaterialTheme.typography.displayLarge)
                 }
                 DetailsContentContainer(Modifier.height(400.dp)) {
                     LazyColumn(
-                        contentPadding = PaddingValues(dimensionResource(R.dimen.general_page_padding))
+                        contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding))
                     ) {
                         item {
                             DetailsContent()
@@ -175,7 +175,7 @@ fun UnstableVersionAlertScreenExpanded(
 
             Column(
                 Modifier.weight(2f),
-                Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 ConfirmPromptContent()
                 Column {
@@ -195,7 +195,7 @@ fun UnstableVersionAlertScreenDefault(
     onDeny: () -> Unit,
     windowSizeClass: WindowSizeClass,
 ) {
-    val pagePadding = dimensionResource(R.dimen.general_page_padding)
+    val pagePadding = dimensionResource(R.dimen.page_padding)
 
     val confirmPromptInDetailsContainer =
         windowSizeClass.heightSizeClass < WindowHeightSizeClass.Expanded
@@ -205,7 +205,7 @@ fun UnstableVersionAlertScreenDefault(
         topBar = {
             Row(
                 Modifier.padding(pagePadding),
-                Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
                 Alignment.Bottom,
             ) {
                 TitleContent(
@@ -237,7 +237,7 @@ fun UnstableVersionAlertScreenDefault(
                 .padding(pagePadding)
         ) {
             LazyColumn(
-                contentPadding = PaddingValues(dimensionResource(R.dimen.general_page_padding))
+                contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding))
             ) {
                 if (confirmPromptInDetailsContainer) {
                     item {

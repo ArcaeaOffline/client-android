@@ -99,12 +99,12 @@ internal fun OcrFromShareScreenContentMedium(
         Row(
             Modifier
                 .padding(it)
-                .padding(dimensionResource(R.dimen.general_page_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_page_padding))
+                .padding(dimensionResource(R.dimen.page_padding)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding))
         ) {
             Column(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 OcrFromShareOcrDependencyStatusCard(ocrDependencyViewModel)
 
@@ -115,7 +115,7 @@ internal fun OcrFromShareScreenContentMedium(
 
             LazyColumn(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 item {
                     OcrFromShareOcrResult(ocrFromShareViewModel)
@@ -150,8 +150,8 @@ fun OcrFromShareScreenCompact(
         LazyColumn(
             modifier = Modifier
                 .padding(it)
-                .padding(dimensionResource(R.dimen.general_page_padding)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                .padding(dimensionResource(R.dimen.page_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
                 OcrFromShareOcrDependencyStatusCard(ocrDependencyViewModel)

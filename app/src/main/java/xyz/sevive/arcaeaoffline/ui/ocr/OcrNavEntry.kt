@@ -47,7 +47,7 @@ fun OcrNavEntry(
         topBar = {
             Text(
                 stringResource(R.string.nav_ocr),
-                Modifier.padding(0.dp, dimensionResource(R.dimen.general_page_padding)),
+                Modifier.padding(0.dp, dimensionResource(R.dimen.page_padding)),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
@@ -55,7 +55,7 @@ fun OcrNavEntry(
     ) {
         LazyColumn(
             Modifier.padding(it),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.main_screen_list_arrangement_spaced_by)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding_main_screen)),
         ) {
             item {
                 Column {

@@ -119,7 +119,7 @@ fun ArcaeaScoreCard(
         shape = shape,
         colors = cardColors,
     ) {
-        Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
+        Column(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     ArcaeaFormatters.scoreToLevelText(score.score),

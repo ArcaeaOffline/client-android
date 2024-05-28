@@ -32,7 +32,7 @@ internal fun DatabaseB30ListItem(
 
     Row(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaScoreCard(
@@ -57,7 +57,7 @@ internal fun DatabaseB30ListItem(
                 }
             })
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.list_arrangement_padding)))
+            Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
             Text(

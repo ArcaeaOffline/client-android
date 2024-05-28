@@ -88,7 +88,7 @@ fun PermissionRequiredDialog(
         icon = { Icon(Icons.Default.Flaky, null) },
         title = { Text(stringResource(R.string.permission_required_dialog_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 Text(
                     String.format(
                         pluralStringResource(
@@ -103,7 +103,7 @@ fun PermissionRequiredDialog(
 
                     Column {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
+                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
                             verticalAlignment = Alignment.Bottom,
                         ) {
                             val permissionIcon = getPermissionIcon(permission)

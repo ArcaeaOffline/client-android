@@ -24,7 +24,7 @@ data class TitleOutlinedCardColors(
 object TitleOutlinedCardDefaults {
     @Composable
     fun paddingValues(): PaddingValues {
-        return PaddingValues(dimensionResource(R.dimen.general_card_padding))
+        return PaddingValues(dimensionResource(R.dimen.card_padding))
     }
 
     @Composable

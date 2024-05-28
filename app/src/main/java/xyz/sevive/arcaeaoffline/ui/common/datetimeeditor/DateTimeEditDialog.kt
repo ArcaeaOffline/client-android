@@ -94,8 +94,8 @@ internal fun DateTimeEditDialogBottomBar(
     HorizontalDivider()
 
     Row(
-        Modifier.padding(dimensionResource(R.dimen.general_page_padding)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+        Modifier.padding(dimensionResource(R.dimen.page_padding)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
         Spacer(Modifier.weight(1f))
 
@@ -152,7 +152,7 @@ internal fun DateTimeEditDialogContent(
         Scaffold(
             Modifier
                 .padding(padding)
-                .padding(dimensionResource(R.dimen.general_page_padding)),
+                .padding(dimensionResource(R.dimen.page_padding)),
             bottomBar = { Text(formattedDate) },
         ) {
             Column(
@@ -202,7 +202,7 @@ fun DateTimeEditDialogContentExpanded(
 
                 Column(
                     Modifier
-                        .padding(dimensionResource(R.dimen.general_page_padding))
+                        .padding(dimensionResource(R.dimen.page_padding))
                         .verticalScroll(rememberScrollState())
                 ) {
                     when (selectedTab) {

@@ -36,7 +36,7 @@ internal fun ScoreValidatorWarningDetailItem(warning: ArcaeaScoreValidatorWarnin
     )
 
     val context = LocalContext.current
-    val cardPadding = dimensionResource(R.dimen.general_card_padding)
+    val cardPadding = dimensionResource(R.dimen.card_padding)
 
     val title = warning.getTitle(context)
     val message = warning.getMessage(context)
@@ -53,7 +53,7 @@ internal fun ScoreValidatorWarningDetailItem(warning: ArcaeaScoreValidatorWarnin
             Icon(
                 Icons.Default.ErrorOutline,
                 contentDescription = null,
-                modifier = Modifier.padding(end = dimensionResource(R.dimen.general_icon_text_padding))
+                modifier = Modifier.padding(end = dimensionResource(R.dimen.icon_text_padding))
             )
 
             Column {
@@ -87,7 +87,7 @@ fun ScoreValidatorWarningDetails(
 ) {
     Column(
         modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
     ) {
         for (warning in warnings) {
             ScoreValidatorWarningDetailItem(warning)

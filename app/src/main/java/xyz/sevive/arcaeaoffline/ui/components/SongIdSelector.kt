@@ -51,7 +51,7 @@ fun SongIdSelector(
 
     Column(
         modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
     ) {
         ArcaeaPackSelector(
             packs = packs,

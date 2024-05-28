@@ -41,7 +41,7 @@ fun ImagePreviewDialog(
                         .fillMaxWidth()
                         .animateContentSize()
                 ) {
-                    Column(Modifier.padding(dimensionResource(R.dimen.general_card_padding))) {
+                    Column(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
                         topBarContent()
                     }
                 }

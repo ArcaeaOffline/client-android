@@ -35,7 +35,7 @@ fun DatabaseNavEntry(
         topBar = {
             Text(
                 stringResource(R.string.nav_database),
-                Modifier.padding(0.dp, dimensionResource(R.dimen.general_page_padding)),
+                Modifier.padding(0.dp, dimensionResource(R.dimen.page_padding)),
                 style = MaterialTheme.typography.titleLarge,
             )
         },
@@ -43,7 +43,7 @@ fun DatabaseNavEntry(
     ) {
         LazyColumn(
             Modifier.padding(it),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.main_screen_list_arrangement_spaced_by)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding_main_screen)),
         ) {
             item {
                 DatabaseStatus(Modifier.fillMaxWidth())

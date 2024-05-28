@@ -22,7 +22,7 @@ import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
 fun B30R10Label(label: String, value: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_page_padding))) {
+    Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding))) {
         Text(label, Modifier.alignByBaseline(), style = MaterialTheme.typography.headlineLarge)
         Text(value, Modifier.alignByBaseline(), style = MaterialTheme.typography.displayLarge)
     }
@@ -38,7 +38,7 @@ fun OverviewScreen(
     Column(
         modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.general_page_padding))
+            .padding(dimensionResource(R.dimen.page_padding))
     ) {
         LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
             item {

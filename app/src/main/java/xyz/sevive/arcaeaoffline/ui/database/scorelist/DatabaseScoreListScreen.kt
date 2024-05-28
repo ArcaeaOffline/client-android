@@ -170,7 +170,7 @@ fun DatabaseScoreListScreen(
             },
         )
     }) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
             items(uiItems, key = { it.id }) {
                 val itemSelected = selectedItemIds.contains(it.id)
 

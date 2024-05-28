@@ -87,7 +87,7 @@ fun DatabaseB30ListScreen(
                 Column(
                     Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
                 ) {
                     Icon(
                         Icons.Default.Inbox,
@@ -100,7 +100,7 @@ fun DatabaseB30ListScreen(
                 }
             }
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 items(uiItems!!, key = { it.id }) {
                     Box(Modifier.animateItemPlacement()) {
                         DatabaseB30ListItem(it)

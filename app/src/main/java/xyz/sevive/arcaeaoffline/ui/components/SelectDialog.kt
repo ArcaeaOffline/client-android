@@ -41,7 +41,7 @@ fun SelectDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(Modifier.fillMaxWidth()) {
             if (labels.isEmpty()) {
-                Box(Modifier.padding(dimensionResource(R.dimen.general_page_padding) * 2)) {
+                Box(Modifier.padding(dimensionResource(R.dimen.page_padding) * 2)) {
                     Text("No options available.")
                 }
             } else {
@@ -60,7 +60,7 @@ fun SelectDialog(
                                     )
                                     .padding(16.dp, 8.dp)
                                     .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding) * 2),
+                                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding) * 2),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 RadioButton(

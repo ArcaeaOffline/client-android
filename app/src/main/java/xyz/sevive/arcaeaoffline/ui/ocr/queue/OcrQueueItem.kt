@@ -230,12 +230,12 @@ fun OcrQueueItem(
                 uiItem = uiItem,
                 onDeleteTask = { onDeleteTask(uiItem.id) },
                 deleteEnabled = deleteEnabled,
-                modifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
+                modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
             )
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding))) {
-            val contentModifier = Modifier.padding(dimensionResource(R.dimen.general_card_padding))
+        Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding))) {
+            val contentModifier = Modifier.padding(dimensionResource(R.dimen.card_padding))
 
             when (uiItem.status) {
                 OcrQueueTaskStatus.DONE -> OcrQueueItemScore(

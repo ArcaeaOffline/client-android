@@ -31,7 +31,7 @@ import kotlin.math.round
 internal fun SettingsTitle(text: String) {
     Text(
         text,
-        Modifier.padding(vertical = dimensionResource(R.dimen.general_icon_text_padding)),
+        Modifier.padding(vertical = dimensionResource(R.dimen.icon_text_padding)),
         style = MaterialTheme.typography.titleLarge,
     )
 }
@@ -55,7 +55,7 @@ fun OcrQueuePreferencesDialog(
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         Card {
             LazyColumn(
-                contentPadding = PaddingValues(dimensionResource(R.dimen.general_page_padding)),
+                contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding)),
             ) {
                 item {
                     SettingsTitle(stringResource(R.string.ocr_queue_add_image_options_title))

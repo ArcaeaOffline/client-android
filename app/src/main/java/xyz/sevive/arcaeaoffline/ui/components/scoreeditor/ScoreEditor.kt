@@ -97,7 +97,7 @@ fun ScoreEditorDialog(
             ScoreEditor(
                 score = score,
                 onScoreChange = onScoreChange,
-                modifier = modifier.padding(dimensionResource(R.dimen.general_page_padding)),
+                modifier = modifier.padding(dimensionResource(R.dimen.page_padding)),
             )
         }
     }

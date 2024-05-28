@@ -45,8 +45,8 @@ fun ChartSelector(
 
 
     Column(
-        Modifier.padding(dimensionResource(R.dimen.general_card_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+        Modifier.padding(dimensionResource(R.dimen.card_padding)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
         SongIdSelector(
             songId = songId,
@@ -57,7 +57,7 @@ fun ChartSelector(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding))
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding))
         ) {
             Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 

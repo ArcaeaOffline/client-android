@@ -111,7 +111,7 @@ fun SettingsAbout() {
     }) { padding ->
         Column(
             Modifier.padding(padding),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             Row(
                 Modifier.fillMaxWidth(),

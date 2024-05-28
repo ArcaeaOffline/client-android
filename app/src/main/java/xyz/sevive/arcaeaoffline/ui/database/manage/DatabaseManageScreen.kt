@@ -70,13 +70,13 @@ fun DatabaseManageScreen(
                 } else BottomSheetDefaults.DragHandle()
             },
             contentWindowInsets = {
-                val padding = dimensionResource(R.dimen.general_page_padding)
+                val padding = dimensionResource(R.dimen.page_padding)
                 WindowInsets(left = padding, right = padding, bottom = padding * 2)
             },
         ) {
             Column(
                 Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 IconRow(
                     icon = { Icon(headerIcon, contentDescription = null, Modifier.size(36.dp)) },
@@ -95,7 +95,7 @@ fun DatabaseManageScreen(
     ) {
         LazyColumn(
             modifier,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
                 DatabaseManageImport(viewModel, Modifier.fillMaxWidth())

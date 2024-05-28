@@ -63,7 +63,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
     val scoreCached by ocrFromShareViewModel.scoreCached.collectAsState()
 
     Column {
-        Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+        Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
             Button(
                 onClick = { coroutineScope.launch { ocrFromShareViewModel.saveScore() } },
                 enabled = score != null && !scoreSaved && !scoreCached,

@@ -17,7 +17,7 @@ fun IconRow(
 ) {
     Row(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.general_icon_text_padding)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         icon()

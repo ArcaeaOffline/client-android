@@ -76,7 +76,7 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
     }, modifier = modifier) { padding ->
         Column(
             Modifier.padding(padding),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             TitleOutlinedCard(title = {
                 Text(

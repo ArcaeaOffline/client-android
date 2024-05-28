@@ -80,9 +80,9 @@ fun SettingsScreen(
     Box(
         modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.general_page_padding))
+            .padding(dimensionResource(R.dimen.page_padding))
     ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_arrangement_padding))) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
             if (IS_UNSTABLE_VERSION) {
                 item {
                     UnstableBuildAlert(Modifier.fillMaxWidth(), showDetails = true)
