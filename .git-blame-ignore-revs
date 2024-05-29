@@ -1,2 +1,8 @@
 # chore(app.ui): dimens.xml entries naming
 b68c86e310593e79cc4c7711b7f76f284f4c764b
+
+# chore(app): simplify database repository variable names
+1ac2ffdc4b9afa697e89a92e4289d5faa61936fd
+
+# chore: rename arcaea related enums
+75f559f5ce8860c98bedae7aee603102f1a50cd1
