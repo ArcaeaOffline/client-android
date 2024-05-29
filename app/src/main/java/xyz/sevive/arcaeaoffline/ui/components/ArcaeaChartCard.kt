@@ -3,6 +3,9 @@ package xyz.sevive.arcaeaoffline.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -74,10 +77,25 @@ fun ArcaeaChartCard(
                     Text(chart.artist)
                 }
 
-                Text(
-                    text = ArcaeaFormatters.ratingText(chart),
-                    color = ratingClassColor(chart.ratingClass)
-                )
+                AnimatedContent(
+                    targetState = chart,
+                    transitionSpec = {
+                        if (targetState.ratingClass > initialState.ratingClass) {
+                            slideInVertically { height -> height } togetherWith
+                                slideOutVertically { height -> -height }
+                        } else {
+                            slideInVertically { height -> -height } togetherWith
+                                slideOutVertically { height -> height }
+                        }
+                    },
+                    label = "ratingClassFlipping",
+                ) {
+                    Text(
+                        text = ArcaeaFormatters.ratingText(it),
+                        modifier = Modifier.fillMaxWidth(),
+                        color = ratingClassColor(it.ratingClass),
+                    )
+                }
             }
 
 
