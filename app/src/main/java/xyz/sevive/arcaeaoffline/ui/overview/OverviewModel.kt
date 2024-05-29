@@ -9,7 +9,7 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 class OverviewModel(
     arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    val b30 = arcaeaOfflineDatabaseRepositoryContainer.calculatedPotentialRepository.b30().stateIn(
+    val b30 = arcaeaOfflineDatabaseRepositoryContainer.calculatedPotentialRepo.b30().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(1000),
         initialValue = null,

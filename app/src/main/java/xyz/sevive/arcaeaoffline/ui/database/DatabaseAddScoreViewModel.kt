@@ -63,7 +63,7 @@ class DatabaseAddScoreViewModel(
 
     suspend fun saveScore() {
         if (score.value != null) {
-            repositoryContainer.scoreRepository.upsert(score.value!!)
+            repositoryContainer.scoreRepo.upsert(score.value!!)
             reset()
         }
     }

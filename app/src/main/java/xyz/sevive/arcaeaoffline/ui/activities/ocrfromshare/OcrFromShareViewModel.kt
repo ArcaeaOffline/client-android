@@ -101,7 +101,7 @@ class OcrFromShareViewModel(
 
     suspend fun saveScore() {
         if (score.value != null) {
-            repositoryContainer.scoreRepository.upsert(score.value!!)
+            repositoryContainer.scoreRepo.upsert(score.value!!)
             _scoreSaved.value = true
         }
     }
@@ -125,7 +125,7 @@ class OcrFromShareViewModel(
         val score = score.value
         if (score != null) {
             val ocrHistory = OcrHistory.fromArcaeaScore(score, shareSourceAppPackageName.value)
-            val id = appDatabaseRepositoryContainer.ocrHistoryRepository.insert(ocrHistory)
+            val id = appDatabaseRepositoryContainer.ocrHistoryRepo.insert(ocrHistory)
 
             val bitmap = bitmap.value
             if (bitmap != null) {

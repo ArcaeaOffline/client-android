@@ -51,13 +51,13 @@ class ChartFactory {
             songId: String,
             ratingClass: ArcaeaScoreRatingClass,
         ): Chart? {
-            val chart = repositoryContainer.chartRepository.find(songId, ratingClass).firstOrNull()
+            val chart = repositoryContainer.chartRepo.find(songId, ratingClass).firstOrNull()
             if (chart != null) return chart
 
-            val difficulty = repositoryContainer.difficultyRepository.find(
+            val difficulty = repositoryContainer.difficultyRepo.find(
                 songId, ratingClass
             ).firstOrNull() ?: return null
-            val song = repositoryContainer.songRepository.find(songId).firstOrNull() ?: return null
+            val song = repositoryContainer.songRepo.find(songId).firstOrNull() ?: return null
             return getChart(song, difficulty)
         }
     }

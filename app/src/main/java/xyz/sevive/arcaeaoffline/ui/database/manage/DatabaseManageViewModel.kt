@@ -67,7 +67,7 @@ class DatabaseManageViewModel(
     private suspend fun importPacklist(packlistContent: String, context: Context? = null) {
         withAction {
             val packs = PacklistParser(packlistContent).parsePack().toTypedArray()
-            val affectedRows = repositoryContainer.packRepository.upsertAll(*packs)
+            val affectedRows = repositoryContainer.packRepo.upsertAll(*packs)
             Log.i(LOG_TAG, "${affectedRows.size} packs updated")
 
             context?.let {
@@ -90,9 +90,9 @@ class DatabaseManageViewModel(
             val songs = SonglistParser(songlistContent).parseSong().toTypedArray()
             val difficulties = SonglistParser(songlistContent).parseDifficulty().toTypedArray()
 
-            val songsAffected = repositoryContainer.songRepository.upsertAll(*songs)
+            val songsAffected = repositoryContainer.songRepo.upsertAll(*songs)
             val difficultiesAffected =
-                repositoryContainer.difficultyRepository.upsertAll(*difficulties)
+                repositoryContainer.difficultyRepo.upsertAll(*difficulties)
 
             context?.let {
                 val songText = context.resources.getQuantityString(
@@ -268,7 +268,7 @@ class DatabaseManageViewModel(
                 }
             }
 
-            val affectedRows = repositoryContainer.chartInfoRepository.insertAll(
+            val affectedRows = repositoryContainer.chartInfoRepo.insertAll(
                 *chartInfoList.toTypedArray()
             )
 
@@ -284,7 +284,7 @@ class DatabaseManageViewModel(
     }
 
     suspend fun exportScores(outputStream: OutputStream) {
-        val content = ArcaeaOfflineExportScore(repositoryContainer.scoreRepository).toJsonString()
+        val content = ArcaeaOfflineExportScore(repositoryContainer.scoreRepo).toJsonString()
         content?.let {
             IOUtils.write(content, outputStream)
         }

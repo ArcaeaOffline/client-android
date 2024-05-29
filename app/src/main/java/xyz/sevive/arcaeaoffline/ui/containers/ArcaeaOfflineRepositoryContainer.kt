@@ -26,16 +26,16 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepositoryImpl
 interface ArcaeaOfflineDatabaseRepositoryContainer {
     val propertyRepository: PropertyRepository
 
-    val packRepository: PackRepository
-    val songRepository: SongRepository
-    val difficultyRepository: DifficultyRepository
-    val chartInfoRepository: ChartInfoRepository
-    val chartRepository: ChartRepository
+    val packRepo: PackRepository
+    val songRepo: SongRepository
+    val difficultyRepo: DifficultyRepository
+    val chartInfoRepo: ChartInfoRepository
+    val chartRepo: ChartRepository
 
-    val scoreRepository: ScoreRepository
-    val scoreCalculatedRepository: ScoreCalculatedRepository
-    val scoreBestRepository: ScoreBestRepository
-    val calculatedPotentialRepository: CalculatedPotentialRepository
+    val scoreRepo: ScoreRepository
+    val scoreCalculatedRepo: ScoreCalculatedRepository
+    val scoreBestRepo: ScoreBestRepository
+    val calculatedPotentialRepo: CalculatedPotentialRepository
 }
 
 class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context) :
@@ -45,43 +45,43 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
         PropertyRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).propertyDao())
     }
 
-    override val packRepository: PackRepository by lazy {
+    override val packRepo: PackRepository by lazy {
         PackRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).packDao())
     }
 
-    override val songRepository: SongRepository by lazy {
+    override val songRepo: SongRepository by lazy {
         SongRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).songDao())
     }
 
-    override val difficultyRepository: DifficultyRepository by lazy {
+    override val difficultyRepo: DifficultyRepository by lazy {
         DifficultyRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).difficultyDao())
     }
 
-    override val chartInfoRepository: ChartInfoRepository by lazy {
+    override val chartInfoRepo: ChartInfoRepository by lazy {
         ChartInfoRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartInfoDao())
     }
 
-    override val chartRepository: ChartRepository by lazy {
+    override val chartRepo: ChartRepository by lazy {
         ChartRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartDao())
     }
 
-    override val scoreRepository: ScoreRepository by lazy {
+    override val scoreRepo: ScoreRepository by lazy {
         ScoreRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).scoreDao())
     }
 
-    override val scoreCalculatedRepository: ScoreCalculatedRepository by lazy {
+    override val scoreCalculatedRepo: ScoreCalculatedRepository by lazy {
         ScoreCalculatedRepositoryImpl(
             ArcaeaOfflineDatabase.getDatabase(context).scoreCalculatedDao()
         )
     }
 
-    override val scoreBestRepository: ScoreBestRepository by lazy {
+    override val scoreBestRepo: ScoreBestRepository by lazy {
         ScoreBestRepositoryImpl(
             ArcaeaOfflineDatabase.getDatabase(context).scoreBestDao()
         )
     }
 
-    override val calculatedPotentialRepository: CalculatedPotentialRepository by lazy {
+    override val calculatedPotentialRepo: CalculatedPotentialRepository by lazy {
         CalculatedPotentialRepositoryImpl(
             ArcaeaOfflineDatabase.getDatabase(context).calculatedPotentialDao()
         )

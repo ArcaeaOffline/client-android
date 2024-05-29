@@ -35,14 +35,14 @@ class SongIdSelectorViewModel(
 
     init {
         viewModelScope.launch {
-            _packs.value = repositoryContainer.packRepository.findAll().first()
+            _packs.value = repositoryContainer.packRepo.findAll().first()
 
             for (pack in packs.value) {
-                var songs = repositoryContainer.songRepository.findBySet(pack.id).first()
+                var songs = repositoryContainer.songRepo.findBySet(pack.id).first()
 
                 if (chartOnly.value) {
                     songs = songs.filter {
-                        repositoryContainer.chartRepository.findAllBySongId(it.id).first()
+                        repositoryContainer.chartRepo.findAllBySongId(it.id).first()
                             .isNotEmpty()
                     }
                 }
@@ -95,7 +95,7 @@ class SongIdSelectorViewModel(
             return
         }
 
-        val song = repositoryContainer.songRepository.find(songId).firstOrNull()
+        val song = repositoryContainer.songRepo.find(songId).firstOrNull()
 
         if (song == null) {
             reset()

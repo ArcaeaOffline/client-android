@@ -25,31 +25,31 @@ class DatabaseNavEntryViewModel(
         initialValue = false,
     )
 
-    val packList = repositoryContainer.packRepository.findAll().stateIn(
+    val packList = repositoryContainer.packRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
     )
 
-    val songList = repositoryContainer.songRepository.findAll().stateIn(
+    val songList = repositoryContainer.songRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
     )
 
-    val difficultyList = repositoryContainer.difficultyRepository.findAll().stateIn(
+    val difficultyList = repositoryContainer.difficultyRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
     )
 
-    val chartInfoList = repositoryContainer.chartInfoRepository.findAll().stateIn(
+    val chartInfoList = repositoryContainer.chartInfoRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()
     )
 
-    val scoreList = repositoryContainer.scoreRepository.findAll().stateIn(
+    val scoreList = repositoryContainer.scoreRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()

@@ -24,14 +24,14 @@ data class DatabaseScoreListUiItem(
 class DatabaseScoreListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    private val scoreList = repositoryContainer.scoreRepository.findAll().stateIn(
+    private val scoreList = repositoryContainer.scoreRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
         initialValue = listOf(),
     )
 
     private val scoreCalculatedList =
-        repositoryContainer.scoreCalculatedRepository.findAll().stateIn(
+        repositoryContainer.scoreCalculatedRepo.findAll().stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
             initialValue = listOf(),
@@ -68,7 +68,7 @@ class DatabaseScoreListViewModel(
     suspend fun deleteSelection() {
         val items = uiItems.value.filter { _selectedUiItemIdList.contains(it.id) }
         val scores = items.map { it.score }.toTypedArray()
-        repositoryContainer.scoreRepository.deleteAll(*scores)
+        repositoryContainer.scoreRepo.deleteAll(*scores)
         clearSelectedItems()
     }
 
@@ -78,7 +78,7 @@ class DatabaseScoreListViewModel(
     }
 
     suspend fun updateScore(score: Score) {
-        repositoryContainer.scoreRepository.upsert(score)
+        repositoryContainer.scoreRepo.upsert(score)
     }
 
     companion object {

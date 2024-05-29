@@ -42,7 +42,7 @@ class ChartSelectorViewModel(
         }
 
         val difficulties =
-            repositoryContainer.difficultyRepository.findAllBySongId(songId).firstOrNull()
+            repositoryContainer.difficultyRepo.findAllBySongId(songId).firstOrNull()
 
         if (difficulties == null) {
             _enabledRatingClasses.value = listOf()

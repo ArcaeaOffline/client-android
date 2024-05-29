@@ -191,7 +191,7 @@ class OcrQueueViewModel(
     suspend fun saveTaskScore(taskId: Int, context: Context) {
         val uiItem = uiItems.value.find { it.id == taskId } ?: return
 
-        val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).scoreRepository
+        val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).scoreRepo
 
         uiItem.score?.let {
             scoreRepository.upsert(it)
