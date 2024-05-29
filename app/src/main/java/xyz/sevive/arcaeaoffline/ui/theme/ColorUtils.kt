@@ -3,16 +3,16 @@ package xyz.sevive.arcaeaoffline.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 @Composable
-fun ratingClassColor(ratingClass: ArcaeaScoreRatingClass): Color {
+fun ratingClassColor(ratingClass: ArcaeaRatingClass): Color {
     return when (ratingClass) {
-        ArcaeaScoreRatingClass.PAST -> ArcaeaDifficultyExtendedColors.current.past
-        ArcaeaScoreRatingClass.PRESENT -> ArcaeaDifficultyExtendedColors.current.present
-        ArcaeaScoreRatingClass.FUTURE -> ArcaeaDifficultyExtendedColors.current.future
-        ArcaeaScoreRatingClass.BEYOND -> ArcaeaDifficultyExtendedColors.current.beyond
-        ArcaeaScoreRatingClass.ETERNAL -> ArcaeaDifficultyExtendedColors.current.eternal
+        ArcaeaRatingClass.PAST -> ArcaeaDifficultyExtendedColors.current.past
+        ArcaeaRatingClass.PRESENT -> ArcaeaDifficultyExtendedColors.current.present
+        ArcaeaRatingClass.FUTURE -> ArcaeaDifficultyExtendedColors.current.future
+        ArcaeaRatingClass.BEYOND -> ArcaeaDifficultyExtendedColors.current.beyond
+        ArcaeaRatingClass.ETERNAL -> ArcaeaDifficultyExtendedColors.current.eternal
     }
 }
 

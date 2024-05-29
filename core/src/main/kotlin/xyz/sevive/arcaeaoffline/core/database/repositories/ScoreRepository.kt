@@ -1,13 +1,13 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.ScoreDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 
 interface ScoreRepository {
-    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<Score?>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Score?>
     fun findAll(): Flow<List<Score>>
     fun findAllBySongId(songId: String): Flow<List<Score>>
     suspend fun upsert(item: Score)
@@ -17,7 +17,7 @@ interface ScoreRepository {
 }
 
 class ScoreRepositoryImpl(val dao: ScoreDao) : ScoreRepository {
-    override fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<Score?> =
+    override fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Score?> =
         dao.find(songId, ratingClass)
 
     override fun findAll(): Flow<List<Score>> = dao.findAll()

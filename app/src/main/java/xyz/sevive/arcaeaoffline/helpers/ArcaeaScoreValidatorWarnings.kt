@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.core.content.res.ResourcesCompat
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
@@ -110,7 +110,7 @@ data object ArcaeaScoreValidatorFrPmMaxRecallMismatchWarning : ArcaeaScoreValida
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
         if (score.clearType !in listOf(
-                ArcaeaScoreClearType.FULL_RECALL, ArcaeaScoreClearType.PURE_MEMORY
+                ArcaeaPlayResultClearType.FULL_RECALL, ArcaeaPlayResultClearType.PURE_MEMORY
             )
         ) {
             return false
@@ -136,7 +136,7 @@ data object ArcaeaScoreValidatorClearPflMismatchWarning : ArcaeaScoreValidatorWa
         }
 
         // HARD LOST does not conform to this rule
-        if (score.clearType == ArcaeaScoreClearType.TRACK_LOST && score.modifier == ArcaeaScoreModifier.HARD) {
+        if (score.clearType == ArcaeaPlayResultClearType.TRACK_LOST && score.modifier == ArcaeaPlayResultModifier.HARD) {
             return false
         }
 
@@ -158,7 +158,7 @@ data object ArcaeaScoreValidatorFullRecallLostNotZeroWarning : ArcaeaScoreValida
     override val messageId = R.string.score_validator_FULL_RECALL_LOST_NOT_ZERO_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        if (score.clearType != ArcaeaScoreClearType.FULL_RECALL) {
+        if (score.clearType != ArcaeaPlayResultClearType.FULL_RECALL) {
             return false
         }
 
@@ -176,7 +176,7 @@ data object ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning : ArcaeaScoreVal
     override val messageId = R.string.score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        if (score.clearType != ArcaeaScoreClearType.PURE_MEMORY) {
+        if (score.clearType != ArcaeaPlayResultClearType.PURE_MEMORY) {
             return false
         }
 
@@ -194,7 +194,7 @@ data object ArcaeaScoreValidatorModifierClearTypeMismatchWarning : ArcaeaScoreVa
     override val messageId = R.string.score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message
 
     override fun conditionsMet(score: Score, chartInfo: ChartInfo?): Boolean {
-        return (score.clearType == ArcaeaScoreClearType.EASY_CLEAR && score.modifier != ArcaeaScoreModifier.EASY) || (score.clearType == ArcaeaScoreClearType.HARD_CLEAR && score.modifier != ArcaeaScoreModifier.HARD)
+        return (score.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && score.modifier != ArcaeaPlayResultModifier.EASY) || (score.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && score.modifier != ArcaeaPlayResultModifier.HARD)
     }
 }
 

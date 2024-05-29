@@ -19,8 +19,8 @@ import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
 import xyz.sevive.arcaeaoffline.ui.components.CustomComboBox
 
@@ -186,22 +186,22 @@ fun ScoreEditorDateTimeField(
 
 @Composable
 fun ScoreEditorClearTypeField(
-    clearType: ArcaeaScoreClearType?,
-    onClearTypeChange: (ArcaeaScoreClearType?) -> Unit,
+    clearType: ArcaeaPlayResultClearType?,
+    onClearTypeChange: (ArcaeaPlayResultClearType?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     GeneralNullableFieldWrapper(
         value = clearType,
-        defaultValueConstructor = { ArcaeaScoreClearType.NORMAL_CLEAR },
+        defaultValueConstructor = { ArcaeaPlayResultClearType.NORMAL_CLEAR },
         onValueChange = onClearTypeChange,
         modifier = modifier,
     ) {
         CustomComboBox(
-            options = ArcaeaScoreClearType.entries.map {
+            options = ArcaeaPlayResultClearType.entries.map {
                 Pair(TextFieldValue(it.toDisplayString()), it.value)
             },
             selectedIndex = clearType?.value ?: -1,
-            onSelectChanged = { onClearTypeChange(ArcaeaScoreClearType.fromInt(it)) },
+            onSelectChanged = { onClearTypeChange(ArcaeaPlayResultClearType.fromInt(it)) },
             enabled = clearType != null,
             label = { Text(stringResource(R.string.arcaea_score_clear_type)) },
             modifier = Modifier.weight(1f),
@@ -211,22 +211,22 @@ fun ScoreEditorClearTypeField(
 
 @Composable
 fun ScoreEditorModifierField(
-    scoreModifier: ArcaeaScoreModifier?,
-    onScoreModifierChange: (ArcaeaScoreModifier?) -> Unit,
+    scoreModifier: ArcaeaPlayResultModifier?,
+    onScoreModifierChange: (ArcaeaPlayResultModifier?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     GeneralNullableFieldWrapper(
         value = scoreModifier,
-        defaultValueConstructor = { ArcaeaScoreModifier.NORMAL },
+        defaultValueConstructor = { ArcaeaPlayResultModifier.NORMAL },
         onValueChange = onScoreModifierChange,
         modifier = modifier,
     ) {
         CustomComboBox(
-            options = ArcaeaScoreModifier.entries.map {
+            options = ArcaeaPlayResultModifier.entries.map {
                 Pair(TextFieldValue(it.toDisplayString()), it.value)
             },
             selectedIndex = scoreModifier?.value ?: -1,
-            onSelectChanged = { onScoreModifierChange(ArcaeaScoreModifier.fromInt(it)) },
+            onSelectChanged = { onScoreModifierChange(ArcaeaPlayResultModifier.fromInt(it)) },
             enabled = scoreModifier != null,
             label = { Text(stringResource(R.string.arcaea_score_modifier)) },
             modifier = Modifier.weight(1f),

@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import kotlinx.coroutines.flow.firstOrNull
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -49,7 +49,7 @@ class ChartFactory {
         suspend fun getChart(
             repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
             songId: String,
-            ratingClass: ArcaeaScoreRatingClass,
+            ratingClass: ArcaeaRatingClass,
         ): Chart? {
             val chart = repositoryContainer.chartRepo.find(songId, ratingClass).firstOrNull()
             if (chart != null) return chart

@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 
 @DatabaseView(
@@ -25,7 +25,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
 data class Chart(
     @ColumnInfo(name = "song_idx") val songIdx: Int,
     @ColumnInfo(name = "song_id") val songId: String,
-    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaScoreRatingClass,
+    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val rating: Int,
     @ColumnInfo(name = "rating_plus") val ratingPlus: Boolean,
     val title: String,

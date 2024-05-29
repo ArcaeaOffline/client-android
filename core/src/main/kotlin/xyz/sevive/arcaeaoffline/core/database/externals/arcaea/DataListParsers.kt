@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.externals.arcaea
 
 import android.util.Log
 import kotlinx.serialization.json.Json
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -76,7 +76,7 @@ class SonglistParser(private val content: String) {
                 result.add(
                     Difficulty(
                         songId = song.id,
-                        ratingClass = ArcaeaScoreRatingClass.fromInt(difficulty.ratingClass),
+                        ratingClass = ArcaeaRatingClass.fromInt(difficulty.ratingClass),
                         rating = difficulty.rating,
                         ratingPlus = difficulty.ratingPlus ?: false,
                         chartDesigner = difficulty.chartDesigner,

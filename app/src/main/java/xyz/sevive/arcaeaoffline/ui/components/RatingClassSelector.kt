@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.core.graphics.ColorUtils
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
@@ -128,7 +128,7 @@ internal data class RatingClassBoxColors(val baseColor: Color) {
 internal fun RatingClassBox(
     onClick: () -> Unit,
     baseColor: Color,
-    ratingClass: ArcaeaScoreRatingClass,
+    ratingClass: ArcaeaRatingClass,
     selected: Boolean = false,
     disabled: Boolean = false,
     isFirst: Boolean = false,
@@ -263,14 +263,14 @@ fun RatingClassRowLayout(
 
 @Composable
 fun RatingClassSelector(
-    selectedRatingClass: ArcaeaScoreRatingClass?,
-    onRatingClassChange: (ArcaeaScoreRatingClass) -> Unit,
-    enabledRatingClasses: List<ArcaeaScoreRatingClass> = listOf(),
-    ratingDetails: Map<ArcaeaScoreRatingClass, Pair<Int, Boolean>> = mapOf(),
+    selectedRatingClass: ArcaeaRatingClass?,
+    onRatingClassChange: (ArcaeaRatingClass) -> Unit,
+    enabledRatingClasses: List<ArcaeaRatingClass> = listOf(),
+    ratingDetails: Map<ArcaeaRatingClass, Pair<Int, Boolean>> = mapOf(),
 ) {
     @Composable
     fun RatingClassBoxWrapper(
-        ratingClass: ArcaeaScoreRatingClass,
+        ratingClass: ArcaeaRatingClass,
         isFirst: Boolean = false,
     ) {
         val ratingGroup = ratingDetails[ratingClass]
@@ -291,18 +291,18 @@ fun RatingClassSelector(
 
     RatingClassRowLayout {
         RatingClassBoxWrapper(
-            ratingClass = ArcaeaScoreRatingClass.PAST,
+            ratingClass = ArcaeaRatingClass.PAST,
             isFirst = true,
         )
-        RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.PRESENT)
-        RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.FUTURE)
+        RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.PRESENT)
+        RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.FUTURE)
 
-        if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.BEYOND)) {
-            RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.BEYOND)
+        if (enabledRatingClasses.contains(ArcaeaRatingClass.BEYOND)) {
+            RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.BEYOND)
         }
 
-        if (enabledRatingClasses.contains(ArcaeaScoreRatingClass.ETERNAL)) {
-            RatingClassBoxWrapper(ratingClass = ArcaeaScoreRatingClass.ETERNAL)
+        if (enabledRatingClasses.contains(ArcaeaRatingClass.ETERNAL)) {
+            RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.ETERNAL)
         }
     }
 }
@@ -310,35 +310,35 @@ fun RatingClassSelector(
 @PreviewLightDark
 @Composable
 private fun RatingClassSelectorDevicePreview() {
-    var selectedRatingClass by remember { mutableStateOf(ArcaeaScoreRatingClass.PRESENT) }
+    var selectedRatingClass by remember { mutableStateOf(ArcaeaRatingClass.PRESENT) }
 
     val ratingClasses = mutableListOf(
-        ArcaeaScoreRatingClass.PAST,
-        ArcaeaScoreRatingClass.PRESENT,
-        ArcaeaScoreRatingClass.FUTURE,
-        ArcaeaScoreRatingClass.BEYOND,
-        ArcaeaScoreRatingClass.ETERNAL,
+        ArcaeaRatingClass.PAST,
+        ArcaeaRatingClass.PRESENT,
+        ArcaeaRatingClass.FUTURE,
+        ArcaeaRatingClass.BEYOND,
+        ArcaeaRatingClass.ETERNAL,
     )
 
     val ratingClassesCommon = ratingClasses.toMutableList()
     ratingClassesCommon.removeAll(
         arrayOf(
-            ArcaeaScoreRatingClass.BEYOND, ArcaeaScoreRatingClass.ETERNAL
+            ArcaeaRatingClass.BEYOND, ArcaeaRatingClass.ETERNAL
         )
     )
 
     val ratingClassesWithBeyond = ratingClasses.toMutableList()
-    ratingClassesWithBeyond.remove(ArcaeaScoreRatingClass.ETERNAL)
+    ratingClassesWithBeyond.remove(ArcaeaRatingClass.ETERNAL)
 
     val ratingClassesWithEternal = ratingClasses.toMutableList()
-    ratingClassesWithEternal.remove(ArcaeaScoreRatingClass.BEYOND)
+    ratingClassesWithEternal.remove(ArcaeaRatingClass.BEYOND)
 
     val ratingDetails = mapOf(
-        ArcaeaScoreRatingClass.PAST to Pair(3, false),
-        ArcaeaScoreRatingClass.PRESENT to Pair(7, true),
-        ArcaeaScoreRatingClass.FUTURE to Pair(10, true),
-        ArcaeaScoreRatingClass.BEYOND to Pair(12, false),
-        ArcaeaScoreRatingClass.ETERNAL to Pair(10, true),
+        ArcaeaRatingClass.PAST to Pair(3, false),
+        ArcaeaRatingClass.PRESENT to Pair(7, true),
+        ArcaeaRatingClass.FUTURE to Pair(10, true),
+        ArcaeaRatingClass.BEYOND to Pair(12, false),
+        ArcaeaRatingClass.ETERNAL to Pair(10, true),
     )
 
     ArcaeaOfflineTheme {
@@ -381,7 +381,7 @@ private fun RatingClassSelectorDevicePreview() {
                 RatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = listOf(ArcaeaScoreRatingClass.BEYOND),
+                    enabledRatingClasses = listOf(ArcaeaRatingClass.BEYOND),
                     ratingDetails = ratingDetails,
                 )
 

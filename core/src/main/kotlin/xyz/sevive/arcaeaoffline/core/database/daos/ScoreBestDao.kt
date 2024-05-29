@@ -3,13 +3,13 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
 
 @Dao
 interface ScoreBestDao {
     @Query("SELECT * FROM scores_best WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<ScoreBest>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<ScoreBest>
 
     @Query("SELECT * FROM scores_best")
     fun findAll(): Flow<List<ScoreBest>>

@@ -5,7 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import java.math.RoundingMode
@@ -91,7 +91,7 @@ class ArcaeaFormatters {
         }
 
         private fun ratingText(
-            ratingClass: ArcaeaScoreRatingClass,
+            ratingClass: ArcaeaRatingClass,
             rating: Int,
             ratingPlus: Boolean,
             constant: Int = 0,

@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.core.constants
 
-val ArcaeaScoreModifierRange = 0..2
+val ArcaeaPlayResultModifierRange = 0..2
 
-enum class ArcaeaScoreModifier(val value: Int) {
+enum class ArcaeaPlayResultModifier(val value: Int) {
     NORMAL(0), EASY(1), HARD(2);
 
     fun toDisplayString(): String {
@@ -10,9 +10,9 @@ enum class ArcaeaScoreModifier(val value: Int) {
     }
 
     companion object {
-        fun fromInt(modifierInt: Int): ArcaeaScoreModifier {
+        fun fromInt(modifierInt: Int): ArcaeaPlayResultModifier {
             assert(
-                modifierInt in ArcaeaScoreModifierRange
+                modifierInt in ArcaeaPlayResultModifierRange
             ) { "modifierInt should be within the range of [0, 2]" }
 
             return entries.find { it.value == modifierInt } ?: throw IllegalArgumentException()

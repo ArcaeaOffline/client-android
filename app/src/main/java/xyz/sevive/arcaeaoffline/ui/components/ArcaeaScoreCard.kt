@@ -51,9 +51,9 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
@@ -259,7 +259,7 @@ fun ArcaeaScoreCard(
 @Composable
 private fun previewCharts(): Array<Chart> {
     fun chart(
-        ratingClass: ArcaeaScoreRatingClass,
+        ratingClass: ArcaeaRatingClass,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int,
@@ -283,22 +283,22 @@ private fun previewCharts(): Array<Chart> {
 
     return arrayOf(
         chart(
-            ratingClass = ArcaeaScoreRatingClass.PAST, rating = 2, ratingPlus = false, constant = 20
+            ratingClass = ArcaeaRatingClass.PAST, rating = 2, ratingPlus = false, constant = 20
         ),
         chart(
-            ratingClass = ArcaeaScoreRatingClass.PRESENT,
+            ratingClass = ArcaeaRatingClass.PRESENT,
             rating = 6,
             ratingPlus = false,
             constant = 65
         ),
         chart(
-            ratingClass = ArcaeaScoreRatingClass.FUTURE,
+            ratingClass = ArcaeaRatingClass.FUTURE,
             rating = 9,
             ratingPlus = true,
             constant = 96
         ),
         chart(
-            ratingClass = ArcaeaScoreRatingClass.BEYOND,
+            ratingClass = ArcaeaRatingClass.BEYOND,
             rating = 12,
             ratingPlus = false,
             constant = 120
@@ -309,7 +309,7 @@ private fun previewCharts(): Array<Chart> {
 @Composable
 private fun previewScores(): Array<Score> {
     fun score(
-        id: Int, ratingClass: ArcaeaScoreRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
+        id: Int, ratingClass: ArcaeaRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
     ): Score {
         return Score(
             id = id,
@@ -321,8 +321,8 @@ private fun previewScores(): Array<Score> {
             lost = lost,
             date = Instant.ofEpochSecond(123456),
             maxRecall = 75,
-            modifier = ArcaeaScoreModifier.NORMAL,
-            clearType = ArcaeaScoreClearType.NORMAL_CLEAR,
+            modifier = ArcaeaPlayResultModifier.NORMAL,
+            clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
             comment = "Test Only",
         )
     }
@@ -330,7 +330,7 @@ private fun previewScores(): Array<Score> {
     return arrayOf(
         score(
             id = 0,
-            ratingClass = ArcaeaScoreRatingClass.PAST,
+            ratingClass = ArcaeaRatingClass.PAST,
             score = 9900000,
             pure = null,
             far = null,
@@ -338,7 +338,7 @@ private fun previewScores(): Array<Score> {
         ),
         score(
             id = 1,
-            ratingClass = ArcaeaScoreRatingClass.PRESENT,
+            ratingClass = ArcaeaRatingClass.PRESENT,
             score = 9800000,
             pure = 543,
             far = 2,
@@ -346,7 +346,7 @@ private fun previewScores(): Array<Score> {
         ),
         score(
             id = 2,
-            ratingClass = ArcaeaScoreRatingClass.FUTURE,
+            ratingClass = ArcaeaRatingClass.FUTURE,
             score = 9700000,
             pure = 1023,
             far = 45,
@@ -354,7 +354,7 @@ private fun previewScores(): Array<Score> {
         ),
         score(
             id = 3,
-            ratingClass = ArcaeaScoreRatingClass.BEYOND,
+            ratingClass = ArcaeaRatingClass.BEYOND,
             score = 895000,
             pure = 1234,
             far = 56,

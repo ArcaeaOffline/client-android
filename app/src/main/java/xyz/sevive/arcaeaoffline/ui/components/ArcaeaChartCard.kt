@@ -34,7 +34,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -115,7 +115,7 @@ private fun ArcaeaChartCardPreview() {
     val chart = Chart(
         songIdx = 1,
         songId = "example",
-        ratingClass = ArcaeaScoreRatingClass.FUTURE,
+        ratingClass = ArcaeaRatingClass.FUTURE,
         rating = 10,
         ratingPlus = true,
         title = "Example",
@@ -130,7 +130,7 @@ private fun ArcaeaChartCardPreview() {
     val chartLongTitle = Chart(
         songIdx = 2,
         songId = "verylong",
-        ratingClass = ArcaeaScoreRatingClass.FUTURE,
+        ratingClass = ArcaeaRatingClass.FUTURE,
         rating = 10,
         ratingPlus = true,
         title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",

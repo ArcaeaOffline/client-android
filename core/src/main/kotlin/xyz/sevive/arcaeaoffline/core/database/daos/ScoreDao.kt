@@ -5,14 +5,14 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 
 @Dao
 interface ScoreDao {
     @Query("SELECT * FROM scores WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaScoreRatingClass): Flow<Score>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Score>
 
     @Query("SELECT * FROM scores")
     fun findAll(): Flow<List<Score>>

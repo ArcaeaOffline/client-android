@@ -2,8 +2,8 @@ package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
 
 import androidx.lifecycle.ViewModel
 import org.threeten.bp.Instant
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 class ScoreEditorViewModel : ViewModel() {
@@ -31,11 +31,11 @@ class ScoreEditorViewModel : ViewModel() {
         return score.copy(maxRecall = maxRecall)
     }
 
-    fun editModifier(score: Score, modifier: ArcaeaScoreModifier?): Score {
+    fun editModifier(score: Score, modifier: ArcaeaPlayResultModifier?): Score {
         return score.copy(modifier = modifier)
     }
 
-    fun editClearType(score: Score, clearType: ArcaeaScoreClearType?): Score {
+    fun editClearType(score: Score, clearType: ArcaeaPlayResultClearType?): Score {
         return score.copy(clearType = clearType)
     }
 

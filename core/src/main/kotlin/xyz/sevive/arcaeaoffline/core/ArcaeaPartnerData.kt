@@ -3,14 +3,14 @@ package xyz.sevive.arcaeaoffline.core
 import android.content.res.AssetManager
 import kotlinx.serialization.json.Json
 import org.apache.commons.io.IOUtils
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifierRange
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifierRange
 import java.nio.charset.StandardCharsets
 
 
 class ArcaeaPartnerModifiers(assetManager: AssetManager? = null) {
-    private var partnerModifiers: Map<String, ArcaeaScoreModifier> = mapOf()
+    private var partnerModifiers: Map<String, ArcaeaPlayResultModifier> = mapOf()
 
     init {
         if (assetManager != null) {
@@ -25,12 +25,12 @@ class ArcaeaPartnerModifiers(assetManager: AssetManager? = null) {
         updateWith(contentParsed)
     }
 
-    fun updateWith(value: Map<String, ArcaeaScoreModifier>) {
+    fun updateWith(value: Map<String, ArcaeaPlayResultModifier>) {
         partnerModifiers += value
     }
 
-    operator fun get(partnerId: String): ArcaeaScoreModifier {
-        return partnerModifiers[partnerId] ?: ArcaeaScoreModifier.NORMAL
+    operator fun get(partnerId: String): ArcaeaPlayResultModifier {
+        return partnerModifiers[partnerId] ?: ArcaeaPlayResultModifier.NORMAL
     }
 
     companion object {
@@ -38,28 +38,31 @@ class ArcaeaPartnerModifiers(assetManager: AssetManager? = null) {
 
         private val format = Json { ignoreUnknownKeys = true }
 
-        fun parsePartnerModifiersJson(jsonContent: String): Map<String, ArcaeaScoreModifier> {
+        fun parsePartnerModifiersJson(jsonContent: String): Map<String, ArcaeaPlayResultModifier> {
             return format.decodeFromString<Map<String, Int>>(jsonContent).filter {
-                PARTNER_ID_REGEX.find(it.key) != null && ArcaeaScoreModifierRange.contains(it.value)
+                PARTNER_ID_REGEX.find(it.key) != null && ArcaeaPlayResultModifierRange.contains(it.value)
             }.mapValues {
-                ArcaeaScoreModifier.fromInt(it.value)
+                ArcaeaPlayResultModifier.fromInt(it.value)
             }
         }
     }
 }
 
-fun clearStatusToClearType(clearStatus: Int, modifier: ArcaeaScoreModifier): ArcaeaScoreClearType {
+fun clearStatusToClearType(
+    clearStatus: Int,
+    modifier: ArcaeaPlayResultModifier
+): ArcaeaPlayResultClearType {
     return when (clearStatus) {
-        0 -> ArcaeaScoreClearType.TRACK_LOST
+        0 -> ArcaeaPlayResultClearType.TRACK_LOST
 
         1 -> when (modifier) {
-            ArcaeaScoreModifier.HARD -> ArcaeaScoreClearType.HARD_CLEAR
-            ArcaeaScoreModifier.EASY -> ArcaeaScoreClearType.EASY_CLEAR
-            else -> ArcaeaScoreClearType.NORMAL_CLEAR
+            ArcaeaPlayResultModifier.HARD -> ArcaeaPlayResultClearType.HARD_CLEAR
+            ArcaeaPlayResultModifier.EASY -> ArcaeaPlayResultClearType.EASY_CLEAR
+            else -> ArcaeaPlayResultClearType.NORMAL_CLEAR
         }
 
-        2 -> ArcaeaScoreClearType.FULL_RECALL
-        3 -> ArcaeaScoreClearType.PURE_MEMORY
+        2 -> ArcaeaPlayResultClearType.FULL_RECALL
+        3 -> ArcaeaPlayResultClearType.PURE_MEMORY
         else -> throw IllegalArgumentException()
     }
 }

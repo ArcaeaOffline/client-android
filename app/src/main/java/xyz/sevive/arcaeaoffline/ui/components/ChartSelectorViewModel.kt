@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
@@ -15,14 +15,14 @@ class ChartSelectorViewModel(
     private val _songId = MutableStateFlow<String?>(null)
     val songId = _songId.asStateFlow()
 
-    private val _ratingClass = MutableStateFlow<ArcaeaScoreRatingClass?>(null)
+    private val _ratingClass = MutableStateFlow<ArcaeaRatingClass?>(null)
     val ratingClass = _ratingClass.asStateFlow()
 
-    private val _enabledRatingClasses = MutableStateFlow(listOf<ArcaeaScoreRatingClass>())
+    private val _enabledRatingClasses = MutableStateFlow(listOf<ArcaeaRatingClass>())
     val enabledRatingClasses = _enabledRatingClasses.asStateFlow()
 
     private val _ratingDetails =
-        MutableStateFlow(mapOf<ArcaeaScoreRatingClass, Pair<Int, Boolean>>())
+        MutableStateFlow(mapOf<ArcaeaRatingClass, Pair<Int, Boolean>>())
     val ratingDetails = _ratingDetails.asStateFlow()
 
     private val _chart = MutableStateFlow<Chart?>(null)
@@ -68,7 +68,7 @@ class ChartSelectorViewModel(
         updateChart()
     }
 
-    suspend fun setRatingClass(ratingClass: ArcaeaScoreRatingClass?) {
+    suspend fun setRatingClass(ratingClass: ArcaeaRatingClass?) {
         _ratingClass.value = ratingClass
         updateChart()
     }

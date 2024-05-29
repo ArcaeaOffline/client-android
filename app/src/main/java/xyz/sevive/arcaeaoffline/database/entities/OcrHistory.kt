@@ -8,9 +8,9 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreModifier
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Score
 
 
@@ -21,15 +21,15 @@ data class OcrHistory(
     @ColumnInfo(name = "store_date") val storeDate: Long,
 
     @ColumnInfo(name = "song_id") val songId: String?,
-    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaScoreRatingClass,
+    @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     @ColumnInfo(name = "score") val score: Int,
     @ColumnInfo(name = "pure") val pure: Int?,
     @ColumnInfo(name = "far") val far: Int?,
     @ColumnInfo(name = "lost") val lost: Int?,
     @ColumnInfo(name = "date") val date: Instant?,
     @ColumnInfo(name = "max_recall") val maxRecall: Int?,
-    @ColumnInfo(name = "modifier") val modifier: ArcaeaScoreModifier?,
-    @ColumnInfo(name = "clear_type") val clearType: ArcaeaScoreClearType?,
+    @ColumnInfo(name = "modifier") val modifier: ArcaeaPlayResultModifier?,
+    @ColumnInfo(name = "clear_type") val clearType: ArcaeaPlayResultClearType?,
 ) {
     fun toArcaeaScore(comment: String? = ""): Score? {
         if (songId == null) return null
