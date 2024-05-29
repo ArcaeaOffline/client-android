@@ -23,6 +23,7 @@ class ArcaeaOfflineApplication : Application() {
             // core configurations
             buildConfigClass = BuildConfig::class.java
             reportFormat = StringFormat.JSON
+            deleteUnapprovedReportsOnApplicationStart = true
 
             // plugins
             httpSender {
@@ -34,7 +35,7 @@ class ArcaeaOfflineApplication : Application() {
 
             dialog {
                 title = "Uncaught Exception"
-                reportDialogClass = CustomAcraCrashReportActivity::class.java
+                reportDialogClass = CrashReportActivity::class.java
             }
         }
     }
