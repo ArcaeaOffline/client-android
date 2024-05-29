@@ -1,5 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,10 +23,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
@@ -31,7 +37,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -86,6 +92,14 @@ internal data class RatingClassBoxColors(val baseColor: Color) {
             hsl[2] = 0.95f
             return Color(ColorUtils.HSLToColor(hsl))
         }
+    val selectedTextShadowColor: Color
+        get() {
+            val hsl = floatArrayOf(0f, 0f, 0f)
+            ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
+
+            hsl[2] = 0.05f
+            return Color(ColorUtils.HSLToColor(hsl))
+        }
 
     val notSelectedBgColor: Color
         get() {
@@ -126,13 +140,19 @@ internal fun RatingClassBox(
 
     val colors = RatingClassBoxColors(baseColor)
 
-    val bgColor = if (disabled) colors.disabledBgColor
-    else if (selected) colors.selectedBgColor
-    else colors.notSelectedBgColor
+    val bgColor by animateColorAsState(
+        targetValue = if (disabled) colors.disabledBgColor
+        else if (selected) colors.selectedBgColor
+        else colors.notSelectedBgColor,
+        label = "bgColor"
+    )
 
-    val textColor = if (disabled) colors.disabledTextColor
-    else if (selected) colors.selectedTextColor
-    else colors.notSelectedTextColor
+    val textColor by animateColorAsState(
+        targetValue = if (disabled) colors.disabledTextColor
+        else if (selected) colors.selectedTextColor
+        else colors.notSelectedTextColor,
+        label = "textColor",
+    )
 
     val constantText = buildAnnotatedString {
         if (rating == null) {
@@ -154,12 +174,25 @@ internal fun RatingClassBox(
     val constantTextSize = LocalDensity.current.run { (height * 0.5f).toSp() }
     val labelTextSize = LocalDensity.current.run { (height * 0.175f).toSp() }
 
+    val selectedTextShadowColor by animateColorAsState(
+        targetValue = if (selected) colors.selectedTextShadowColor else bgColor,
+        label = "selectedTextShadowColor",
+    )
+    val selectedTextShadowOffset by animateOffsetAsState(
+        targetValue = if (selected) Offset(3f, 3f) else Offset(0f, 0f),
+        label = "selectedTextShadowOffset",
+    )
+    val selectedTextShadowBlur by animateFloatAsState(
+        targetValue = if (selected) 5f else 0f, label = "selectedTextShadowOffset"
+    )
+
     Box(
         Modifier
             .size(width, height)
             .clip(RatingClassShape(isFirst))
             .background(bgColor)
-            .clickable(enabled = !disabled) { onClick() }) {
+            .clickable(enabled = !disabled) { onClick() },
+    ) {
         CompositionLocalProvider(
             LocalContentColor provides textColor,
         ) {
@@ -173,6 +206,13 @@ internal fun RatingClassBox(
                         IntOffset(0, -yOffset.toInt())
                     },
                 fontSize = constantTextSize,
+                style = LocalTextStyle.current.copy(
+                    shadow = if (selected) Shadow(
+                        color = selectedTextShadowColor,
+                        offset = selectedTextShadowOffset,
+                        blurRadius = selectedTextShadowBlur,
+                    ) else null,
+                ),
             )
 
             Text(
@@ -190,8 +230,6 @@ internal fun RatingClassBox(
                 fontSize = labelTextSize,
                 textAlign = TextAlign.Center,
             )
-
-            // TODO: a dark overlay of the constant text when selected
         }
     }
 }
@@ -269,10 +307,10 @@ fun RatingClassSelector(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun RatingClassSelectorDevicePreview() {
-    var selectedRatingClass by remember { mutableStateOf(ArcaeaScoreRatingClass.PAST) }
+    var selectedRatingClass by remember { mutableStateOf(ArcaeaScoreRatingClass.PRESENT) }
 
     val ratingClasses = mutableListOf(
         ArcaeaScoreRatingClass.PAST,
