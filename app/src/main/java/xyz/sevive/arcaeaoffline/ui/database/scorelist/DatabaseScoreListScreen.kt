@@ -30,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +42,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -118,10 +118,10 @@ fun DatabaseScoreListScreen(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val uiItems by viewModel.uiItems.collectAsState()
+    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
 
     var inSelectMode by rememberSaveable { mutableStateOf(false) }
-    val selectedItemIds by viewModel.selectedUiItemIds.collectAsState()
+    val selectedItemIds by viewModel.selectedUiItemIds.collectAsStateWithLifecycle()
     var showDeleteConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
     val exitSelectMode = {

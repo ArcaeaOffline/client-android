@@ -15,7 +15,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -23,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -50,11 +50,11 @@ fun DatabaseStatusNotInitialized(
 
 @Composable
 fun DatabaseStatusInitialized(viewModel: DatabaseNavEntryViewModel, modifier: Modifier = Modifier) {
-    val packList by viewModel.packList.collectAsState()
-    val songList by viewModel.songList.collectAsState()
-    val difficultyList by viewModel.difficultyList.collectAsState()
-    val chartInfoList by viewModel.chartInfoList.collectAsState()
-    val scoreList by viewModel.scoreList.collectAsState()
+    val packList by viewModel.packList.collectAsStateWithLifecycle()
+    val songList by viewModel.songList.collectAsStateWithLifecycle()
+    val difficultyList by viewModel.difficultyList.collectAsStateWithLifecycle()
+    val chartInfoList by viewModel.chartInfoList.collectAsStateWithLifecycle()
+    val scoreList by viewModel.scoreList.collectAsStateWithLifecycle()
 
     Column(modifier) {
         Text(
@@ -90,8 +90,8 @@ fun DatabaseStatus(
     modifier: Modifier = Modifier,
     viewModel: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val databaseInitialized by viewModel.databaseInitialized.collectAsState()
-    val propertyVersion by viewModel.propertyVersion.collectAsState()
+    val databaseInitialized by viewModel.databaseInitialized.collectAsStateWithLifecycle()
+    val propertyVersion by viewModel.propertyVersion.collectAsStateWithLifecycle()
 
     TitleOutlinedCard(
         title = { padding ->

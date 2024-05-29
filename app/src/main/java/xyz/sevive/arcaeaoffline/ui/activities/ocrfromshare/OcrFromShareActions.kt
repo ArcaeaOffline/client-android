@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
@@ -57,10 +57,10 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
         )
     }
 
-    val score by ocrFromShareViewModel.score.collectAsState()
-    val scoreSaved by ocrFromShareViewModel.scoreSaved.collectAsState()
-    val imageSaved by ocrFromShareViewModel.imageSaved.collectAsState()
-    val scoreCached by ocrFromShareViewModel.scoreCached.collectAsState()
+    val score by ocrFromShareViewModel.score.collectAsStateWithLifecycle()
+    val scoreSaved by ocrFromShareViewModel.scoreSaved.collectAsStateWithLifecycle()
+    val imageSaved by ocrFromShareViewModel.imageSaved.collectAsStateWithLifecycle()
+    val scoreCached by ocrFromShareViewModel.scoreCached.collectAsStateWithLifecycle()
 
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {

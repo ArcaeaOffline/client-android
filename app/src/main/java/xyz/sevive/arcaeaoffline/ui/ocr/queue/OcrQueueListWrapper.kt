@@ -27,7 +27,6 @@ import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
 import kotlinx.coroutines.launch
@@ -157,13 +157,13 @@ fun OcrQueueListWrapper(viewModel: OcrQueueViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val uiItems by viewModel.uiItems.collectAsState()
+    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
     val doneTasksCount = uiItems.count { it.status == OcrQueueTaskStatus.DONE }
     val errorTasksCount = uiItems.count { it.status == OcrQueueTaskStatus.ERROR }
     val processingTasksCount = uiItems.count { it.status == OcrQueueTaskStatus.PROCESSING }
     val scoreValidTaskIds = uiItems.filter { it.scoreValidatorWarnings().isEmpty() }.map { it.id }
 
-    val queueRunning by viewModel.queueRunning.collectAsState()
+    val queueRunning by viewModel.queueRunning.collectAsStateWithLifecycle()
 
     val onSaveScore = fun(taskId: Int) {
         coroutineScope.launch {

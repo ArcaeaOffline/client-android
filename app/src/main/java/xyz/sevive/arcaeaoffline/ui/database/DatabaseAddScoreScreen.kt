@@ -27,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,6 +39,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -229,10 +229,10 @@ fun DatabaseAddScoreScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    val chart by viewModel.chart.collectAsState()
-    val score by viewModel.score.collectAsState()
+    val chart by viewModel.chart.collectAsStateWithLifecycle()
+    val score by viewModel.score.collectAsStateWithLifecycle()
 
-    val scoreWarnings by viewModel.scoreWarnings.collectAsState()
+    val scoreWarnings by viewModel.scoreWarnings.collectAsStateWithLifecycle()
 
     val scoreEditEnabled = score != null
 

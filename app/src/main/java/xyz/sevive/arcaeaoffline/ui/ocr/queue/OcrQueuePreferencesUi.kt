@@ -14,13 +14,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alorma.compose.settings.ui.SettingsCheckbox
 import com.alorma.compose.settings.ui.SettingsSlider
 import kotlinx.coroutines.launch
@@ -44,10 +44,10 @@ fun OcrQueuePreferencesDialog(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    val checkIsImage by viewModel.checkIsImage.collectAsState()
-    val detectScreenshot by viewModel.checkIsArcaeaImage.collectAsState()
-    val channelCapacity by viewModel.channelCapacity.collectAsState()
-    val parallelCount by viewModel.parallelCount.collectAsState()
+    val checkIsImage by viewModel.checkIsImage.collectAsStateWithLifecycle()
+    val detectScreenshot by viewModel.checkIsArcaeaImage.collectAsStateWithLifecycle()
+    val channelCapacity by viewModel.channelCapacity.collectAsStateWithLifecycle()
+    val parallelCount by viewModel.parallelCount.collectAsStateWithLifecycle()
 
     val parallelCountMin = viewModel.parallelCountMin
     val parallelCountMax = viewModel.parallelCountMax

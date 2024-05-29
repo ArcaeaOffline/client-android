@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.dimensionResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 
 
@@ -15,8 +15,8 @@ fun OcrQueueList(
     ocrQueueViewModel: OcrQueueViewModel,
     onSaveScore: (Int) -> Unit,
 ) {
-    val uiItems by ocrQueueViewModel.uiItems.collectAsState()
-    val queueRunning by ocrQueueViewModel.queueRunning.collectAsState()
+    val uiItems by ocrQueueViewModel.uiItems.collectAsStateWithLifecycle()
+    val queueRunning by ocrQueueViewModel.queueRunning.collectAsStateWithLifecycle()
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
         items(uiItems, key = { it.id }) { uiItem ->

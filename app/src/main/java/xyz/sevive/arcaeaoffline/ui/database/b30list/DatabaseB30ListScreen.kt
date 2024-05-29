@@ -20,7 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,6 +33,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.launch
@@ -58,9 +58,9 @@ fun DatabaseB30ListScreen(
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
 
-    val uiItems by viewModel.uiItems.collectAsState()
-    val limit by viewModel.limit.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
+    val limit by viewModel.limit.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     SubScreenContainer(
         topBar = {

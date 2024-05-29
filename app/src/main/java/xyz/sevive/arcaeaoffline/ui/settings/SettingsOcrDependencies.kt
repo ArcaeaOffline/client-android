@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -56,8 +56,8 @@ fun SettingsOcrDependencies(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsState()
-    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsState()
+    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsStateWithLifecycle()
+    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsStateWithLifecycle()
 
     val ocrDependencyPaths = OcrDependencyPaths(context)
     ocrDependencyViewModel.reload(context)
@@ -130,8 +130,8 @@ fun SettingsOcrDependencies(
     }
 
     if (showBuildPhashDatabaseDialog) {
-        val phashDatabaseBuildProgress by settingsViewModel.phashDatabaseBuildProgress.collectAsState()
-        val phashDatabaseBuildProgressTotal by settingsViewModel.phashDatabaseBuildProgressTotal.collectAsState()
+        val phashDatabaseBuildProgress by settingsViewModel.phashDatabaseBuildProgress.collectAsStateWithLifecycle()
+        val phashDatabaseBuildProgressTotal by settingsViewModel.phashDatabaseBuildProgressTotal.collectAsStateWithLifecycle()
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {},

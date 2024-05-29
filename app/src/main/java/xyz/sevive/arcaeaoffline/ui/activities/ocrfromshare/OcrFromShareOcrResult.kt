@@ -9,7 +9,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
 import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
@@ -24,9 +24,9 @@ import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
 
 @Composable
 internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
-    val score by viewModel.score.collectAsState()
-    val exception by viewModel.exception.collectAsState()
-    val chart by viewModel.chart.collectAsState()
+    val score by viewModel.score.collectAsStateWithLifecycle()
+    val exception by viewModel.exception.collectAsStateWithLifecycle()
+    val chart by viewModel.chart.collectAsStateWithLifecycle()
 
     var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -38,8 +38,8 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
         )
     }
 
-    val scoreSaved by viewModel.scoreSaved.collectAsState()
-    val scoreCached by viewModel.scoreCached.collectAsState()
+    val scoreSaved by viewModel.scoreSaved.collectAsStateWithLifecycle()
+    val scoreCached by viewModel.scoreCached.collectAsStateWithLifecycle()
 
     if (score != null) {
         Row(verticalAlignment = Alignment.Bottom) {

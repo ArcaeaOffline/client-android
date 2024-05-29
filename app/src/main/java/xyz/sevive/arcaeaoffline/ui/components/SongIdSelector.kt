@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -22,13 +22,13 @@ fun SongIdSelector(
     chartOnly: Boolean = false,
     viewModel: SongIdSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val packs by viewModel.packs.collectAsState()
-    val songs by viewModel.songs.collectAsState()
+    val packs by viewModel.packs.collectAsStateWithLifecycle()
+    val songs by viewModel.songs.collectAsStateWithLifecycle()
 
-    val selectedPackIndex by viewModel.selectedPackIndex.collectAsState()
-    val selectedSongIndex by viewModel.selectedSongIndex.collectAsState()
+    val selectedPackIndex by viewModel.selectedPackIndex.collectAsStateWithLifecycle()
+    val selectedSongIndex by viewModel.selectedSongIndex.collectAsStateWithLifecycle()
 
-    val selectedSongId by viewModel.selectedSongId.collectAsState()
+    val selectedSongId by viewModel.selectedSongId.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = selectedSongId) {
         if (selectedSongId != songId) onSongIdChanged(selectedSongId)

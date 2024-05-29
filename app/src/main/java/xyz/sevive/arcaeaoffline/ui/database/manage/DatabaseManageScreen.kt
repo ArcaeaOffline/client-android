@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -44,8 +44,8 @@ fun DatabaseManageScreen(
     modifier: Modifier = Modifier,
     viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val actionRunning by viewModel.actionRunning.collectAsState()
-    val messages by viewModel.messages.collectAsState()
+    val actionRunning by viewModel.actionRunning.collectAsStateWithLifecycle()
+    val messages by viewModel.messages.collectAsStateWithLifecycle()
 
     var showLogsSheet by rememberSaveable { mutableStateOf(false) }
     val logsSheetState = rememberModalBottomSheetState(confirmValueChange = { !actionRunning })

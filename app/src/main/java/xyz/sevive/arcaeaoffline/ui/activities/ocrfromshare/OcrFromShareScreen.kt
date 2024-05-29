@@ -18,11 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 
@@ -33,8 +33,8 @@ internal fun OcrFromShareReturnToShareAppButton(
     ocrFromShareViewModel: OcrFromShareViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val appName by ocrFromShareViewModel.shareSourceAppName.collectAsState()
-    val appIcon by ocrFromShareViewModel.shareSourceAppIcon.collectAsState()
+    val appName by ocrFromShareViewModel.shareSourceAppName.collectAsStateWithLifecycle()
+    val appIcon by ocrFromShareViewModel.shareSourceAppIcon.collectAsStateWithLifecycle()
 
     val iconSize = Icons.Default.Apps.defaultHeight
 
@@ -93,7 +93,7 @@ internal fun OcrFromShareScreenContentMedium(
     ocrDependencyViewModel: OcrDependencyViewModel,
     ocrFromShareViewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsState()
+    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsStateWithLifecycle()
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         Row(
@@ -144,7 +144,7 @@ fun OcrFromShareScreenCompact(
     ocrDependencyViewModel: OcrDependencyViewModel,
     ocrFromShareViewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsState()
+    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsStateWithLifecycle()
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         LazyColumn(

@@ -21,7 +21,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -104,11 +104,11 @@ fun OcrQueueScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val addImagesFromFolderProcessing by viewModel.addImagesFromFolderProcessing.collectAsState()
-    val addImagesProgress by viewModel.addImagesProgress.collectAsState()
-    val addImagesProgressTotal by viewModel.addImagesProgressTotal.collectAsState()
+    val addImagesFromFolderProcessing by viewModel.addImagesFromFolderProcessing.collectAsStateWithLifecycle()
+    val addImagesProgress by viewModel.addImagesProgress.collectAsStateWithLifecycle()
+    val addImagesProgressTotal by viewModel.addImagesProgressTotal.collectAsStateWithLifecycle()
 
-    val queueRunning by viewModel.queueRunning.collectAsState()
+    val queueRunning by viewModel.queueRunning.collectAsStateWithLifecycle()
 
     val pickImagesLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetMultipleContents()

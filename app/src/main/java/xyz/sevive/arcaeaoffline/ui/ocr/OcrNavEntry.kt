@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
@@ -39,8 +39,8 @@ fun OcrNavEntry(
 
     ocrDependencyViewModel.reload(context)
 
-    val knnModelStatus by ocrDependencyViewModel.knnModelState.collectAsState()
-    val phashDatabaseState by ocrDependencyViewModel.phashDatabaseState.collectAsState()
+    val knnModelStatus by ocrDependencyViewModel.knnModelState.collectAsStateWithLifecycle()
+    val phashDatabaseState by ocrDependencyViewModel.phashDatabaseState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier,

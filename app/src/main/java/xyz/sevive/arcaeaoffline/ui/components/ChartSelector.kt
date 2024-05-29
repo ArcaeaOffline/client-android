@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -32,10 +32,10 @@ fun ChartSelector(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val enabledRatingClasses by viewModel.enabledRatingClasses.collectAsState()
-    val ratingDetails by viewModel.ratingDetails.collectAsState()
+    val enabledRatingClasses by viewModel.enabledRatingClasses.collectAsStateWithLifecycle()
+    val ratingDetails by viewModel.ratingDetails.collectAsStateWithLifecycle()
 
-    val chartInViewModel by viewModel.chart.collectAsState()
+    val chartInViewModel by viewModel.chart.collectAsStateWithLifecycle()
     val songId = chartInViewModel?.songId
     val ratingClass = chartInViewModel?.ratingClass
 

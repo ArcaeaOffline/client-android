@@ -7,7 +7,7 @@ compose-bom = "2024.05.00"
 compose-ui = "1.6.7"
 compose-material3 = "1.3.0-beta01"
 compose-material3-adaptive = "1.0.0-beta01"
-lifecycle = "2.7.0"
+lifecycle = "2.8.0"
 exifinterface = "1.3.7"
 navigation = "2.7.7"
 documentfile = "1.0.1"
@@ -39,7 +39,8 @@ compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", na
 compose-material3-adaptive-layout = { group = "androidx.compose.material3.adaptive", name = "adaptive-layout", version.ref = "compose-material3-adaptive" }
 compose-material3-adaptive-navigation = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation", version.ref = "compose-material3-adaptive" }
 
-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+lifecycle-lifecycleViewmodelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+lifecycle-lifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 
