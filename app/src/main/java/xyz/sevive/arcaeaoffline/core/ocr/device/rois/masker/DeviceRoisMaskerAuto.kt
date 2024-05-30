@@ -29,6 +29,9 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
     private val bydHsvLower = Scalar(170.0, 50.0, 50.0)
     private val bydHsvUpper = Scalar(179.0, 210.0, 198.0)
 
+    private val etrHsvMin = Scalar(130.0, 60.0, 80.0)
+    private val etrHsvMax = Scalar(140.0, 145.0, 180.0)
+
     private val trackLostHsvLower = Scalar(170.0, 75.0, 90.0)
     private val trackLostHsvUpper = Scalar(175.0, 170.0, 160.0)
 
@@ -117,6 +120,10 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
         return maskHsv(roiBgr, bydHsvLower, bydHsvUpper)
     }
 
+    override fun ratingClassEtr(roiBgr: Mat): Mat {
+        return maskHsv(roiBgr, etrHsvMin, etrHsvMax)
+    }
+
     override fun clearStatusTrackLost(roiBgr: Mat): Mat {
         return maskHsv(roiBgr, trackLostHsvLower, trackLostHsvUpper)
     }
@@ -170,6 +177,9 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
 
     private val bydHsvLower = Scalar(170.0, 50.0, 50.0)
     private val bydHsvUpper = Scalar(179.0, 210.0, 198.0)
+
+    private val etrHsvMin = Scalar(130.0, 60.0, 80.0)
+    private val etrHsvMax = Scalar(140.0, 145.0, 180.0)
 
     private val maxRecallHsvLower = Scalar(125.0, 0.0, 0.0)
     private val maxRecallHsvUpper = Scalar(145.0, 100.0, 150.0)
@@ -238,6 +248,10 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
 
     override fun ratingClassByd(roiBgr: Mat): Mat {
         return this.maskHsv(roiBgr, this.bydHsvLower, this.bydHsvUpper)
+    }
+
+    override fun ratingClassEtr(roiBgr: Mat): Mat {
+        return this.maskHsv(roiBgr, this.etrHsvMin, this.etrHsvMax)
     }
 
     override fun maxRecall(roiBgr: Mat): Mat {

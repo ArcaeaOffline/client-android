@@ -155,7 +155,7 @@ class DeviceOcr(
             masker.ratingClassPrs(roi),
             masker.ratingClassFtr(roi),
             masker.ratingClassByd(roi),
-            // TODO: ETR
+            masker.ratingClassEtr(roi),
         )
         return ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
     }
