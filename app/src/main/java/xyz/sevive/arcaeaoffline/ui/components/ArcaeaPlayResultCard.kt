@@ -55,11 +55,11 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
-import xyz.sevive.arcaeaoffline.ui.theme.scoreGradientBrush
+import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
 
 @Composable
 internal fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
@@ -88,8 +88,8 @@ internal fun DetailsTextWithLabel(label: String, text: String, modifier: Modifie
 }
 
 @Composable
-fun ArcaeaScoreCard(
-    score: Score,
+fun ArcaeaPlayResultCard(
+    playResult: PlayResult,
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
@@ -102,12 +102,13 @@ fun ArcaeaScoreCard(
     )
 
     val scoreText =
-        score.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'").reversed()
+        playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
+            .reversed()
 
     val textMeasurer = rememberTextMeasurer()
     val levelTextTextStyle = MaterialTheme.typography.headlineMedium.copy(
         fontWeight = FontWeight.Bold,
-        brush = scoreGradientBrush(score.score),
+        brush = playResultGradeGradientBrush(playResult.score),
     )
     val exPlusWidthDp = LocalDensity.current.run {
         textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp()
@@ -122,7 +123,7 @@ fun ArcaeaScoreCard(
         Column(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    ArcaeaFormatters.scoreToLevelText(score.score),
+                    ArcaeaFormatters.scoreToLevelText(playResult.score),
                     Modifier
                         .width(exPlusWidthDp)
                         .padding(end = 4.dp),
@@ -138,24 +139,25 @@ fun ArcaeaScoreCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
-                            pflAnnotatedString("P", score.pure),
+                            pflAnnotatedString("P", playResult.pure),
                             color = ArcaeaPflExtendedColors.current.pure,
                         )
 
                         Text(
-                            pflAnnotatedString("F", score.far),
+                            pflAnnotatedString("F", playResult.far),
                             color = ArcaeaPflExtendedColors.current.far,
                         )
 
                         Text(
-                            pflAnnotatedString("L", score.lost),
+                            pflAnnotatedString("L", playResult.lost),
                             color = ArcaeaPflExtendedColors.current.lost,
                         )
                     }
 
                     Text(
                         pflAnnotatedString(
-                            stringResource(R.string.arcaea_max_recall), score.maxRecall
+                            stringResource(R.string.arcaea_play_result_max_recall),
+                            playResult.maxRecall
                         )
                     )
                 }
@@ -168,10 +170,10 @@ fun ArcaeaScoreCard(
             }
 
             Text(
-                if (score.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                if (playResult.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                     .format(
-                        LocalDateTime.ofInstant(score.date, ZoneId.systemDefault())
-                    ) else stringResource(R.string.score_no_date),
+                        LocalDateTime.ofInstant(playResult.date, ZoneId.systemDefault())
+                    ) else stringResource(R.string.play_result_no_date),
                 style = MaterialTheme.typography.labelMedium,
             )
 
@@ -183,13 +185,13 @@ fun ArcaeaScoreCard(
                         color = LocalContentColor.current.copy(0.5f),
                     )
 
-                    val clearTypeText = if (score.clearType != null) {
-                        score.clearType!!.toDisplayString()
-                    } else stringResource(R.string.score_no_clear_type)
+                    val clearTypeText = if (playResult.clearType != null) {
+                        playResult.clearType!!.toDisplayString()
+                    } else stringResource(R.string.play_result_no_clear_type)
 
-                    val modifierText = if (score.modifier != null) {
-                        score.modifier!!.toDisplayString()
-                    } else stringResource(R.string.score_no_modifier)
+                    val modifierText = if (playResult.modifier != null) {
+                        playResult.modifier!!.toDisplayString()
+                    } else stringResource(R.string.play_result_no_modifier)
 
                     VerticalGrid(
                         columns = SimpleGridCells.Fixed(2),
@@ -197,27 +199,28 @@ fun ArcaeaScoreCard(
                     ) {
                         DetailsTextWithLabel(
                             label = "ID",
-                            text = if (score.id == 0) "/" else score.id.toString(),
+                            text = if (playResult.id == 0) "/" else playResult.id.toString(),
                         )
 
                         DetailsTextWithLabel(
                             label = "sI.rC",
-                            text = "${score.songId}.${score.ratingClass}",
+                            text = "${playResult.songId}.${playResult.ratingClass}",
                         )
 
                         DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_score_clear_type),
+                            label = stringResource(R.string.arcaea_play_result_clear_type),
                             text = clearTypeText,
                         )
 
                         DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_score_modifier),
+                            label = stringResource(R.string.arcaea_play_result_modifier),
                             text = modifierText,
                         )
 
                         DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_score_comment),
-                            text = score.comment ?: stringResource(R.string.score_no_comment),
+                            label = stringResource(R.string.arcaea_play_result_comment),
+                            text = playResult.comment
+                                ?: stringResource(R.string.play_result_no_comment),
                             modifier = Modifier.span(2),
                         )
                     }
@@ -229,14 +232,14 @@ fun ArcaeaScoreCard(
 
 
 @Composable
-fun ArcaeaScoreCard(
-    score: Score,
+fun ArcaeaPlayResultCard(
+    playResult: PlayResult,
     modifier: Modifier = Modifier,
     chart: Chart?,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
     if (chart == null) {
-        ArcaeaScoreCard(score = score, modifier = modifier, colors = colors)
+        ArcaeaPlayResultCard(playResult = playResult, modifier = modifier, colors = colors)
         return
     }
 
@@ -251,7 +254,7 @@ fun ArcaeaScoreCard(
             thickness = 1.dp,
             color = CardDefaults.cardColors().containerColor.copy(alpha = 0.5f),
         )
-        ArcaeaScoreCard(score = score, shape = lowerCardShape, colors = colors)
+        ArcaeaPlayResultCard(playResult = playResult, shape = lowerCardShape, colors = colors)
     }
 }
 
@@ -307,11 +310,11 @@ private fun previewCharts(): Array<Chart> {
 }
 
 @Composable
-private fun previewScores(): Array<Score> {
-    fun score(
+private fun previewPlayResults(): Array<PlayResult> {
+    fun playResult(
         id: Int, ratingClass: ArcaeaRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
-    ): Score {
-        return Score(
+    ): PlayResult {
+        return PlayResult(
             id = id,
             songId = "test",
             ratingClass = ratingClass,
@@ -328,7 +331,7 @@ private fun previewScores(): Array<Score> {
     }
 
     return arrayOf(
-        score(
+        playResult(
             id = 0,
             ratingClass = ArcaeaRatingClass.PAST,
             score = 9900000,
@@ -336,7 +339,7 @@ private fun previewScores(): Array<Score> {
             far = null,
             lost = null
         ),
-        score(
+        playResult(
             id = 1,
             ratingClass = ArcaeaRatingClass.PRESENT,
             score = 9800000,
@@ -344,7 +347,7 @@ private fun previewScores(): Array<Score> {
             far = 2,
             lost = 1
         ),
-        score(
+        playResult(
             id = 2,
             ratingClass = ArcaeaRatingClass.FUTURE,
             score = 9700000,
@@ -352,7 +355,7 @@ private fun previewScores(): Array<Score> {
             far = 45,
             lost = 23
         ),
-        score(
+        playResult(
             id = 3,
             ratingClass = ArcaeaRatingClass.BEYOND,
             score = 895000,
@@ -365,11 +368,11 @@ private fun previewScores(): Array<Score> {
 
 @Preview(showBackground = true)
 @Composable
-private fun ScoreCardPreview(
+private fun PlayResultCardPreview(
     modifier: Modifier = Modifier
 ) {
     val charts = previewCharts()
-    val scores = previewScores()
+    val playResults = previewPlayResults()
 
     AndroidThreeTen.init(LocalContext.current)
 
@@ -377,9 +380,13 @@ private fun ScoreCardPreview(
         Column {
             for (i in 0..3) {
                 if (i >= 1) {
-                    ArcaeaScoreCard(score = scores[i], chart = charts[i], modifier = modifier)
+                    ArcaeaPlayResultCard(
+                        playResult = playResults[i],
+                        chart = charts[i],
+                        modifier = modifier
+                    )
                 } else {
-                    ArcaeaScoreCard(score = scores[i], modifier = modifier)
+                    ArcaeaPlayResultCard(playResult = playResults[i], modifier = modifier)
                 }
             }
         }
@@ -389,11 +396,11 @@ private fun ScoreCardPreview(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun ScoreCardDarkPreview(
+private fun PlayResultCardDarkPreview(
     modifier: Modifier = Modifier
 ) {
     val charts = previewCharts()
-    val scores = previewScores()
+    val scores = previewPlayResults()
 
     AndroidThreeTen.init(LocalContext.current)
 
@@ -401,9 +408,13 @@ private fun ScoreCardDarkPreview(
         Column {
             for (i in 0..3) {
                 if (i >= 1) {
-                    ArcaeaScoreCard(score = scores[i], chart = charts[i], modifier = modifier)
+                    ArcaeaPlayResultCard(
+                        playResult = scores[i],
+                        chart = charts[i],
+                        modifier = modifier
+                    )
                 } else {
-                    ArcaeaScoreCard(score = scores[i], modifier = modifier)
+                    ArcaeaPlayResultCard(playResult = scores[i], modifier = modifier)
                 }
             }
         }

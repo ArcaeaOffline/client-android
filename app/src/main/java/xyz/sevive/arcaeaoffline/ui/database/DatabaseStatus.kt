@@ -79,7 +79,7 @@ fun DatabaseStatusInitialized(viewModel: DatabaseNavEntryViewModel, modifier: Mo
         )
         Text(
             pluralStringResource(
-                R.plurals.database_score_entries, scoreList.size, scoreList.size
+                R.plurals.database_play_result_entries, scoreList.size, scoreList.size
             )
         )
     }

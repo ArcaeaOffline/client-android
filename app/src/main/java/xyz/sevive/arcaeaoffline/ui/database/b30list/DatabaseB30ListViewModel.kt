@@ -10,16 +10,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 data class DatabaseB30ListUiItem(
     val index: Int,
-    val scoreBest: ScoreBest,
+    val playResultBest: PlayResultBest,
     val chart: Chart?,
 ) {
-    val id get() = scoreBest.id
+    val id get() = playResultBest.id
 }
 
 class DatabaseB30ListViewModel(
@@ -28,7 +28,7 @@ class DatabaseB30ListViewModel(
     private val _limit = MutableStateFlow(INIT_LIMIT)
     val limit = _limit.asStateFlow()
 
-    private val _b30List = MutableStateFlow<List<ScoreBest>?>(null)
+    private val _b30List = MutableStateFlow<List<PlayResultBest>?>(null)
     private val b30List = _b30List.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
@@ -37,7 +37,7 @@ class DatabaseB30ListViewModel(
     private suspend fun updateB30ListWithLimit(limit: Int) {
         _loading.value = true
 
-        val scores = repositoryContainer.scoreBestRepo.listDescWithLimit(limit).firstOrNull()
+        val scores = repositoryContainer.playResultBestRepo.listDescWithLimit(limit).firstOrNull()
         _b30List.value = scores
 
         _loading.value = false
@@ -59,7 +59,7 @@ class DatabaseB30ListViewModel(
         scoreBests?.mapIndexed { i, scoreBest ->
             DatabaseB30ListUiItem(
                 index = i,
-                scoreBest = scoreBest,
+                playResultBest = scoreBest,
                 chart = ChartFactory.getChart(
                     repositoryContainer,
                     scoreBest.songId,

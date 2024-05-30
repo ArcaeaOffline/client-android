@@ -20,7 +20,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
         ORDER BY sc.potential DESC
     """, "scores_best"
 )
-data class ScoreBest(
+data class PlayResultBest(
     val id: Int,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
@@ -37,8 +37,8 @@ data class ScoreBest(
     val comment: String?,
 )
 
-fun ScoreBest.toScore(): Score {
-    return Score(
+fun PlayResultBest.toPlayResult(): PlayResult {
+    return PlayResult(
         id = this.id,
         songId = this.songId,
         ratingClass = this.ratingClass,

@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.toScore
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
+import xyz.sevive.arcaeaoffline.core.database.entities.toPlayResult
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
@@ -35,8 +35,8 @@ internal fun DatabaseB30ListItem(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         verticalAlignment = Alignment.Bottom
     ) {
-        ArcaeaScoreCard(
-            score = scoreBest.toScore(), Modifier.weight(1f), chart = chart
+        ArcaeaPlayResultCard(
+            playResult = scoreBest.toPlayResult(), Modifier.weight(1f), chart = chart
         )
 
         Column(

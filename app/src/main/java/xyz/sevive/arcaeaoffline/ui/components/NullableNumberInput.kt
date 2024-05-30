@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
+package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.gestures.detectTapGestures

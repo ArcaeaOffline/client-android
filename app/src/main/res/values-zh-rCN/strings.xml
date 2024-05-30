@@ -25,11 +25,11 @@
     <!-- ArcaeaButton -->
     <string name="arcaea_button_resource_unavailable">Arcaea 资源不可用</string>
 
-    <!-- ArcaeaScoreCard -->
-    <string name="score_no_date">// 无日期 //</string>
-    <string name="score_no_clear_type">// 无 Clear Type //</string>
-    <string name="score_no_modifier">// 无 Modifier //</string>
-    <string name="score_no_comment">// 无备注 //</string>
+    <!-- ArcaeaPlayResultCard -->
+    <string name="play_result_no_date">// 无日期 //</string>
+    <string name="play_result_no_clear_type">// 无 Clear Type //</string>
+    <string name="play_result_no_modifier">// 无 Modifier //</string>
+    <string name="play_result_no_comment">// 无备注 //</string>
 
     <!-- CrashReportActivity -->
     <string name="crash_report_title_app_crashed">应用崩溃。</string>
@@ -64,11 +64,11 @@
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">谱面</string>
-    <string name="arcaea_score">分数</string>
-    <string name="arcaea_max_recall">MAX RECALL</string>
-    <string name="arcaea_score_clear_type">通关状态</string>
-    <string name="arcaea_score_modifier">Modifier</string>
-    <string name="arcaea_score_comment">备注</string>
+    <string name="arcaea_play_result_score">分数</string>
+    <string name="arcaea_play_result_max_recall">MAX RECALL</string>
+    <string name="arcaea_play_result_clear_type">通关状态</string>
+    <string name="arcaea_play_result_modifier">Modifier</string>
+    <string name="arcaea_play_result_comment">备注</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
@@ -98,7 +98,7 @@
     <plurals name="database_chart_info_entries">
         <item quantity="other">%d 个谱面信息</item>
     </plurals>
-    <plurals name="database_score_entries">
+    <plurals name="database_play_result_entries">
         <item quantity="other">%d 个分数记录</item>
     </plurals>
 
@@ -122,17 +122,17 @@
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_scores">分数</string>
 
-    <!-- Database add score pane -->
-    <string name="database_add_score_title">添加分数</string>
-    <string name="database_add_score_select_chart_header">选择谱面……</string>
-    <string name="database_add_score_edit_score_header">编辑分数……</string>
-    <string name="database_add_score_click_select_chart">点此选择谱面</string>
-    <string name="database_add_score_select_chart_first">请先选择谱面</string>
+    <!-- Database add play result pane -->
+    <string name="database_add_play_result_title">添加分数</string>
+    <string name="database_add_play_result_select_chart_header">选择谱面……</string>
+    <string name="database_add_play_result_edit_score_header">编辑分数……</string>
+    <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
+    <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
 
 
-    <!-- Database score list pane -->
-    <string name="database_score_list_title">分数列表</string>
-    <plurals name="database_score_list_delete_confirm_dialog_content">
+    <!-- Database play result list pane -->
+    <string name="database_play_result_list_title">分数列表</string>
+    <plurals name="database_play_result_list_delete_confirm_dialog_content">
         <item quantity="other">删除 %d 个分数？</item>
     </plurals>
 
@@ -156,10 +156,10 @@
     <string name="song_id_selector_select_pack">选择曲包</string>
     <string name="song_id_selector_select_song">选择歌曲</string>
 
-    <string name="score_editor_main_fields">主要字段</string>
-    <string name="score_editor_other_fields">其他字段</string>
-    <string name="score_editor_set_null">置空</string>
-    <string name="score_editor_comment_field">备注</string>
+    <string name="play_result_editor_main_fields">主要字段</string>
+    <string name="play_result_editor_other_fields">其他字段</string>
+    <string name="play_result_editor_set_null">置空</string>
+    <string name="play_result_editor_comment_field">备注</string>
 
     <string name="datetime_picker_label">日期</string>
     <string name="datetime_picker_date_tab">日期</string>
@@ -192,34 +192,34 @@
 
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
 
-    <!-- Score validator warnings -->
-    <plurals name="score_validator_warning_count">
+    <!-- PlayResult validator warnings -->
+    <plurals name="play_result_validator_warning_count">
         <item quantity="other">%d 条警告</item>
     </plurals>
 
-    <string name="score_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
-    <string name="score_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
 
-    <string name="score_validator_PFL_OVERFLOW_title">Note 溢出</string>
-    <string name="score_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
+    <string name="play_result_validator_PFL_OVERFLOW_title">Note 溢出</string>
+    <string name="play_result_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
 
-    <string name="score_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
-    <string name="score_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数要大</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数要大</string>
 
-    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL 有误</string>
-    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL 有误</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
 
-    <string name="score_validator_CLEAR_PFL_MISMATCH_title">Note 有误</string>
-    <string name="score_validator_CLEAR_PFL_MISMATCH_message">非 HARD LOST 结算的游玩结果，其 PURE、FAR、LOST 的和应与谱面总物件数相等</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_title">Note 有误</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_message">非 HARD LOST 结算的游玩结果，其 PURE、FAR、LOST 的和应与谱面总物件数相等</string>
 
-    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_title">真全想起来了？</string>
-    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_message">FULL RECALL 时，LOST 应为 0</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">真全想起来了？</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">FULL RECALL 时，LOST 应为 0</string>
 
-    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">真纯净回忆？</string>
-    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">真纯净回忆？</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
 
-    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier 与 Clear Type 不匹配</string>
-    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY CLEAR 同理</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier 与 Clear Type 不匹配</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY CLEAR 同理</string>
 
 
     <!-- `unstable` build flavor -->

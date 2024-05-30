@@ -22,7 +22,7 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -35,7 +35,7 @@ data class OcrQueueTask(
     var fileUri: Uri,
     var status: OcrQueueTaskStatus,
     var ocrResult: DeviceOcrResult? = null,
-    var score: Score? = null,
+    var playResult: PlayResult? = null,
     var chart: Chart? = null,
     var exception: Exception? = null,
 )
@@ -125,14 +125,14 @@ class OcrQueue {
         emitTaskUpdated(task.id)
     }
 
-    fun editTaskScore(taskId: Int, score: Score) {
+    fun editTaskScore(taskId: Int, playResult: PlayResult) {
         val task = ocrQueueTasksMap[taskId]
         if (task == null) {
             Log.e(LOG_TAG, "Cannot modify task ${taskId}, task not found!")
             return
         }
 
-        task.score = score
+        task.playResult = playResult
         emitTaskUpdated(task.id)
     }
 
@@ -247,7 +247,7 @@ class OcrQueue {
 
             task.status = OcrQueueTaskStatus.DONE
             task.ocrResult = ocrResult
-            task.score = score
+            task.playResult = score
             task.chart = chart
         } catch (e: Exception) {
             task.status = OcrQueueTaskStatus.ERROR

@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components.scoreeditor
+package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -22,16 +22,15 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
-import xyz.sevive.arcaeaoffline.ui.components.CustomComboBox
 
 @Composable
-fun ScoreEditorScoreField(
+fun PlayResultEditorScoreField(
     score: Int?, onScoreChange: (Int) -> Unit, modifier: Modifier = Modifier
 ) {
     NullableNumberInput(
         value = score,
         onNumberChange = { onScoreChange(it) },
-        label = { Text(stringResource(R.string.arcaea_score)) },
+        label = { Text(stringResource(R.string.arcaea_play_result_score)) },
         maximum = 19999999,
         modifier = modifier,
 //            visualTransformation = null,
@@ -62,7 +61,7 @@ internal fun SetNullCheckbox(
             checked = isNull,
             onCheckedChange = onIsNullChange,
         )
-        Text(stringResource(R.string.score_editor_set_null))
+        Text(stringResource(R.string.play_result_editor_set_null))
     }
 }
 
@@ -112,55 +111,55 @@ internal fun NullableNumberInputWithCheckboxWrapper(
 }
 
 @Composable
-fun ScoreEditorPureField(
+fun PlayResultEditorPureField(
     pure: Int?, onPureChange: (Int?) -> Unit, modifier: Modifier = Modifier
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = pure,
         onValueChange = { onPureChange(it) },
-        label = { Text(stringResource(R.string.arcaea_pure)) },
+        label = { Text(stringResource(R.string.arcaea_play_result_pure)) },
         modifier = modifier,
     )
 }
 
 @Composable
-fun ScoreEditorFarField(
+fun PlayResultEditorFarField(
     far: Int?, onFarChange: (Int?) -> Unit, modifier: Modifier = Modifier
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = far,
         onValueChange = { onFarChange(it) },
-        label = { Text(stringResource(R.string.arcaea_far)) },
+        label = { Text(stringResource(R.string.arcaea_play_result_far)) },
         modifier = modifier,
     )
 }
 
 @Composable
-fun ScoreEditorLostField(
+fun PlayResultEditorLostField(
     lost: Int?, onLostChange: (Int?) -> Unit, modifier: Modifier = Modifier
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = lost,
         onValueChange = { onLostChange(it) },
-        label = { Text(stringResource(R.string.arcaea_lost)) },
+        label = { Text(stringResource(R.string.arcaea_play_result_lost)) },
         modifier = modifier,
     )
 }
 
 @Composable
-fun ScoreEditorMaxRecallField(
+fun PlayResultEditorMaxRecallField(
     maxRecall: Int?, onMaxRecallChange: (Int?) -> Unit, modifier: Modifier = Modifier
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = maxRecall,
         onValueChange = { onMaxRecallChange(it) },
-        label = { Text(stringResource(R.string.arcaea_max_recall)) },
+        label = { Text(stringResource(R.string.arcaea_play_result_max_recall)) },
         modifier = modifier,
     )
 }
 
 @Composable
-fun ScoreEditorDateTimeField(
+fun PlayResultEditorDateTimeField(
     instant: Instant?,
     onInstantChange: (Instant?) -> Unit,
     modifier: Modifier = Modifier
@@ -185,7 +184,7 @@ fun ScoreEditorDateTimeField(
 }
 
 @Composable
-fun ScoreEditorClearTypeField(
+fun PlayResultEditorClearTypeField(
     clearType: ArcaeaPlayResultClearType?,
     onClearTypeChange: (ArcaeaPlayResultClearType?) -> Unit,
     modifier: Modifier = Modifier,
@@ -203,39 +202,39 @@ fun ScoreEditorClearTypeField(
             selectedIndex = clearType?.value ?: -1,
             onSelectChanged = { onClearTypeChange(ArcaeaPlayResultClearType.fromInt(it)) },
             enabled = clearType != null,
-            label = { Text(stringResource(R.string.arcaea_score_clear_type)) },
+            label = { Text(stringResource(R.string.arcaea_play_result_clear_type)) },
             modifier = Modifier.weight(1f),
         )
     }
 }
 
 @Composable
-fun ScoreEditorModifierField(
-    scoreModifier: ArcaeaPlayResultModifier?,
-    onScoreModifierChange: (ArcaeaPlayResultModifier?) -> Unit,
+fun PlayResultEditorModifierField(
+    arcaeaModifier: ArcaeaPlayResultModifier?,
+    onArcaeaModifierChange: (ArcaeaPlayResultModifier?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     GeneralNullableFieldWrapper(
-        value = scoreModifier,
+        value = arcaeaModifier,
         defaultValueConstructor = { ArcaeaPlayResultModifier.NORMAL },
-        onValueChange = onScoreModifierChange,
+        onValueChange = onArcaeaModifierChange,
         modifier = modifier,
     ) {
         CustomComboBox(
             options = ArcaeaPlayResultModifier.entries.map {
                 Pair(TextFieldValue(it.toDisplayString()), it.value)
             },
-            selectedIndex = scoreModifier?.value ?: -1,
-            onSelectChanged = { onScoreModifierChange(ArcaeaPlayResultModifier.fromInt(it)) },
-            enabled = scoreModifier != null,
-            label = { Text(stringResource(R.string.arcaea_score_modifier)) },
+            selectedIndex = arcaeaModifier?.value ?: -1,
+            onSelectChanged = { onArcaeaModifierChange(ArcaeaPlayResultModifier.fromInt(it)) },
+            enabled = arcaeaModifier != null,
+            label = { Text(stringResource(R.string.arcaea_play_result_modifier)) },
             modifier = Modifier.weight(1f),
         )
     }
 }
 
 @Composable
-fun ScoreEditorCommentField(
+fun PlayResultEditorCommentField(
     comment: String?,
     onCommentChange: (String?) -> Unit,
     modifier: Modifier = Modifier,
@@ -251,7 +250,7 @@ fun ScoreEditorCommentField(
             onValueChange = { onCommentChange(it) },
             modifier = Modifier.weight(1f),
             enabled = comment != null,
-            label = { Text(stringResource(R.string.score_editor_comment_field)) },
+            label = { Text(stringResource(R.string.play_result_editor_comment_field)) },
         )
     }
 }

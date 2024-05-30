@@ -28,7 +28,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
     JOIN scores s ON d.song_id = s.song_id AND d.rating_class = s.rating_class
 """, "scores_calculated"
 )
-data class ScoreCalculated(
+data class PlayResultCalculated(
     val id: Int,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,

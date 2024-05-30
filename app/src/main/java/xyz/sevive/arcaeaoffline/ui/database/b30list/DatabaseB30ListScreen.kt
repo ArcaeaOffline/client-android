@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
@@ -138,7 +138,7 @@ private fun DatabaseB30ListItemPreview() {
         DatabaseB30ListItem(
             DatabaseB30ListUiItem(
                 index = 5,
-                scoreBest = ScoreBest(
+                playResultBest = PlayResultBest(
                     id = 1,
                     songId = "test",
                     ratingClass = ArcaeaRatingClass.FUTURE,

@@ -1,9 +1,8 @@
-package xyz.sevive.arcaeaoffline.ui.database.scorelist
+package xyz.sevive.arcaeaoffline.ui.database
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,18 +45,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
-internal fun DatabaseScoreListItem(
-    uiItem: DatabaseScoreListUiItem,
-    onScoreChange: (Score) -> Unit,
+internal fun DatabasePlayResultListItem(
+    uiItem: DatabasePlayResultListUiItem,
+    onScoreChange: (PlayResult) -> Unit,
     inSelectMode: Boolean,
     selected: Boolean,
     onSelectedChange: (Boolean) -> Unit,
@@ -68,10 +67,10 @@ internal fun DatabaseScoreListItem(
     var showScoreEditor by rememberSaveable { mutableStateOf(false) }
 
     if (showScoreEditor) {
-        ScoreEditorDialog(
+        PlayResultEditorDialog(
             onDismiss = { showScoreEditor = false },
-            score = score,
-            onScoreChange = onScoreChange,
+            playResult = score,
+            onPlayResultChange = onScoreChange,
         )
     }
 
@@ -79,8 +78,8 @@ internal fun DatabaseScoreListItem(
         modifier.clickable(inSelectMode) { onSelectedChange(!selected) },
         verticalAlignment = Alignment.Bottom
     ) {
-        ArcaeaScoreCard(
-            score = score, Modifier.weight(1f), chart = chart
+        ArcaeaPlayResultCard(
+            playResult = score, Modifier.weight(1f), chart = chart
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -109,11 +108,11 @@ internal fun DatabaseScoreListItem(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatabaseScoreListScreen(
+fun DatabasePlayResultListScreen(
     onNavigateUp: () -> Unit,
-    viewModel: DatabaseScoreListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabasePlayResultListViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -137,7 +136,7 @@ fun DatabaseScoreListScreen(
                 if (inSelectMode) exitSelectMode()
                 else onNavigateUp()
             },
-            title = { Text(stringResource(R.string.database_score_list_title)) },
+            title = { Text(stringResource(R.string.database_play_result_list_title)) },
             actions = {
                 AnimatedContent(inSelectMode, label = "selectModeActions") {
                     if (it) {
@@ -175,14 +174,14 @@ fun DatabaseScoreListScreen(
                 val itemSelected = selectedItemIds.contains(it.id)
 
                 Box(Modifier.animateItem()) {
-                    DatabaseScoreListItem(
+                    DatabasePlayResultListItem(
                         uiItem = it,
                         onScoreChange = { scoreEdited ->
                             // TODO: debouncing / only trigger when dialog dismiss?
                             coroutineScope.launch { viewModel.updateScore(scoreEdited) }
 
                             Toast.makeText(
-                                context, "Update score ${it.id}", Toast.LENGTH_SHORT
+                                context, "Update playResult ${it.id}", Toast.LENGTH_SHORT
                             ).show()
                         },
                         inSelectMode = inSelectMode,
@@ -227,7 +226,7 @@ fun DatabaseScoreListScreen(
                 Text(
                     String.format(
                         pluralStringResource(
-                            R.plurals.database_score_list_delete_confirm_dialog_content,
+                            R.plurals.database_play_result_list_delete_confirm_dialog_content,
                             selectedItemsCount
                         ), selectedItemsCount
                     )

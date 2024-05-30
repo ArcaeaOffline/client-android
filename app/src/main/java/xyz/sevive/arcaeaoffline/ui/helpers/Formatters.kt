@@ -34,7 +34,7 @@ class ArcaeaFormatters {
         }
 
         /**
-         * Format the given score to a level text.
+         * Format the given playResult to a level text.
          *
          * For example, 9900000 > "EX+"
          */

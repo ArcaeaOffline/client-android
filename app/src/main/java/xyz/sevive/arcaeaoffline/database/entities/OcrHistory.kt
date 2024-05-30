@@ -11,7 +11,7 @@ import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 
 @Entity(tableName = "ocr_history")
@@ -22,7 +22,7 @@ data class OcrHistory(
 
     @ColumnInfo(name = "song_id") val songId: String?,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
-    @ColumnInfo(name = "score") val score: Int,
+    @ColumnInfo(name = "playResult") val score: Int,
     @ColumnInfo(name = "pure") val pure: Int?,
     @ColumnInfo(name = "far") val far: Int?,
     @ColumnInfo(name = "lost") val lost: Int?,
@@ -31,10 +31,10 @@ data class OcrHistory(
     @ColumnInfo(name = "modifier") val modifier: ArcaeaPlayResultModifier?,
     @ColumnInfo(name = "clear_type") val clearType: ArcaeaPlayResultClearType?,
 ) {
-    fun toArcaeaScore(comment: String? = ""): Score? {
+    fun toArcaeaScore(comment: String? = ""): PlayResult? {
         if (songId == null) return null
 
-        return Score(
+        return PlayResult(
             id = 0,
             songId = songId,
             ratingClass = ratingClass,
@@ -69,7 +69,7 @@ data class OcrHistory(
 
     companion object {
         fun fromArcaeaScore(
-            score: Score,
+            playResult: PlayResult,
             sourcePackageName: String? = null,
             storeDate: Long = Instant.now().epochSecond,
         ): OcrHistory {
@@ -77,16 +77,16 @@ data class OcrHistory(
                 id = 0,
                 sourcePackageName = sourcePackageName,
                 storeDate = storeDate,
-                songId = score.songId,
-                ratingClass = score.ratingClass,
-                score = score.score,
-                pure = score.pure,
-                far = score.far,
-                lost = score.lost,
-                date = score.date,
-                maxRecall = score.maxRecall,
-                modifier = score.modifier,
-                clearType = score.clearType
+                songId = playResult.songId,
+                ratingClass = playResult.ratingClass,
+                score = playResult.score,
+                pure = playResult.pure,
+                far = playResult.far,
+                lost = playResult.lost,
+                date = playResult.date,
+                maxRecall = playResult.maxRecall,
+                modifier = playResult.modifier,
+                clearType = playResult.clearType
             )
         }
     }

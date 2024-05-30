@@ -49,7 +49,7 @@ class DatabaseNavEntryViewModel(
         initialValue = listOf()
     )
 
-    val scoreList = repositoryContainer.scoreRepo.findAll().stateIn(
+    val scoreList = repositoryContainer.playResultRepo.findAll().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = listOf()

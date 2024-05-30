@@ -10,7 +10,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 
 @Entity(tableName = "scores")
-data class Score(
+data class PlayResult(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,

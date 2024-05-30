@@ -44,16 +44,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.ScoreValidatorWarningDetails
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetails
 
 
 @Composable
@@ -101,7 +101,7 @@ internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Un
                         Icon(Icons.Default.TouchApp, null)
                     },
                 ) {
-                    Text(stringResource(R.string.database_add_score_click_select_chart))
+                    Text(stringResource(R.string.database_add_play_result_click_select_chart))
                 }
             }
         }
@@ -114,7 +114,7 @@ internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Un
 
 @Composable
 internal fun ScoreWarningsCard(
-    warnings: List<ArcaeaScoreValidatorWarning>,
+    warnings: List<ArcaeaPlayResultValidatorWarning>,
     modifier: Modifier = Modifier,
 ) {
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
@@ -123,7 +123,7 @@ internal fun ScoreWarningsCard(
         Dialog(onDismissRequest = { showWarningsDialog = false }) {
             Surface {
                 Card {
-                    ScoreValidatorWarningDetails(
+                    PlayResultValidatorWarningDetails(
                         warnings = warnings,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -141,7 +141,7 @@ internal fun ScoreWarningsCard(
         ) {
             Text(
                 pluralStringResource(
-                    R.plurals.score_validator_warning_count,
+                    R.plurals.play_result_validator_warning_count,
                     warnings.size,
                     warnings.size
                 )
@@ -152,16 +152,16 @@ internal fun ScoreWarningsCard(
 
 @Composable
 internal fun ScoreAction(
-    score: Score?,
+    playResult: PlayResult?,
     scoreEditEnabled: Boolean,
     onOpenScoreEditorDialogRequest: () -> Unit,
-    warnings: List<ArcaeaScoreValidatorWarning>,
+    warnings: List<ArcaeaPlayResultValidatorWarning>,
 ) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
     ) {
-        if (score != null) {
+        if (playResult != null) {
             Column(Modifier.weight(1f)) {
                 AnimatedVisibility(warnings.isNotEmpty()) {
                     ScoreWarningsCard(
@@ -170,7 +170,7 @@ internal fun ScoreAction(
                     )
                 }
 
-                ArcaeaScoreCard(score = score)
+                ArcaeaPlayResultCard(playResult = playResult)
             }
         } else {
             Card(Modifier.weight(1f)) {
@@ -180,7 +180,7 @@ internal fun ScoreAction(
                         Icon(Icons.Default.Block, null)
                     },
                 ) {
-                    Text(stringResource(R.string.database_add_score_select_chart_first))
+                    Text(stringResource(R.string.database_add_play_result_select_chart_first))
                 }
             }
         }
@@ -222,10 +222,10 @@ internal fun BottomActionsBar(
 }
 
 @Composable
-fun DatabaseAddScoreScreen(
+fun DatabaseAddPlayResultScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DatabaseAddScoreViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabaseAddPlayResultViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -248,15 +248,15 @@ fun DatabaseAddScoreScreen(
     }
 
     if (showScoreEditorDialog && scoreEditEnabled) {
-        ScoreEditorDialog(
+        PlayResultEditorDialog(
             onDismiss = { showScoreEditorDialog = false },
-            score = score!!,
-            onScoreChange = { viewModel.setScore(it) },
+            playResult = score!!,
+            onPlayResultChange = { viewModel.setScore(it) },
         )
     }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp, title = stringResource(R.string.database_add_score_title)
+        onNavigateUp = onNavigateUp, title = stringResource(R.string.database_add_play_result_title)
     ) {
         Scaffold(modifier = modifier, bottomBar = {
             BottomActionsBar(
@@ -268,7 +268,7 @@ fun DatabaseAddScoreScreen(
         }) {
             LazyColumn(Modifier.padding(it)) {
                 item {
-                    DelimiterWithText(stringResource(R.string.database_add_score_select_chart_header))
+                    DelimiterWithText(stringResource(R.string.database_add_play_result_select_chart_header))
                 }
 
                 item {
@@ -287,12 +287,12 @@ fun DatabaseAddScoreScreen(
                 }
 
                 item {
-                    DelimiterWithText(stringResource(R.string.database_add_score_edit_score_header))
+                    DelimiterWithText(stringResource(R.string.database_add_play_result_edit_score_header))
                 }
 
                 item {
                     ScoreAction(
-                        score = score,
+                        playResult = score,
                         scoreEditEnabled = scoreEditEnabled,
                         onOpenScoreEditorDialogRequest = { showScoreEditorDialog = true },
                         warnings = scoreWarnings,

@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.repositories.ScoreRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 
 @Serializable
 data class ArcaeaOfflineExportScoreItem(
@@ -33,11 +33,11 @@ data class ArcaeaOfflineExportScoreRoot(
     val scores: List<ArcaeaOfflineExportScoreItem>,
 )
 
-class ArcaeaOfflineExportScore(private val scoreRepository: ScoreRepository) {
+class ArcaeaOfflineExportScore(private val playResultRepository: PlayResultRepository) {
     private val json = Json { ignoreUnknownKeys = true }
 
     private suspend fun toJsonObject(): ArcaeaOfflineExportScoreRoot? {
-        val scores = scoreRepository.findAll().firstOrNull() ?: return null
+        val scores = playResultRepository.findAll().firstOrNull() ?: return null
 
         val exportScores = mutableListOf<ArcaeaOfflineExportScoreItem>()
         for (score in scores) {

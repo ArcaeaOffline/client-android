@@ -6,31 +6,31 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 
 @Dao
-interface ScoreDao {
+interface PlayResultDao {
     @Query("SELECT * FROM scores WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Score>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult>
 
     @Query("SELECT * FROM scores")
-    fun findAll(): Flow<List<Score>>
+    fun findAll(): Flow<List<PlayResult>>
 
     @Query("SELECT * FROM scores WHERE song_id = :songId")
-    fun findAllBySongId(songId: String): Flow<List<Score>>
+    fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
     @Upsert
-    suspend fun upsert(item: Score)
+    suspend fun upsert(item: PlayResult)
 
     @Upsert
-    suspend fun upsertAll(vararg items: Score)
+    suspend fun upsertAll(vararg items: PlayResult)
 
     @Delete
-    suspend fun delete(item: Score)
+    suspend fun delete(item: PlayResult)
 
     @Delete
-    suspend fun deleteAll(vararg items: Score)
+    suspend fun deleteAll(vararg items: PlayResult)
 }
 
 

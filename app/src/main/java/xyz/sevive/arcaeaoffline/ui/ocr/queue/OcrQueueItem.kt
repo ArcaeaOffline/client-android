@@ -42,13 +42,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.Dialog
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.ScoreValidatorWarningDetails
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetails
 
 @Composable
 fun OcrQueueItemImagePreview(uiItem: OcrQueueTaskUiItem, onDismissRequest: () -> Unit) {
@@ -154,14 +154,14 @@ fun OcrQueueItemScore(
     onSaveScore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val score = uiItem.score ?: return
+    val score = uiItem.playResult ?: return
     val warnings = uiItem.scoreValidatorWarnings()
 
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog && warnings.isNotEmpty()) {
         Dialog(onDismissRequest = { showWarningsDialog = false }) {
             Card {
-                ScoreValidatorWarningDetails(warnings)
+                PlayResultValidatorWarningDetails(warnings)
             }
         }
     }
@@ -170,7 +170,7 @@ fun OcrQueueItemScore(
         modifier,
         verticalAlignment = Alignment.Bottom,
     ) {
-        ArcaeaScoreCard(score, chart = uiItem.chart, modifier = Modifier.weight(1f))
+        ArcaeaPlayResultCard(score, chart = uiItem.chart, modifier = Modifier.weight(1f))
 
         Column {
             if (warnings.isNotEmpty()) {
@@ -205,7 +205,7 @@ fun OcrQueueItem(
     uiItem: OcrQueueTaskUiItem,
     onDeleteTask: (Int) -> Unit,
     deleteEnabled: Boolean = true,
-    onEditScore: (Int, Score) -> Unit,
+    onEditScore: (Int, PlayResult) -> Unit,
     onSaveScore: (Int) -> Unit,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
@@ -215,12 +215,12 @@ fun OcrQueueItem(
         OcrQueueItemImagePreview(uiItem, onDismissRequest = { showImagePreview = false })
     }
 
-    val score = uiItem.score
+    val score = uiItem.playResult
     if (showScoreEditor && score != null) {
-        ScoreEditorDialog(
+        PlayResultEditorDialog(
             onDismiss = { showScoreEditor = false },
-            score = score,
-            onScoreChange = { onEditScore(uiItem.id, it) },
+            playResult = score,
+            onPlayResultChange = { onEditScore(uiItem.id, it) },
         )
     }
 

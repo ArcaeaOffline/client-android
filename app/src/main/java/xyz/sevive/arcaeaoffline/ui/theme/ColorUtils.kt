@@ -17,7 +17,7 @@ fun ratingClassColor(ratingClass: ArcaeaRatingClass): Color {
 }
 
 @Composable
-fun scoreGradientBrush(score: Int): Brush {
+fun playResultGradeGradientBrush(score: Int): Brush {
     val colors = when {
         score >= 9900000 -> ArcaeaGradeGradientExtendedColors.current.exPlus
         score >= 9800000 -> ArcaeaGradeGradientExtendedColors.current.ex

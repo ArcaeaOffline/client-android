@@ -13,7 +13,7 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
@@ -76,7 +76,7 @@ class DeviceOcrHelper {
             fallbackDate: Instant? = null,
             overrideDate: Instant? = null,
             customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
-        ): Score {
+        ): PlayResult {
             val arcaeaPartnerModifiers =
                 customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
 

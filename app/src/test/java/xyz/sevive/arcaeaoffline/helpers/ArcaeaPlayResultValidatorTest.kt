@@ -5,9 +5,9 @@ import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
-class ArcaeaScoreValidatorTest {
+class ArcaeaPlayResultValidatorTest {
     @Test
     fun maxRecallOverflow() {
         val chartInfo = ChartInfo(
@@ -17,7 +17,7 @@ class ArcaeaScoreValidatorTest {
             notes = 920,
         )
 
-        val score = Score(
+        val playResult = PlayResult(
             id = 0,
             songId = "test",
             ratingClass = ArcaeaRatingClass.FUTURE,
@@ -33,13 +33,13 @@ class ArcaeaScoreValidatorTest {
         )
 
         assertTrue(
-            ArcaeaScoreValidatorMaxRecallOverflowWarning.conditionsMet(score, chartInfo)
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo)
         )
     }
 
     @Test
     fun pureMemoryFarLostNotZero() {
-        val scoreHasFar = Score(
+        val playResultHasFar = PlayResult(
             id = 0,
             songId = "test",
             ratingClass = ArcaeaRatingClass.BEYOND,
@@ -53,7 +53,7 @@ class ArcaeaScoreValidatorTest {
             clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
             comment = null,
         )
-        val scoreHasLost = Score(
+        val playResultHasLost = PlayResult(
             id = 0,
             songId = "test",
             ratingClass = ArcaeaRatingClass.BEYOND,
@@ -67,7 +67,7 @@ class ArcaeaScoreValidatorTest {
             clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
             comment = null,
         )
-        val scoreHasNothing = Score(
+        val playResultHasNothing = PlayResult(
             id = 0,
             songId = "test",
             ratingClass = ArcaeaRatingClass.BEYOND,
@@ -83,13 +83,22 @@ class ArcaeaScoreValidatorTest {
         )
 
         assertTrue(
-            ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(scoreHasFar, null)
+            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+                playResultHasFar,
+                null
+            )
         )
         assertTrue(
-            ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(scoreHasLost, null)
+            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+                playResultHasLost,
+                null
+            )
         )
         assertTrue(
-            ArcaeaScoreValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(scoreHasNothing, null)
+            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+                playResultHasNothing,
+                null
+            )
         )
     }
 }

@@ -33,11 +33,11 @@ CC BY-SA 3.0
     <!-- ArcaeaButton -->
     <string name="arcaea_button_resource_unavailable">Arcaea resource unavailable</string>
 
-    <!-- ArcaeaScoreCard -->
-    <string name="score_no_date">// No date //</string>
-    <string name="score_no_clear_type">// No clear type //</string>
-    <string name="score_no_modifier">// No modifier //</string>
-    <string name="score_no_comment">// No comment //</string>
+    <!-- ArcaeaPlayResultCard -->
+    <string name="play_result_no_date">// No date //</string>
+    <string name="play_result_no_clear_type">// No clear type //</string>
+    <string name="play_result_no_modifier">// No modifier //</string>
+    <string name="play_result_no_comment">// No comment //</string>
 
     <!-- CrashReportActivity -->
     <string name="crash_report_title_app_crashed">App Crashed.</string>
@@ -73,14 +73,14 @@ CC BY-SA 3.0
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
-    <string name="arcaea_score">Score</string>
-    <string name="arcaea_pure" translatable="false">PURE</string>
-    <string name="arcaea_far" translatable="false">FAR</string>
-    <string name="arcaea_lost" translatable="false">LOST</string>
-    <string name="arcaea_max_recall">MAX RECALL</string>
-    <string name="arcaea_score_clear_type">Clear Type</string>
-    <string name="arcaea_score_modifier">Modifier</string>
-    <string name="arcaea_score_comment">Comment</string>
+    <string name="arcaea_play_result_score">Score</string>
+    <string name="arcaea_play_result_pure" translatable="false">PURE</string>
+    <string name="arcaea_play_result_far" translatable="false">FAR</string>
+    <string name="arcaea_play_result_lost" translatable="false">LOST</string>
+    <string name="arcaea_play_result_max_recall">MAX RECALL</string>
+    <string name="arcaea_play_result_clear_type">Clear Type</string>
+    <string name="arcaea_play_result_modifier">Modifier</string>
+    <string name="arcaea_play_result_comment">Comment</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
@@ -114,9 +114,9 @@ CC BY-SA 3.0
         <item quantity="many">%d chart info entries</item>
         <item quantity="other">%d chart info entry</item>
     </plurals>
-    <plurals name="database_score_entries">
-        <item quantity="many">%d score entries</item>
-        <item quantity="other">%d score entry</item>
+    <plurals name="database_play_result_entries">
+        <item quantity="many">%d play result entries</item>
+        <item quantity="other">%d play result entry</item>
     </plurals>
 
     <string name="database_status_title">Database Status</string>
@@ -139,18 +139,18 @@ CC BY-SA 3.0
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_scores">Scores</string>
 
-    <!-- Database add score pane -->
-    <string name="database_add_score_title">Add Score</string>
-    <string name="database_add_score_select_chart_header">Select a chart…</string>
-    <string name="database_add_score_edit_score_header">Then edit your score…</string>
-    <string name="database_add_score_click_select_chart">Click here to select a chart.</string>
-    <string name="database_add_score_select_chart_first">Select a chart first.</string>
+    <!-- Database add play result pane -->
+    <string name="database_add_play_result_title">Add a Play Result</string>
+    <string name="database_add_play_result_select_chart_header">Select a chart…</string>
+    <string name="database_add_play_result_edit_score_header">Then edit your playResult…</string>
+    <string name="database_add_play_result_click_select_chart">Click here to select a chart.</string>
+    <string name="database_add_play_result_select_chart_first">Select a chart first.</string>
 
-    <!-- Database score list pane -->
-    <string name="database_score_list_title">Score List</string>
-    <plurals name="database_score_list_delete_confirm_dialog_content">
-        <item quantity="many">Are you sure to delete %d scores?</item>
-        <item quantity="other">Are you sure to delete %d score?</item>
+    <!-- Database play result list pane -->
+    <string name="database_play_result_list_title">Play Results List</string>
+    <plurals name="database_play_result_list_delete_confirm_dialog_content">
+        <item quantity="many">Are you sure to delete %d play results?</item>
+        <item quantity="other">Are you sure to delete %d play result?</item>
     </plurals>
 
     <!-- Database b30 list pane -->
@@ -175,10 +175,10 @@ CC BY-SA 3.0
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
 
-    <string name="score_editor_main_fields">Main fields</string>
-    <string name="score_editor_other_fields">Other fields</string>
-    <string name="score_editor_set_null">NULL</string>
-    <string name="score_editor_comment_field">Comment</string>
+    <string name="play_result_editor_main_fields">Main fields</string>
+    <string name="play_result_editor_other_fields">Other fields</string>
+    <string name="play_result_editor_set_null">NULL</string>
+    <string name="play_result_editor_comment_field">Comment</string>
 
     <string name="datetime_picker_label">Date</string>
     <string name="datetime_picker_date_tab">Date</string>
@@ -211,35 +211,35 @@ CC BY-SA 3.0
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
 
-    <!-- Score validator warnings -->
-    <plurals name="score_validator_warning_count">
+    <!-- PlayResult validator warnings -->
+    <plurals name="play_result_validator_warning_count">
         <item quantity="many">%d warnings</item>
         <item quantity="other">%d warning</item>
     </plurals>
 
-    <string name="score_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
-    <string name="score_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The playResult calculation based on the pure/far value does not match the given playResult.</string>
 
-    <string name="score_validator_PFL_OVERFLOW_title">Notes overflow</string>
-    <string name="score_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
+    <string name="play_result_validator_PFL_OVERFLOW_title">Notes overflow</string>
+    <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
 
-    <string name="score_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
-    <string name="score_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart.</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart.</string>
 
-    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL mismatch</string>
-    <string name="score_validator_FR_PM_MAX_RECALL_MISMATCH_message">The max recall of a FULL RECALL / PURE MEMORY play result should be equal to the total notes of the chart.</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL mismatch</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">The max recall of a FULL RECALL / PURE MEMORY play result should be equal to the total notes of the chart.</string>
 
-    <string name="score_validator_CLEAR_PFL_MISMATCH_title">Notes mismatch</string>
-    <string name="score_validator_CLEAR_PFL_MISMATCH_message">The sum of pure, far, lost of a non HARD LOST play result should be equal to the total notes of the chart.</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_title">Notes mismatch</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_message">The sum of pure, far, lost of a non HARD LOST play result should be equal to the total notes of the chart.</string>
 
-    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_title">FULL RECALL?</string>
-    <string name="score_validator_FULL_RECALL_LOST_NOT_ZERO_message">The lost of a FULL RECALL play result should be zero.</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">FULL RECALL?</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">The lost of a FULL RECALL play result should be zero.</string>
 
-    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">PURE MEMORY?</string>
-    <string name="score_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">The far and lost of a PURE MEMORY play result should be zero.</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">PURE MEMORY?</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">The far and lost of a PURE MEMORY play result should be zero.</string>
 
-    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier &amp; Clear Type mismatch</string>
-    <string name="score_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">A HARD CLEAR clear type should have the HARD modifier, and the same for EASY CLEAR.</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier &amp; Clear Type mismatch</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">A HARD CLEAR clear type should have the HARD modifier, and the same for EASY CLEAR.</string>
 
 
     <!-- `unstable` build flavor -->

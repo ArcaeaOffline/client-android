@@ -18,10 +18,10 @@ import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultCalculatedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
-import xyz.sevive.arcaeaoffline.core.database.daos.ScoreBestDao
-import xyz.sevive.arcaeaoffline.core.database.daos.ScoreCalculatedDao
-import xyz.sevive.arcaeaoffline.core.database.daos.ScoreDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.entities.CalculatedPotential
@@ -31,10 +31,10 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.core.database.entities.ScoreBest
-import xyz.sevive.arcaeaoffline.core.database.entities.ScoreCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import kotlin.math.floor
@@ -50,9 +50,9 @@ import kotlin.math.floor
         Difficulty::class,
         DifficultyLocalized::class,
         ChartInfo::class,
-        Score::class,
+        PlayResult::class,
     ],
-    views = [Chart::class, ScoreCalculated::class, ScoreBest::class, CalculatedPotential::class],
+    views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class, CalculatedPotential::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
     ],
@@ -69,11 +69,11 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun difficultyDao(): DifficultyDao
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
     abstract fun chartInfoDao(): ChartInfoDao
-    abstract fun scoreDao(): ScoreDao
+    abstract fun scoreDao(): PlayResultDao
 
     abstract fun chartDao(): ChartDao
-    abstract fun scoreCalculatedDao(): ScoreCalculatedDao
-    abstract fun scoreBestDao(): ScoreBestDao
+    abstract fun scoreCalculatedDao(): PlayResultCalculatedDao
+    abstract fun scoreBestDao(): PlayResultBestDao
 
     abstract fun calculatedPotentialDao(): CalculatedPotentialDao
 

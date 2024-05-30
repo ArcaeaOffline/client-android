@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListScreen
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageScreen
-import xyz.sevive.arcaeaoffline.ui.database.scorelist.DatabaseScoreListScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -32,11 +31,11 @@ fun DatabaseEntryScreen() {
             }
 
             DatabaseScreenDestinations.AddScore.route -> {
-                DatabaseAddScoreScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabaseAddPlayResultScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
 
             DatabaseScreenDestinations.ScoreList.route -> {
-                DatabaseScoreListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabasePlayResultListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
 
             DatabaseScreenDestinations.B30.route -> {

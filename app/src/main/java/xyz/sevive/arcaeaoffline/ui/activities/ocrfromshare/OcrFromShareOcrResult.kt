@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaScoreCard
-import xyz.sevive.arcaeaoffline.ui.components.scoreeditor.ScoreEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
 
 
 @Composable
@@ -31,10 +31,10 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
     var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showScoreEditorDialog && score != null) {
-        ScoreEditorDialog(
+        PlayResultEditorDialog(
             onDismiss = { showScoreEditorDialog = false },
-            score = score!!,
-            onScoreChange = { viewModel.setScore(it) },
+            playResult = score!!,
+            onPlayResultChange = { viewModel.setScore(it) },
         )
     }
 
@@ -43,7 +43,11 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
 
     if (score != null) {
         Row(verticalAlignment = Alignment.Bottom) {
-            ArcaeaScoreCard(score = score!!, modifier = Modifier.weight(1f), chart = chart)
+            ArcaeaPlayResultCard(
+                playResult = score!!,
+                modifier = Modifier.weight(1f),
+                chart = chart
+            )
 
             AnimatedVisibility(visible = !scoreSaved && !scoreCached) {
                 IconButton(onClick = { showScoreEditorDialog = true }) {

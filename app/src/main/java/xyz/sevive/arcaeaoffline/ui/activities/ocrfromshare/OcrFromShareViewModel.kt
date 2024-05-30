@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.helpers.ChartFactory
@@ -82,14 +82,14 @@ class OcrFromShareViewModel(
     private val _chart = MutableStateFlow<Chart?>(null)
     val chart = _chart.asStateFlow()
 
-    private val _score = MutableStateFlow<Score?>(null)
-    val score = _score.asStateFlow()
+    private val _playResult = MutableStateFlow<PlayResult?>(null)
+    val score = _playResult.asStateFlow()
 
     private val _exception = MutableStateFlow<Exception?>(null)
     val exception = _exception.asStateFlow()
 
-    fun setScore(score: Score?) {
-        _score.value = score
+    fun setScore(playResult: PlayResult?) {
+        _playResult.value = playResult
     }
 
     fun setException(e: Exception) {
@@ -101,7 +101,7 @@ class OcrFromShareViewModel(
 
     suspend fun saveScore() {
         if (score.value != null) {
-            repositoryContainer.scoreRepo.upsert(score.value!!)
+            repositoryContainer.playResultRepo.upsert(score.value!!)
             _scoreSaved.value = true
         }
     }
@@ -155,14 +155,14 @@ class OcrFromShareViewModel(
                     fallbackDate = Instant.now(),
                 )
 
-                _score.value = score
+                _playResult.value = score
                 _exception.value = null
 
                 _chart.value = ChartFactory.getChart(
                     repositoryContainer, score.songId, score.ratingClass
                 )
             } catch (e: Exception) {
-                _score.value = null
+                _playResult.value = null
                 _exception.value = e
 
                 Log.e(TAG, "Error occurred during OCR", e)

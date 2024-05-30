@@ -15,10 +15,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidator
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTask
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -29,13 +29,13 @@ data class OcrQueueTaskUiItem(
     var fileUri: Uri,
     var status: OcrQueueTaskStatus,
     var ocrResult: DeviceOcrResult? = null,
-    var score: Score? = null,
+    var playResult: PlayResult? = null,
     var chart: Chart? = null,
     var exception: Exception? = null,
 ) {
-    fun scoreValidatorWarnings(): List<ArcaeaScoreValidatorWarning> {
-        return score?.let {
-            ArcaeaScoreValidator.validateScore(it, chart)
+    fun scoreValidatorWarnings(): List<ArcaeaPlayResultValidatorWarning> {
+        return playResult?.let {
+            ArcaeaPlayResultValidator.validateScore(it, chart)
         } ?: emptyList()
     }
 
@@ -46,7 +46,7 @@ data class OcrQueueTaskUiItem(
                 fileUri = task.fileUri,
                 status = task.status,
                 ocrResult = task.ocrResult,
-                score = task.score,
+                playResult = task.playResult,
                 chart = task.chart,
                 exception = task.exception,
             )
@@ -184,16 +184,16 @@ class OcrQueueViewModel(
         ocrQueue.clear()
     }
 
-    fun modifyTaskScore(taskId: Int, score: Score) {
-        ocrQueue.editTaskScore(taskId, score)
+    fun modifyTaskScore(taskId: Int, playResult: PlayResult) {
+        ocrQueue.editTaskScore(taskId, playResult)
     }
 
     suspend fun saveTaskScore(taskId: Int, context: Context) {
         val uiItem = uiItems.value.find { it.id == taskId } ?: return
 
-        val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).scoreRepo
+        val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).playResultRepo
 
-        uiItem.score?.let {
+        uiItem.playResult?.let {
             scoreRepository.upsert(it)
             ocrQueue.deleteTask(taskId)
         }

@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Score
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidator
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
-class DatabaseAddScoreViewModel(
+class DatabaseAddPlayResultViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
     private val _chart = MutableStateFlow<Chart?>(null)
@@ -20,17 +20,18 @@ class DatabaseAddScoreViewModel(
         initScore()
     }
 
-    private val _score = MutableStateFlow<Score?>(null)
-    val score = _score.asStateFlow()
+    private val _playResult = MutableStateFlow<PlayResult?>(null)
+    val score = _playResult.asStateFlow()
 
-    private val _scoreWarnings = MutableStateFlow<List<ArcaeaScoreValidatorWarning>>(listOf())
+    private val _scoreWarnings = MutableStateFlow<List<ArcaeaPlayResultValidatorWarning>>(listOf())
     val scoreWarnings = _scoreWarnings.asStateFlow()
 
     private fun validateScore() {
         val score = score.value ?: return
         val chart = chart.value
 
-        _scoreWarnings.value = ArcaeaScoreValidator.validateScore(score = score, chart = chart)
+        _scoreWarnings.value =
+            ArcaeaPlayResultValidator.validateScore(playResult = score, chart = chart)
     }
 
     private fun initScore() {
@@ -43,27 +44,27 @@ class DatabaseAddScoreViewModel(
         }
 
         setScore(
-            score = if (_score.value != null) {
-                _score.value!!.copy(songId = songId, ratingClass = ratingClass)
+            playResult = if (_playResult.value != null) {
+                _playResult.value!!.copy(songId = songId, ratingClass = ratingClass)
             } else {
-                Score(songId = songId, ratingClass = ratingClass, score = 0)
+                PlayResult(songId = songId, ratingClass = ratingClass, score = 0)
             }
         )
     }
 
-    fun setScore(score: Score?) {
-        _score.value = score
+    fun setScore(playResult: PlayResult?) {
+        _playResult.value = playResult
         validateScore()
     }
 
     fun reset() {
         _chart.value = null
-        _score.value = null
+        _playResult.value = null
     }
 
     suspend fun saveScore() {
         if (score.value != null) {
-            repositoryContainer.scoreRepo.upsert(score.value!!)
+            repositoryContainer.playResultRepo.upsert(score.value!!)
             reset()
         }
     }

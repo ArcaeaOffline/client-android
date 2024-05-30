@@ -284,7 +284,7 @@ class DatabaseManageViewModel(
     }
 
     suspend fun exportScores(outputStream: OutputStream) {
-        val content = ArcaeaOfflineExportScore(repositoryContainer.scoreRepo).toJsonString()
+        val content = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo).toJsonString()
         content?.let {
             IOUtils.write(content, outputStream)
         }

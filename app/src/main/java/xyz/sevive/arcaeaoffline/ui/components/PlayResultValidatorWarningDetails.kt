@@ -26,10 +26,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaScoreValidatorWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 
 @Composable
-internal fun ScoreValidatorWarningDetailItem(warning: ArcaeaScoreValidatorWarning) {
+internal fun PlayResultValidatorWarningDetailItem(warning: ArcaeaPlayResultValidatorWarning) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val expandArrowRotateDegree by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f, label = "expandArrow"
@@ -82,15 +82,15 @@ internal fun ScoreValidatorWarningDetailItem(warning: ArcaeaScoreValidatorWarnin
 }
 
 @Composable
-fun ScoreValidatorWarningDetails(
-    warnings: List<ArcaeaScoreValidatorWarning>, modifier: Modifier = Modifier
+fun PlayResultValidatorWarningDetails(
+    warnings: List<ArcaeaPlayResultValidatorWarning>, modifier: Modifier = Modifier
 ) {
     Column(
         modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
     ) {
         for (warning in warnings) {
-            ScoreValidatorWarningDetailItem(warning)
+            PlayResultValidatorWarningDetailItem(warning)
         }
     }
 }
