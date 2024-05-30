@@ -11,13 +11,13 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 @Dao
 interface PlayResultDao {
-    @Query("SELECT * FROM scores WHERE song_id = :songId AND rating_class = :ratingClass")
+    @Query("SELECT * FROM play_results WHERE song_id = :songId AND rating_class = :ratingClass")
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult>
 
-    @Query("SELECT * FROM scores")
+    @Query("SELECT * FROM play_results")
     fun findAll(): Flow<List<PlayResult>>
 
-    @Query("SELECT * FROM scores WHERE song_id = :songId")
+    @Query("SELECT * FROM play_results WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
     @Upsert

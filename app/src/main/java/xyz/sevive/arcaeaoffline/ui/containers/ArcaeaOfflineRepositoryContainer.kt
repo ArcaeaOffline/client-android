@@ -1,9 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.containers
 
 import android.content.Context
+import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.repositories.CalculatedPotentialRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.CalculatedPotentialRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
@@ -35,7 +34,8 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val playResultRepo: PlayResultRepository
     val playResultCalculatedRepo: PlayResultCalculatedRepository
     val playResultBestRepo: PlayResultBestRepository
-    val calculatedPotentialRepo: CalculatedPotentialRepository
+
+    suspend fun b30(): Double
 }
 
 class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context) :
@@ -81,9 +81,10 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
         )
     }
 
-    override val calculatedPotentialRepo: CalculatedPotentialRepository by lazy {
-        CalculatedPotentialRepositoryImpl(
-            ArcaeaOfflineDatabase.getDatabase(context).calculatedPotentialDao()
-        )
+    override suspend fun b30(): Double {
+        val playResultsBest30 =
+            playResultBestRepo.orderDescWithLimit(30).firstOrNull() ?: return 0.0
+        if (playResultsBest30.isEmpty()) return 0.0
+        return playResultsBest30.sumOf { it.potential } / playResultsBest30.size
     }
 }

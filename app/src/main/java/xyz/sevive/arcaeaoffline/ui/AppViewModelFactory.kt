@@ -18,7 +18,7 @@ import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.ocrQueueDataStore
-import xyz.sevive.arcaeaoffline.ui.overview.OverviewModel
+import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -27,7 +27,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for ViewModels
         initializer {
-            OverviewModel(
+            OverviewViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

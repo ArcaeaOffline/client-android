@@ -11,7 +11,6 @@ import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
-import xyz.sevive.arcaeaoffline.core.database.daos.CalculatedPotentialDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
@@ -24,7 +23,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.entities.CalculatedPotential
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
@@ -37,6 +35,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
+import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import kotlin.math.floor
 
 
@@ -52,11 +51,12 @@ import kotlin.math.floor
         ChartInfo::class,
         PlayResult::class,
     ],
-    views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class, CalculatedPotential::class],
+    views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
+        AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(InstantConverters::class)
@@ -74,8 +74,6 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun chartDao(): ChartDao
     abstract fun scoreCalculatedDao(): PlayResultCalculatedDao
     abstract fun scoreBestDao(): PlayResultBestDao
-
-    abstract fun calculatedPotentialDao(): CalculatedPotentialDao
 
     companion object {
         private const val DATABASE_NAME = "arcaea_offline.db"

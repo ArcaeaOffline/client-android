@@ -10,15 +10,15 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 @DatabaseView(
     """
         SELECT
-            sc.id, sc.song_id, sc.rating_class, sc.score,
-            sc.pure, sc.shiny_pure, sc.far, sc.lost,
-            sc.date, sc.max_recall, sc.modifier, sc.clear_type,
-            MAX(sc.potential) AS potential,
-            sc.comment
-        FROM scores_calculated sc
-        GROUP BY sc.song_id, sc.rating_class
-        ORDER BY sc.potential DESC
-    """, "scores_best"
+            prc.id, prc.song_id, prc.rating_class, prc.score,
+            prc.pure, prc.shiny_pure, prc.far, prc.lost,
+            prc.date, prc.max_recall, prc.modifier, prc.clear_type,
+            MAX(prc.potential) AS potential,
+            prc.comment
+        FROM play_results_calculated prc
+        GROUP BY prc.song_id, prc.rating_class
+        ORDER BY prc.potential DESC
+    """, "play_results_best"
 )
 data class PlayResultBest(
     val id: Int,

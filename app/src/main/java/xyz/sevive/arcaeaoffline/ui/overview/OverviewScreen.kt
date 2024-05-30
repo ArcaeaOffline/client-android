@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -31,9 +32,11 @@ fun B30R10Label(label: String, value: String) {
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
-    overviewModel: OverviewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: OverviewViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val b30 by overviewModel.b30.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) { viewModel.reload() }
 
     Column(
         modifier
@@ -42,7 +45,7 @@ fun OverviewScreen(
     ) {
         LazyVerticalGrid(GridCells.Adaptive(200.dp)) {
             item {
-                B30R10Label(label = "B30", value = ArcaeaFormatters.potentialToText(b30))
+                B30R10Label(label = "B30", value = ArcaeaFormatters.potentialToText(uiState.b30))
             }
 
             item {

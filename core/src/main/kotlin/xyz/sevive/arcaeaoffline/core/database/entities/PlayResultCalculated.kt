@@ -10,23 +10,23 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 @DatabaseView(
     """
     SELECT
-        s.id, d.song_id, d.rating_class, s.score, s.pure,
+        pr.id, d.song_id, d.rating_class, pr.score, pr.pure,
         CASE
-            WHEN ci.notes IS NOT NULL AND s.pure IS NOT NULL AND s.far IS NOT NULL AND ci.notes <> 0
-            THEN s.score - FLOOR((s.pure * 10000000.0 / ci.notes) + (s.far * 0.5 * 100000000.0 / ci.notes))
+            WHEN ci.notes IS NOT NULL AND pr.pure IS NOT NULL AND pr.far IS NOT NULL AND ci.notes <> 0
+            THEN pr.score - FLOOR((pr.pure * 10000000.0 / ci.notes) + (pr.far * 0.5 * 100000000.0 / ci.notes))
             ELSE NULL
         END AS shiny_pure,
-        s.far, s.lost, s.date, s.max_recall, s.modifier, s.clear_type,
+        pr.far, pr.lost, pr.date, pr.max_recall, pr.modifier, pr.clear_type,
         CASE
-            WHEN s.score >= 100000000 THEN ci.constant / 10.0 + 2
-            WHEN s.score >= 9800000 THEN ci.constant / 10.0 + 1 + (s.score - 9800000) / 200000.0
-            ELSE MAX(ci.constant / 10.0 + (s.score - 9500000) / 300000.0, 0)
+            WHEN pr.score >= 100000000 THEN ci.constant / 10.0 + 2
+            WHEN pr.score >= 9800000 THEN ci.constant / 10.0 + 1 + (pr.score - 9800000) / 200000.0
+            ELSE MAX(ci.constant / 10.0 + (pr.score - 9500000) / 300000.0, 0)
         END AS potential,
-        s.comment
+        pr.comment
     FROM difficulties d
     JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class
-    JOIN scores s ON d.song_id = s.song_id AND d.rating_class = s.rating_class
-""", "scores_calculated"
+    JOIN play_results pr ON d.song_id = pr.song_id AND d.rating_class = pr.rating_class
+""", "play_results_calculated"
 )
 data class PlayResultCalculated(
     val id: Int,

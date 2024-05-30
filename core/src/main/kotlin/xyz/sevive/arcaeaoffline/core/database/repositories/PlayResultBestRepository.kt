@@ -9,7 +9,7 @@ interface PlayResultBestRepository {
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResultBest?>
     fun findAll(): Flow<List<PlayResultBest>>
     fun findAllBySongId(songId: String): Flow<List<PlayResultBest>>
-    fun listDescWithLimit(limit: Int): Flow<List<PlayResultBest>>
+    fun orderDescWithLimit(limit: Int): Flow<List<PlayResultBest>>
 }
 
 class PlayResultBestRepositoryImpl(private val dao: PlayResultBestDao) : PlayResultBestRepository {
@@ -21,7 +21,7 @@ class PlayResultBestRepositoryImpl(private val dao: PlayResultBestDao) : PlayRes
     override fun findAllBySongId(songId: String): Flow<List<PlayResultBest>> =
         dao.findAllBySongId(songId)
 
-    override fun listDescWithLimit(limit: Int): Flow<List<PlayResultBest>> =
-        dao.listDescWithLimit(limit)
+    override fun orderDescWithLimit(limit: Int): Flow<List<PlayResultBest>> =
+        dao.orderDescWithLimit(limit)
 }
 

@@ -8,16 +8,16 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 
 @Dao
 interface PlayResultBestDao {
-    @Query("SELECT * FROM scores_best WHERE song_id = :songId AND rating_class = :ratingClass")
+    @Query("SELECT * FROM play_results_best WHERE song_id = :songId AND rating_class = :ratingClass")
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResultBest>
 
-    @Query("SELECT * FROM scores_best")
+    @Query("SELECT * FROM play_results_best")
     fun findAll(): Flow<List<PlayResultBest>>
 
-    @Query("SELECT * FROM scores_best WHERE song_id = :songId")
+    @Query("SELECT * FROM play_results_best WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<PlayResultBest>>
 
-    @Query("SELECT * FROM scores_best ORDER BY potential DESC LIMIT :limit")
-    fun listDescWithLimit(limit: Int): Flow<List<PlayResultBest>>
+    @Query("SELECT * FROM play_results_best ORDER BY potential DESC LIMIT :limit")
+    fun orderDescWithLimit(limit: Int): Flow<List<PlayResultBest>>
 }
 

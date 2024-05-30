@@ -37,7 +37,7 @@ class DatabaseB30ListViewModel(
     private suspend fun updateB30ListWithLimit(limit: Int) {
         _loading.value = true
 
-        val scores = repositoryContainer.playResultBestRepo.listDescWithLimit(limit).firstOrNull()
+        val scores = repositoryContainer.playResultBestRepo.orderDescWithLimit(limit).firstOrNull()
         _b30List.value = scores
 
         _loading.value = false
