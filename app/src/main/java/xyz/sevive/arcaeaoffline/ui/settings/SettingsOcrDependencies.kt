@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,9 +28,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
@@ -47,16 +44,11 @@ fun SettingsOcrDependencies(viewModel: SettingsViewModel) {
         if (expanded) 0f else -90f, label = "expandArrowRotate"
     )
 
-    var showBuildPhashDatabaseDialog by rememberSaveable { mutableStateOf(false) }
-
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val knnModelState = GlobalOcrDependencyHelper.knnModelState.collectAsStateWithLifecycle()
     val phashDatabaseState =
         GlobalOcrDependencyHelper.phashDatabaseState.collectAsStateWithLifecycle()
-
-    val ocrDependencyPaths = OcrDependencyPaths(context)
 
     val importKnnLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
@@ -93,16 +85,7 @@ fun SettingsOcrDependencies(viewModel: SettingsViewModel) {
                     }
 
                     ArcaeaButton(
-                        onClick = {
-                            showBuildPhashDatabaseDialog = true
-                            coroutineScope.launch {
-                                viewModel.buildPhashDatabaseFromArcaea(
-                                    context,
-                                    ocrDependencyPaths,
-                                )
-                                showBuildPhashDatabaseDialog = false
-                            }
-                        },
+                        onClick = { viewModel.buildPhashDatabaseFromArcaea(context) },
                         state = viewModel.buildPhashDatabaseFromArcaeaButtonState(context),
                     ) {
                         Text(stringResource(R.string.settings_ocr_phash_database_build_from_arcaea))
@@ -113,19 +96,19 @@ fun SettingsOcrDependencies(viewModel: SettingsViewModel) {
     }
 
     val phashDatabaseBuildProgress by viewModel.phashDatabaseBuildProgress.collectAsStateWithLifecycle()
-    val phashDatabaseBuildProgressTotal by viewModel.phashDatabaseBuildProgressTotal.collectAsStateWithLifecycle()
-    if (showBuildPhashDatabaseDialog) {
+    if (phashDatabaseBuildProgress != null) {
+        val progress = phashDatabaseBuildProgress!!.progress
+        val total = phashDatabaseBuildProgress!!.total
+
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {},
             icon = { Icon(painterResource(R.drawable.ic_database), null) },
             text = {
                 Column {
-                    if (phashDatabaseBuildProgressTotal > -1) {
-                        Text("$phashDatabaseBuildProgress/$phashDatabaseBuildProgressTotal")
-                        LinearProgressIndicator(
-                            progress = { phashDatabaseBuildProgress.toFloat() / phashDatabaseBuildProgressTotal },
-                        )
+                    if (total > -1) {
+                        Text("${progress}/$total")
+                        LinearProgressIndicator(progress = { progress.toFloat() / total })
                     } else {
                         Text(stringResource(R.string.general_please_wait))
                         LinearProgressIndicator()

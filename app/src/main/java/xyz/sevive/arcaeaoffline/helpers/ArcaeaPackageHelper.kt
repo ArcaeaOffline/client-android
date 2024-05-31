@@ -248,6 +248,7 @@ class ArcaeaPackageHelper(context: Context) {
     ) {
         buildPhashDatabaseCleanUp()
         if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
+        tempPhashDatabaseFile.parentFile?.mkdirs()
 
         try {
             extractJackets()

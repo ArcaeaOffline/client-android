@@ -4,9 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
@@ -16,10 +18,13 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import java.io.InputStream
 
 class SettingsViewModel : ViewModel() {
-    private val _phashDatabaseBuildProgress = MutableStateFlow(-1)
+    data class PhashDatabaseBuildProgress(
+        val progress: Int = -1,
+        val total: Int = -1,
+    )
+
+    private val _phashDatabaseBuildProgress = MutableStateFlow<PhashDatabaseBuildProgress?>(null)
     val phashDatabaseBuildProgress = _phashDatabaseBuildProgress.asStateFlow()
-    private val _phashDatabaseBuildProgressTotal = MutableStateFlow(-1)
-    val phashDatabaseBuildProgressTotal = _phashDatabaseBuildProgressTotal.asStateFlow()
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
         if (!ocrDependencyPaths.parentDir.exists()) {
@@ -75,25 +80,27 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    suspend fun buildPhashDatabaseFromArcaea(
-        context: Context, ocrDependencyPaths: OcrDependencyPaths,
-    ) {
+    fun buildPhashDatabaseFromArcaea(context: Context) {
         val arcaeaPackageHelper = ArcaeaPackageHelper(context)
         if (!arcaeaAssetsAvailable(arcaeaPackageHelper)) return
 
-        _phashDatabaseBuildProgress.value = 0
-        withContext(Dispatchers.IO) {
-            arcaeaPackageHelper.buildPhashDatabase(progressCallback = { progress, total ->
-                _phashDatabaseBuildProgress.value = progress
-                _phashDatabaseBuildProgressTotal.value = total
-            })
-        }
-        _phashDatabaseBuildProgress.value = -1
-        _phashDatabaseBuildProgressTotal.value = -1
+        val ocrDependencyPaths = OcrDependencyPaths(context)
 
-        importPhashDatabase(
-            arcaeaPackageHelper.tempPhashDatabaseFile.inputStream(),
-            ocrDependencyPaths
-        )
+        viewModelScope.launch {
+            _phashDatabaseBuildProgress.value = PhashDatabaseBuildProgress()
+            withContext(Dispatchers.IO) {
+                arcaeaPackageHelper.buildPhashDatabase(progressCallback = { progress, total ->
+                    _phashDatabaseBuildProgress.value = PhashDatabaseBuildProgress(progress, total)
+                })
+            }
+
+            importPhashDatabase(
+                arcaeaPackageHelper.tempPhashDatabaseFile.inputStream(),
+                ocrDependencyPaths
+            )
+
+            _phashDatabaseBuildProgress.value = null
+            arcaeaPackageHelper.tempPhashDatabaseFile.delete()
+        }
     }
 }

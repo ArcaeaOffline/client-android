@@ -209,6 +209,11 @@ class ImagePhashDatabase(path: String) {
             }
 
             SQLiteDatabase.openOrCreateDatabase(databaseFile, null).use { db ->
+                db.rawQuery("PRAGMA journal_mode = MEMORY;", null).use {
+                    it.moveToNext()
+                    it.getString(0)
+                }
+
                 db.execSQL("CREATE TABLE properties (`key` TEXT, value TEXT)")
 
                 val hashSizeContentValues = ContentValues()
