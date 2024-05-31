@@ -5,19 +5,22 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import org.acra.dialog.CrashReportDialogHelper
 import xyz.sevive.arcaeaoffline.ui.activities.CrashReportActivityUi
-import xyz.sevive.arcaeaoffline.ui.activities.CrashReportViewModel
+import xyz.sevive.arcaeaoffline.ui.activities.CrashReportActivityViewModel
 
 
 class CrashReportActivity : ComponentActivity() {
     private lateinit var helper: CrashReportDialogHelper
-    private val viewModel get() = viewModels<CrashReportViewModel>().value
+    private val viewModel get() = viewModels<CrashReportActivityViewModel>().value
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -25,8 +28,8 @@ class CrashReportActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.reportProcessed.collect {
-                    if (it) finish()
+                viewModel.uiState.collect {
+                    if (it.reportProcessed) finish()
                 }
             }
         }
@@ -37,14 +40,15 @@ class CrashReportActivity : ComponentActivity() {
                 onSendReport = { sendReport() },
                 onSaveReport = { saveReport() },
                 onIgnore = { ignoreReport() },
-                viewModel = viewModel
+                viewModel = viewModel,
+                windowWidthSizeClass = calculateWindowSizeClass(activity = this).widthSizeClass,
             )
         }
     }
 
     private fun sendReport() {
-        val comment = viewModel.comment.value
-        val contact = viewModel.contact.value
+        val comment = viewModel.uiState.value.comment
+        val contact = viewModel.uiState.value.contact
 
         helper.sendCrash(comment = comment, userEmail = contact)
         Toast.makeText(
@@ -66,7 +70,7 @@ class CrashReportActivity : ComponentActivity() {
     }
 
     override fun finish() {
-        if (!viewModel.reportProcessed.value) ignoreReport()
+        if (!viewModel.uiState.value.reportProcessed) ignoreReport()
         super.finish()
     }
 }

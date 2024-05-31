@@ -5,24 +5,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 
-class CrashReportViewModel : ViewModel() {
-    private val _comment = MutableStateFlow<String?>(null)
-    val comment = _comment.asStateFlow()
-    private val _contact = MutableStateFlow<String?>(null)
-    val contact = _contact.asStateFlow()
+class CrashReportActivityViewModel : ViewModel() {
+    data class UiState(
+        val comment: String? = null,
+        val contact: String? = null,
+        val reportProcessed: Boolean = false,
+    )
+
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
 
     fun setComment(comment: String?) {
-        _comment.value = comment
+        _uiState.value = uiState.value.copy(comment = comment)
     }
 
     fun setContact(contact: String?) {
-        _contact.value = contact
+        _uiState.value = uiState.value.copy(contact = contact)
     }
 
-    private val _reportProcessed = MutableStateFlow(false)
-    val reportProcessed = _reportProcessed.asStateFlow()
-
     fun reportProcessed() {
-        _reportProcessed.value = true
+        _uiState.value = uiState.value.copy(reportProcessed = true)
     }
 }

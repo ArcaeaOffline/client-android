@@ -34,6 +34,7 @@
     <!-- CrashReportActivity -->
     <string name="crash_report_title_app_crashed">应用崩溃。</string>
     <string name="crash_report_title_error_occurred">发生错误。</string>
+    <string name="crash_report_installation_id">应用安装 ID</string>
     <string name="crash_report_report_id">报告 ID</string>
     <string name="crash_report_crash_date">崩溃时间</string>
     <string name="crash_report_send_report_prompt">要发送崩溃报告吗？</string>
@@ -42,7 +43,7 @@
     <string name="crash_report_textfield_label_contact">联系方式（可选）</string>
     <string name="crash_report_textfield_placeholder_contact">当我们需要更多有关信息时，该如何联系你？</string>
     <string name="crash_report_send_button">发送</string>
-    <string name="crash_report_save_button">暂存但不发送</string>
+    <string name="crash_report_save_button">暂存</string>
     <string name="crash_report_ignore_button">忽略</string>
     <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
     <string name="crash_report_toast_report_send_success">崩溃报告已发送</string>
