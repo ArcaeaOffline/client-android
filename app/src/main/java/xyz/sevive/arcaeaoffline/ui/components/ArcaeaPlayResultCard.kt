@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -100,17 +101,28 @@ fun ArcaeaPlayResultCard(
         targetValue = if (showDetails) 180f else 0f, label = "expandArrow"
     )
 
-    val scoreText =
+    val scoreText = remember(playResult.score) {
         playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
             .reversed()
+    }
+    val dateText = remember(playResult.date) {
+        playResult.date?.let {
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+                LocalDateTime.ofInstant(it, ZoneId.systemDefault())
+            )
+        }
+    }
+    val clearTypeText = remember(playResult.clearType) { playResult.clearType?.toDisplayString() }
+    val modifierText = remember(playResult.modifier) { playResult.modifier?.toDisplayString() }
 
     val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
     val levelTextTextStyle = MaterialTheme.typography.headlineMedium.copy(
         fontWeight = FontWeight.Bold,
         brush = playResultGradeGradientBrush(playResult.score),
     )
-    val exPlusWidthDp = LocalDensity.current.run {
-        textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp()
+    val exPlusWidthDp = remember {
+        density.run { textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp() }
     }
 
     Card(
@@ -169,10 +181,7 @@ fun ArcaeaPlayResultCard(
             }
 
             Text(
-                if (playResult.date != null) DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                    .format(
-                        LocalDateTime.ofInstant(playResult.date, ZoneId.systemDefault())
-                    ) else stringResource(R.string.play_result_no_date),
+                dateText ?: stringResource(R.string.play_result_no_date),
                 style = MaterialTheme.typography.labelMedium,
             )
 
@@ -183,14 +192,6 @@ fun ArcaeaPlayResultCard(
                         thickness = 1.dp,
                         color = LocalContentColor.current.copy(0.5f),
                     )
-
-                    val clearTypeText = if (playResult.clearType != null) {
-                        playResult.clearType!!.toDisplayString()
-                    } else stringResource(R.string.play_result_no_clear_type)
-
-                    val modifierText = if (playResult.modifier != null) {
-                        playResult.modifier!!.toDisplayString()
-                    } else stringResource(R.string.play_result_no_modifier)
 
                     VerticalGrid(
                         columns = SimpleGridCells.Fixed(2),
@@ -208,12 +209,13 @@ fun ArcaeaPlayResultCard(
 
                         DetailsTextWithLabel(
                             label = stringResource(R.string.arcaea_play_result_clear_type),
-                            text = clearTypeText,
+                            text = clearTypeText
+                                ?: stringResource(R.string.play_result_no_clear_type),
                         )
 
                         DetailsTextWithLabel(
                             label = stringResource(R.string.arcaea_play_result_modifier),
-                            text = modifierText,
+                            text = modifierText ?: stringResource(R.string.play_result_no_modifier),
                         )
 
                         DetailsTextWithLabel(
@@ -288,22 +290,13 @@ private fun previewCharts(): Array<Chart> {
             ratingClass = ArcaeaRatingClass.PAST, rating = 2, ratingPlus = false, constant = 20
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.PRESENT,
-            rating = 6,
-            ratingPlus = false,
-            constant = 65
+            ratingClass = ArcaeaRatingClass.PRESENT, rating = 6, ratingPlus = false, constant = 65
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.FUTURE,
-            rating = 9,
-            ratingPlus = true,
-            constant = 96
+            ratingClass = ArcaeaRatingClass.FUTURE, rating = 9, ratingPlus = true, constant = 96
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.BEYOND,
-            rating = 12,
-            ratingPlus = false,
-            constant = 120
+            ratingClass = ArcaeaRatingClass.BEYOND, rating = 12, ratingPlus = false, constant = 120
         ),
     )
 }
