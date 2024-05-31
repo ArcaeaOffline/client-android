@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
@@ -366,11 +365,9 @@ private fun previewPlayResults(): Array<PlayResult> {
     )
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
-private fun PlayResultCardPreview(
-    modifier: Modifier = Modifier
-) {
+private fun PlayResultCardPreview() {
     val charts = previewCharts()
     val playResults = previewPlayResults()
 
@@ -378,44 +375,12 @@ private fun PlayResultCardPreview(
 
     ArcaeaOfflineTheme {
         Column {
-            for (i in 0..3) {
-                if (i >= 1) {
-                    ArcaeaPlayResultCard(
-                        playResult = playResults[i],
-                        chart = charts[i],
-                        modifier = modifier
-                    )
-                } else {
-                    ArcaeaPlayResultCard(playResult = playResults[i], modifier = modifier)
-                }
-            }
-        }
-    }
-}
-
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PlayResultCardDarkPreview(
-    modifier: Modifier = Modifier
-) {
-    val charts = previewCharts()
-    val scores = previewPlayResults()
-
-    AndroidThreeTen.init(LocalContext.current)
-
-    ArcaeaOfflineTheme {
-        Column {
-            for (i in 0..3) {
-                if (i >= 1) {
-                    ArcaeaPlayResultCard(
-                        playResult = scores[i],
-                        chart = charts[i],
-                        modifier = modifier
-                    )
-                } else {
-                    ArcaeaPlayResultCard(playResult = scores[i], modifier = modifier)
-                }
+            repeat(4) { i ->
+                ArcaeaPlayResultCard(
+                    playResult = playResults[i],
+                    chart = if (i >= 1) charts[i] else null,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
             }
         }
     }
