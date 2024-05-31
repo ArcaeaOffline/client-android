@@ -29,23 +29,19 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
-import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 
 
 @Composable
-fun SettingsOcrDependencies(
-    settingsViewModel: SettingsViewModel,
-    ocrDependencyViewModel: OcrDependencyViewModel = viewModel(),
-) {
+fun SettingsOcrDependencies(viewModel: SettingsViewModel) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     val expandArrowRotateDegree: Float by animateFloatAsState(
         if (expanded) 0f else -90f, label = "expandArrowRotate"
@@ -56,36 +52,23 @@ fun SettingsOcrDependencies(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val knnModelState = ocrDependencyViewModel.knnModelState.collectAsStateWithLifecycle()
-    val phashDatabaseState = ocrDependencyViewModel.phashDatabaseState.collectAsStateWithLifecycle()
+    val knnModelState = GlobalOcrDependencyHelper.knnModelState.collectAsStateWithLifecycle()
+    val phashDatabaseState =
+        GlobalOcrDependencyHelper.phashDatabaseState.collectAsStateWithLifecycle()
 
     val ocrDependencyPaths = OcrDependencyPaths(context)
-    ocrDependencyViewModel.reload(context)
 
     val importKnnLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) {
-        it?.let {
-            settingsViewModel.importKnnModel(
-                context.contentResolver.openInputStream(it), ocrDependencyPaths,
-            )
-            ocrDependencyViewModel.reload(context)
-        }
-    }
+    ) { uri -> uri?.let { viewModel.importKnnModel(it, context) } }
 
     val importPhashDbLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) {
-        it?.let {
-            settingsViewModel.importPhashDatabase(
-                context.contentResolver.openInputStream(it), ocrDependencyPaths,
-            )
-            ocrDependencyViewModel.reload(context)
-        }
-    }
+    ) { uri -> uri?.let { viewModel.importPhashDatabase(it, context) } }
 
     TitleOutlinedCard(title = {
-        ActionButton(onClick = { expanded = !expanded },
+        ActionButton(
+            onClick = { expanded = !expanded },
             title = stringResource(R.string.settings_ocr_dependencies_title),
             shape = settingsTitleActionCardShape(),
             headSlot = { Icon(Icons.Default.Api, null) },
@@ -93,7 +76,8 @@ fun SettingsOcrDependencies(
                 Icon(
                     Icons.Filled.ExpandMore, null, Modifier.rotate(expandArrowRotateDegree)
                 )
-            })
+            },
+        )
     }) { padding ->
         AnimatedVisibility(expanded) {
             Column(Modifier.padding(padding)) {
@@ -112,15 +96,14 @@ fun SettingsOcrDependencies(
                         onClick = {
                             showBuildPhashDatabaseDialog = true
                             coroutineScope.launch {
-                                settingsViewModel.buildPhashDatabaseFromArcaea(
+                                viewModel.buildPhashDatabaseFromArcaea(
                                     context,
                                     ocrDependencyPaths,
                                 )
-                                ocrDependencyViewModel.reload(context)
                                 showBuildPhashDatabaseDialog = false
                             }
                         },
-                        state = settingsViewModel.buildPhashDatabaseFromArcaeaButtonState(context),
+                        state = viewModel.buildPhashDatabaseFromArcaeaButtonState(context),
                     ) {
                         Text(stringResource(R.string.settings_ocr_phash_database_build_from_arcaea))
                     }
@@ -129,9 +112,9 @@ fun SettingsOcrDependencies(
         }
     }
 
+    val phashDatabaseBuildProgress by viewModel.phashDatabaseBuildProgress.collectAsStateWithLifecycle()
+    val phashDatabaseBuildProgressTotal by viewModel.phashDatabaseBuildProgressTotal.collectAsStateWithLifecycle()
     if (showBuildPhashDatabaseDialog) {
-        val phashDatabaseBuildProgress by settingsViewModel.phashDatabaseBuildProgress.collectAsStateWithLifecycle()
-        val phashDatabaseBuildProgressTotal by settingsViewModel.phashDatabaseBuildProgressTotal.collectAsStateWithLifecycle()
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {},

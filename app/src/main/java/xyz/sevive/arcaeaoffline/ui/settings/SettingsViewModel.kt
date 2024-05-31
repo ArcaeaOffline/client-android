@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.settings
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import java.io.InputStream
@@ -27,17 +29,19 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    fun importKnnModel(
-        importFileInputStream: InputStream?, ocrDependencyPaths: OcrDependencyPaths,
-    ) {
+    fun importKnnModel(uri: Uri, context: Context) {
+        val ocrDependencyPaths = OcrDependencyPaths(context)
         mkOcrDependencyParentDirs(ocrDependencyPaths)
-        importFileInputStream.use {
+
+        val inputStream = context.contentResolver.openInputStream(uri)
+        inputStream.use {
             val outputStream = ocrDependencyPaths.knnModelFile.outputStream()
             it?.copyTo(outputStream)
         }
+        GlobalOcrDependencyHelper.loadKnnModel(context)
     }
 
-    fun importPhashDatabase(
+    private fun importPhashDatabase(
         importFileInputStream: InputStream?, ocrDependencyPaths: OcrDependencyPaths,
     ) {
         mkOcrDependencyParentDirs(ocrDependencyPaths)
@@ -45,6 +49,14 @@ class SettingsViewModel : ViewModel() {
             val outputStream = ocrDependencyPaths.phashDatabaseFile.outputStream()
             it?.copyTo(outputStream)
         }
+        GlobalOcrDependencyHelper.loadImagePhashDatabase(ocrDependencyPaths)
+    }
+
+    fun importPhashDatabase(uri: Uri, context: Context) {
+        importPhashDatabase(
+            importFileInputStream = context.contentResolver.openInputStream(uri),
+            ocrDependencyPaths = OcrDependencyPaths(context),
+        )
     }
 
     private fun arcaeaAssetsAvailable(arcaeaPackageHelper: ArcaeaPackageHelper): Boolean {

@@ -6,15 +6,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.models.KnnModelState
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 
 @Composable
-fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modifier) {
+fun OcrDependencyKnnModelStatus(
+    state: GlobalOcrDependencyHelper.KnnModelState,
+    modifier: Modifier = Modifier
+) {
     val model = state.model
-    val error = state.error
+    val exception = state.exception
 
-    val detailString: String? = if (error != null) {
-        error.message ?: error.toString()
+    val detailString: String? = if (exception != null) {
+        exception.message ?: exception.toString()
     } else if (model != null && model.varCount == 0) {
         "Invalid model"
     } else null
@@ -22,21 +25,21 @@ fun OcrDependencyKnnModelStatus(state: KnnModelState, modifier: Modifier = Modif
     OcrDependencyItemStatus(
         title = { Text(stringResource(R.string.ocr_dependency_knn_model)) },
         label = {
-            if (error == null && model != null) {
+            if (exception == null && model != null) {
                 Text(
                     "varCount ${model.varCount}", modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            } else if (error != null) {
+            } else if (exception != null) {
                 Text(
-                    error::class.simpleName ?: "Error", modifier = modifier,
+                    exception::class.simpleName ?: "Error", modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.error,
                 )
             }
         },
-        status = if (error != null) {
+        status = if (exception != null) {
             OcrDependencyStatus.ERROR
         } else if (model != null && (model.varCount == 0 || !model.isTrained)) {
             OcrDependencyStatus.ERROR

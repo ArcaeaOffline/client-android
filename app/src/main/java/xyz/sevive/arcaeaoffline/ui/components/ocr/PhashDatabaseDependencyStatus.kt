@@ -10,20 +10,20 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.models.PhashDatabaseState
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 
 
 @Composable
 fun OcrDependencyPhashDatabaseStatus(
-    state: PhashDatabaseState, modifier: Modifier = Modifier
+    state: GlobalOcrDependencyHelper.PhashDatabaseState, modifier: Modifier = Modifier
 ) {
-    val db = state.db
-    val error = state.error
+    val db = state.database
+    val exception = state.exception
 
     OcrDependencyItemStatus(
         title = { Text(stringResource(R.string.ocr_dependency_phash_database)) },
         label = {
-            if (error == null && db != null) {
+            if (exception == null && db != null) {
                 var statusText = "J${db.jacketHashes.size} PI${db.partnerIconHashes.size}"
 
                 if (db.builtTime != null) {
@@ -39,19 +39,19 @@ fun OcrDependencyPhashDatabaseStatus(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            } else if (error != null) {
+            } else if (exception != null) {
                 Text(
-                    error::class.simpleName ?: "Error", modifier = modifier,
+                    exception::class.simpleName ?: "Error", modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.error,
                 )
             }
         },
-        status = if (error == null) OcrDependencyStatus.OK else OcrDependencyStatus.ERROR,
-        details = if (error != null) {
+        status = if (exception == null) OcrDependencyStatus.OK else OcrDependencyStatus.ERROR,
+        details = if (exception != null) {
             {
                 Text(
-                    error.message ?: error.toString(),
+                    exception.message ?: exception.toString(),
                     modifier = modifier,
                     style = MaterialTheme.typography.labelMedium,
                 )

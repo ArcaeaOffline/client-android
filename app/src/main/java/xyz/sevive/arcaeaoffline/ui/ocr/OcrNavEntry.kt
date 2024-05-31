@@ -15,17 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
-import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 
 
@@ -33,14 +31,9 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 fun OcrNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
-    ocrDependencyViewModel: OcrDependencyViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-
-    ocrDependencyViewModel.reload(context)
-
-    val knnModelStatus by ocrDependencyViewModel.knnModelState.collectAsStateWithLifecycle()
-    val phashDatabaseState by ocrDependencyViewModel.phashDatabaseState.collectAsStateWithLifecycle()
+    val knnModelStatus by GlobalOcrDependencyHelper.knnModelState.collectAsStateWithLifecycle()
+    val phashDatabaseState by GlobalOcrDependencyHelper.phashDatabaseState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier,

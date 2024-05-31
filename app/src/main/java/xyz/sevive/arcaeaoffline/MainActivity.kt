@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
@@ -39,7 +38,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.opencv.android.OpenCVLoader
-import xyz.sevive.arcaeaoffline.helpers.OcrDependencyHelper
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.screens.UnstableVersionAlertScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -62,13 +61,6 @@ class MainActivity : ComponentActivity() {
         }
 
         OpenCVLoader.initLocal()
-
-        try {
-            // TODO: refactor this shit
-            OcrDependencyHelper.loadAll(this)
-        } catch (e: Exception) {
-            Log.e("InitOCR", "Error loading all ocr dependencies", e)
-        }
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -118,6 +110,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        GlobalOcrDependencyHelper.loadAll(this)
     }
 
     private suspend fun confirmUnstableAlertRead() {

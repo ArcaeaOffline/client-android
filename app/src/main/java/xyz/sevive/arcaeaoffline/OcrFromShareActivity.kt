@@ -6,41 +6,35 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.IntentCompat
-import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
+import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareScreen
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
-import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
 class OcrFromShareActivity : ComponentActivity() {
-    private lateinit var ocrDependencyViewModel: OcrDependencyViewModel
-    private lateinit var ocrFromShareViewModel: OcrFromShareViewModel
+    private val viewModel by viewModels<OcrFromShareViewModel>(factoryProducer = { AppViewModelProvider.Factory })
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         OpenCVLoader.initLocal()
-
-        ocrDependencyViewModel = ViewModelProvider(this)[OcrDependencyViewModel::class.java]
-        ocrFromShareViewModel = ViewModelProvider(
-            this,
-            factory = AppViewModelProvider.Factory,
-        )[OcrFromShareViewModel::class.java]
+        GlobalOcrDependencyHelper.loadAll(this)
 
         setTitle(R.string.title_activity_ocr_from_share)
 
-        ocrFromShareViewModel.setShareSourceApp(this.getSourcePackageName(), packageManager)
+        viewModel.setShareSourceApp(this.getSourcePackageName(), packageManager)
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
 
@@ -55,8 +49,7 @@ class OcrFromShareActivity : ComponentActivity() {
                         startActivity(intent)
                         finishAffinity()
                     },
-                    ocrDependencyViewModel = ocrDependencyViewModel,
-                    ocrFromShareViewModel = ocrFromShareViewModel,
+                    viewModel = viewModel,
                 )
             }
         }
@@ -91,17 +84,17 @@ class OcrFromShareActivity : ComponentActivity() {
         val inputStream = contentResolver.openInputStream(uri)
 
         if (inputStream == null) {
-            ocrFromShareViewModel.setException(Exception("Error reading image"))
+            viewModel.setException(Exception("Error reading image"))
             return
         }
 
         val inputStreamRead = IOUtils.toByteArray(inputStream)
 
         val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
-        ocrFromShareViewModel.setBitmap(imgBitmap)
+        viewModel.setBitmap(imgBitmap)
         runBlocking {
             launch {
-                ocrFromShareViewModel.startOcr(uri, this@OcrFromShareActivity)
+                viewModel.startOcr(uri, this@OcrFromShareActivity)
             }
         }
     }

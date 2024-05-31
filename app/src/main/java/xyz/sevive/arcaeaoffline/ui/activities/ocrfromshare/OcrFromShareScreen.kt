@@ -24,7 +24,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.models.OcrDependencyViewModel
 
 
 @Composable
@@ -90,10 +89,9 @@ internal fun OcrFromShareStayInAppButton(
 internal fun OcrFromShareScreenContentMedium(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
-    ocrDependencyViewModel: OcrDependencyViewModel,
-    ocrFromShareViewModel: OcrFromShareViewModel,
+    viewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsStateWithLifecycle()
+    val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         Row(
@@ -106,7 +104,7 @@ internal fun OcrFromShareScreenContentMedium(
                 Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewModel)
+                OcrFromShareOcrDependencyStatusCard()
 
                 if (imageBitmap != null) {
                     Image(imageBitmap!!, null)
@@ -118,15 +116,15 @@ internal fun OcrFromShareScreenContentMedium(
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 item {
-                    OcrFromShareOcrResult(ocrFromShareViewModel)
+                    OcrFromShareOcrResult(viewModel)
                 }
 
                 item {
-                    OcrFromShareActions(ocrFromShareViewModel)
+                    OcrFromShareActions(viewModel)
                 }
 
                 item {
-                    OcrFromShareReturnToShareAppButton(onReturnToShareApp, ocrFromShareViewModel)
+                    OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
                 }
 
                 item {
@@ -141,10 +139,9 @@ internal fun OcrFromShareScreenContentMedium(
 fun OcrFromShareScreenCompact(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
-    ocrDependencyViewModel: OcrDependencyViewModel,
-    ocrFromShareViewModel: OcrFromShareViewModel,
+    viewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by ocrFromShareViewModel.imageBitmap.collectAsStateWithLifecycle()
+    val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         LazyColumn(
@@ -154,7 +151,7 @@ fun OcrFromShareScreenCompact(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewModel)
+                OcrFromShareOcrDependencyStatusCard()
             }
 
             if (imageBitmap != null) {
@@ -164,15 +161,15 @@ fun OcrFromShareScreenCompact(
             }
 
             item {
-                OcrFromShareOcrResult(ocrFromShareViewModel)
+                OcrFromShareOcrResult(viewModel)
             }
 
             item {
-                OcrFromShareActions(ocrFromShareViewModel)
+                OcrFromShareActions(viewModel)
             }
 
             item {
-                OcrFromShareReturnToShareAppButton(onReturnToShareApp, ocrFromShareViewModel)
+                OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
             }
 
             item {
@@ -187,22 +184,19 @@ fun OcrFromShareScreen(
     windowSizeClass: WindowSizeClass,
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
-    ocrDependencyViewModel: OcrDependencyViewModel,
-    ocrFromShareViewModel: OcrFromShareViewModel,
+    viewModel: OcrFromShareViewModel,
 ) {
     if (windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium) {
         OcrFromShareScreenContentMedium(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
-            ocrDependencyViewModel = ocrDependencyViewModel,
-            ocrFromShareViewModel = ocrFromShareViewModel,
+            viewModel = viewModel,
         )
     } else {
         OcrFromShareScreenCompact(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
-            ocrDependencyViewModel = ocrDependencyViewModel,
-            ocrFromShareViewModel = ocrFromShareViewModel,
+            viewModel = viewModel,
         )
     }
 }
