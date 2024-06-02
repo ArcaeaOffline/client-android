@@ -8,6 +8,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -29,64 +31,79 @@ fun PlayResultEditor(
 ) {
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    val tabs =
-        listOf(R.string.play_result_editor_main_fields, R.string.play_result_editor_other_fields)
+    val tabs = listOf(
+        R.string.play_result_editor_main_fields,
+        R.string.play_result_editor_other_fields
+    )
+
+    val playResultInVM by viewModel.playResult.collectAsStateWithLifecycle()
+    LaunchedEffect(playResult) {
+        if (playResult != playResultInVM) viewModel.setPlayResult(playResult)
+    }
+    LaunchedEffect(playResultInVM) {
+        if (playResultInVM != null && playResult != playResultInVM) {
+            onPlayResultChange(playResultInVM!!)
+        }
+    }
 
     Column(modifier = modifier) {
         TabRow(selectedTabIndex = tabIndex) {
             tabs.forEachIndexed { index, titleRId ->
-                Tab(text = { Text(stringResource(titleRId)) },
+                Tab(
+                    text = { Text(stringResource(titleRId)) },
                     selected = tabIndex == index,
-                    onClick = { tabIndex = index })
+                    onClick = { tabIndex = index },
+                )
             }
         }
 
         when (tabIndex) {
             0 -> {
-                PlayResultEditorScoreField(score = playResult.score, onScoreChange = {
-                    onPlayResultChange(viewModel.editScore(playResult, it))
-                }, modifier = Modifier.fillMaxWidth())
+                PlayResultEditorScoreField(
+                    score = playResult.score,
+                    onScoreChange = { viewModel.editScore(it) },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                PlayResultEditorPureField(pure = playResult.pure, onPureChange = {
-                    onPlayResultChange(viewModel.editPure(playResult, it))
-                })
-                PlayResultEditorFarField(far = playResult.far, onFarChange = {
-                    onPlayResultChange(viewModel.editFar(playResult, it))
-                })
-                PlayResultEditorLostField(lost = playResult.lost, onLostChange = {
-                    onPlayResultChange(viewModel.editLost(playResult, it))
-                })
+                PlayResultEditorPureField(
+                    pure = playResult.pure,
+                    onPureChange = { viewModel.editPure(it) },
+                )
+                PlayResultEditorFarField(
+                    far = playResult.far,
+                    onFarChange = { viewModel.editFar(it) },
+                )
+                PlayResultEditorLostField(
+                    lost = playResult.lost,
+                    onLostChange = { viewModel.editLost(it) },
+                )
 
                 PlayResultEditorDateTimeField(
                     instant = playResult.date,
-                    onInstantChange = {
-                        onPlayResultChange(viewModel.editDate(playResult, it))
-                    },
+                    onInstantChange = { viewModel.editDate(it) },
                 )
 
                 PlayResultEditorMaxRecallField(
                     maxRecall = playResult.maxRecall,
-                    onMaxRecallChange = {
-                        onPlayResultChange(viewModel.editMaxRecall(playResult, it))
-                    })
+                    onMaxRecallChange = { viewModel.editMaxRecall(it) },
+                )
             }
 
             1 -> {
                 PlayResultEditorModifierField(
                     arcaeaModifier = playResult.modifier,
-                    onArcaeaModifierChange = {
-                        onPlayResultChange(viewModel.editModifier(playResult, it))
-                    })
+                    onArcaeaModifierChange = { viewModel.editModifier(it) },
+                )
 
                 PlayResultEditorClearTypeField(
                     clearType = playResult.clearType,
-                    onClearTypeChange = {
-                        onPlayResultChange(viewModel.editClearType(playResult, it))
-                    })
+                    onClearTypeChange = { viewModel.editClearType(it) },
+                )
 
-                PlayResultEditorCommentField(comment = playResult.comment, onCommentChange = {
-                    onPlayResultChange(viewModel.editComment(playResult, it))
-                })
+                PlayResultEditorCommentField(
+                    comment = playResult.comment,
+                    onCommentChange = { viewModel.editComment(it) },
+                )
             }
         }
     }

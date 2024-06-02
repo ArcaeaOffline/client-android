@@ -1,45 +1,54 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 class PlayResultEditorViewModel : ViewModel() {
-    fun editScore(playResult: PlayResult, score: Int): PlayResult {
-        return playResult.copy(score = score)
+    private val _playResult = MutableStateFlow<PlayResult?>(null)
+    val playResult = _playResult.asStateFlow()
+
+    fun setPlayResult(playResult: PlayResult) {
+        _playResult.value = playResult
     }
 
-    fun editPure(playResult: PlayResult, pure: Int?): PlayResult {
-        return playResult.copy(pure = pure)
+    fun editScore(score: Int) {
+        _playResult.value = playResult.value?.copy(score = score)
     }
 
-    fun editFar(playResult: PlayResult, far: Int?): PlayResult {
-        return playResult.copy(far = far)
+    fun editPure(pure: Int?) {
+        _playResult.value = playResult.value?.copy(pure = pure)
     }
 
-    fun editLost(playResult: PlayResult, lost: Int?): PlayResult {
-        return playResult.copy(lost = lost)
+    fun editFar(far: Int?) {
+        _playResult.value = playResult.value?.copy(far = far)
     }
 
-    fun editDate(playResult: PlayResult, date: Instant?): PlayResult {
-        return playResult.copy(date = date)
+    fun editLost(lost: Int?) {
+        _playResult.value = playResult.value?.copy(lost = lost)
     }
 
-    fun editMaxRecall(playResult: PlayResult, maxRecall: Int?): PlayResult {
-        return playResult.copy(maxRecall = maxRecall)
+    fun editDate(date: Instant?) {
+        _playResult.value = playResult.value?.copy(date = date)
     }
 
-    fun editModifier(playResult: PlayResult, modifier: ArcaeaPlayResultModifier?): PlayResult {
-        return playResult.copy(modifier = modifier)
+    fun editMaxRecall(maxRecall: Int?) {
+        _playResult.value = playResult.value?.copy(maxRecall = maxRecall)
     }
 
-    fun editClearType(playResult: PlayResult, clearType: ArcaeaPlayResultClearType?): PlayResult {
-        return playResult.copy(clearType = clearType)
+    fun editModifier(modifier: ArcaeaPlayResultModifier?) {
+        _playResult.value = playResult.value?.copy(modifier = modifier)
     }
 
-    fun editComment(playResult: PlayResult, comment: String?): PlayResult {
-        return playResult.copy(comment = comment)
+    fun editClearType(clearType: ArcaeaPlayResultClearType?) {
+        _playResult.value = playResult.value?.copy(clearType = clearType)
+    }
+
+    fun editComment(comment: String?) {
+        _playResult.value = playResult.value?.copy(comment = comment)
     }
 }
