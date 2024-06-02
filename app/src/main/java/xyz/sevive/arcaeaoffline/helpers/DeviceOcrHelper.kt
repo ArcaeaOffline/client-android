@@ -29,93 +29,91 @@ import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import java.io.FileNotFoundException
 
-class DeviceOcrHelper {
-    companion object {
-        fun ocrImage(
-            imageUri: Uri,
-            context: Context,
-            customKnnModel: KNearest? = null,
-            customPhashDatabase: ImagePhashDatabase? = null,
-        ): DeviceOcrResult {
-            val ocrDependencyPaths = OcrDependencyPaths(context)
+object DeviceOcrHelper {
+    fun ocrImage(
+        imageUri: Uri,
+        context: Context,
+        customKnnModel: KNearest? = null,
+        customPhashDatabase: ImagePhashDatabase? = null,
+    ): DeviceOcrResult {
+        val ocrDependencyPaths = OcrDependencyPaths(context)
 
-            val inputStream = context.contentResolver.openInputStream(imageUri)
-                ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+            ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
 
-            val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
-            val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
-            val imgCropped = CropBlackEdges.crop(img)
+        val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
+        val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
+        val imgCropped = CropBlackEdges.crop(img)
 
-            val roisAutoType = DeviceRoisAutoSelector.getAutoType(img)
-            val rois = when (roisAutoType) {
-                DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisAutoT1(
-                    imgCropped.width(), imgCropped.height()
-                )
+        val roisAutoType = DeviceRoisAutoSelector.getAutoType(img)
+        val rois = when (roisAutoType) {
+            DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisAutoT1(
+                imgCropped.width(), imgCropped.height()
+            )
 
-                DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisAutoT2(
-                    imgCropped.width(), imgCropped.height()
-                )
-            }
-            val extractor = DeviceRoisExtractor(rois, imgCropped)
-            val masker = when (roisAutoType) {
-                DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisMaskerAutoT1()
-                DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisMaskerAutoT2()
-            }
-            val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
-            val phashDatabase =
-                customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
-
-            val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
-            return ocr.ocr()
-        }
-
-        fun ocrResultToScore(
-            imageUri: Uri,
-            context: Context,
-            ocrResult: DeviceOcrResult,
-            fallbackDate: Instant? = null,
-            overrideDate: Instant? = null,
-            customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
-        ): PlayResult {
-            val arcaeaPartnerModifiers =
-                customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
-
-            val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
-
-            val date = if (overrideDate != null) {
-                overrideDate
-            } else {
-                val imgExif = ExifInterface(byteArray.inputStream())
-                val imgExifDateTimeOriginal =
-                    imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
-
-                if (imgExifDateTimeOriginal != null) {
-                    val localDateTime = LocalDateTime.parse(
-                        imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
-                    )
-                    var zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
-
-                    val imgExifOffsetTimeOriginal =
-                        imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)
-
-                    if (imgExifOffsetTimeOriginal != null) {
-                        val zoneOffset = ZoneOffset.of(imgExifOffsetTimeOriginal)
-                        zonedDateTime = zonedDateTime.withZoneSameLocal(zoneOffset)
-                    }
-
-                    zonedDateTime.toInstant()
-                } else {
-                    fallbackDate
-                }
-            }
-
-            val imgFilename = context.getFilename(imageUri)
-
-            return ocrResult.toScore(
-                arcaeaPartnerModifiers = arcaeaPartnerModifiers,
-                date = date,
-                comment = if (imgFilename != null) "OCR $imgFilename" else null,
+            DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisAutoT2(
+                imgCropped.width(), imgCropped.height()
             )
         }
+        val extractor = DeviceRoisExtractor(rois, imgCropped)
+        val masker = when (roisAutoType) {
+            DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisMaskerAutoT1()
+            DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisMaskerAutoT2()
+        }
+        val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
+        val phashDatabase =
+            customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
+
+        val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
+        return ocr.ocr()
+    }
+
+    fun ocrResultToScore(
+        imageUri: Uri,
+        context: Context,
+        ocrResult: DeviceOcrResult,
+        fallbackDate: Instant? = null,
+        overrideDate: Instant? = null,
+        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
+    ): PlayResult {
+        val arcaeaPartnerModifiers =
+            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
+
+        val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
+
+        val date = if (overrideDate != null) {
+            overrideDate
+        } else {
+            val imgExif = ExifInterface(byteArray.inputStream())
+            val imgExifDateTimeOriginal =
+                imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+
+            if (imgExifDateTimeOriginal != null) {
+                val localDateTime = LocalDateTime.parse(
+                    imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
+                )
+                var zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
+
+                val imgExifOffsetTimeOriginal =
+                    imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)
+
+                if (imgExifOffsetTimeOriginal != null) {
+                    val zoneOffset = ZoneOffset.of(imgExifOffsetTimeOriginal)
+                    zonedDateTime = zonedDateTime.withZoneSameLocal(zoneOffset)
+                }
+
+                zonedDateTime.toInstant()
+            } else {
+                fallbackDate
+            }
+        }
+
+        val imgFilename = context.getFilename(imageUri)
+
+        return ocrResult.toScore(
+            arcaeaPartnerModifiers = arcaeaPartnerModifiers,
+            date = date,
+            comment = if (imgFilename != null) "OCR $imgFilename" else null,
+        )
     }
 }
