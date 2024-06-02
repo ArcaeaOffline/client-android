@@ -19,6 +19,7 @@
     <string name="general_please_wait">请稍候……</string>
     <string name="general_import">导入</string>
     <string name="general_stop">停止</string>
+    <string name="general_no_results">无结果</string>
 
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
 

@@ -27,6 +27,7 @@ CC BY-SA 3.0
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
     <string name="general_stop">Stop</string>
+    <string name="general_no_results">No results</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
