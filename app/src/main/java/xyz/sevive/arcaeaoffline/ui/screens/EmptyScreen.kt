@@ -34,7 +34,7 @@ fun EmptyScreen(
                 Icons.Default.Inbox,
                 contentDescription = null,
                 Modifier
-                    .size(50.dp)
+                    .size(90.dp)
                     .alpha(0.5f)
             )
             Text(text, style = MaterialTheme.typography.titleLarge)

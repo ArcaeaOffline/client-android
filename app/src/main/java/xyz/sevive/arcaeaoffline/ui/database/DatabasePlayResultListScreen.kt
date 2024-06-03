@@ -3,16 +3,17 @@ package xyz.sevive.arcaeaoffline.ui.database
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checklist
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Deselect
@@ -21,6 +22,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -51,59 +52,51 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
 internal fun DatabasePlayResultListItem(
-    uiItem: DatabasePlayResultListUiItem,
+    uiItem: DatabasePlayResultListViewModel.UiItem,
     onScoreChange: (PlayResult) -> Unit,
     inSelectMode: Boolean,
-    selected: Boolean,
     onSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val (score, scoreCalculated, chart) = uiItem
-
     var showScoreEditor by rememberSaveable { mutableStateOf(false) }
 
+    var lastSavedPlayResult by remember { mutableStateOf(uiItem.playResult) }
     if (showScoreEditor) {
         PlayResultEditorDialog(
-            onDismiss = { showScoreEditor = false },
-            playResult = score,
-            onPlayResultChange = onScoreChange,
+            onDismiss = {
+                if (uiItem.playResult != lastSavedPlayResult) onScoreChange(lastSavedPlayResult)
+                showScoreEditor = false
+            },
+            playResult = lastSavedPlayResult,
+            onPlayResultChange = { lastSavedPlayResult = it },
         )
     }
 
     Row(
-        modifier.clickable(inSelectMode) { onSelectedChange(!selected) },
+        modifier.clickable(inSelectMode) { onSelectedChange(!uiItem.selected) },
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaPlayResultCard(
-            playResult = score, Modifier.weight(1f), chart = chart
+            playResult = uiItem.playResult, modifier = Modifier.weight(1f), chart = uiItem.chart
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("PTT", fontWeight = FontWeight.Thin, style = MaterialTheme.typography.labelSmall)
-            Text(
-                ArcaeaFormatters.potentialToText(scoreCalculated?.potential),
-                style = MaterialTheme.typography.labelMedium,
-            )
+            Text(uiItem.potentialText, style = MaterialTheme.typography.labelMedium)
 
-            /*
-             * This AnimatedContent will cause
-             * [java.lang.IllegalArgumentException: Error: Placement happened before lookahead.]
-             *
-             * Possible the same of https://github.com/android/nowinandroid/issues/1371
-             */
-//            AnimatedContent(inSelectMode, label = "") {
-            if (inSelectMode) {
-                Checkbox(checked = selected, onCheckedChange = onSelectedChange)
-            } else {
-                IconButton(onClick = { showScoreEditor = true }) {
-                    Icon(Icons.Default.Edit, null)
+            Crossfade(inSelectMode, label = "") {
+                if (it) {
+                    Checkbox(checked = uiItem.selected, onCheckedChange = onSelectedChange)
+                } else {
+                    IconButton(onClick = { showScoreEditor = true }) {
+                        Icon(Icons.Default.Edit, null)
+                    }
                 }
             }
-//            }
         }
     }
 }
@@ -114,54 +107,46 @@ fun DatabasePlayResultListScreen(
     onNavigateUp: () -> Unit,
     viewModel: DatabasePlayResultListViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    @Suppress("UNUSED_VARIABLE") val databaseLastUpdated by viewModel.databaseListenFlow.collectAsStateWithLifecycle()
 
-    var inSelectMode by rememberSaveable { mutableStateOf(false) }
-    val selectedItemIds by viewModel.selectedUiItemIds.collectAsStateWithLifecycle()
+    val uiListItems = uiState.uiListItems
+    val isInSelectMode = uiState.isInSelectMode
+    val isLoading = uiState.isLoading
+
+    val selectedItemsCount = uiListItems.count { it.selected }
     var showDeleteConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
-    val exitSelectMode = {
-        viewModel.clearSelectedItems()
-        inSelectMode = false
-    }
-
-    BackHandler(inSelectMode) { exitSelectMode() }
+    BackHandler(isInSelectMode) { viewModel.exitSelectMode() }
 
     SubScreenContainer(topBar = {
         SubScreenTopAppBar(
-            onNavigateUp = {
-                if (inSelectMode) exitSelectMode()
-                else onNavigateUp()
-            },
+            onNavigateUp = { onNavigateUp() },
             title = { Text(stringResource(R.string.database_play_result_list_title)) },
             actions = {
-                AnimatedContent(inSelectMode, label = "selectModeActions") {
+                AnimatedContent(isInSelectMode, label = "selectModeActions") {
                     if (it) {
                         Row {
                             IconButton(
                                 onClick = { viewModel.clearSelectedItems() },
-                                enabled = selectedItemIds.isNotEmpty(),
+                                enabled = selectedItemsCount > 0,
                             ) {
                                 Icon(Icons.Default.Deselect, null)
                             }
                             IconButton(
                                 onClick = { showDeleteConfirmDialog = true },
-                                enabled = selectedItemIds.isNotEmpty(),
+                                enabled = selectedItemsCount > 0,
                                 colors = IconButtonDefaults.iconButtonColors(
                                     contentColor = MaterialTheme.colorScheme.error,
                                 ),
                             ) {
                                 Icon(Icons.Default.Delete, null)
                             }
-                            IconButton(onClick = { exitSelectMode() }) {
-                                Icon(Icons.Default.Close, null)
-                            }
                         }
                     } else {
-                        IconButton(onClick = { inSelectMode = true }) {
+                        IconButton(onClick = { viewModel.enterSelectMode() }) {
                             Icon(Icons.Default.Checklist, null)
                         }
                     }
@@ -169,27 +154,27 @@ fun DatabasePlayResultListScreen(
             },
         )
     }) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
-            items(uiItems, key = { it.id }) {
-                val itemSelected = selectedItemIds.contains(it.id)
-
-                Box(Modifier.animateItem()) {
+        if (isLoading) {
+            Box(Modifier.fillMaxSize()) {
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
+        } else if (uiListItems.isEmpty()) {
+            EmptyScreen(Modifier.fillMaxSize())
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
+                items(uiListItems, key = { it.id }) {
                     DatabasePlayResultListItem(
                         uiItem = it,
                         onScoreChange = { scoreEdited ->
-                            // TODO: debouncing / only trigger when dialog dismiss?
-                            coroutineScope.launch { viewModel.updateScore(scoreEdited) }
+                            viewModel.updateScore(scoreEdited)
 
                             Toast.makeText(
                                 context, "Update playResult ${it.id}", Toast.LENGTH_SHORT
                             ).show()
                         },
-                        inSelectMode = inSelectMode,
-                        selected = itemSelected,
-                        onSelectedChange = { checked ->
-                            if (checked) viewModel.selectItem(it)
-                            else viewModel.deselectItem(it)
-                        },
+                        inSelectMode = isInSelectMode,
+                        onSelectedChange = { selected -> viewModel.setItemSelected(it, selected) },
+                        modifier = Modifier.animateItem()
                     )
                 }
             }
@@ -197,7 +182,6 @@ fun DatabasePlayResultListScreen(
     }
 
     if (showDeleteConfirmDialog) {
-        val selectedItemsCount = selectedItemIds.size
         val contentColor = MaterialTheme.colorScheme.error
 
         AlertDialog(
@@ -205,7 +189,7 @@ fun DatabasePlayResultListScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        coroutineScope.launch { viewModel.deleteSelection() }
+                        viewModel.deleteSelectedItems()
                         showDeleteConfirmDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(
