@@ -101,6 +101,11 @@ fun ArcaeaPlayResultCard(
         targetValue = if (showDetails) 180f else 0f, label = "expandArrow"
     )
 
+    val idText = remember(playResult.id) { playResult.id.toString() }
+    val uuidText = remember(playResult.uuid) { playResult.uuid.toString() }
+    val songIdRatingClassText = remember(playResult.songId, playResult.ratingClass) {
+        "${playResult.songId}.${playResult.ratingClass}"
+    }
     val scoreText = remember(playResult.score) {
         playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
             .reversed()
@@ -198,14 +203,14 @@ fun ArcaeaPlayResultCard(
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         DetailsTextWithLabel(
-                            label = "ID",
-                            text = if (playResult.id == 0) "/" else playResult.id.toString(),
+                            label = "UUID",
+                            text = uuidText,
+                            modifier = Modifier.span(2)
                         )
 
-                        DetailsTextWithLabel(
-                            label = "sI.rC",
-                            text = "${playResult.songId}.${playResult.ratingClass}",
-                        )
+                        DetailsTextWithLabel(label = "ID", text = idText)
+
+                        DetailsTextWithLabel(label = "sI.rC", text = songIdRatingClassText)
 
                         DetailsTextWithLabel(
                             label = stringResource(R.string.arcaea_play_result_clear_type),
@@ -304,7 +309,7 @@ private fun previewCharts(): Array<Chart> {
 @Composable
 private fun previewPlayResults(): Array<PlayResult> {
     fun playResult(
-        id: Int, ratingClass: ArcaeaRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
+        id: Long, ratingClass: ArcaeaRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
     ): PlayResult {
         return PlayResult(
             id = id,

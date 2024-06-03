@@ -2,17 +2,23 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import java.util.UUID
 import kotlin.math.max
 
 
-@Entity(tableName = "play_results")
+@Entity(
+    tableName = "play_results",
+    indices = [Index(value = ["uuid"], unique = true)],
+)
 data class PlayResult(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val uuid: UUID = UUID.randomUUID(),
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,

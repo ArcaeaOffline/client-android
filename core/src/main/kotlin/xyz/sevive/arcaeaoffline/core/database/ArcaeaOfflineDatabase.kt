@@ -11,6 +11,7 @@ import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
+import xyz.sevive.arcaeaoffline.core.database.converters.UUIDByteArrayConverters
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
@@ -36,6 +37,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
+import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import kotlin.math.floor
 
 
@@ -56,10 +58,10 @@ import kotlin.math.floor
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
-@TypeConverters(InstantConverters::class)
+@TypeConverters(InstantConverters::class, UUIDByteArrayConverters::class)
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun propertyDao(): PropertyDao
     abstract fun packDao(): PackDao
@@ -103,7 +105,9 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
 
                     val options = RequerySQLiteOpenHelperFactory.ConfigurationOptions { config }
                     RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
-                }.build().also { Instance = it }
+                }.addMigrations(
+                    Migration_6_7,
+                ).build().also { Instance = it }
             }
         }
     }

@@ -29,6 +29,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.core.database.entities.toPlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import java.util.UUID
 
 @Composable
 internal fun DatabaseB30ListItem(
@@ -88,6 +89,7 @@ private fun DatabaseB30ListItemPreview() {
                 index = 5,
                 playResultBest = PlayResultBest(
                     id = 1,
+                    uuid = UUID.randomUUID(),
                     songId = "test",
                     ratingClass = ArcaeaRatingClass.FUTURE,
                     score = 99500000,

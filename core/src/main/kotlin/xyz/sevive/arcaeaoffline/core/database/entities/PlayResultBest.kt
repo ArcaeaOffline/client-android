@@ -6,11 +6,12 @@ import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import java.util.UUID
 
 @DatabaseView(
     """
         SELECT
-            prc.id, prc.song_id, prc.rating_class, prc.score,
+            prc.id, prc.uuid, prc.song_id, prc.rating_class, prc.score,
             prc.pure, prc.shiny_pure, prc.far, prc.lost,
             prc.date, prc.max_recall, prc.modifier, prc.clear_type,
             MAX(prc.potential) AS potential,
@@ -21,7 +22,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
     """, "play_results_best"
 )
 data class PlayResultBest(
-    val id: Int,
+    val id: Long,
+    val uuid: UUID,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,
@@ -40,6 +42,7 @@ data class PlayResultBest(
 fun PlayResultBest.toPlayResult(): PlayResult {
     return PlayResult(
         id = this.id,
+        uuid = this.uuid,
         songId = this.songId,
         ratingClass = this.ratingClass,
         score = this.score,

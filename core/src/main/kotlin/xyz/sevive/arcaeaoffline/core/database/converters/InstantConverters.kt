@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.core.database.converters
 import androidx.room.TypeConverter
 import org.threeten.bp.Instant
 
-class InstantConverters {
+object InstantConverters {
     @TypeConverter
     fun fromTimestamp(value: Long?): Instant? {
         return value?.let { Instant.ofEpochMilli(it) }

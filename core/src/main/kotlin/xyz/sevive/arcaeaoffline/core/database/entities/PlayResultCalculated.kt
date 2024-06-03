@@ -6,11 +6,12 @@ import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import java.util.UUID
 
 @DatabaseView(
     """
     SELECT
-        pr.id, d.song_id, d.rating_class, pr.score, pr.pure,
+        pr.id, pr.uuid, d.song_id, d.rating_class, pr.score, pr.pure,
         CASE
             WHEN ci.notes IS NOT NULL AND pr.pure IS NOT NULL AND pr.far IS NOT NULL AND ci.notes <> 0
             THEN pr.score - FLOOR((pr.pure * 10000000.0 / ci.notes) + (pr.far * 0.5 * 100000000.0 / ci.notes))
@@ -29,7 +30,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 """, "play_results_calculated"
 )
 data class PlayResultCalculated(
-    val id: Int,
+    val id: Long,
+    val uuid: UUID,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,

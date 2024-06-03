@@ -20,6 +20,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
+import java.util.UUID
 
 data class DeviceOcrResult(
     val ratingClass: ArcaeaRatingClass,
@@ -50,17 +51,18 @@ fun DeviceOcrResult.toScore(
 
     return PlayResult(
         id = 0,
-        this.songId,
-        this.ratingClass,
-        this.score,
-        this.pure,
-        this.far,
-        this.lost,
-        date,
-        this.maxRecall,
-        scoreModifier,
-        clearType,
-        comment,
+        uuid = UUID.randomUUID(),
+        songId = this.songId,
+        ratingClass = this.ratingClass,
+        score = this.score,
+        pure = this.pure,
+        far = this.far,
+        lost = this.lost,
+        date = date,
+        maxRecall = this.maxRecall,
+        modifier = scoreModifier,
+        clearType = clearType,
+        comment = comment,
     )
 }
 

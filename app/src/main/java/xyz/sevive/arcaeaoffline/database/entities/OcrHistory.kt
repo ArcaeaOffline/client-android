@@ -12,6 +12,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import java.util.UUID
 
 
 @Entity(tableName = "ocr_history")
@@ -36,6 +37,7 @@ data class OcrHistory(
 
         return PlayResult(
             id = 0,
+            uuid = UUID.randomUUID(),
             songId = songId,
             ratingClass = ratingClass,
             score = score,
