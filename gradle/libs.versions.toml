@@ -50,5 +50,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+androidGitVersion = { id = "com.gladed.androidgitversion", version = "0.4.14" }
 
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }

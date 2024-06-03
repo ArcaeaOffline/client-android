@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.secrets.gradle.plugin)
+    alias(libs.plugins.androidGitVersion)
 
     alias(androidx.plugins.room)
 }
@@ -61,8 +62,8 @@ android {
         applicationId = "xyz.sevive.arcaeaoffline"
         minSdk = 21
         targetSdk = 34
-        versionCode = getVersionCode()
-        versionName = getVersionName()
+        versionCode = androidGitVersion.code()
+        versionName = androidGitVersion.name()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
