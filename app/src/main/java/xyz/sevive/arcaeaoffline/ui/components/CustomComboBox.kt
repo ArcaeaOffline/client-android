@@ -34,7 +34,6 @@ fun CustomComboBox(
     label: @Composable () -> Unit = {},
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = { Icon(Icons.Default.ArrowDropDown, null) },
-    menuAnchorType: MenuAnchorType = MenuAnchorType.PrimaryNotEditable,
 ) {
     val labels = options.map { it.first }
 
@@ -67,7 +66,10 @@ fun CustomComboBox(
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(menuAnchorType, enabled),
+                // TODO: wierd bug
+                //   Parameter specified as non-null is null: method CustomComboBox-_bstFDk, parameter menuAnchorType
+                //   at xyz.sevive.arcaeaoffline.ui.components.CustomComboBoxKt.CustomComboBox-_bstFDk(Unknown Source:20)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled),
         )
         ExposedDropdownMenu(
             expanded = expanded,
