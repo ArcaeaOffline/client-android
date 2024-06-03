@@ -6,75 +6,51 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.transform
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
-import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
-data class DatabaseB30ListUiItem(
-    val index: Int,
-    val playResultBest: PlayResultBest,
-    val chart: Chart?,
-) {
-    val id get() = playResultBest.id
-}
 
 class DatabaseB30ListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
+    data class UiItem(
+        val index: Int,
+        val playResultBest: PlayResultBest,
+        val chart: Chart?,
+        val potentialText: String = ArcaeaFormatters.potentialToText(playResultBest.potential),
+    ) {
+        val id get() = playResultBest.id
+    }
+
+    data class UiState(
+        val isLoading: Boolean = false,
+        val uiItems: List<UiItem> = emptyList(),
+    )
+
     private val _limit = MutableStateFlow(INIT_LIMIT)
     val limit = _limit.asStateFlow()
 
-    private val _b30List = MutableStateFlow<List<PlayResultBest>?>(null)
-    private val b30List = _b30List.asStateFlow()
+    val uiState = _limit.transform {
+        emit(UiState(isLoading = true))
 
-    private val _loading = MutableStateFlow(false)
-    val loading = _loading.asStateFlow()
-
-    private suspend fun updateB30ListWithLimit(limit: Int) {
-        _loading.value = true
-
-        val scores = repositoryContainer.playResultBestRepo.orderDescWithLimit(limit).firstOrNull()
-        _b30List.value = scores
-
-        _loading.value = false
-    }
-
-    suspend fun setLimit(newLimit: Int) {
-        _limit.value = newLimit
-
-        updateB30ListWithLimit(newLimit)
-    }
-
-    init {
-        viewModelScope.launch {
-            setLimit(limit.value)
+        val dbItems = repositoryContainer.relationshipsRepo.playResultsBestWithCharts(it)
+            .firstOrNull() ?: emptyList()
+        val uiItems = dbItems.mapIndexed { i, dbItem ->
+            UiItem(index = i, playResultBest = dbItem.playResultBest, chart = dbItem.chart)
         }
-    }
 
-    val uiItems = b30List.map { scoreBests ->
-        scoreBests?.mapIndexed { i, scoreBest ->
-            DatabaseB30ListUiItem(
-                index = i,
-                playResultBest = scoreBest,
-                chart = ChartFactory.getChart(
-                    repositoryContainer,
-                    scoreBest.songId,
-                    scoreBest.ratingClass
-                ),
-            )
-        }
-    }.stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
-        initialValue = listOf(),
-    )
+        emit(UiState(isLoading = false, uiItems = uiItems))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
+
+    fun setLimit(limit: Int) {
+        _limit.value = limit
+    }
 
     companion object {
-        const val STOP_TIMEOUT_MILLIS = 7500L
         const val INIT_LIMIT = 40
     }
 }

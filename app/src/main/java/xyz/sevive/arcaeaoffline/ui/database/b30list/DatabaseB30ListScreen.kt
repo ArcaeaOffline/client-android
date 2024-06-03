@@ -1,15 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.database.b30list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -27,28 +23,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.launch
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
+import kotlin.math.round
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseB30ListScreen(
     onNavigateUp: () -> Unit,
@@ -58,9 +47,10 @@ fun DatabaseB30ListScreen(
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
 
-    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val limit by viewModel.limit.collectAsStateWithLifecycle()
-    val loading by viewModel.loading.collectAsStateWithLifecycle()
+
+    val uiItems = uiState.uiItems
 
     SubScreenContainer(
         topBar = {
@@ -78,33 +68,16 @@ fun DatabaseB30ListScreen(
             )
         },
     ) {
-        if (loading) {
+        if (uiState.isLoading) {
             Box(Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
             }
-        } else if ((uiItems != null && uiItems!!.isEmpty()) || uiItems == null) {
-            Box(Modifier.fillMaxSize()) {
-                Column(
-                    Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                ) {
-                    Icon(
-                        Icons.Default.Inbox,
-                        contentDescription = null,
-                        Modifier
-                            .size(50.dp)
-                            .alpha(0.5f)
-                    )
-                    Text("Empty")
-                }
-            }
+        } else if (uiItems.isEmpty()) {
+            EmptyScreen(Modifier.fillMaxSize())
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
-                items(uiItems!!, key = { it.id }) {
-                    Box(Modifier.animateItem()) {
-                        DatabaseB30ListItem(it)
-                    }
+                items(uiItems, key = { it.id }) {
+                    DatabaseB30ListItem(it, Modifier.animateItem())
                 }
             }
         }
@@ -119,43 +92,12 @@ fun DatabaseB30ListScreen(
                 Slider(
                     value = limit.toFloat(),
                     onValueChange = {
-                        coroutineScope.launch { viewModel.setLimit(it.toInt()) }
+                        coroutineScope.launch { viewModel.setLimit(round(it).toInt()) }
                     },
                     valueRange = 10.0f..60.0f,
                     steps = 4,
                 )
             },
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun DatabaseB30ListItemPreview() {
-    ArcaeaOfflineTheme {
-        AndroidThreeTen.init(LocalContext.current)
-
-        DatabaseB30ListItem(
-            DatabaseB30ListUiItem(
-                index = 5,
-                playResultBest = PlayResultBest(
-                    id = 1,
-                    songId = "test",
-                    ratingClass = ArcaeaRatingClass.FUTURE,
-                    score = 99500000,
-                    pure = null,
-                    shinyPure = null,
-                    far = null,
-                    lost = null,
-                    date = Instant.ofEpochMilli(0),
-                    maxRecall = null,
-                    modifier = null,
-                    clearType = null,
-                    potential = 12.00,
-                    comment = null,
-                ),
-                chart = null,
-            )
         )
     }
 }
