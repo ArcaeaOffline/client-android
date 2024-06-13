@@ -10,6 +10,9 @@ import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
+import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultClearTypeConverters
+import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifierConverters
+import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaRatingClassConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.UUIDByteArrayConverters
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
@@ -38,6 +41,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
+import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 import kotlin.math.floor
 
 
@@ -58,10 +62,16 @@ import kotlin.math.floor
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
-@TypeConverters(InstantConverters::class, UUIDByteArrayConverters::class)
+@TypeConverters(
+    InstantConverters::class,
+    UUIDByteArrayConverters::class,
+    ArcaeaRatingClassConverters::class,
+    ArcaeaPlayResultClearTypeConverters::class,
+    ArcaeaPlayResultModifierConverters::class,
+)
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun propertyDao(): PropertyDao
     abstract fun packDao(): PackDao
@@ -107,6 +117,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
                     RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
                 }.addMigrations(
                     Migration_6_7,
+                    Migration_7_8,
                 ).build().also { Instance = it }
             }
         }
