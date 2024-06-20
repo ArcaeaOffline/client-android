@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="emergency_mode_title">Emergency Mode</string>
+
+    <string name="emergency_mode_output_directory_title">Output Directory</string>
+    <string name="emergency_mode_output_directory_select_button">Select…</string>
+    <string name="emergency_mode_output_directory_valid_label">Valid?</string>
+
+    <string name="emergency_mode_ocr_title">OCR</string>
+    <string name="emergency_mode_ocr_delete_all_dependencies_button">Delete All Dependencies</string>
+
+    <string name="emergency_mode_database_title">Database</string>
+    <string name="emergency_mode_database_copy_button">Copy</string>
+    <string name="emergency_mode_database_copied_message">Database copied to %s, size %s</string>
+</resources>

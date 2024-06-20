@@ -20,13 +20,13 @@
         android:name=".ArcaeaOfflineApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ArcaeaOffline"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="34">
         <activity
             android:name=".OcrFromShareActivity"
@@ -38,15 +38,18 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.ArcaeaOffline">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <activity
@@ -55,6 +58,13 @@
             android:finishOnTaskLaunch="true"
             android:launchMode="singleInstance"
             android:process=":acra" />
+
+        <activity
+            android:name=".EmergencyModeActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleInstance" />
     </application>
 
 </manifest>

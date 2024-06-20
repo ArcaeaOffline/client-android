@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_emergency_short_label">紧急模式</string>
+    <string name="shortcut_emergency_long_label">紧急模式</string>
+    <string name="shortcut_emergency_disabled_message">不是哥们</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="emergency_mode_title">紧急模式</string>
+
+    <string name="emergency_mode_output_directory_title">输出目录</string>
+    <string name="emergency_mode_output_directory_select_button">选择</string>
+    <string name="emergency_mode_output_directory_valid_label">是否可用？</string>
+
+    <string name="emergency_mode_ocr_title">OCR</string>
+    <string name="emergency_mode_ocr_delete_all_dependencies_button">删除所有依赖项</string>
+
+    <string name="emergency_mode_database_title">数据库</string>
+    <string name="emergency_mode_database_copy_button">复制</string>
+    <string name="emergency_mode_database_copied_message">数据库已复制到 %s，大小 %s</string>
+</resources>
