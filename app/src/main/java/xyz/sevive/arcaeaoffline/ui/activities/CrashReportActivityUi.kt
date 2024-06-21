@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -60,6 +63,7 @@ private fun CrashReportInfoAndActions(
     onSendReport: () -> Unit,
     onSaveReport: () -> Unit,
     onIgnore: () -> Unit,
+    onStartEmergencyMode: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -102,8 +106,7 @@ private fun CrashReportInfoAndActions(
             Button({ onSendReport() }) {
                 IconRow(icon = {
                     Icon(
-                        Icons.AutoMirrored.Filled.Send,
-                        contentDescription = null
+                        Icons.AutoMirrored.Filled.Send, contentDescription = null
                     )
                 }) {
                     Text(stringResource(R.string.crash_report_send_button))
@@ -118,14 +121,30 @@ private fun CrashReportInfoAndActions(
             Spacer(Modifier.weight(1f))
 
             OutlinedButton(
-                { onIgnore() },
-                colors = ButtonDefaults.outlinedButtonColors(
+                { onIgnore() }, colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.error
                 )
             ) {
                 IconRow(icon = { Icon(Icons.Default.Block, contentDescription = null) }) {
                     Text(stringResource(R.string.crash_report_ignore_button))
                 }
+            }
+        }
+
+        FilledTonalButton(
+            onClick = onStartEmergencyMode,
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+        ) {
+            IconRow(icon = {
+                Icon(
+                    painterResource(R.drawable.ic_activity_emergency_mode),
+                    contentDescription = null
+                )
+            }) {
+                Text(stringResource(R.string.emergency_mode_title))
             }
         }
     }
@@ -136,8 +155,8 @@ private fun CrashReportStacktrace(
     crashReportData: CrashReportData,
     modifier: Modifier = Modifier,
 ) {
-    val stacktrace = crashReportData.getString(ReportField.STACK_TRACE)
-        ?: "Unable to get stack trace."
+    val stacktrace =
+        crashReportData.getString(ReportField.STACK_TRACE) ?: "Unable to get stack trace."
 
     Text(
         text = stacktrace,
@@ -184,6 +203,8 @@ fun CrashReportActivityUi(
     windowWidthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val comment = uiState.comment
@@ -251,6 +272,7 @@ fun CrashReportActivityUi(
                                     onSendReport = onSendReport,
                                     onSaveReport = onSaveReport,
                                     onIgnore = onIgnore,
+                                    onStartEmergencyMode = { viewModel.startEmergencyMode(context) },
                                 )
                             }
                         }
@@ -293,6 +315,7 @@ fun CrashReportActivityUi(
                                 onSendReport = onSendReport,
                                 onSaveReport = onSaveReport,
                                 onIgnore = onIgnore,
+                                onStartEmergencyMode = { viewModel.startEmergencyMode(context) },
                             )
                         }
                     }
