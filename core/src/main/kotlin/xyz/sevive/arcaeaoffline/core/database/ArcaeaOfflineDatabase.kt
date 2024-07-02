@@ -88,7 +88,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun scoreBestDao(): PlayResultBestDao
 
     companion object {
-        private const val DATABASE_NAME = "arcaea_offline.db"
+        const val DATABASE_NAME = "arcaea_offline.db"
 
         @Volatile
         private var Instance: ArcaeaOfflineDatabase? = null

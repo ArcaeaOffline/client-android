@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_emergency_short_label">Emergency</string>
+    <string name="shortcut_emergency_long_label">Emergency Mode</string>
+    <string name="shortcut_emergency_disabled_message">WTF</string>
+</resources>

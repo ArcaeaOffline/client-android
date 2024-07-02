@@ -1,8 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import xyz.sevive.arcaeaoffline.EmergencyModeActivity
 
 
 class CrashReportActivityViewModel : ViewModel() {
@@ -25,5 +28,9 @@ class CrashReportActivityViewModel : ViewModel() {
 
     fun reportProcessed() {
         _uiState.value = uiState.value.copy(reportProcessed = true)
+    }
+
+    fun startEmergencyMode(context: Context) {
+        context.startActivity(Intent(context, EmergencyModeActivity::class.java))
     }
 }

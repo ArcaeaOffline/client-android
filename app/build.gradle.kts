@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.secrets.gradle.plugin)
+    alias(libs.plugins.protobuf)
     alias(libs.plugins.androidGitVersion)
 
     alias(androidx.plugins.room)
@@ -19,6 +20,26 @@ secrets {
         "SIGNING_KEY_PASSWORD",
     )
 }
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.27.1"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 
 // automatic version generating from https://stackoverflow.com/a/24121734/16484891
 // CC BY-SA 3.0
@@ -147,6 +168,7 @@ dependencies {
     // android & androidx
     implementation(androidx.room.runtime)
 
+    implementation(androidx.datastore.core)
     implementation(androidx.datastore.preferences)
 
     implementation(androidx.core.ktx)
@@ -182,6 +204,8 @@ dependencies {
     implementation(libs.opencv)
 
     implementation(libs.apache.commons.io)
+
+    implementation(libs.protobuf.protobufJavalite)
 
     implementation(libs.github.requery.sqlite.android)
 

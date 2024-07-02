@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "xyz.sevive.arcaeaoffline.datastore";
+option java_multiple_files = true;
+
+message EmergencyModePreferences {
+    optional string last_output_directory = 1;
+}
