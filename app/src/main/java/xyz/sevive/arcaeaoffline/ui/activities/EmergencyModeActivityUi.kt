@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,9 +95,11 @@ fun EmergencyModeActivityUi(
     val context = LocalContext.current
 
     val outputDirectory by viewModel.outputDirectory.collectAsStateWithLifecycle()
-    val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle(
-        initialValue = false
-    )
+    val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.reloadPreferencesOnStartUp(context)
+    }
 
     Scaffold(modifier, topBar = { UiTopAppBar() }) { padding ->
         LazyColumn(

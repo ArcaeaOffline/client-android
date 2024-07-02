@@ -11,13 +11,14 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.documentfile.provider.DocumentFile
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityUi
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
 class EmergencyModeActivity : ComponentActivity() {
-    private val viewModel by viewModels<EmergencyModeActivityViewModel>()
+    private val viewModel by viewModels<EmergencyModeActivityViewModel> { AppViewModelProvider.Factory }
 
     private val setOutputDirectoryRequest =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -57,6 +58,10 @@ class EmergencyModeActivity : ComponentActivity() {
 
     private fun setOutputDirectory(uri: Uri) {
         DocumentFile.fromTreeUri(this, uri)?.let {
+            val permissionFlags =
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            this.contentResolver.takePersistableUriPermission(uri, permissionFlags)
+
             viewModel.setOutputDirectory(it)
         }
     }
