@@ -20,6 +20,7 @@
     <string name="general_import">导入</string>
     <string name="general_stop">停止</string>
     <string name="general_no_results">无结果</string>
+    <string name="general_updated_at">更新于 %s</string>
 
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
 
@@ -140,6 +141,11 @@
 
     <!-- Database b30 list pane -->
     <string name="database_b30_list_title">B30 列表</string>
+
+    <!-- Database r30 list pane -->
+    <string name="database_r30_list_title">R30 列表</string>
+    <string name="database_r30_rebuild_dialog_title">重建 R30 列表</string>
+    <string name="database_r30_rebuild_dialog_content">将清除目前 R30 列表内的所有记录，然后再从头计算 R30。确定吗？</string>
 
     <!-- Database toasts -->
     <plurals name="database_packlist_imported">

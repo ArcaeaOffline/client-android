@@ -41,6 +41,10 @@ fun DatabaseEntryScreen() {
             DatabaseScreenDestinations.B30.route -> {
                 DatabaseB30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
             }
+
+            DatabaseScreenDestinations.R30.route -> {
+                DatabaseR30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+            }
         }
     }
 }

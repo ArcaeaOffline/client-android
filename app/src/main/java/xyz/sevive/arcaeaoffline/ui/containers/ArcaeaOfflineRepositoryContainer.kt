@@ -19,6 +19,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
@@ -36,6 +38,8 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val playResultRepo: PlayResultRepository
     val playResultCalculatedRepo: PlayResultCalculatedRepository
     val playResultBestRepo: PlayResultBestRepository
+
+    val r30EntryRepo: R30EntryRepository
 
     val relationshipsRepo: RelationshipsRepository
 
@@ -83,6 +87,11 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context)
         PlayResultBestRepositoryImpl(
             ArcaeaOfflineDatabase.getDatabase(context).scoreBestDao()
         )
+    }
+
+    override val r30EntryRepo: R30EntryRepository by lazy {
+        val db = ArcaeaOfflineDatabase.getDatabase(context)
+        R30EntryRepositoryImpl(db.r30EntryDao(), playResultRepo, chartInfoRepo, propertyRepository)
     }
 
     override val relationshipsRepo: RelationshipsRepository by lazy {

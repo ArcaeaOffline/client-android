@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
@@ -14,12 +16,14 @@ import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabasePlayResultListViewModel
+import xyz.sevive.arcaeaoffline.ui.database.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.ocrQueueDataStore
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
+import java.util.Locale
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -64,6 +68,14 @@ object AppViewModelProvider {
         initializer {
             DatabaseB30ListViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            DatabaseR30ListViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .withZone(ZoneId.systemDefault())
             )
         }
 

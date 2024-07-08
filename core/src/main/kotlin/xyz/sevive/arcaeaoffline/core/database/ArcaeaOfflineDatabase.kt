@@ -25,6 +25,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultCalculatedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
+import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
@@ -37,6 +38,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
+import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
@@ -56,13 +58,15 @@ import kotlin.math.floor
         DifficultyLocalized::class,
         ChartInfo::class,
         PlayResult::class,
+        R30Entry::class,
     ],
     views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
+        AutoMigration(from = 8, to = 9),
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(
@@ -82,6 +86,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
     abstract fun chartInfoDao(): ChartInfoDao
     abstract fun scoreDao(): PlayResultDao
+    abstract fun r30EntryDao(): R30EntryDao
 
     abstract fun chartDao(): ChartDao
     abstract fun scoreCalculatedDao(): PlayResultCalculatedDao

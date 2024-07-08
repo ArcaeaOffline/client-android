@@ -67,7 +67,7 @@ fun OverviewScreen(
         Row(verticalAlignment = Alignment.Bottom) {
             VerticalGrid(columns = gridColumns, Modifier.weight(1f)) {
                 B30R10Label(label = "B30", value = ArcaeaFormatters.potentialToText(uiState.b30))
-                B30R10Label(label = "R10", value = "-.--")
+                B30R10Label(label = "R10", value = ArcaeaFormatters.potentialToText(uiState.r10))
             }
 
             FilledIconButton(onClick = { viewModel.reload() }) {

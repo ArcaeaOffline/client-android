@@ -5,11 +5,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
@@ -28,6 +31,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipInputStream
+import kotlin.time.measureTime
 
 
 class DatabaseManageViewModel(
@@ -287,6 +291,20 @@ class DatabaseManageViewModel(
         val content = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo).toJsonString()
         content?.let {
             IOUtils.write(content, outputStream)
+        }
+    }
+
+    fun fuck() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                Log.d(LOG_TAG, "bie ji")
+                val time = measureTime {
+                    repositoryContainer.r30EntryRepo.update(
+                        repositoryContainer.playResultRepo.findAll().first()
+                    )
+                }
+                Log.d(LOG_TAG, time.toString())
+            }
         }
     }
 

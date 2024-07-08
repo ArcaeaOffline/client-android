@@ -28,6 +28,7 @@ CC BY-SA 3.0
     <string name="general_import">Import</string>
     <string name="general_stop">Stop</string>
     <string name="general_no_results">No results</string>
+    <string name="general_updated_at">Updated at %s</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
@@ -157,6 +158,11 @@ CC BY-SA 3.0
 
     <!-- Database b30 list pane -->
     <string name="database_b30_list_title">Best30 List</string>
+
+    <!-- Database r30 list pane -->
+    <string name="database_r30_list_title">Recent30 List</string>
+    <string name="database_r30_rebuild_dialog_title">Rebuild Recent30 List</string>
+    <string name="database_r30_rebuild_dialog_content">This will remove all the records in the current Recent30 list, and then re-calculate the list from scratch. Continue?</string>
 
     <!-- Database toasts -->
     <plurals name="database_packlist_imported">

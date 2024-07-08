@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -94,6 +95,19 @@ fun DatabaseNavEntry(
                     title = stringResource(DatabaseScreenDestinations.B30.title),
                     headSlot = {
                         Icon(Icons.Default.Star, null)
+                    },
+                    tailSlot = {
+                        Icon(Icons.AutoMirrored.Default.ArrowForward, null)
+                    },
+                )
+            }
+
+            item {
+                ActionButton(
+                    onClick = { onNavigateToSubRoute(DatabaseScreenDestinations.R30.route) },
+                    title = stringResource(DatabaseScreenDestinations.R30.title),
+                    headSlot = {
+                        Icon(Icons.Default.History, null)
                     },
                     tailSlot = {
                         Icon(Icons.AutoMirrored.Default.ArrowForward, null)
