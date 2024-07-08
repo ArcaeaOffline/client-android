@@ -19,6 +19,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
@@ -45,20 +46,21 @@ object DeviceOcrHelper {
         val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
         val imgCropped = CropBlackEdges.crop(img)
 
-        val roisAutoType = DeviceRoisAutoSelector.getAutoType(img)
+        val roisAutoType = DeviceRoisAutoSelector.select(img)
         val rois = when (roisAutoType) {
-            DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisAutoT1(
-                imgCropped.width(), imgCropped.height()
+            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisAutoT1(
+                imgCropped.width(),
+                imgCropped.height()
             )
 
-            DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisAutoT2(
+            else -> DeviceRoisAutoT2(
                 imgCropped.width(), imgCropped.height()
             )
         }
         val extractor = DeviceRoisExtractor(rois, imgCropped)
         val masker = when (roisAutoType) {
-            DeviceRoisAutoSelector.Companion.RoisAutoType.T1 -> DeviceRoisMaskerAutoT1()
-            DeviceRoisAutoSelector.Companion.RoisAutoType.T2 -> DeviceRoisMaskerAutoT2()
+            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
+            else -> DeviceRoisMaskerAutoT2()
         }
         val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
         val phashDatabase =
