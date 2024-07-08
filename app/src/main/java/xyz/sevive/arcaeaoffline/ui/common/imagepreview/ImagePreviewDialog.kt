@@ -12,13 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.origeek.imageViewer.viewer.rememberViewerState
+import com.jvziyaoyao.scale.zoomable.zoomable.rememberZoomableState
 import xyz.sevive.arcaeaoffline.R
 import java.io.InputStream
 
@@ -28,7 +29,9 @@ fun ImagePreviewDialog(
     onDismiss: () -> Unit,
     topBarContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    val imageViewerState = rememberViewerState()
+    val zoomableState = rememberZoomableState(
+        Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat())
+    )
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -47,11 +50,11 @@ fun ImagePreviewDialog(
                 }
             }
 
-            // `com.origeek.imageViewer` minSdk 24
+            // `com.jvziyaoyao.scale` minSdk 24
             if (Build.VERSION.SDK_INT >= 24) {
                 ImagePreviewDialogImage(
                     imageBitmap = imageBitmap,
-                    imageViewerState = imageViewerState,
+                    zoomableState = zoomableState,
                     onDismiss = onDismiss,
                     modifier = Modifier.fillMaxSize()
                 )

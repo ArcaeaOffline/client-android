@@ -10,7 +10,7 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="33" />
 
-    <uses-sdk tools:overrideLibrary="com.origeek.imageViewer" />
+    <uses-sdk tools:overrideLibrary="com.jvziyaoyao.scale.image, com.jvziyaoyao.scale.zoomable" />
 
     <queries>
         <package android:name="moe.low.arc" />

@@ -217,7 +217,7 @@ dependencies {
     implementation(libs.compose.richtext.commonmark)
     implementation(libs.compose.richtext.ui.material3)
 
-    implementation(libs.github.jvziyaoyao.imageviewer)
+    implementation(libs.github.jvziyaoyao.scale.imageViewer)
 
     implementation(libs.github.cheonjaeung.gridlayout)
 
