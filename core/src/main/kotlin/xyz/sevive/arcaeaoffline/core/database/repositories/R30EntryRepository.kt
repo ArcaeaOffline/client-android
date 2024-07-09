@@ -67,7 +67,7 @@ class R30EntryRepositoryImpl(
 
     override suspend fun r10(): Flow<Double?> = flow {
         val r30List = findAll().firstOrNull()
-        if (r30List == null) {
+        if (r30List.isNullOrEmpty()) {
             emit(null)
             return@flow
         }
