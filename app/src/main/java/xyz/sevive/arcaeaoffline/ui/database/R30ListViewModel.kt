@@ -13,7 +13,6 @@ import org.threeten.bp.Instant
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
 import xyz.sevive.arcaeaoffline.helpers.ChartFactory
@@ -68,12 +67,7 @@ class DatabaseR30ListViewModel(
             )
         }
 
-        val lastUpdatedAtProperty =
-            repositoryContainer.propertyRepository.find(Property.KEY_R30_LAST_UPDATED_AT)
-                .firstOrNull()
-        val lastUpdatedAt =
-            if (lastUpdatedAtProperty != null) Instant.ofEpochMilli(lastUpdatedAtProperty.value.toLong())
-            else null
+        val lastUpdatedAt = repositoryContainer.propertyRepository.r30LastUpdatedAt()
         val lastUpdatedAtText =
             if (lastUpdatedAt != null) dateTimeFormatter.format(lastUpdatedAt) else "-"
 

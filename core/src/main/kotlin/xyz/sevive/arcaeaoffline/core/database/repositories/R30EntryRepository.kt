@@ -12,11 +12,9 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.R30EntryAndPlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
-import java.util.UUID
 
 interface R30EntryRepository {
     val updating: StateFlow<Boolean>
@@ -191,11 +189,7 @@ class R30EntryRepositoryImpl(
     }
 
     private suspend fun updateR30LastUpdatedAt() {
-        propertyRepo.upsert(
-            Property(
-                Property.KEY_R30_LAST_UPDATED_AT, Instant.now().toEpochMilli().toString()
-            )
-        )
+        propertyRepo.setR30LastUpdatedAt(Instant.now())
     }
 
     /**
@@ -224,11 +218,6 @@ class R30EntryRepositoryImpl(
             emptyTable()
             insertAll(*r30EntriesWithPlayResults.map { it.r30Entry }.toTypedArray())
 
-            propertyRepo.upsert(
-                Property(
-                    Property.KEY_R30_LAST_UPDATED_AT, Instant.now().toEpochMilli().toString()
-                )
-            )
             updateR30LastUpdatedAt()
         } finally {
             _updating.value = false
@@ -245,22 +234,17 @@ class R30EntryRepositoryImpl(
     }
 
     override suspend fun lastUpdatedPlayResult(): PlayResult? {
-        val lastUpdatedPlayResultUUIDProperty =
-            propertyRepo.find(Property.KEY_R30_LAST_UPDATED_PLAY_RESULT_UUID).firstOrNull()
-                ?: return null
-        val uuid = lastUpdatedPlayResultUUIDProperty.value
-
-        return playResultRepo.findByUUID(UUID.fromString(uuid)).firstOrNull()
+        val uuid = propertyRepo.r30LastUpdatedPlayResultUUID() ?: return null
+        return playResultRepo.findByUUID(uuid).firstOrNull()
     }
 
     override suspend fun requestUpdate() {
-        val lastUpdatedPlayResult = this.lastUpdatedPlayResult()
+        val lastPlayResult = this.lastUpdatedPlayResult()
 
-        if (lastUpdatedPlayResult?.date != null) {
-            update(
-                playResultRepo.findLaterThan(lastUpdatedPlayResult.date).firstOrNull()
-                    ?: emptyList()
-            )
+        if (lastPlayResult?.date != null) {
+            val newPlayResults =
+                playResultRepo.findLaterThan(lastPlayResult.date).firstOrNull() ?: emptyList()
+            update(newPlayResults)
         } else {
             requestRebuild()
         }

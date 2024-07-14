@@ -91,7 +91,7 @@ fun DatabaseStatus(
     viewModel: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val databaseInitialized by viewModel.databaseInitialized.collectAsStateWithLifecycle()
-    val propertyVersion by viewModel.propertyVersion.collectAsStateWithLifecycle()
+    val databaseVersion by viewModel.databaseVersion.collectAsStateWithLifecycle()
 
     TitleOutlinedCard(
         title = { padding ->
@@ -108,10 +108,7 @@ fun DatabaseStatus(
                 Spacer(Modifier.weight(1f))
 
                 Text(
-                    String.format(
-                        stringResource(R.string.database_version_label),
-                        propertyVersion?.value?.toIntOrNull() ?: 0,
-                    ),
+                    stringResource(R.string.database_version_label, databaseVersion ?: 0),
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
