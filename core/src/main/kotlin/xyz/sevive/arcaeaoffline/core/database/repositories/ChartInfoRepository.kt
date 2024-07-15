@@ -4,9 +4,17 @@ import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 interface ChartInfoRepository {
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<ChartInfo?>
+    fun find(playResult: PlayResult): Flow<ChartInfo?> =
+        find(playResult.songId, playResult.ratingClass)
+
+    fun find(difficulty: Difficulty): Flow<ChartInfo?> =
+        find(difficulty.songId, difficulty.ratingClass)
+
     fun findAll(): Flow<List<ChartInfo>>
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
     suspend fun insert(item: ChartInfo)

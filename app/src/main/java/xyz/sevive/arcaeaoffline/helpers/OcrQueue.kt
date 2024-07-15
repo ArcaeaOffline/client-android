@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -241,9 +242,9 @@ class OcrQueue {
 
             val arcaeaOfflineDatabaseRepositoryContainer =
                 ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
-            val chart = ChartFactory.getChart(
-                arcaeaOfflineDatabaseRepositoryContainer, ocrResult.songId, ocrResult.ratingClass
-            )
+            val chart = arcaeaOfflineDatabaseRepositoryContainer.chartRepo.find(
+                ocrResult.songId, ocrResult.ratingClass
+            ).firstOrNull()
 
             task.status = OcrQueueTaskStatus.DONE
             task.ocrResult = ocrResult

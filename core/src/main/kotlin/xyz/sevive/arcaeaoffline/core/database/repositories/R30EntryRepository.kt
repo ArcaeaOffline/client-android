@@ -70,8 +70,7 @@ class R30EntryRepositoryImpl(
             return@flow
         }
         val potentialList = r30List.mapNotNull {
-            val chartInfo =
-                chartInfoRepo.find(it.playResult.songId, it.playResult.ratingClass).firstOrNull()
+            val chartInfo = chartInfoRepo.find(it.playResult).firstOrNull()
 
             if (chartInfo != null) it.playResult.potential(chartInfo)
             else null
@@ -159,11 +158,9 @@ class R30EntryRepositoryImpl(
             // now check if the play result potential is bigger than the lowest potential r30 entry
             // if any chart info is missing, return the old r30 entries directly
             val playResultChartInfo =
-                chartInfoRepo.find(playResult.songId, playResult.ratingClass).firstOrNull()
-                    ?: return oldR30Entries
+                chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30Entries
             val oldR30EntriesWithChartInfo = oldR30Entries.associateWith {
-                chartInfoRepo.find(it.playResult.songId, it.playResult.ratingClass).firstOrNull()
-                    ?: return oldR30Entries
+                chartInfoRepo.find(it.playResult).firstOrNull() ?: return oldR30Entries
             }
 
             val minPotentialEntry = minPotentialR30Entry(oldR30EntriesWithChartInfo)

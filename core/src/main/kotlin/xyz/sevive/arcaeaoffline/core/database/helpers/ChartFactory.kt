@@ -1,14 +1,11 @@
-package xyz.sevive.arcaeaoffline.helpers
+package xyz.sevive.arcaeaoffline.core.database.helpers
 
-import kotlinx.coroutines.flow.firstOrNull
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 object ChartFactory {
-    fun getChart(song: Song, difficulty: Difficulty): Chart {
+    fun fakeChart(song: Song, difficulty: Difficulty): Chart {
         return Chart(
             songIdx = song.idx,
             songId = song.id,
@@ -39,20 +36,5 @@ object ChartFactory {
             constant = 0,
             notes = null,
         )
-    }
-
-    suspend fun getChart(
-        repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-        songId: String,
-        ratingClass: ArcaeaRatingClass,
-    ): Chart? {
-        val chart = repositoryContainer.chartRepo.find(songId, ratingClass).firstOrNull()
-        if (chart != null) return chart
-
-        val difficulty = repositoryContainer.difficultyRepo.find(
-            songId, ratingClass
-        ).firstOrNull() ?: return null
-        val song = repositoryContainer.songRepo.find(songId).firstOrNull() ?: return null
-        return getChart(song, difficulty)
     }
 }

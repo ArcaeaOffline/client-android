@@ -15,7 +15,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
-import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
@@ -51,18 +50,15 @@ class DatabaseR30ListViewModel(
 
         val dbItems = r30EntryRepo.findAll().firstOrNull() ?: emptyList()
         val uiItems = dbItems.mapIndexed { i, dbItem ->
-            val chart = repositoryContainer.chartRepo.find(
-                dbItem.playResult.songId, dbItem.playResult.ratingClass
-            ).firstOrNull()
+            val chart = repositoryContainer.chartRepo.find(dbItem.playResult).firstOrNull()
             val potential = if (chart != null) dbItem.playResult.potential(chart) else null
 
             UiItem(
                 index = i,
                 r30Entry = dbItem.r30Entry,
                 playResult = dbItem.playResult,
-                chart = chart ?: ChartFactory.getChart(
-                    repositoryContainer, dbItem.playResult.songId, dbItem.playResult.ratingClass
-                ),
+                chart = chart ?: repositoryContainer.chartRepo.find(dbItem.playResult)
+                    .firstOrNull(),
                 potentialText = ArcaeaFormatters.potentialToText(potential),
             )
         }
