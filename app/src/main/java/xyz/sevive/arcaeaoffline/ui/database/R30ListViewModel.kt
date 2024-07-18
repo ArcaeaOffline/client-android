@@ -30,6 +30,7 @@ class DatabaseR30ListViewModel(
         val r30Entry: R30Entry,
         val playResult: PlayResult,
         val chart: Chart?,
+        val potential: Double?,
         val potentialText: String,
     ) {
         val id get() = playResult.id
@@ -49,19 +50,20 @@ class DatabaseR30ListViewModel(
         if (it) return@transform
 
         val dbItems = r30EntryRepo.findAll().firstOrNull() ?: emptyList()
-        val uiItems = dbItems.mapIndexed { i, dbItem ->
+        val uiItems = dbItems.map { dbItem ->
             val chart = repositoryContainer.chartRepo.find(dbItem.playResult).firstOrNull()
             val potential = if (chart != null) dbItem.playResult.potential(chart) else null
 
             UiItem(
-                index = i,
+                index = -1,
                 r30Entry = dbItem.r30Entry,
                 playResult = dbItem.playResult,
                 chart = chart ?: repositoryContainer.chartRepo.find(dbItem.playResult)
                     .firstOrNull(),
+                potential = potential,
                 potentialText = ArcaeaFormatters.potentialToText(potential),
             )
-        }
+        }.sortedByDescending { it.potential }.mapIndexed { i, uiItem -> uiItem.copy(index = i) }
 
         val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
         val lastUpdatedAtText =
