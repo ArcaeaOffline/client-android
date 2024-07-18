@@ -85,12 +85,12 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun difficultyDao(): DifficultyDao
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
     abstract fun chartInfoDao(): ChartInfoDao
-    abstract fun scoreDao(): PlayResultDao
+    abstract fun playResultDao(): PlayResultDao
     abstract fun r30EntryDao(): R30EntryDao
 
     abstract fun chartDao(): ChartDao
-    abstract fun scoreCalculatedDao(): PlayResultCalculatedDao
-    abstract fun scoreBestDao(): PlayResultBestDao
+    abstract fun playResultCalculatedDao(): PlayResultCalculatedDao
+    abstract fun playResultBestDao(): PlayResultBestDao
 
     companion object {
         const val DATABASE_NAME = "arcaea_offline.db"

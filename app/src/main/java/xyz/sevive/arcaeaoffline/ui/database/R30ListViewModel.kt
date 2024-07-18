@@ -63,7 +63,7 @@ class DatabaseR30ListViewModel(
             )
         }
 
-        val lastUpdatedAt = repositoryContainer.propertyRepository.r30LastUpdatedAt()
+        val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
         val lastUpdatedAtText =
             if (lastUpdatedAt != null) dateTimeFormatter.format(lastUpdatedAt) else "-"
 
