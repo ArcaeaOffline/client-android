@@ -92,7 +92,7 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
     }
 
     override val relationshipsRepo: RelationshipsRepository by lazy {
-        RelationshipsRepositoryImpl(db.playResultDao(), db.playResultBestDao(), db.chartDao())
+        RelationshipsRepositoryImpl(db.relationshipsDao())
     }
 
     override suspend fun b30(): Double {
