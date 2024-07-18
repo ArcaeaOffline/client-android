@@ -10,7 +10,7 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 class DatabaseNavEntryViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    val databaseVersion = repositoryContainer.propertyRepository.databaseVersion().stateIn(
+    val databaseVersion = repositoryContainer.propertyRepo.databaseVersion().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = null
@@ -53,7 +53,7 @@ class DatabaseNavEntryViewModel(
     )
 
     suspend fun initDatabase() {
-        repositoryContainer.propertyRepository.setDatabaseVersion(4)
+        repositoryContainer.propertyRepo.setDatabaseVersion(4)
     }
 
     companion object {
