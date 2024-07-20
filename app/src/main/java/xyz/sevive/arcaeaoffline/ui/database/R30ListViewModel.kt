@@ -14,7 +14,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
-import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
@@ -24,6 +24,16 @@ class DatabaseR30ListViewModel(
     private val dateTimeFormatter: DateTimeFormatter,
 ) : ViewModel() {
     private val r30EntryRepo = repositoryContainer.r30EntryRepo
+
+    private suspend fun getUiItemChart(playResult: PlayResult): Chart? {
+        val chart = repositoryContainer.chartRepo.find(playResult).firstOrNull()
+        if (chart != null) return chart
+
+        val song = repositoryContainer.songRepo.find(playResult).firstOrNull() ?: return null
+        val difficulty =
+            repositoryContainer.difficultyRepo.find(playResult).firstOrNull() ?: return null
+        return ChartFactory.fakeChart(song, difficulty)
+    }
 
     data class UiItem(
         val index: Int,
@@ -49,17 +59,15 @@ class DatabaseR30ListViewModel(
         // if the repository is updating, keep the loading state showing in UI
         if (it) return@transform
 
-        val dbItems = r30EntryRepo.findAll().firstOrNull() ?: emptyList()
+        val dbItems = r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
         val uiItems = dbItems.map { dbItem ->
-            val chart = repositoryContainer.chartRepo.find(dbItem.playResult).firstOrNull()
-            val potential = if (chart != null) dbItem.playResult.potential(chart) else null
+            val potential = dbItem.potential()
 
             UiItem(
                 index = -1,
-                r30Entry = dbItem.r30Entry,
+                r30Entry = dbItem.entry,
                 playResult = dbItem.playResult,
-                chart = chart ?: repositoryContainer.chartRepo.find(dbItem.playResult)
-                    .firstOrNull(),
+                chart = getUiItemChart(dbItem.playResult),
                 potential = potential,
                 potentialText = ArcaeaFormatters.potentialToText(potential),
             )

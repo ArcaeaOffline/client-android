@@ -13,7 +13,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
-import xyz.sevive.arcaeaoffline.core.database.entities.R30EntryAndPlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
 
 
@@ -48,7 +47,7 @@ interface R30EntryRepository {
     val updating: StateFlow<Boolean>
     val updateProgress: StateFlow<Pair<Int, Int>>
 
-    suspend fun findAll(): Flow<List<R30EntryAndPlayResult>>
+    fun findAll(): Flow<List<R30Entry>>
     fun findAllCombined(): Flow<List<R30EntryCombined>>
     suspend fun insertAll(vararg items: R30Entry)
     suspend fun deleteAll(vararg items: R30Entry)
@@ -79,7 +78,7 @@ class R30EntryRepositoryImpl(
     private val _updateProgress = MutableStateFlow(0 to -1)
     override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
 
-    override suspend fun findAll(): Flow<List<R30EntryAndPlayResult>> = dao.findAll()
+    override fun findAll(): Flow<List<R30Entry>> = dao.findAll()
     override suspend fun insertAll(vararg items: R30Entry) = dao.insertAll(*items)
     override suspend fun deleteAll(vararg items: R30Entry) = dao.deleteAll(*items)
     override suspend fun emptyTable() = dao.emptyTable()
