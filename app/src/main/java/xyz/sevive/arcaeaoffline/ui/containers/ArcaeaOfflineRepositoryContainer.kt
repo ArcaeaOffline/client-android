@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.containers
 
 import android.content.Context
-import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
@@ -17,6 +16,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedR
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
@@ -42,8 +43,7 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val r30EntryRepo: R30EntryRepository
 
     val relationshipsRepo: RelationshipsRepository
-
-    suspend fun b30(): Double
+    val potentialRepo: PotentialRepository
 }
 
 class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
@@ -95,10 +95,7 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
         RelationshipsRepositoryImpl(db.relationshipsDao())
     }
 
-    override suspend fun b30(): Double {
-        val playResultsBest30 =
-            playResultBestRepo.orderDescWithLimit(30).firstOrNull() ?: return 0.0
-        if (playResultsBest30.isEmpty()) return 0.0
-        return playResultsBest30.sumOf { it.potential } / playResultsBest30.size
+    override val potentialRepo: PotentialRepository by lazy {
+        PotentialRepositoryImpl(playResultBestRepo, r30EntryRepo)
     }
 }

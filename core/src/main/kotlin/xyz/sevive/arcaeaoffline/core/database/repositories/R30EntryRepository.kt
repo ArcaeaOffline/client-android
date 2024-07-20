@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
@@ -49,8 +48,6 @@ interface R30EntryRepository {
     val updating: StateFlow<Boolean>
     val updateProgress: StateFlow<Pair<Int, Int>>
 
-    suspend fun r10(): Flow<Double?>
-
     suspend fun findAll(): Flow<List<R30EntryAndPlayResult>>
     fun findAllCombined(): Flow<List<R30EntryCombined>>
     suspend fun insertAll(vararg items: R30Entry)
@@ -81,22 +78,6 @@ class R30EntryRepositoryImpl(
 
     private val _updateProgress = MutableStateFlow(0 to -1)
     override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
-
-    override suspend fun r10(): Flow<Double?> = flow {
-        val r30List = findAll().firstOrNull()
-        if (r30List.isNullOrEmpty()) {
-            emit(null)
-            return@flow
-        }
-        val potentialList = r30List.mapNotNull {
-            val chartInfo = chartInfoRepo.find(it.playResult).firstOrNull()
-
-            if (chartInfo != null) it.playResult.potential(chartInfo)
-            else null
-        }
-
-        emit(potentialList.sortedByDescending { it }.take(10).average())
-    }
 
     override suspend fun findAll(): Flow<List<R30EntryAndPlayResult>> = dao.findAll()
     override suspend fun insertAll(vararg items: R30Entry) = dao.insertAll(*items)

@@ -37,7 +37,7 @@ object AppViewModelProvider {
 
         initializer {
             OverviewViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
+                application().arcaeaOfflineDatabaseRepositoryContainer.potentialRepo
             )
         }
 
