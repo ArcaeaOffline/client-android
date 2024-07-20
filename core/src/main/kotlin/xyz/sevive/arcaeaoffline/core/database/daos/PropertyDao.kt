@@ -18,5 +18,8 @@ interface PropertyDao {
 
     @Delete
     suspend fun delete(item: Property)
+
+    @Query("DELETE FROM properties WHERE `key` = :key")
+    suspend fun delete(key: String)
 }
 

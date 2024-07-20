@@ -13,10 +13,8 @@ import org.threeten.bp.Instant
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
-import xyz.sevive.arcaeaoffline.core.database.entities.potential
-import xyz.sevive.arcaeaoffline.helpers.ChartFactory
+import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
@@ -27,11 +25,22 @@ class DatabaseR30ListViewModel(
 ) : ViewModel() {
     private val r30EntryRepo = repositoryContainer.r30EntryRepo
 
+    private suspend fun getUiItemChart(playResult: PlayResult): Chart? {
+        val chart = repositoryContainer.chartRepo.find(playResult).firstOrNull()
+        if (chart != null) return chart
+
+        val song = repositoryContainer.songRepo.find(playResult).firstOrNull() ?: return null
+        val difficulty =
+            repositoryContainer.difficultyRepo.find(playResult).firstOrNull() ?: return null
+        return ChartFactory.fakeChart(song, difficulty)
+    }
+
     data class UiItem(
         val index: Int,
         val r30Entry: R30Entry,
         val playResult: PlayResult,
         val chart: Chart?,
+        val potential: Double?,
         val potentialText: String,
     ) {
         val id get() = playResult.id
@@ -50,30 +59,21 @@ class DatabaseR30ListViewModel(
         // if the repository is updating, keep the loading state showing in UI
         if (it) return@transform
 
-        val dbItems = r30EntryRepo.findAll().firstOrNull() ?: emptyList()
-        val uiItems = dbItems.mapIndexed { i, dbItem ->
-            val chart = repositoryContainer.chartRepo.find(
-                dbItem.playResult.songId, dbItem.playResult.ratingClass
-            ).firstOrNull()
-            val potential = if (chart != null) dbItem.playResult.potential(chart) else null
+        val dbItems = r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+        val uiItems = dbItems.map { dbItem ->
+            val potential = dbItem.potential()
 
             UiItem(
-                index = i,
-                r30Entry = dbItem.r30Entry,
+                index = -1,
+                r30Entry = dbItem.entry,
                 playResult = dbItem.playResult,
-                chart = chart ?: ChartFactory.getChart(
-                    repositoryContainer, dbItem.playResult.songId, dbItem.playResult.ratingClass
-                ),
+                chart = getUiItemChart(dbItem.playResult),
+                potential = potential,
                 potentialText = ArcaeaFormatters.potentialToText(potential),
             )
-        }
+        }.sortedByDescending { it.potential }.mapIndexed { i, uiItem -> uiItem.copy(index = i) }
 
-        val lastUpdatedAtProperty =
-            repositoryContainer.propertyRepository.find(Property.KEY_R30_LAST_UPDATED_AT)
-                .firstOrNull()
-        val lastUpdatedAt =
-            if (lastUpdatedAtProperty != null) Instant.ofEpochMilli(lastUpdatedAtProperty.value.toLong())
-            else null
+        val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
         val lastUpdatedAtText =
             if (lastUpdatedAt != null) dateTimeFormatter.format(lastUpdatedAt) else "-"
 

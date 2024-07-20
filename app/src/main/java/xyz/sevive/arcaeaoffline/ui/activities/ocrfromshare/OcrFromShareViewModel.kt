@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
@@ -22,7 +23,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
-import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
@@ -158,9 +158,7 @@ class OcrFromShareViewModel(
                 _playResult.value = score
                 _exception.value = null
 
-                _chart.value = ChartFactory.getChart(
-                    repositoryContainer, score.songId, score.ratingClass
-                )
+                _chart.value = repositoryContainer.chartRepo.find(score).firstOrNull()
             } catch (e: Exception) {
                 _playResult.value = null
                 _exception.value = e

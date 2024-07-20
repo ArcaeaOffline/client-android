@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 class ChartSelectorViewModel(
@@ -82,7 +81,7 @@ class ChartSelectorViewModel(
             return
         }
 
-        val chart = ChartFactory.getChart(repositoryContainer, songId, ratingClass)
+        val chart = repositoryContainer.chartRepo.find(songId, ratingClass).firstOrNull()
         _chart.value = chart
     }
 

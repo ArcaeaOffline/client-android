@@ -4,27 +4,51 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
-import xyz.sevive.arcaeaoffline.core.database.entities.R30EntryAndPlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
-import java.util.UUID
+
+
+data class R30EntryCombined(
+    val entry: R30Entry,
+    val playResult: PlayResult,
+    val chartInfo: ChartInfo?,
+) {
+    fun potential(): Double? {
+        return if (chartInfo == null) null else playResult.potential(chartInfo)
+    }
+
+    companion object {
+        fun build(playResult: PlayResult, chartInfo: ChartInfo?): R30EntryCombined {
+            return R30EntryCombined(
+                entry = R30Entry(uuid = playResult.uuid),
+                playResult = playResult,
+                chartInfo = chartInfo,
+            )
+        }
+
+        suspend fun build(
+            playResult: PlayResult, chartInfoRepository: ChartInfoRepository
+        ): R30EntryCombined {
+            val chartInfo = chartInfoRepository.find(playResult).firstOrNull()
+            return this.build(playResult, chartInfo)
+        }
+    }
+}
 
 interface R30EntryRepository {
     val updating: StateFlow<Boolean>
     val updateProgress: StateFlow<Pair<Int, Int>>
 
-    suspend fun r10(): Flow<Double?>
-
-    suspend fun findAll(): Flow<List<R30EntryAndPlayResult>>
+    fun findAll(): Flow<List<R30Entry>>
+    fun findAllCombined(): Flow<List<R30EntryCombined>>
     suspend fun insertAll(vararg items: R30Entry)
     suspend fun deleteAll(vararg items: R30Entry)
     suspend fun emptyTable()
@@ -38,19 +62,8 @@ interface R30EntryRepository {
     suspend fun requestRebuild()
 }
 
-fun R30Entry.Companion.fromPlayResult(playResult: PlayResult): R30Entry {
-    return R30Entry(uuid = playResult.uuid)
-}
-
-fun R30EntryAndPlayResult.Companion.fromPlayResult(playResult: PlayResult): R30EntryAndPlayResult {
-    return R30EntryAndPlayResult(
-        r30Entry = R30Entry.fromPlayResult(playResult),
-        playResult = playResult,
-    )
-}
-
 class R30EntryRepositoryImpl(
-    private val r30EntryDao: R30EntryDao,
+    private val dao: R30EntryDao,
     private val playResultRepo: PlayResultRepository,
     private val chartInfoRepo: ChartInfoRepository,
     private val propertyRepo: PropertyRepository,
@@ -65,35 +78,31 @@ class R30EntryRepositoryImpl(
     private val _updateProgress = MutableStateFlow(0 to -1)
     override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
 
-    override suspend fun r10(): Flow<Double?> = flow {
-        val r30List = findAll().firstOrNull()
-        if (r30List == null) {
-            emit(null)
-            return@flow
-        }
-        val potentialList = r30List.mapNotNull {
-            val chartInfo =
-                chartInfoRepo.find(it.playResult.songId, it.playResult.ratingClass).firstOrNull()
+    override fun findAll(): Flow<List<R30Entry>> = dao.findAll()
+    override suspend fun insertAll(vararg items: R30Entry) = dao.insertAll(*items)
+    override suspend fun deleteAll(vararg items: R30Entry) = dao.deleteAll(*items)
+    override suspend fun emptyTable() = dao.emptyTable()
 
-            if (chartInfo != null) it.playResult.potential(chartInfo)
-            else null
-        }
+    override fun findAllCombined(): Flow<List<R30EntryCombined>> {
+        return combine(dao.findAllWithPlayResult(), dao.findAllWithChartInfo()) { mpr, mci ->
+            val r30Entries = mpr.keys
 
-        emit(potentialList.sortedByDescending { it }.take(10).average())
+            r30Entries.mapNotNull {
+                val playResult = mpr[it] ?: return@mapNotNull null
+                val chartInfo = mci[it]
+                R30EntryCombined(it, playResult, chartInfo)
+            }
+        }
     }
 
-    override suspend fun findAll(): Flow<List<R30EntryAndPlayResult>> = r30EntryDao.findAll()
-    override suspend fun insertAll(vararg items: R30Entry) = r30EntryDao.insertAll(*items)
-    override suspend fun deleteAll(vararg items: R30Entry) = r30EntryDao.deleteAll(*items)
-    override suspend fun emptyTable() = r30EntryDao.emptyTable()
-
     /**
-     * Return the play result with the lowest potential in the [r30EntriesWithChartInfo].
+     * Return the play result with the lowest potential in the [r30EntriesCombined].
      */
-    private fun minPotentialR30Entry(
-        r30EntriesWithChartInfo: Map<R30EntryAndPlayResult, ChartInfo>
-    ): Map.Entry<R30EntryAndPlayResult, ChartInfo> {
-        return r30EntriesWithChartInfo.minBy { it.key.playResult.potential(it.value) }
+    private fun minPotentialR30Entry(r30EntriesCombined: List<R30EntryCombined>): R30EntryCombined? {
+        return r30EntriesCombined.minByOrNull {
+            if (it.chartInfo == null) Double.MAX_VALUE
+            else it.playResult.potential(it.chartInfo)
+        }
     }
 
     /**
@@ -102,17 +111,22 @@ class R30EntryRepositoryImpl(
      * This will replace the lowest potential entry with the new play result.
      *
      * @param playResult The play result to be inserted
-     * @param oldR30EntriesWithChartInfo Old R30 entries
+     * @param chartInfo The [ChartInfo] of [playResult]
+     * @param oldR30EntriesCombined Old R30 entries
      * @return The new R30 entries
      */
     private fun updateR30ByPotential(
-        playResult: PlayResult, oldR30EntriesWithChartInfo: Map<R30EntryAndPlayResult, ChartInfo>
-    ): List<R30EntryAndPlayResult> {
-        val minPotentialEntry = minPotentialR30Entry(oldR30EntriesWithChartInfo)
+        playResult: PlayResult, chartInfo: ChartInfo, oldR30EntriesCombined: List<R30EntryCombined>
+    ): List<R30EntryCombined> {
+        val minPotentialEntry =
+            minPotentialR30Entry(oldR30EntriesCombined) ?: return oldR30EntriesCombined
+        val minPotentialEntryPotential =
+            minPotentialEntry.potential() ?: return oldR30EntriesCombined
+        if (playResult.potential(chartInfo) < minPotentialEntryPotential) return oldR30EntriesCombined
 
-        val newR30Entries = oldR30EntriesWithChartInfo.keys.toMutableList()
-        newR30Entries.remove(minPotentialEntry.key)
-        newR30Entries.add(R30EntryAndPlayResult.fromPlayResult(playResult))
+        val newR30Entries = oldR30EntriesCombined.toMutableList()
+        newR30Entries.remove(minPotentialEntry)
+        newR30Entries.add(R30EntryCombined.build(playResult, chartInfo))
         return newR30Entries
     }
 
@@ -125,14 +139,17 @@ class R30EntryRepositoryImpl(
      * @param oldR30Entries Old R30 entries
      * @return The new R30 entries
      */
-    private fun updateR30ByDate(
-        playResult: PlayResult, oldR30Entries: List<R30EntryAndPlayResult>
-    ): List<R30EntryAndPlayResult> {
-        val oldestR30Entry = oldR30Entries.minBy { it.playResult.date!!.toEpochMilli() }
+    private suspend fun updateR30ByDate(
+        playResult: PlayResult, oldR30Entries: List<R30EntryCombined>
+    ): List<R30EntryCombined> {
+        val oldestR30Entry = oldR30Entries.minByOrNull {
+            if (it.playResult.date == null) Long.MAX_VALUE
+            else it.playResult.date.toEpochMilli()
+        } ?: return oldR30Entries
 
         val newR30Entries = oldR30Entries.toMutableList()
         newR30Entries.remove(oldestR30Entry)
-        newR30Entries.add(R30EntryAndPlayResult.fromPlayResult(playResult))
+        newR30Entries.add(R30EntryCombined.build(playResult, chartInfoRepo))
         return newR30Entries
     }
 
@@ -149,11 +166,11 @@ class R30EntryRepositoryImpl(
     }
 
     private suspend fun updateR30Entries(
-        playResult: PlayResult, oldR30Entries: List<R30EntryAndPlayResult>
-    ): List<R30EntryAndPlayResult> {
+        playResult: PlayResult, oldR30Entries: List<R30EntryCombined>
+    ): List<R30EntryCombined> {
         if (oldR30Entries.size < 30) {
             val mutableR30Entries = oldR30Entries.toMutableList()
-            mutableR30Entries.add(R30EntryAndPlayResult.fromPlayResult(playResult))
+            mutableR30Entries.add(R30EntryCombined.build(playResult, chartInfoRepo))
             return mutableR30Entries
         }
 
@@ -161,21 +178,9 @@ class R30EntryRepositoryImpl(
             // now check if the play result potential is bigger than the lowest potential r30 entry
             // if any chart info is missing, return the old r30 entries directly
             val playResultChartInfo =
-                chartInfoRepo.find(playResult.songId, playResult.ratingClass).firstOrNull()
-                    ?: return oldR30Entries
-            val oldR30EntriesWithChartInfo = oldR30Entries.associateWith {
-                chartInfoRepo.find(it.playResult.songId, it.playResult.ratingClass).firstOrNull()
-                    ?: return oldR30Entries
-            }
+                chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30Entries
 
-            val minPotentialEntry = minPotentialR30Entry(oldR30EntriesWithChartInfo)
-            val minPotentialEntryPotential =
-                minPotentialEntry.key.playResult.potential(minPotentialEntry.value)
-            val playResultPotential = playResult.potential(playResultChartInfo)
-
-            if (playResultPotential < minPotentialEntryPotential) return oldR30Entries
-
-            updateR30ByPotential(playResult, oldR30EntriesWithChartInfo)
+            updateR30ByPotential(playResult, playResultChartInfo, oldR30Entries)
         } else {
             // otherwise, just update the entries by date
             updateR30ByDate(playResult, oldR30Entries)
@@ -191,11 +196,7 @@ class R30EntryRepositoryImpl(
     }
 
     private suspend fun updateR30LastUpdatedAt() {
-        propertyRepo.upsert(
-            Property(
-                Property.KEY_R30_LAST_UPDATED_AT, Instant.now().toEpochMilli().toString()
-            )
-        )
+        propertyRepo.setR30LastUpdatedAt(Instant.now())
     }
 
     /**
@@ -208,27 +209,23 @@ class R30EntryRepositoryImpl(
         try {
             if (playResults.isEmpty()) {
                 updateR30LastUpdatedAt()
+                _updating.value = false
                 return
             }
 
-            var r30EntriesWithPlayResults = findAll().firstOrNull() ?: listOf()
+            var r30EntriesCombined = this.findAllCombined().firstOrNull() ?: listOf()
 
             val playResultSorted = playResults.filter { it.date != null }.sortedBy { it.date }
             val total = playResultSorted.size
 
             playResultSorted.forEachIndexed { i, it ->
                 _updateProgress.value = i to total
-                r30EntriesWithPlayResults = updateR30Entries(it, r30EntriesWithPlayResults)
+                r30EntriesCombined = updateR30Entries(it, r30EntriesCombined)
             }
 
             emptyTable()
-            insertAll(*r30EntriesWithPlayResults.map { it.r30Entry }.toTypedArray())
+            insertAll(*r30EntriesCombined.map { it.entry }.toTypedArray())
 
-            propertyRepo.upsert(
-                Property(
-                    Property.KEY_R30_LAST_UPDATED_AT, Instant.now().toEpochMilli().toString()
-                )
-            )
             updateR30LastUpdatedAt()
         } finally {
             _updating.value = false
@@ -245,22 +242,17 @@ class R30EntryRepositoryImpl(
     }
 
     override suspend fun lastUpdatedPlayResult(): PlayResult? {
-        val lastUpdatedPlayResultUUIDProperty =
-            propertyRepo.find(Property.KEY_R30_LAST_UPDATED_PLAY_RESULT_UUID).firstOrNull()
-                ?: return null
-        val uuid = lastUpdatedPlayResultUUIDProperty.value
-
-        return playResultRepo.findByUUID(UUID.fromString(uuid)).firstOrNull()
+        val uuid = propertyRepo.r30LastUpdatedPlayResultUUID() ?: return null
+        return playResultRepo.findByUUID(uuid).firstOrNull()
     }
 
     override suspend fun requestUpdate() {
-        val lastUpdatedPlayResult = this.lastUpdatedPlayResult()
+        val lastPlayResult = this.lastUpdatedPlayResult()
 
-        if (lastUpdatedPlayResult?.date != null) {
-            update(
-                playResultRepo.findLaterThan(lastUpdatedPlayResult.date).firstOrNull()
-                    ?: emptyList()
-            )
+        if (lastPlayResult?.date != null) {
+            val newPlayResults =
+                playResultRepo.findLaterThan(lastPlayResult.date).firstOrNull() ?: emptyList()
+            update(newPlayResults)
         } else {
             requestRebuild()
         }

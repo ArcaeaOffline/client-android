@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.containers
 
 import android.content.Context
-import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
@@ -17,6 +16,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedR
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
@@ -27,7 +28,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepositoryImpl
 
 interface ArcaeaOfflineDatabaseRepositoryContainer {
-    val propertyRepository: PropertyRepository
+    val propertyRepo: PropertyRepository
 
     val packRepo: PackRepository
     val songRepo: SongRepository
@@ -42,67 +43,59 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val r30EntryRepo: R30EntryRepository
 
     val relationshipsRepo: RelationshipsRepository
-
-    suspend fun b30(): Double
+    val potentialRepo: PotentialRepository
 }
 
-class ArcaeaOfflineDatabaseRepositoryContainerImpl(private val context: Context) :
+class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
     ArcaeaOfflineDatabaseRepositoryContainer {
 
-    override val propertyRepository: PropertyRepository by lazy {
-        PropertyRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).propertyDao())
+    private val db = ArcaeaOfflineDatabase.getDatabase(context)
+
+    override val propertyRepo: PropertyRepository by lazy {
+        PropertyRepositoryImpl(db.propertyDao())
     }
 
     override val packRepo: PackRepository by lazy {
-        PackRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).packDao())
+        PackRepositoryImpl(db.packDao())
     }
 
     override val songRepo: SongRepository by lazy {
-        SongRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).songDao())
+        SongRepositoryImpl(db.songDao())
     }
 
     override val difficultyRepo: DifficultyRepository by lazy {
-        DifficultyRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).difficultyDao())
+        DifficultyRepositoryImpl(db.difficultyDao())
     }
 
     override val chartInfoRepo: ChartInfoRepository by lazy {
-        ChartInfoRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartInfoDao())
+        ChartInfoRepositoryImpl(db.chartInfoDao())
     }
 
     override val chartRepo: ChartRepository by lazy {
-        ChartRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).chartDao())
+        ChartRepositoryImpl(db.chartDao())
     }
 
     override val playResultRepo: PlayResultRepository by lazy {
-        PlayResultRepositoryImpl(ArcaeaOfflineDatabase.getDatabase(context).scoreDao())
+        PlayResultRepositoryImpl(db.playResultDao())
     }
 
     override val playResultCalculatedRepo: PlayResultCalculatedRepository by lazy {
-        PlayResultCalculatedRepositoryImpl(
-            ArcaeaOfflineDatabase.getDatabase(context).scoreCalculatedDao()
-        )
+        PlayResultCalculatedRepositoryImpl(db.playResultCalculatedDao())
     }
 
     override val playResultBestRepo: PlayResultBestRepository by lazy {
-        PlayResultBestRepositoryImpl(
-            ArcaeaOfflineDatabase.getDatabase(context).scoreBestDao()
-        )
+        PlayResultBestRepositoryImpl(db.playResultBestDao())
     }
 
     override val r30EntryRepo: R30EntryRepository by lazy {
-        val db = ArcaeaOfflineDatabase.getDatabase(context)
-        R30EntryRepositoryImpl(db.r30EntryDao(), playResultRepo, chartInfoRepo, propertyRepository)
+        R30EntryRepositoryImpl(db.r30EntryDao(), playResultRepo, chartInfoRepo, propertyRepo)
     }
 
     override val relationshipsRepo: RelationshipsRepository by lazy {
-        val db = ArcaeaOfflineDatabase.getDatabase(context)
-        RelationshipsRepositoryImpl(db.scoreDao(), db.scoreBestDao(), db.chartDao())
+        RelationshipsRepositoryImpl(db.relationshipsDao())
     }
 
-    override suspend fun b30(): Double {
-        val playResultsBest30 =
-            playResultBestRepo.orderDescWithLimit(30).firstOrNull() ?: return 0.0
-        if (playResultsBest30.isEmpty()) return 0.0
-        return playResultsBest30.sumOf { it.potential } / playResultsBest30.size
+    override val potentialRepo: PotentialRepository by lazy {
+        PotentialRepositoryImpl(playResultBestRepo, r30EntryRepo)
     }
 }

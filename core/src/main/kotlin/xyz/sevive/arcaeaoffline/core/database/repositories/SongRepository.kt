@@ -2,10 +2,12 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
 interface SongRepository {
     fun find(id: String): Flow<Song?>
+    fun find(playResult: PlayResult) = find(playResult.songId)
     fun findBySet(set: String): Flow<List<Song>>
     fun findAll(): Flow<List<Song>>
     suspend fun upsert(item: Song)
