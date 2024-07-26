@@ -29,6 +29,7 @@ CC BY-SA 3.0
     <string name="general_stop">Stop</string>
     <string name="general_no_results">No results</string>
     <string name="general_updated_at">Updated at %s</string>
+    <string name="general_unknown_error">Unknown error.</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
 
@@ -76,6 +77,7 @@ CC BY-SA 3.0
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
+    <string name="arcaea_play_result">Play Results</string>
     <string name="arcaea_play_result_score">Score</string>
     <string name="arcaea_play_result_pure" translatable="false">PURE</string>
     <string name="arcaea_play_result_far" translatable="false">FAR</string>
@@ -84,6 +86,7 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_clear_type">Clear Type</string>
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">Comment</string>
+    <string name="arcaea_st3" translatable="false">st3</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
@@ -178,6 +181,10 @@ CC BY-SA 3.0
         <item quantity="other">%d difficulty imported</item>
     </plurals>
     <string name="database_chart_info_imported">%d chart info imported</string>
+    <plurals name="database_play_result_imported">
+        <item quantity="many">%d play results imported</item>
+        <item quantity="other">%d play result imported</item>
+    </plurals>
 
     <!-- components -->
     <string name="song_id_selector_select_pack">Select a pack…</string>

@@ -67,6 +67,10 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
         }
     }
 
+    val importSt3Launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { it?.let { viewModel.importSt3(it, context) } }
+
     TitleOutlinedCard(title = { padding ->
         IconRow(
             modifier = modifier.padding(padding),
@@ -131,6 +135,25 @@ fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier 
                     Button(onClick = { importChartInfoDatabaseLauncher.launch("*/*") }) {
                         IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
                             Text(stringResource(R.string.database_manage_import_chart_info_database))
+                        }
+                    }
+                }
+            }
+
+            TitleOutlinedCard(title = {
+                Text(
+                    stringResource(R.string.arcaea_play_result),
+                    Modifier.padding(it),
+                )
+            }) {
+                Column(
+                    Modifier
+                        .padding(it)
+                        .fillMaxWidth()
+                ) {
+                    Button(onClick = { importSt3Launcher.launch("*/*") }) {
+                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            Text(stringResource(R.string.arcaea_st3))
                         }
                     }
                 }

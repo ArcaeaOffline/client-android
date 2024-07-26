@@ -54,10 +54,6 @@ fun DatabaseManageScreen(
         if (actionRunning) showLogsSheet = true
     }
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.fuck()
-    }
-
     if (showLogsSheet) {
         val headerIcon =
             if (actionRunning) Icons.Default.HourglassTop else Icons.AutoMirrored.Filled.Assignment

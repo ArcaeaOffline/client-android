@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
@@ -21,6 +20,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
+import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers.St3PlayResultImporter
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
@@ -31,7 +31,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipInputStream
-import kotlin.time.measureTime
 
 
 class DatabaseManageViewModel(
@@ -95,8 +94,7 @@ class DatabaseManageViewModel(
             val difficulties = SonglistParser(songlistContent).parseDifficulty().toTypedArray()
 
             val songsAffected = repositoryContainer.songRepo.upsertAll(*songs)
-            val difficultiesAffected =
-                repositoryContainer.difficultyRepo.upsertAll(*difficulties)
+            val difficultiesAffected = repositoryContainer.difficultyRepo.upsertAll(*difficulties)
 
             context?.let {
                 val songText = context.resources.getQuantityString(
@@ -287,24 +285,46 @@ class DatabaseManageViewModel(
         }
     }
 
+    private suspend fun importSt3Suspend(fileUri: Uri, context: Context): Int? {
+        val cacheDir = context.externalCacheDir ?: context.cacheDir
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+
+        val inputStream = context.contentResolver.openInputStream(fileUri) ?: return null
+        val dbCacheFile = File(cacheDir, "st3-import-temp")
+        if (dbCacheFile.exists()) dbCacheFile.delete()
+
+        inputStream.use { IOUtils.copy(it, dbCacheFile.outputStream()) }
+
+        val db = SQLiteDatabase.openDatabase(
+            dbCacheFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY
+        )
+        val playResults = db.use { St3PlayResultImporter.playResults(it) }
+
+        repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray())
+        return playResults.size
+    }
+
+    fun importSt3(fileUri: Uri, context: Context) {
+        viewModelScope.launch {
+            withAction {
+                val count = importSt3Suspend(fileUri, context)
+
+                delay(100L)
+
+                if (count != null) appendMessage(
+                    context.resources.getQuantityString(
+                        R.plurals.database_play_result_imported, count, count
+                    )
+                )
+                else appendMessage(context.resources.getString(R.string.general_unknown_error))
+            }
+        }
+    }
+
     suspend fun exportScores(outputStream: OutputStream) {
         val content = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo).toJsonString()
         content?.let {
             IOUtils.write(content, outputStream)
-        }
-    }
-
-    fun fuck() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                Log.d(LOG_TAG, "bie ji")
-                val time = measureTime {
-                    repositoryContainer.r30EntryRepo.update(
-                        repositoryContainer.playResultRepo.findAll().first()
-                    )
-                }
-                Log.d(LOG_TAG, time.toString())
-            }
         }
     }
 
