@@ -18,12 +18,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import java.io.InputStream
 
 class SettingsViewModel : ViewModel() {
-    data class PhashDatabaseBuildProgress(
-        val progress: Int = -1,
-        val total: Int = -1,
-    )
-
-    private val _phashDatabaseBuildProgress = MutableStateFlow<PhashDatabaseBuildProgress?>(null)
+    private val _phashDatabaseBuildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val phashDatabaseBuildProgress = _phashDatabaseBuildProgress.asStateFlow()
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths) {
@@ -87,10 +82,10 @@ class SettingsViewModel : ViewModel() {
         val ocrDependencyPaths = OcrDependencyPaths(context)
 
         viewModelScope.launch {
-            _phashDatabaseBuildProgress.value = PhashDatabaseBuildProgress()
+            _phashDatabaseBuildProgress.value = 0 to -1
             withContext(Dispatchers.IO) {
                 arcaeaPackageHelper.buildPhashDatabase(progressCallback = { progress, total ->
-                    _phashDatabaseBuildProgress.value = PhashDatabaseBuildProgress(progress, total)
+                    _phashDatabaseBuildProgress.value = progress to total
                 })
             }
 

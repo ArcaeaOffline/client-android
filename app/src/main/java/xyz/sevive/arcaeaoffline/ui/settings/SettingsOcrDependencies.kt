@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
+import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
@@ -97,23 +97,15 @@ fun SettingsOcrDependencies(viewModel: SettingsViewModel) {
 
     val phashDatabaseBuildProgress by viewModel.phashDatabaseBuildProgress.collectAsStateWithLifecycle()
     if (phashDatabaseBuildProgress != null) {
-        val progress = phashDatabaseBuildProgress!!.progress
-        val total = phashDatabaseBuildProgress!!.total
-
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {},
             icon = { Icon(painterResource(R.drawable.ic_database), null) },
             text = {
-                Column {
-                    if (total > -1) {
-                        Text("${progress}/$total")
-                        LinearProgressIndicator(progress = { progress.toFloat() / total })
-                    } else {
-                        Text(stringResource(R.string.general_please_wait))
-                        LinearProgressIndicator()
-                    }
-                }
+                LinearProgressIndicatorWrapper(
+                    progress = phashDatabaseBuildProgress,
+                    indeterminateLabel = stringResource(R.string.general_please_wait)
+                )
             },
         )
     }

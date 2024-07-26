@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.PermMedia
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
@@ -17,7 +16,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +37,7 @@ import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 
 
 @Composable
@@ -50,32 +49,16 @@ fun OcrQueueAddImageFilesProgressDialog(
 ) {
     val showDialog = addImagesFromFolderProcessing || addImagesProgressTotal > -1
 
-    val progress = if (addImagesProgress == 0) {
-        0f
-    } else if (addImagesProgressTotal > -1) {
-        addImagesProgress.toFloat() / addImagesProgressTotal.toFloat()
-    } else null
-    val progressPercentage = progress?.times(100)?.toInt()
-
-    val icon = if (progress == null) Icons.Default.HourglassBottom else Icons.Default.PhotoLibrary
-    val text = if (progress == null) {
-        stringResource(R.string.general_please_wait)
-    } else {
-        "${addImagesProgress}/${addImagesProgressTotal} ($progressPercentage%)"
-    }
-
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { },
-            icon = { Icon(icon, contentDescription = null) },
+            icon = { Icon(Icons.Default.PhotoLibrary, contentDescription = null) },
             text = {
-                Column {
-                    Text(text)
-                    when (progress != null) {
-                        true -> LinearProgressIndicator(progress = { progress })
-                        false -> LinearProgressIndicator()
-                    }
-                }
+                LinearProgressIndicatorWrapper(
+                    current = addImagesProgress,
+                    total = addImagesProgressTotal,
+                    indeterminateLabel = stringResource(R.string.general_please_wait)
+                )
             },
             confirmButton = {
                 Button(
