@@ -104,7 +104,7 @@
         <item quantity="other">%d 个谱面信息</item>
     </plurals>
     <plurals name="database_play_result_entries">
-        <item quantity="other">%d 个分数记录</item>
+        <item quantity="other">%d 个游玩记录</item>
     </plurals>
 
     <string name="database_status_title">数据库状态</string>
@@ -125,20 +125,20 @@
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
 
     <string name="database_manage_export_title">导出</string>
-    <string name="database_manage_export_scores">分数</string>
+    <string name="database_manage_export_scores">游玩记录</string>
 
     <!-- Database add play result pane -->
-    <string name="database_add_play_result_title">添加分数</string>
+    <string name="database_add_play_result_title">添加游玩记录</string>
     <string name="database_add_play_result_select_chart_header">选择谱面……</string>
-    <string name="database_add_play_result_edit_score_header">编辑分数……</string>
+    <string name="database_add_play_result_edit_score_header">编辑游玩记录……</string>
     <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
     <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
 
 
     <!-- Database play result list pane -->
-    <string name="database_play_result_list_title">分数列表</string>
+    <string name="database_play_result_list_title">游玩记录列表</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
-        <item quantity="other">删除 %d 个分数？</item>
+        <item quantity="other">删除 %d 个游玩记录？</item>
     </plurals>
 
     <!-- Database b30 list pane -->
@@ -161,7 +161,7 @@
     </plurals>
     <string name="database_chart_info_imported">已导入 %d 个谱面信息</string>
     <plurals name="database_play_result_imported">
-        <item quantity="other">已导入 %d 个分数记录</item>
+        <item quantity="other">已导入 %d 个游玩记录</item>
     </plurals>
 
     <!-- components -->
