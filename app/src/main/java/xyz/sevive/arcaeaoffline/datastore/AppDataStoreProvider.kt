@@ -11,17 +11,40 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 object AppDataStoreProvider {
     private const val LOG_TAG = "AppDataStoreProvider"
 
+    private fun logCorrupt(name: String) {
+        Log.w(LOG_TAG, "${name} corrupt! Falling back to its default value")
+    }
+
     fun emergencyModePreferences(context: Context): DataStore<EmergencyModePreferences> {
         return DataStoreFactory.create(
             serializer = EmergencyModePreferencesSerializer,
             corruptionHandler = ReplaceFileCorruptionHandler {
-                Log.w(
-                    LOG_TAG,
-                    "Emergency mode activity preferences corrupt! Falling back to getDefaultInstance()"
-                )
-                EmergencyModePreferences.getDefaultInstance()
+                logCorrupt("EmergencyModePreferences")
+                EmergencyModePreferencesSerializer.defaultValue
             },
             produceFile = { context.preferencesDataStoreFile("emergency_mode_activity_prefs.pb") },
+        )
+    }
+
+    fun ocrQueuePreferences(context: Context): DataStore<OcrQueuePreferences> {
+        return DataStoreFactory.create(
+            serializer = OcrQueuePreferencesSerializer,
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                logCorrupt("OcrQueuePreferences")
+                OcrQueuePreferencesSerializer.defaultValue
+            },
+            produceFile = { context.preferencesDataStoreFile("ocr_queue_prefs.pb") },
+        )
+    }
+
+    fun unstableFlavorPreferences(context: Context): DataStore<UnstableFlavorPreferences> {
+        return DataStoreFactory.create(
+            serializer = UnstableFlavorPreferencesSerializer,
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                logCorrupt("UnstableFlavorPreferences")
+                UnstableFlavorPreferencesSerializer.defaultValue
+            },
+            produceFile = { context.preferencesDataStoreFile("unstable_flavor_prefs.pb") },
         )
     }
 }

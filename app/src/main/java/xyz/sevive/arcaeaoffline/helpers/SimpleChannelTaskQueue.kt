@@ -14,9 +14,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 
+/**
+ * @param [capacity] If set to null, defaults to [Channel.RENDEZVOUS], which is different from the default value [Channel.BUFFERED].
+ */
 class SimpleChannelTaskQueue<T>(
     private val coroutineScope: CoroutineScope,
-    var capacity: Int = 20,
+    private var capacity: Int? = Channel.BUFFERED,
     var parallelCount: Int = Runtime.getRuntime().availableProcessors(),
 ) {
     private val _isRunning = MutableStateFlow(false)
@@ -30,9 +33,14 @@ class SimpleChannelTaskQueue<T>(
 
     private val progressLock = Mutex()
 
-    private var channel: Channel<T> = Channel(capacity = capacity)
+    private lateinit var channel: Channel<T>
+
+    private fun renewChannel() {
+        channel = Channel(capacity ?: Channel.RENDEZVOUS)
+    }
 
     init {
+        renewChannel()
         stop()
     }
 
@@ -55,7 +63,7 @@ class SimpleChannelTaskQueue<T>(
             return
         }
 
-        channel = Channel(capacity)
+        renewChannel()
 
         _isRunning.value = true
         _progress.value = 0

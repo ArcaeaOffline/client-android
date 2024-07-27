@@ -42,9 +42,6 @@ data class OcrQueueTask(
 )
 
 class OcrQueue {
-    private val _channelCapacity = MutableStateFlow(20)
-    val channelCapacity = _channelCapacity.asStateFlow()
-
     private val _parallelCount = MutableStateFlow(Runtime.getRuntime().availableProcessors())
     val parallelCount = _parallelCount.asStateFlow()
 
@@ -63,7 +60,6 @@ class OcrQueue {
     )
 
     init {
-        setChannelCapacity(channelCapacity.value)
         setParallelCount(parallelCount.value)
 
         Log.i(
@@ -78,12 +74,6 @@ class OcrQueue {
 
     private var lastTaskId = 1
     private val taskIdAllocLock = Mutex()
-
-    fun setChannelCapacity(capacity: Int) {
-        _channelCapacity.value = capacity
-        addImagesChannelQueue.capacity = capacity
-        ocrTasksChannelQueue.capacity = capacity
-    }
 
     fun setParallelCount(parallelCount: Int) {
         _parallelCount.value = parallelCount

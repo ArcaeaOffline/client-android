@@ -19,9 +19,7 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabasePlayResultListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
-import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueViewModel
-import xyz.sevive.arcaeaoffline.ui.ocr.queue.ocrQueueDataStore
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
 import java.util.Locale
 
@@ -32,7 +30,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for ViewModels
         initializer {
-            EmergencyModeActivityViewModel(application().emergencyModePreferencesRepository)
+            EmergencyModeActivityViewModel(application().dataStoreRepositoryContainer.emergencyModePreferences)
         }
 
         initializer {
@@ -92,9 +90,7 @@ object AppViewModelProvider {
         }
 
         initializer {
-            OcrQueueViewModel(
-                OcrQueuePreferencesRepository(application().ocrQueueDataStore)
-            )
+            OcrQueueViewModel(application().dataStoreRepositoryContainer.ocrQueuePreferences)
         }
 
         initializer {

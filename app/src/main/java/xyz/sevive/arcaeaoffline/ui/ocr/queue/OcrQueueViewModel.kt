@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
+import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTask
@@ -55,7 +56,7 @@ data class OcrQueueTaskUiItem(
 }
 
 class OcrQueueViewModel(
-    private val preferencesRepository: OcrQueuePreferencesRepository
+    private val preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
     companion object {
         const val LOG_TAG = "OcrQueueViewModel"
@@ -64,66 +65,44 @@ class OcrQueueViewModel(
     private val ocrQueue = xyz.sevive.arcaeaoffline.helpers.OcrQueue()
 
     // #region Preferences
-    private val _checkIsImage = MutableStateFlow(true)
-    val checkIsImage = _checkIsImage.asStateFlow()
+    data class PreferencesUiState(
+        val checkIsImage: Boolean = false,
+        val checkIsArcaeaImage: Boolean = false,
+        val parallelCount: Int = -1,
 
-    private val _checkIsArcaeaImage = MutableStateFlow(true)
-    val checkIsArcaeaImage = _checkIsArcaeaImage.asStateFlow()
+        val parallelCountMin: Int = 2,
+        val parallelCountMax: Int = Runtime.getRuntime().availableProcessors() * 4,
+    )
 
-    val channelCapacity = ocrQueue.channelCapacity
-    val parallelCount = ocrQueue.parallelCount
-
-    val parallelCountMin = 2
-    val parallelCountMax = Runtime.getRuntime().availableProcessors() * 4
-
-    /*
-     * Instead of directly modifying the preferences values, they're handled
-     * by the `referencesFlow` below.
-     *
-     * All these `set*` functions only triggers a save to the preferences (data store),
-     * then the `preferencesFlow` is collected to reflect the changes.
-     */
-    suspend fun setCheckIsImage(value: Boolean) {
-        viewModelScope.launch {
-            preferencesRepository.setCheckIsImage(value)
-        }
-    }
-
-    suspend fun setCheckIsArcaeaImage(value: Boolean) {
-        viewModelScope.launch {
-            preferencesRepository.setCheckIsArcaeaImage(value)
-        }
-    }
-
-    suspend fun setChannelCapacity(value: Int) {
-        viewModelScope.launch {
-            preferencesRepository.setChannelCapacity(value)
-        }
-    }
-
-    suspend fun setParallelCount(value: Int) {
-        viewModelScope.launch {
-            preferencesRepository.setParallelCount(value)
-        }
-    }
-
-    private val preferencesFlow = preferencesRepository.preferencesFlow
+    private val _preferencesUiState = MutableStateFlow(PreferencesUiState())
+    val preferencesUiState = _preferencesUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            preferencesFlow.collect {
-                _checkIsImage.value = it.checkIsImage
-                _checkIsArcaeaImage.value = it.checkIsArcaeaImage
+            preferencesRepository.preferencesFlow.collect {
+                ocrQueue.setParallelCount(it.parallelCount)
 
-                if (it.channelCapacity != null) {
-                    ocrQueue.setChannelCapacity(it.channelCapacity)
-                }
-
-                if (it.parallelCount != null) {
-                    ocrQueue.setParallelCount(it.parallelCount)
-                }
+                _preferencesUiState.value = PreferencesUiState(
+                    checkIsImage = it.checkIsImage,
+                    checkIsArcaeaImage = it.checkIsArcaeaImage,
+                    parallelCount = it.parallelCount,
+                )
             }
         }
+    }
+
+    fun setCheckIsImage(value: Boolean) {
+        viewModelScope.launch { preferencesRepository.setCheckIsImage(value) }
+    }
+
+    fun setCheckIsArcaeaImage(value: Boolean) {
+        viewModelScope.launch { preferencesRepository.setCheckIsArcaeaImage(value) }
+    }
+
+    fun setParallelCount(value: Int) {
+        // `ocrQueue.setParallelCount(value)` is handled in the upper
+        // `preferencesFlow.collect {...}`.
+        viewModelScope.launch { preferencesRepository.setParallelCount(value) }
     }
     // #endregion
 
@@ -203,8 +182,8 @@ class OcrQueueViewModel(
         ocrQueue.addImageFiles(
             uris,
             context,
-            checkIsImage = checkIsImage.value,
-            detectScreenshot = checkIsArcaeaImage.value,
+            checkIsImage = preferencesUiState.value.checkIsImage,
+            detectScreenshot = preferencesUiState.value.checkIsArcaeaImage,
         )
     }
 

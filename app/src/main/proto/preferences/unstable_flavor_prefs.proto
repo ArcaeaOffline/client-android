@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "xyz.sevive.arcaeaoffline.datastore";
+option java_multiple_files = true;
+
+message UnstableFlavorPreferences {
+    bool unstable_alert_read = 1;
+}

@@ -109,10 +109,14 @@ fun OcrQueueScreen(
     }
 
     var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
+    val preferencesUiState by viewModel.preferencesUiState.collectAsStateWithLifecycle()
     if (showSettingsDialog) {
         OcrQueuePreferencesDialog(
             onDismissRequest = { showSettingsDialog = false },
-            viewModel,
+            uiState = preferencesUiState,
+            onSetCheckIsImage = { viewModel.setCheckIsImage(it) },
+            onSetCheckIsArcaeaImage = { viewModel.setCheckIsArcaeaImage(it) },
+            onSetParallelCount = { viewModel.setParallelCount(it) },
         )
     }
 
