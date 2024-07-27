@@ -1,5 +1,10 @@
 package xyz.sevive.arcaeaoffline.ui.screens
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -18,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -32,10 +38,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -55,23 +63,31 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
-internal fun TitleContent(titleTextStyle: TextStyle) {
-    val iconDp = with(LocalDensity.current) { (titleTextStyle.fontSize.value * 2.5).sp.toDp() }
+private fun TitleContent(textStyle: TextStyle, onConfirm: () -> Unit) {
+    val iconDp = with(LocalDensity.current) { (textStyle.fontSize.value * 2.5).sp.toDp() }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    var clickCount by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(clickCount) { if (clickCount >= 5) onConfirm() }
 
     Icon(
         painterResource(R.drawable.ic_unstable_build),
         null,
-        Modifier.size(iconDp),
+        Modifier
+            .size(iconDp)
+            .clickable(interactionSource = interactionSource, indication = null) {
+                clickCount += 1
+            },
     )
     Text(
         stringResource(R.string.unstable_version_alert_title),
         fontWeight = FontWeight.Bold,
-        style = titleTextStyle,
+        style = textStyle,
     )
 }
 
 @Composable
-internal fun DetailsContentContainer(
+private fun DetailsContentContainer(
     modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit
 ) {
     OutlinedCard(
@@ -85,25 +101,32 @@ internal fun DetailsContentContainer(
 }
 
 @Composable
-internal fun DetailsContent(modifier: Modifier = Modifier) {
+private fun DetailsContent(modifier: Modifier = Modifier) {
     Material3RichText(modifier) {
         Markdown(stringResource(R.string.unstable_version_alert_screen_details_markdown))
     }
 }
 
 @Composable
-internal fun ConfirmPromptContent(modifier: Modifier = Modifier) {
+private fun ConfirmPromptContent(modifier: Modifier = Modifier) {
     Material3RichText(modifier) {
         Markdown(stringResource(R.string.unstable_version_alert_screen_confirm_prompt_markdown))
     }
 }
 
 @Composable
-internal fun ActionsContent(
+private fun ActionsContent(
     countdownValue: Int,
     onConfirm: () -> Unit,
     onDeny: () -> Unit,
 ) {
+    val enabled = remember(countdownValue) { countdownValue <= 0 }
+    val progressIndicatorValue by animateFloatAsState(
+        targetValue = (countdownValue - 1) / 10f,
+        animationSpec = tween(1000, easing = LinearEasing),
+        label = "progressIndicatorValue",
+    )
+
     OutlinedButton(
         onClick = { onDeny() },
         colors = ButtonDefaults.outlinedButtonColors(
@@ -122,17 +145,19 @@ internal fun ActionsContent(
             containerColor = MaterialTheme.colorScheme.error,
             contentColor = MaterialTheme.colorScheme.onError,
         ),
-        enabled = countdownValue <= 0,
+        enabled = enabled,
     ) {
         IconRow(icon = {
-            if (countdownValue <= 0) {
-                Icon(Icons.AutoMirrored.Default.Login, null)
-            } else {
-                Text(
-                    "(${countdownValue})",
-                    fontSize = with(LocalDensity.current) { 20.dp.toSp() },
-                )
-            }
+            if (enabled) Icon(Icons.AutoMirrored.Default.Login, null)
+            else CircularProgressIndicator(
+                progress = { progressIndicatorValue },
+                Modifier
+                    .size(22.dp)
+                    .padding(1.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.onSurface,
+                trackColor = Color.Transparent,
+            )
         }) {
             Text(stringResource(R.string.unstable_version_alert_screen_actions_confirm))
         }
@@ -158,7 +183,10 @@ fun UnstableVersionAlertScreenExpanded(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
                     verticalAlignment = Alignment.Bottom,
                 ) {
-                    TitleContent(titleTextStyle = MaterialTheme.typography.displayLarge)
+                    TitleContent(
+                        textStyle = MaterialTheme.typography.displayLarge,
+                        onConfirm = onConfirm,
+                    )
                 }
                 DetailsContentContainer(Modifier.height(400.dp)) {
                     LazyColumn(
@@ -209,11 +237,12 @@ fun UnstableVersionAlertScreenDefault(
                 Alignment.Bottom,
             ) {
                 TitleContent(
-                    titleTextStyle = if (windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact) {
+                    textStyle = if (windowSizeClass.widthSizeClass <= WindowWidthSizeClass.Compact) {
                         MaterialTheme.typography.displaySmall
                     } else {
                         MaterialTheme.typography.displayMedium
-                    }
+                    },
+                    onConfirm = onConfirm,
                 )
             }
         },
