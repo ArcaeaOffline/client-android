@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.helpers
 
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
@@ -36,6 +37,7 @@ object DeviceOcrHelper {
         context: Context,
         customKnnModel: KNearest? = null,
         customPhashDatabase: ImagePhashDatabase? = null,
+        ortSession: OrtSession,
     ): DeviceOcrResult {
         val ocrDependencyPaths = OcrDependencyPaths(context)
 
@@ -66,7 +68,7 @@ object DeviceOcrHelper {
         val phashDatabase =
             customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
 
-        val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
+        val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase, ortSession)
         return ocr.ocr()
     }
 

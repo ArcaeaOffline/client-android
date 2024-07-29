@@ -23,5 +23,8 @@
 -keep public class org.opencv.core.CvException
 # generated protobuf messages
 -keep public class * extends com.google.protobuf.GeneratedMessageLite { *; }
+# onnx runtime
+# @see https://onnxruntime.ai/docs/build/android.html#note-proguard-rules-for-r8-minimization-android-app-builds-to-work
+-keep class ai.onnxruntime.** { *; }
 
 -dontwarn javax.annotation.processing.*

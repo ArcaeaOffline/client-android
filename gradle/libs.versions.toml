@@ -26,6 +26,8 @@ kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "3.21.12" }
 
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.18.0" }
+
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 github-requery-sqlite-android = { module = "com.github.requery:sqlite-android", version.ref = "github-requery-sqlite-android" }
 acra-http = { module = "ch.acra:acra-http", version.ref = "acra" }

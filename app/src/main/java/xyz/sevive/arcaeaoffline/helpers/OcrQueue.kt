@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.helpers
 
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -24,6 +25,7 @@ import org.opencv.imgproc.Imgproc
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -58,6 +60,8 @@ class OcrQueue {
     private val ocrTasksChannelQueue = SimpleChannelTaskQueue<OcrQueueTask>(
         coroutineScope = ocrQueueScope
     )
+
+    private var ortSession: OrtSession? = null
 
     init {
         setParallelCount(parallelCount.value)
@@ -222,7 +226,10 @@ class OcrQueue {
         emitUpdated()
 
         try {
-            val ocrResult = DeviceOcrHelper.ocrImage(task.fileUri, context)
+            if (ortSession == null) throw IllegalArgumentException("ORT Session not initialized!")
+
+            val ocrResult =
+                DeviceOcrHelper.ocrImage(task.fileUri, context, ortSession = ortSession!!)
             val score = DeviceOcrHelper.ocrResultToScore(
                 task.fileUri,
                 context,
@@ -251,12 +258,15 @@ class OcrQueue {
     }
 
     suspend fun startQueue(context: Context) {
+        ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
+
         runBlocking {
             ocrTasksChannelQueue.start(ocrQueueTasksMap.values) {
                 processTask(it, context)
             }
         }
 
+        ortSession?.close()
         Runtime.getRuntime().gc()
     }
 

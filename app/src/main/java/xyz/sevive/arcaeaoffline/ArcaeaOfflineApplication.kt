@@ -13,6 +13,7 @@ import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -70,6 +71,7 @@ class ArcaeaOfflineApplication : Application() {
         super.onCreate()
 
         AndroidThreeTen.init(this)
+        DeviceOcrOnnxHelper.loadLabels(this)
 
         addEmergencyModeShortcut()
         arcaeaOfflineDatabaseRepositoryContainer =

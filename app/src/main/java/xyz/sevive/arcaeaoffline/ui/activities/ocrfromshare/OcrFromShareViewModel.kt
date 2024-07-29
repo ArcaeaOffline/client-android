@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
@@ -145,9 +146,11 @@ class OcrFromShareViewModel(
     suspend fun startOcr(imageUri: Uri, context: Context) {
         Log.i(TAG, "OCR from share request: $imageUri")
 
+        val ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
+
         withContext(Dispatchers.IO) {
             try {
-                val ocrResult = DeviceOcrHelper.ocrImage(imageUri, context)
+                val ocrResult = DeviceOcrHelper.ocrImage(imageUri, context, ortSession = ortSession)
                 val score = DeviceOcrHelper.ocrResultToScore(
                     imageUri,
                     context,
@@ -164,6 +167,8 @@ class OcrFromShareViewModel(
                 _exception.value = e
 
                 Log.e(TAG, "Error occurred during OCR", e)
+            } finally {
+                ortSession.close()
             }
         }
     }

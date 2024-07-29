@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.ocr.device
 
+import ai.onnxruntime.OrtSession
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
@@ -71,7 +72,8 @@ class DeviceOcr(
     private val extractor: DeviceRoisExtractor,
     private val masker: DeviceRoisMasker,
     private val knnModel: KNearest,
-    private val phashDb: ImagePhashDatabase
+    private val phashDb: ImagePhashDatabase,
+    private val ortSession: OrtSession,
 ) {
     companion object {
         fun preprocessPartnerIcon(imgGray: Mat): Mat {
@@ -196,11 +198,16 @@ class DeviceOcr(
 
         return DeviceOcrResult(
             ratingClass = ratingClass(),
-            pure = pure(),
-            far = far(),
-            lost = lost(),
-            score = score(),
-            maxRecall = maxRecall(),
+//            pure = pure(),
+//            far = far(),
+//            lost = lost(),
+//            score = score(),
+//            maxRecall = maxRecall(),
+            pure = DeviceOcrOnnxHelper.ocrBgrMat(extractor.pure, ortSession).toInt(),
+            far = DeviceOcrOnnxHelper.ocrBgrMat(extractor.far, ortSession).toInt(),
+            lost = DeviceOcrOnnxHelper.ocrBgrMat(extractor.lost, ortSession).toInt(),
+            score = DeviceOcrOnnxHelper.ocrBgrMat(extractor.score, ortSession).toInt(),
+            maxRecall = DeviceOcrOnnxHelper.ocrBgrMat(extractor.maxRecall, ortSession).toInt(),
             songId = songId,
             songIdPossibility = 1 - songIdDistance / phashLen.toDouble(),
             clearStatus = clearStatus(),
