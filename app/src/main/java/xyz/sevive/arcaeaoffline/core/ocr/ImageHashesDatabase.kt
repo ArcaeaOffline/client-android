@@ -15,22 +15,42 @@ class ImageHashesDatabase(private val db: SQLiteDatabase) {
 
     private var hashSize: Int by Delegates.notNull()
     private var highFreqFactor: Int by Delegates.notNull()
-    private var builtTime: Instant by Delegates.notNull()
+    var builtTime: Instant by Delegates.notNull()
+        private set
+    var jacketHashesCount: Int by Delegates.notNull()
+        private set
+    var partnerIconHashesCount: Int by Delegates.notNull()
+        private set
+    val hashesCount: Int get() = jacketHashesCount + partnerIconHashesCount
 
     private fun initialize() {
-        val cursor = db.rawQuery("SELECT key, value FROM properties", null)
-
-        cursor.use {
-            cursor.moveToFirst()
+        db.rawQuery("SELECT key, value FROM properties", null).use { cur ->
+            cur.moveToFirst()
             do {
-                val key = cursor.getString(0)
-                val value = cursor.getString(1)
+                val key = cur.getString(0)
+                val value = cur.getString(1)
                 when (key) {
                     PROP_HASH_SIZE_KEY -> hashSize = value.toInt()
                     PROP_HIGH_FREQ_FACTOR_KEY -> highFreqFactor = value.toInt()
                     PROP_BUILT_TIMESTAMP_KEY -> builtTime = Instant.ofEpochMilli(value.toLong())
                 }
-            } while (cursor.moveToNext())
+            } while (cur.moveToNext())
+        }
+
+        db.query(
+            "SELECT COUNT(DISTINCT label) FROM hashes WHERE type = ?",
+            arrayOf(ImageHashItemType.JACKET.value)
+        ).use { cur ->
+            cur.moveToFirst()
+            jacketHashesCount = cur.getInt(0)
+        }
+
+        db.query(
+            "SELECT COUNT(DISTINCT label) FROM hashes WHERE type = ?",
+            arrayOf(ImageHashItemType.PARTNER_ICON.value)
+        ).use { cur ->
+            cur.moveToFirst()
+            partnerIconHashesCount = cur.getInt(0)
         }
 
         db.addFunction("HAMMING_DISTANCE", 2) { args, result ->

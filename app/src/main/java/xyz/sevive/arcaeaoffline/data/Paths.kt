@@ -8,6 +8,7 @@ class OcrDependencyPaths(context: Context) {
 
     val knnModelFile = File(parentDir, "digits.knn.dat")
     val phashDatabaseFile = File(parentDir, "image-phash.db")
+    val imageHashesDatabaseFile = File(parentDir, "image-hashes.db")
 }
 
 class OcrPaths(context: Context) {
