@@ -39,7 +39,7 @@ sealed interface ArcaeaPlayResultValidatorWarning {
     fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo? = null): Boolean
 }
 
-data object ArcaeaScoreValidatePlayResultOutOfRangeWarning : ArcaeaPlayResultValidatorWarning {
+data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultValidatorWarning {
     override val id = "SCORE_OUT_OF_RANGE"
 
     override val title = "Score out of range"
@@ -133,7 +133,7 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
     override val messageId = R.string.play_result_validator_CLEAR_PFL_MISMATCH_message
 
     override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
-        if (playResult.clearType == null || playResult.modifier == null) {
+        if (chartInfo?.notes == null || playResult.clearType == null || playResult.modifier == null) {
             return false
         }
 
@@ -146,7 +146,7 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
             return false
         }
 
-        return playResult.pure!! + playResult.far!! + playResult.lost!! != chartInfo?.notes
+        return playResult.pure!! + playResult.far!! + playResult.lost!! != chartInfo.notes
     }
 }
 
