@@ -200,6 +200,9 @@ dependencies {
 
     implementation(androidx.documentfile)
 
+    implementation(androidx.work.workRuntime)
+    implementation(androidx.work.workRuntimeKtx)
+
     // 3rd party
     implementation(libs.opencv)
 

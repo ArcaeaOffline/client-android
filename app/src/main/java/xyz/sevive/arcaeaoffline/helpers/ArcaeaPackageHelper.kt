@@ -12,6 +12,9 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashItemType
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import java.io.File
@@ -115,7 +118,7 @@ class ArcaeaPackageHelper(context: Context) {
         } else {
             "${songId}_${difficulty}.${ext}"
         }
-        Log.d(LOG_TAG, "jacketExtractFilename: mapping [$filename] to [$finalFilename]")
+        Log.v(LOG_TAG, "jacketExtractFilename: mapping [$filename] to [$finalFilename]")
         return finalFilename
     }
 
@@ -142,7 +145,7 @@ class ArcaeaPackageHelper(context: Context) {
         val ext = FilenameUtils.getExtension(filename)
 
         val finalFilename = "${partnerId}.${ext}"
-        Log.d(LOG_TAG, "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]")
+        Log.v(LOG_TAG, "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]")
         return finalFilename
     }
 
@@ -276,6 +279,46 @@ class ArcaeaPackageHelper(context: Context) {
             )
         } finally {
             buildPhashDatabaseCleanUp()
+        }
+    }
+
+    private fun jacketFileToGrayscaleImage(file: File): Mat {
+        val img = Imgcodecs.imread(file.absolutePath, Imgcodecs.IMREAD_COLOR)
+        val imgGrayscale = Mat()
+        Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
+        return imgGrayscale
+    }
+
+    private fun partnerIconFileToGrayscaleImage(file: File): Mat {
+        val img = Imgcodecs.imread(file.absolutePath, Imgcodecs.IMREAD_COLOR)
+        val imgGrayscale = Mat()
+        Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
+        return DeviceOcr.preprocessPartnerIcon(imgGrayscale)
+    }
+
+    suspend fun fillHashesDatabaseBuilderTasks(builder: ImageHashesDatabaseBuilder) {
+        buildPhashDatabaseCleanUp()
+        if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
+        tempPhashDatabaseFile.parentFile?.mkdirs()
+
+        extractJackets()
+        jacketsCacheDir.listFiles()?.forEach {
+            builder.addTask(
+                ImageHashItemType.JACKET,
+                FilenameUtils.getBaseName(it.name).replace(JACKET_RENAME_REGEX, ""),
+                input = it,
+                inputToGrayscaleImage = ::jacketFileToGrayscaleImage,
+            )
+        }
+
+        extractPartnerIcons()
+        partnerIconsCacheDir.listFiles()?.forEach {
+            builder.addTask(
+                ImageHashItemType.PARTNER_ICON,
+                FilenameUtils.getBaseName(it.name),
+                input = it,
+                inputToGrayscaleImage = ::partnerIconFileToGrayscaleImage,
+            )
         }
     }
 

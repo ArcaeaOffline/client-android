@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
+import android.util.Log
 import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -8,6 +9,10 @@ import org.threeten.bp.Instant
 import java.io.File
 
 class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
+    companion object {
+        const val LOG_TAG = "ImageHashesDbBuilder"
+    }
+
     data class Task<T>(
         val type: ImageHashItemType,
         val label: String,
@@ -15,7 +20,7 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
         val inputToGrayscaleImage: (T) -> Mat
     )
 
-    private val _buildProgress = MutableStateFlow(0 to -1)
+    private val _buildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val buildProgress = _buildProgress.asStateFlow()
 
     private val stmtInsertProperty by lazy {
@@ -32,11 +37,11 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
     }
 
     private fun increaseBuildProgress() {
-        _buildProgress.value = _buildProgress.value.copy(first = _buildProgress.value.second + 1)
+        _buildProgress.value = _buildProgress.value?.let { it.copy(first = it.first + 1) }
     }
 
     private fun resetBuildProgress() {
-        _buildProgress.value = 0 to -1
+        _buildProgress.value = null
     }
 
     fun addTask(
@@ -77,12 +82,13 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
     }
 
     fun build(hashSize: Int, highFreqFactor: Int) {
+        Log.d(LOG_TAG, "build() called, ${tasks.size} items in task list")
         db.beginTransaction()
 
         try {
-            createTables()
-
             initBuildProgress()
+
+            createTables()
 
             tasks.forEach { task ->
                 val img = task.inputToGrayscaleImage(task.input)

@@ -6,6 +6,11 @@ ksp = "1.9.20-1.0.14"
 
 opencv = "4.9.0"
 
+# guava is the dependency for ListenableFuture, used in WorkManager
+# consider remove this if the flow functions work well
+google-guava = "33.2.1-android"
+kotlinx-coroutines-guava = "1.8.1"
+
 apache-commons-io = "2.4"
 github-requery-sqlite-android = "3.43.0"
 acra = "5.11.3"
@@ -25,6 +30,8 @@ kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "3.21.12" }
+google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }
+kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinx-coroutines-guava" }
 
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.18.0" }
 
