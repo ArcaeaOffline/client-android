@@ -22,8 +22,7 @@ import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers.St3PlayResultImporter
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
+import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -175,16 +174,8 @@ class DatabaseManageViewModel(
         }
     }
 
-    fun importArcaeaApkFromInstalledButtonState(context: Context): ArcaeaButtonState {
-        val defaultState = ArcaeaButtonDefaults.state(context)
-        if (defaultState != ArcaeaButtonState.NORMAL) return defaultState
-
-        val helper = ArcaeaPackageHelper(context)
-        val hasPacklist = helper.getPacklistEntry() != null
-        val hasSonglist = helper.getSonglistEntry() != null
-        if (!hasPacklist && !hasSonglist) return ArcaeaButtonState.RESOURCE_UNAVAILABLE
-        return defaultState
-    }
+    val importArcaeaApkFromInstalledButtonState =
+        GlobalArcaeaButtonStateHelper.importListsFromApkButtonState
 
     suspend fun importArcaeaApkFromInstalled(context: Context) {
         val packageHelper = ArcaeaPackageHelper(context)

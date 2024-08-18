@@ -8,12 +8,15 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.acra.config.dialog
 import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -72,6 +75,10 @@ class ArcaeaOfflineApplication : Application() {
 
         AndroidThreeTen.init(this)
         DeviceOcrOnnxHelper.loadLabels(this)
+
+        MainScope().launch {
+            GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)
+        }
 
         addEmergencyModeShortcut()
         arcaeaOfflineDatabaseRepositoryContainer =
