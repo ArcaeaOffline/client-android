@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Queue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,12 +20,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKnnModelStatus
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyPhashDatabaseStatus
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.ocr.dependencies.OcrDependenciesScreenViewModel
 
 
 @Composable
@@ -32,8 +36,10 @@ fun OcrNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val knnModelStatus by GlobalOcrDependencyHelper.knnModelState.collectAsStateWithLifecycle()
-    val phashDatabaseState by GlobalOcrDependencyHelper.phashDatabaseState.collectAsStateWithLifecycle()
+    val vm = viewModel<OcrDependenciesScreenViewModel>(factory = AppViewModelProvider.Factory)
+    val kNearestModelUiState by vm.kNearestModelUiState.collectAsStateWithLifecycle()
+    val imageHashesDatabaseUiState by vm.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
+    val crnnModelUiState by vm.crnnModelUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier,
@@ -52,9 +58,23 @@ fun OcrNavEntry(
         ) {
             item {
                 Column {
-                    OcrDependencyKnnModelStatus(knnModelStatus)
-                    OcrDependencyPhashDatabaseStatus(phashDatabaseState)
+                    OcrDependencyKNearestModelStatusViewer(kNearestModelUiState)
+                    OcrDependencyImageHashesDatabaseStatusViewer(imageHashesDatabaseUiState)
+                    OcrDependencyCrnnModelStatusViewer(crnnModelUiState)
                 }
+            }
+
+            item {
+                ActionButton(
+                    onClick = { onNavigateToSubRoute(OcrScreenDestinations.Dependencies.route) },
+                    title = stringResource(OcrScreenDestinations.Dependencies.title),
+                    headSlot = {
+                        Icon(Icons.Default.Api, null)
+                    },
+                    tailSlot = {
+                        Icon(Icons.AutoMirrored.Default.ArrowForward, null)
+                    },
+                )
             }
 
             item {

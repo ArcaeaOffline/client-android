@@ -76,3 +76,23 @@ fun SubScreenContainer(
         content = content,
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SubScreenContainer(
+    onNavigateUp: () -> Unit,
+    title: String,
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    SubScreenContainer(
+        topBar = {
+            SubScreenTopAppBar(
+                onNavigateUp = onNavigateUp,
+                title = { Text(title) },
+                actions = actions,
+            )
+        },
+        content = content,
+    )
+}

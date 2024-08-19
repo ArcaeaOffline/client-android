@@ -32,6 +32,7 @@ CC BY-SA 3.0
     <string name="general_unknown_error">Unknown error.</string>
 
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
+    <string name="general_import_from_arcaea">Import from Arcaea</string>
 
     <!-- ArcaeaButton -->
     <string name="arcaea_button_resource_unavailable">Arcaea resource unavailable</string>
@@ -72,8 +73,11 @@ CC BY-SA 3.0
     <!-- Functions that need permissions -->
     <string name="permission_function_save_image">Save image</string>
 
+    <!-- OCR dependencies -->
     <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_phash_database">Image pHash Database</string>
+    <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
+    <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
@@ -214,6 +218,9 @@ CC BY-SA 3.0
     <string name="ocr_queue_status_processing">Processing</string>
     <string name="ocr_queue_status_done">Done</string>
     <string name="ocr_queue_status_error">Error</string>
+
+    <!-- Ocr dependencies screen -->
+    <string name="ocr_dependencies_title">OCR Dependencies</string>
 
     <!-- SettingsScreen -->
     <string name="settings_ocr_dependencies_title">OCR Dependencies</string>

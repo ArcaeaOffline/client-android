@@ -24,6 +24,7 @@
     <string name="general_unknown_error">未知错误</string>
 
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
+    <string name="general_import_from_arcaea">从 Arcaea 导入</string>
 
     <!-- ArcaeaButton -->
     <string name="arcaea_button_resource_unavailable">Arcaea 资源不可用</string>
@@ -63,8 +64,11 @@
     <!-- Functions that need permissions -->
     <string name="permission_function_save_image">保存图片</string>
 
+    <!-- OCR dependencies -->
     <string name="ocr_dependency_knn_model">KNearest 模型</string>
     <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
+    <string name="ocr_dependency_image_hashes_database">图像哈希数据库</string>
+    <string name="ocr_dependency_crnn_model">CRNN OCR 模型</string>
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">谱面</string>
@@ -192,6 +196,9 @@
     <string name="ocr_queue_status_processing">正在处理</string>
     <string name="ocr_queue_status_done">完成</string>
     <string name="ocr_queue_status_error">出错</string>
+
+    <!-- Ocr dependencies screen -->
+    <string name="ocr_dependencies_title">OCR 依赖项</string>
 
     <!-- SettingsScreen -->
     <string name="settings_ocr_dependencies_title">OCR 依赖项</string>

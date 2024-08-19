@@ -19,6 +19,7 @@ import xyz.sevive.arcaeaoffline.ui.database.DatabasePlayResultListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.ocr.dependencies.OcrDependenciesScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueViewModel
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
 import java.util.Locale
@@ -87,6 +88,10 @@ object AppViewModelProvider {
             ChartSelectorViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
+        }
+
+        initializer {
+            OcrDependenciesScreenViewModel(application())
         }
 
         initializer {
