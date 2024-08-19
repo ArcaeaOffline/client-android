@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.ocr.dependencies
+package xyz.sevive.arcaeaoffline.ui.components.ocr
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -44,7 +44,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
-internal data class OcrDependencyStatusChipUiState(
+data class OcrDependencyStatusChipUiState(
     val icon: ImageVector = Icons.Default.QuestionMark,
     val text: String = "Unknown",
     val color: Color = Color.Unspecified,
@@ -89,7 +89,7 @@ internal data class OcrDependencyStatusChipUiState(
 }
 
 @Composable
-internal fun OcrDependencyStatusChip(
+fun OcrDependencyStatusChip(
     uiState: OcrDependencyStatusChipUiState, modifier: Modifier = Modifier
 ) {
     val padding by animateDpAsState(
@@ -118,7 +118,7 @@ internal fun OcrDependencyStatusChip(
 
 
 @Composable
-internal fun OcrDependencyStatusChip(
+fun OcrDependencyStatusChip(
     status: OcrDependencyStatus,
     modifier: Modifier = Modifier,
     expanded: Boolean = false,

@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.ocr.dependencies
+package xyz.sevive.arcaeaoffline.ui.components.ocr
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,7 +28,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
 @Composable
-internal fun OcrDependencyStatusViewer(
+fun OcrDependencyStatusViewer(
     title: @Composable ColumnScope.() -> Unit,
     summary: (@Composable ColumnScope.() -> Unit)?,
     status: OcrDependencyStatus,
@@ -73,7 +73,7 @@ internal fun OcrDependencyStatusViewer(
 }
 
 @Composable
-internal fun OcrDependencyStatusViewer(
+fun OcrDependencyStatusViewer(
     title: String,
     status: OcrDependencyStatus,
     summary: String?,
@@ -90,7 +90,7 @@ internal fun OcrDependencyStatusViewer(
 }
 
 @Composable
-internal fun OcrDependencyStatusViewer(
+fun OcrDependencyStatusViewer(
     title: String,
     status: OcrDependencyStatus,
     summary: @Composable () -> Unit,
