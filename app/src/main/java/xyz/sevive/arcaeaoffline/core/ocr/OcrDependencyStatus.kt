@@ -1,10 +1,12 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
+import ai.onnxruntime.OnnxModelMetadata
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
 
@@ -67,7 +69,7 @@ data class ImageHashesDatabaseStatusDetail(
 
     override fun summary(): String? {
         if (absence) return null
-        if (exception != null) exception::class.simpleName ?: "Error"
+        if (exception != null) return exception::class.simpleName ?: "Error"
 
         val parts = mutableListOf<String>()
         jacketCount?.let { parts.add("J$it") } ?: parts.add("Jx")
@@ -80,5 +82,68 @@ data class ImageHashesDatabaseStatusDetail(
         }
 
         return parts.joinToString(", ")
+    }
+}
+
+data class CrnnModelStatusDetail(
+    override val absence: Boolean = false,
+    override val exception: Exception? = null,
+    val modelMetadata: OnnxModelMetadata? = null,
+    val inputNames: Set<String>? = null,
+    val outputNames: Set<String>? = null,
+) : OcrDependencyStatusDetail {
+    override fun status(): OcrDependencyStatus {
+        if (absence) return OcrDependencyStatus.ABSENCE
+        if (exception != null) return OcrDependencyStatus.ERROR
+
+        return when {
+            modelMetadata == null -> OcrDependencyStatus.UNKNOWN
+            modelMetadata.version == 0L -> OcrDependencyStatus.WARNING
+            else -> OcrDependencyStatus.OK
+        }
+    }
+
+    private val builtTimestampRaw get() = modelMetadata?.customMetadata?.get("built_timestamp")
+    private val builtTimestamp = builtTimestampRaw?.let { Instant.ofEpochSecond(it.toLong()) }
+    private val builtTimestampReadable = builtTimestamp?.let {
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+            .format(LocalDateTime.ofInstant(it, ZoneId.systemDefault()))
+    }
+
+    override fun summary(): String? {
+        if (absence) return null
+        if (exception != null) return exception::class.simpleName ?: "Error"
+        if (modelMetadata == null) return null
+
+        val parts = mutableListOf<String>()
+
+        parts.add(DeviceOcrOnnxHelper.modelVersionString(modelMetadata.version))
+        builtTimestampReadable?.let { parts.add(it) }
+
+        return parts.filter { it.isNotEmpty() }.joinToString(", ")
+    }
+
+    override fun details(): String? {
+        val original = super.details()
+        if (original != null) return original
+
+        val parts = mutableListOf<String>()
+
+        modelMetadata?.let {
+            parts.add("version: ${it.version} (${DeviceOcrOnnxHelper.modelVersion(it.version)})")
+            parts.add("producer: ${it.producerName}")
+            parts.add("domain: ${it.domain}")
+            parts.add("graph_name: ${it.graphName}")
+        }
+
+        parts.add("inputs: $inputNames")
+        parts.add("outputs: $outputNames")
+
+        builtTimestampRaw?.let { parts.add("built_timestamp: $it ($builtTimestamp)") }
+
+        return when (val res = parts.joinToString("\n")) {
+            "" -> null
+            else -> res
+        }
     }
 }

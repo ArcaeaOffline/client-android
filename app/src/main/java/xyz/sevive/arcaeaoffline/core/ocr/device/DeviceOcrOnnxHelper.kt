@@ -36,17 +36,20 @@ object DeviceOcrOnnxHelper {
      *
      * @return arrayOf(major, minor, patch)
      */
-    fun modelVersion(ortSession: OrtSession): IntArray {
-        val input = ortSession.metadata.version
+    fun modelVersion(version: Long): List<Int> {
         val buffer = ByteBuffer.allocate(Long.SIZE_BYTES).order(ByteOrder.BIG_ENDIAN)
-        buffer.putLong(input)
+        buffer.putLong(version)
         buffer.flip()
 
         val major = buffer.short.toInt() shl 16
         val minor = buffer.short.toInt() shl 8
         val patch = buffer.int
 
-        return intArrayOf(major shr 16, minor shr 8, patch)
+        return listOf(major shr 16, minor shr 8, patch)
+    }
+
+    fun modelVersionString(version: Long): String {
+        return "v" + modelVersion(version).joinToString(".")
     }
 
     fun createOrtSession(context: Context): OrtSession {

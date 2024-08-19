@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
 import android.content.Context
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 
 object OcrDependencyStatusBuilder {
@@ -34,6 +35,20 @@ object OcrDependencyStatusBuilder {
             }
         } catch (e: Exception) {
             return ImageHashesDatabaseStatusDetail(exception = e)
+        }
+    }
+
+    fun crnnModel(context: Context): CrnnModelStatusDetail {
+        return DeviceOcrOnnxHelper.createOrtSession(context).use {
+            try {
+                CrnnModelStatusDetail(
+                    modelMetadata = it.metadata,
+                    inputNames = it.inputNames.toSet(),  // make a copy, same for below
+                    outputNames = it.outputNames.toSet(),
+                )
+            } catch (e: Exception) {
+                CrnnModelStatusDetail(exception = e)
+            }
         }
     }
 }
