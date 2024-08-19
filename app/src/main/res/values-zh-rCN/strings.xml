@@ -66,7 +66,6 @@
 
     <!-- OCR dependencies -->
     <string name="ocr_dependency_knn_model">KNearest 模型</string>
-    <string name="ocr_dependency_phash_database">图像 pHash 数据库</string>
     <string name="ocr_dependency_image_hashes_database">图像哈希数据库</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR 模型</string>
 
@@ -190,7 +189,6 @@
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
     <string name="ocr_queue_queue_options_title">队列</string>
-    <string name="ocr_queue_queue_options_channel_capacity">缓冲区容量</string>
     <string name="ocr_queue_queue_options_parallel_count">并行数量</string>
     <string name="ocr_queue_status_idle">待命</string>
     <string name="ocr_queue_status_processing">正在处理</string>
@@ -201,9 +199,6 @@
     <string name="ocr_dependencies_title">OCR 依赖项</string>
 
     <!-- SettingsScreen -->
-    <string name="settings_ocr_dependencies_title">OCR 依赖项</string>
-    <string name="settings_ocr_phash_database_build_from_arcaea">从 Arcaea 构建</string>
-
     <string name="settings_about_title">关于</string>
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>

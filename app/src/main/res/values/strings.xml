@@ -75,7 +75,6 @@ CC BY-SA 3.0
 
     <!-- OCR dependencies -->
     <string name="ocr_dependency_knn_model">KNearest model</string>
-    <string name="ocr_dependency_phash_database">Image pHash Database</string>
     <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
 
@@ -212,7 +211,6 @@ CC BY-SA 3.0
     <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
     <string name="ocr_queue_queue_options_title">Queue</string>
-    <string name="ocr_queue_queue_options_channel_capacity">Buffer capacity</string>
     <string name="ocr_queue_queue_options_parallel_count">Parallel execution counts</string>
     <string name="ocr_queue_status_idle">Ready</string>
     <string name="ocr_queue_status_processing">Processing</string>
@@ -223,9 +221,6 @@ CC BY-SA 3.0
     <string name="ocr_dependencies_title">OCR Dependencies</string>
 
     <!-- SettingsScreen -->
-    <string name="settings_ocr_dependencies_title">OCR Dependencies</string>
-    <string name="settings_ocr_phash_database_build_from_arcaea">Build from Arcaea</string>
-
     <string name="settings_about_title">About</string>
     <string name="settings_about_application_id">Application ID</string>
     <string name="settings_about_version">Version</string>

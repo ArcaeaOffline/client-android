@@ -17,15 +17,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
+import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.File
@@ -35,6 +40,29 @@ class OcrFromShareViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
     private val appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer,
 ) : ViewModel() {
+    class OcrDependencyViewersUiState(
+        val kNearestModel: OcrDependencyKNearestModelStatusUiState = OcrDependencyKNearestModelStatusUiState(),
+        val imageHashesDatabase: OcrDependencyImageHashesDatabaseStatusUiState = OcrDependencyImageHashesDatabaseStatusUiState(),
+        val crnnModel: OcrDependencyCrnnModelStatusUiState = OcrDependencyCrnnModelStatusUiState(),
+    )
+
+    private val _ocrDependencyViewersUiState = MutableStateFlow(OcrDependencyViewersUiState())
+    val ocrDependencyViewersUiState = _ocrDependencyViewersUiState.asStateFlow()
+
+    fun reloadOcrDependencyViewersUiState(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val kNearest = OcrDependencyStatusBuilder.kNearest(context)
+            val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase(context)
+            val crnnModel = OcrDependencyStatusBuilder.crnnModel(context)
+
+            _ocrDependencyViewersUiState.value = OcrDependencyViewersUiState(
+                kNearestModel = OcrDependencyKNearestModelStatusUiState(kNearest),
+                imageHashesDatabase = OcrDependencyImageHashesDatabaseStatusUiState(statusDetail = imageHashesDatabase),
+                crnnModel = OcrDependencyCrnnModelStatusUiState(crnnModel),
+            )
+        }
+    }
+
     private val _bitmap = MutableStateFlow<Bitmap?>(null)
     private val bitmap = _bitmap.asStateFlow()
     val imageBitmap = bitmap.map { it?.asImageBitmap() }.stateIn(

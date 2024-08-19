@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.opencv.android.OpenCVLoader
-import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.ui.screens.UnstableVersionAlertScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -97,8 +96,6 @@ class MainActivity : ComponentActivity() {
                 _unstableAlertReadState.value = it.unstableAlertRead
             }
         }
-
-        GlobalOcrDependencyHelper.loadAll(this)
     }
 
     private fun confirmUnstableAlertRead() {
