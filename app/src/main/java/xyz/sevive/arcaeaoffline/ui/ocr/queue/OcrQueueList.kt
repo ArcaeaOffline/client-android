@@ -4,28 +4,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.dimensionResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 
 @Composable
 fun OcrQueueList(
-    ocrQueueViewModel: OcrQueueViewModel,
+    uiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
     onSaveScore: (Int) -> Unit,
+    onDeleteTask: (Int) -> Unit,
+    onEditPlayResult: (Int, PlayResult) -> Unit,
 ) {
-    val uiItems by ocrQueueViewModel.uiItems.collectAsStateWithLifecycle()
-    val queueRunning by ocrQueueViewModel.queueRunning.collectAsStateWithLifecycle()
-
     LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
         items(uiItems, key = { it.id }) { uiItem ->
-            OcrQueueItem(
+            OcrQueueListItem(
                 uiItem,
-                onDeleteTask = { ocrQueueViewModel.deleteTask(it) },
-                deleteEnabled = !queueRunning,
-                onEditScore = { taskId, score -> ocrQueueViewModel.modifyTaskScore(taskId, score) },
-                onSaveScore = onSaveScore,
+                onDeleteTask = onDeleteTask,
+                onEditPlayResult = onEditPlayResult,
+                onSavePlayResult = onSaveScore,
             )
         }
     }

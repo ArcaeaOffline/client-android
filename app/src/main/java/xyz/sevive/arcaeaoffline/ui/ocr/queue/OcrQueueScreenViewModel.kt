@@ -7,10 +7,14 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,44 +26,15 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTask
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
+import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
-
-data class OcrQueueTaskUiItem(
-    val id: Int,
-    var fileUri: Uri,
-    var status: OcrQueueTaskStatus,
-    var ocrResult: DeviceOcrResult? = null,
-    var playResult: PlayResult? = null,
-    var chart: Chart? = null,
-    var exception: Exception? = null,
-) {
-    fun scoreValidatorWarnings(): List<ArcaeaPlayResultValidatorWarning> {
-        return playResult?.let {
-            ArcaeaPlayResultValidator.validateScore(it, chart)
-        } ?: emptyList()
-    }
-
-    companion object {
-        fun fromTask(task: OcrQueueTask): OcrQueueTaskUiItem {
-            return OcrQueueTaskUiItem(
-                id = task.id,
-                fileUri = task.fileUri,
-                status = task.status,
-                ocrResult = task.ocrResult,
-                playResult = task.playResult,
-                chart = task.chart,
-                exception = task.exception,
-            )
-        }
-    }
-}
-
-class OcrQueueViewModel(
+@OptIn(ExperimentalCoroutinesApi::class)
+class OcrQueueScreenViewModel(
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
     private val preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
     companion object {
-        const val LOG_TAG = "OcrQueueViewModel"
+        const val LOG_TAG = "OcrQueueScreenViewModel"
     }
 
     private val ocrQueue = xyz.sevive.arcaeaoffline.helpers.OcrQueue()
@@ -106,13 +81,66 @@ class OcrQueueViewModel(
     }
     // #endregion
 
-    private val _uiItems = MutableStateFlow<List<OcrQueueTaskUiItem>>(emptyList())
+    data class TaskUiItem(
+        val id: Int,
+        var fileUri: Uri,
+        var status: OcrQueueTaskStatus,
+        var ocrResult: DeviceOcrResult? = null,
+        var playResult: PlayResult? = null,
+        var chart: Chart? = null,
+        var exception: Exception? = null,
+    ) {
+        fun scoreValidatorWarnings(): List<ArcaeaPlayResultValidatorWarning> {
+            return playResult?.let {
+                ArcaeaPlayResultValidator.validateScore(it, chart)
+            } ?: emptyList()
+        }
+
+        companion object {
+            fun fromTask(task: OcrQueueTask): TaskUiItem {
+                return TaskUiItem(
+                    id = task.id,
+                    fileUri = task.fileUri,
+                    status = task.status,
+                    ocrResult = task.ocrResult,
+                    playResult = task.playResult,
+                    chart = task.chart,
+                    exception = task.exception,
+                )
+            }
+        }
+    }
+
+
+    private val _uiItems = MutableStateFlow<List<TaskUiItem>>(emptyList())
     val uiItems = _uiItems.asStateFlow()
+
+    val idleUiItems = uiItems.mapLatest { list ->
+        list.filter { it.status == OcrQueueTaskStatus.IDLE }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), emptyList())
+
+    val processingUiItems = uiItems.mapLatest { list ->
+        list.filter { it.status == OcrQueueTaskStatus.PROCESSING }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), emptyList())
+
+    val doneUiItems = uiItems.mapLatest { list ->
+        list.filter { it.status == OcrQueueTaskStatus.DONE }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), emptyList())
+
+    val doneWithWarningUiItems = doneUiItems.mapLatest { list ->
+        list.filter {
+            it.status == OcrQueueTaskStatus.DONE && it.scoreValidatorWarnings().isNotEmpty()
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), emptyList())
+
+    val errorUiItems = uiItems.mapLatest { list ->
+        list.filter { it.status == OcrQueueTaskStatus.ERROR }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), emptyList())
 
     private var lastUpdateTimeMillis = System.currentTimeMillis()
     private fun updateUiItems() {
         _uiItems.value = ocrQueue.ocrQueueTasksMap.values.map {
-            OcrQueueTaskUiItem.fromTask(it)
+            TaskUiItem.fromTask(it)
         }
         lastUpdateTimeMillis = System.currentTimeMillis()
     }
@@ -156,6 +184,7 @@ class OcrQueueViewModel(
     val addImagesProgressTotal = ocrQueue.addImagesProgressTotal
 
     fun deleteTask(taskId: Int) {
+        if (queueRunning.value) return
         ocrQueue.deleteTask(taskId)
     }
 
@@ -167,33 +196,50 @@ class OcrQueueViewModel(
         ocrQueue.editTaskScore(taskId, playResult)
     }
 
-    suspend fun saveTaskScore(taskId: Int, context: Context) {
-        val uiItem = uiItems.value.find { it.id == taskId } ?: return
+    fun saveTaskScore(taskId: Int) {
+        viewModelScope.launch {
+            val uiItem = uiItems.value.find { it.id == taskId } ?: return@launch
 
-        val scoreRepository = ArcaeaOfflineDatabaseRepositoryContainerImpl(context).playResultRepo
-
-        uiItem.playResult?.let {
-            scoreRepository.upsert(it)
-            ocrQueue.deleteTask(taskId)
+            uiItem.playResult?.let {
+                repositoryContainer.playResultRepo.upsert(it)
+                ocrQueue.deleteTask(taskId)
+            }
         }
     }
 
-    suspend fun addImageFiles(uris: List<Uri>, context: Context) {
-        ocrQueue.addImageFiles(
-            uris,
-            context,
-            checkIsImage = preferencesUiState.value.checkIsImage,
-            detectScreenshot = preferencesUiState.value.checkIsArcaeaImage,
-        )
+    fun saveAllTaskPlayResults() {
+        if (queueRunning.value) return
+
+        viewModelScope.launch {
+            for (uiItem in uiItems.value) {
+                if (uiItem.scoreValidatorWarnings().isNotEmpty()) continue
+
+                uiItem.playResult?.let { repositoryContainer.playResultRepo.upsert(it) }
+                ocrQueue.deleteTask(uiItem.id)
+            }
+        }
     }
 
-    suspend fun addFolder(folder: DocumentFile, context: Context) {
-        _addImagesFromFolderProcessing.value = true
-        withContext(Dispatchers.IO) {
-            val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
-            addImageFiles(uris, context)
+    fun addImageFiles(uris: List<Uri>, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            ocrQueue.addImageFiles(
+                uris,
+                context,
+                checkIsImage = preferencesUiState.value.checkIsImage,
+                detectScreenshot = preferencesUiState.value.checkIsArcaeaImage,
+            )
         }
-        _addImagesFromFolderProcessing.value = false
+    }
+
+    fun addFolder(folder: DocumentFile, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _addImagesFromFolderProcessing.value = true
+            withContext(Dispatchers.IO) {
+                val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
+                addImageFiles(uris, context)
+            }
+            _addImagesFromFolderProcessing.value = false
+        }
     }
 
     fun stopAddImageFiles() {
@@ -204,8 +250,8 @@ class OcrQueueViewModel(
         ocrQueue.stopQueue()
     }
 
-    suspend fun startQueue(context: Context) {
-        withContext(Dispatchers.Default) {
+    fun startQueue(context: Context) {
+        viewModelScope.launch {
             ocrQueue.startQueue(context)
         }
     }

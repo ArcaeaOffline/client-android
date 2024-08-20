@@ -205,8 +205,8 @@ CC BY-SA 3.0
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR Queue</string>
 
-    <string name="ocr_queue_add_images_button">Add Images</string>
-    <string name="ocr_queue_import_folder_button">Import Folder</string>
+    <string name="ocr_queue_pick_images_button">Add Images</string>
+    <string name="ocr_queue_pick_folder_button">Import Folder</string>
     <string name="ocr_queue_add_image_options_title">Adding Images</string>
     <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
@@ -215,6 +215,7 @@ CC BY-SA 3.0
     <string name="ocr_queue_status_idle">Ready</string>
     <string name="ocr_queue_status_processing">Processing</string>
     <string name="ocr_queue_status_done">Done</string>
+    <string name="ocr_queue_status_done_with_warning">Done but with warnings</string>
     <string name="ocr_queue_status_error">Error</string>
 
     <!-- Ocr dependencies screen -->

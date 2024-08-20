@@ -183,8 +183,8 @@
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR 队列</string>
 
-    <string name="ocr_queue_add_images_button">多选图像</string>
-    <string name="ocr_queue_import_folder_button">导入文件夹</string>
+    <string name="ocr_queue_pick_images_button">多选图像</string>
+    <string name="ocr_queue_pick_folder_button">导入文件夹</string>
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
@@ -193,6 +193,7 @@
     <string name="ocr_queue_status_idle">待命</string>
     <string name="ocr_queue_status_processing">正在处理</string>
     <string name="ocr_queue_status_done">完成</string>
+    <string name="ocr_queue_status_done_with_warning">完成但有警告</string>
     <string name="ocr_queue_status_error">出错</string>
 
     <!-- Ocr dependencies screen -->
