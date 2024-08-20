@@ -22,9 +22,13 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import org.opencv.ml.KNearest
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
@@ -61,6 +65,8 @@ class OcrQueue {
         coroutineScope = ocrQueueScope
     )
 
+    private var kNearestModel: KNearest? = null
+    private var imagePhashDatabase: ImagePhashDatabase? = null
     private var ortSession: OrtSession? = null
 
     init {
@@ -215,7 +221,11 @@ class OcrQueue {
         addImagesChannelQueue.stop()
     }
 
-    private suspend fun processTask(task: OcrQueueTask, context: Context) {
+    private suspend fun processTask(
+        task: OcrQueueTask,
+        context: Context,
+        imageHashesDatabase: ImageHashesDatabase
+    ) {
         if (task.status == OcrQueueTaskStatus.DONE) return
 
         fun emitUpdated() {
@@ -229,7 +239,14 @@ class OcrQueue {
             if (ortSession == null) throw IllegalArgumentException("ORT Session not initialized!")
 
             val ocrResult =
-                DeviceOcrHelper.ocrImage(task.fileUri, context, ortSession = ortSession!!)
+                DeviceOcrHelper.ocrImage(
+                    task.fileUri,
+                    context,
+                    kNearestModel!!,
+                    imagePhashDatabase!!,
+                    imageHashesDatabase,
+                    ortSession = ortSession!!
+                )
             val score = DeviceOcrHelper.ocrResultToScore(
                 task.fileUri,
                 context,
@@ -258,15 +275,23 @@ class OcrQueue {
     }
 
     suspend fun startQueue(context: Context) {
+        kNearestModel = OcrDependencyLoader.kNearestModel(context)
+        imagePhashDatabase = OcrDependencyLoader.pHashDatabase(context)
         ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
 
+        val imageHashesSQLiteDatabase = OcrDependencyLoader.imageHashesSQLiteDatabase(context)
         runBlocking {
-            ocrTasksChannelQueue.start(ocrQueueTasksMap.values) {
-                processTask(it, context)
+            imageHashesSQLiteDatabase.use { sqliteDb ->
+                val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
+                ocrTasksChannelQueue.start(ocrQueueTasksMap.values) {
+                    processTask(it, context, imageHashesDatabase)
+                }
             }
         }
 
         ortSession?.close()
+        kNearestModel = null
+        imagePhashDatabase = null
         Runtime.getRuntime().gc()
     }
 

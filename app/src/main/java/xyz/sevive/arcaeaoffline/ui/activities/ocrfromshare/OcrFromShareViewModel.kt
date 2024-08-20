@@ -22,6 +22,8 @@ import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
@@ -178,7 +180,22 @@ class OcrFromShareViewModel(
 
         withContext(Dispatchers.IO) {
             try {
-                val ocrResult = DeviceOcrHelper.ocrImage(imageUri, context, ortSession = ortSession)
+                val kNearestModel = OcrDependencyLoader.kNearestModel(context)
+                val phashDatabase = OcrDependencyLoader.pHashDatabase(context)
+                val imageHashesSQLiteDatabase =
+                    OcrDependencyLoader.imageHashesSQLiteDatabase(context)
+
+                val ocrResult = imageHashesSQLiteDatabase.use { sqliteDb ->
+                    val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
+                    DeviceOcrHelper.ocrImage(
+                        imageUri,
+                        context,
+                        kNearestModel,
+                        phashDatabase,
+                        imageHashesDatabase,
+                        ortSession = ortSession
+                    )
+                }
                 val score = DeviceOcrHelper.ocrResultToScore(
                     imageUri,
                     context,

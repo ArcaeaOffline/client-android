@@ -14,6 +14,7 @@ import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
@@ -74,6 +75,7 @@ class DeviceOcr(
     private val knnModel: KNearest,
     private val phashDb: ImagePhashDatabase,
     private val ortSession: OrtSession,
+    private val hashesDb: ImageHashesDatabase,
 ) {
     companion object {
         fun preprocessPartnerIcon(imgGray: Mat): Mat {

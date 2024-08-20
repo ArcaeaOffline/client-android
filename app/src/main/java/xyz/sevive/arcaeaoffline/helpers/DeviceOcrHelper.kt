@@ -15,6 +15,7 @@ import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
@@ -27,7 +28,6 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtract
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import java.io.FileNotFoundException
 
@@ -35,12 +35,11 @@ object DeviceOcrHelper {
     fun ocrImage(
         imageUri: Uri,
         context: Context,
-        customKnnModel: KNearest? = null,
-        customPhashDatabase: ImagePhashDatabase? = null,
+        knnModel: KNearest,
+        phashDatabase: ImagePhashDatabase,
+        imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
-        val ocrDependencyPaths = OcrDependencyPaths(context)
-
         val inputStream = context.contentResolver.openInputStream(imageUri)
             ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
 
@@ -64,12 +63,15 @@ object DeviceOcrHelper {
             DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
             else -> DeviceRoisMaskerAutoT2()
         }
-        val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
-        val phashDatabase =
-            customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
 
-        val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase, ortSession)
-        return ocr.ocr()
+        return DeviceOcr(
+            extractor = extractor,
+            masker = masker,
+            knnModel = knnModel,
+            phashDb = phashDatabase,
+            ortSession = ortSession,
+            hashesDb = imageHashesDatabase,
+        ).ocr()
     }
 
     fun ocrResultToScore(
