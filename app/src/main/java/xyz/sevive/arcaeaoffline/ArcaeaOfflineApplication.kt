@@ -74,7 +74,7 @@ class ArcaeaOfflineApplication : Application() {
         super.onCreate()
 
         AndroidThreeTen.init(this)
-        DeviceOcrOnnxHelper.loadLabels(this)
+        DeviceOcrOnnxHelper.loadModelInfo(this)
 
         MainScope().launch {
             GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)

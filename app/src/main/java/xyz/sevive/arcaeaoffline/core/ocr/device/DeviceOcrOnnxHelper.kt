@@ -6,6 +6,9 @@ import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.util.Log
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.core.Size
@@ -13,18 +16,45 @@ import org.opencv.imgproc.Imgproc
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.jvm.optionals.getOrElse
+import kotlin.properties.Delegates
 
 object DeviceOcrOnnxHelper {
-    private lateinit var labelList: List<String>
+    private const val LOG_TAG = "OnnxHelper"
+
+    private var imageSize by Delegates.notNull<Size>()
+    private var imageShape by Delegates.notNull<LongArray>()
+
+    private lateinit var labels: List<String>
+    private lateinit var blankToken: String
+    private lateinit var padToken: String
+
+    private val jsonSerializer = Json { ignoreUnknownKeys = true }
+
+    @Serializable
+    private data class ModelInfo(
+        @SerialName("image_height") val imageHeight: Long,
+        @SerialName("image_width") val imageWidth: Long,
+        @SerialName("classes") val classes: List<String>,
+        @SerialName("blank_token") val blankToken: String,
+        @SerialName("pad_token") val padToken: String,
+    )
 
     private fun getOrtEnvironment(): OrtEnvironment {
         return OrtEnvironment.getEnvironment("ocr")
     }
 
-    fun loadLabels(context: Context) {
-        labelList = IOUtils.toString(context.assets.open("ocr/labels.txt")).split("\n")
-            .filter { it.isNotEmpty() }
-        Log.d("OCR", labelList.toString())
+    fun loadModelInfo(context: Context) {
+        val modelInfo = jsonSerializer.decodeFromString<ModelInfo>(
+            IOUtils.toString(context.assets.open("ocr/model_info.json"))
+        )
+
+        Log.d(LOG_TAG, "Loaded model info $modelInfo")
+
+        imageSize = Size(modelInfo.imageWidth.toDouble(), modelInfo.imageHeight.toDouble())
+        imageShape = longArrayOf(modelInfo.imageHeight, modelInfo.imageWidth, 3L)
+        labels = modelInfo.classes.toList()  // make a copy
+        blankToken = modelInfo.blankToken
+        padToken = modelInfo.padToken
     }
 
     private fun readOnnxModelBytes(context: Context): ByteArray {
@@ -65,7 +95,7 @@ object DeviceOcrOnnxHelper {
 
     private fun matToModelInput(rgbMat: Mat): OnnxTensor {
         val ortMat = Mat()
-        Imgproc.resize(rgbMat, ortMat, Size(250.0, 50.0))
+        Imgproc.resize(rgbMat, ortMat, imageSize)
 
         // convert cv.Mat into ByteBuffer
         val size = ortMat.total() * ortMat.elemSize()
@@ -73,10 +103,7 @@ object DeviceOcrOnnxHelper {
         ortMat.get(0, 0, byteBuffer.array())
 
         return OnnxTensor.createTensor(
-            getOrtEnvironment(),
-            byteBuffer,
-            longArrayOf(50, 250, 3),
-            OnnxJavaType.UINT8
+            getOrtEnvironment(), byteBuffer, imageShape, OnnxJavaType.UINT8
         )
     }
 
@@ -86,12 +113,12 @@ object DeviceOcrOnnxHelper {
             rawPredictions.add(onnxTensor.longBuffer.get(i.toInt()).toInt())
         }
 
-        val predictions = rawPredictions.map { labelList[it] }
+        val predictions = rawPredictions.map { labels[it] }
         var lastChar: String? = null
         return buildString {
             for (char in predictions) {
                 if (char == lastChar) continue
-                if (char == "∅") {
+                if (char == blankToken) {
                     lastChar = null
                     continue
                 }
@@ -115,7 +142,7 @@ object DeviceOcrOnnxHelper {
             for (char in finalResult) {
                 if (placeholderCount == 2) break
 
-                if (char == '-') {
+                if (char.toString() == padToken) {
                     placeholderCount += 1
                     continue
                 } else {
