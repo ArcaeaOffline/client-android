@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 
@@ -13,6 +15,9 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
     entities = [OcrHistory::class],
     version = 1,
     exportSchema = true,
+)
+@TypeConverters(
+    InstantConverters::class,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun ocrHistoryDao(): OcrHistoryDao
