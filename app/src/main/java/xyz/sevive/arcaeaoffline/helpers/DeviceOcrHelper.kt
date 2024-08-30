@@ -27,7 +27,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
+import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import java.io.FileNotFoundException
 
@@ -116,7 +116,7 @@ object DeviceOcrHelper {
 
         val imgFilename = context.getFilename(imageUri)
 
-        return ocrResult.toScore(
+        return ocrResult.toPlayResult(
             arcaeaPartnerModifiers = arcaeaPartnerModifiers,
             date = date,
             comment = if (imgFilename != null) "OCR $imgFilename" else null,
