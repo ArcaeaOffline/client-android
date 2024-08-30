@@ -74,20 +74,15 @@ object DeviceOcrHelper {
         ).ocr()
     }
 
-    fun ocrResultToScore(
+    fun readImageDateFromExif(
         imageUri: Uri,
         context: Context,
-        ocrResult: DeviceOcrResult,
         fallbackDate: Instant? = null,
-        overrideDate: Instant? = null,
-        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
-    ): PlayResult {
-        val arcaeaPartnerModifiers =
-            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
-
+        overrideDate: Instant? = null
+    ): Instant? {
         val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
 
-        val date = if (overrideDate != null) {
+        return if (overrideDate != null) {
             overrideDate
         } else {
             val imgExif = ExifInterface(byteArray.inputStream())
@@ -113,7 +108,20 @@ object DeviceOcrHelper {
                 fallbackDate
             }
         }
+    }
 
+    fun ocrResultToPlayResult(
+        imageUri: Uri,
+        context: Context,
+        ocrResult: DeviceOcrResult,
+        fallbackDate: Instant? = null,
+        overrideDate: Instant? = null,
+        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
+    ): PlayResult {
+        val arcaeaPartnerModifiers =
+            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
+
+        val date = readImageDateFromExif(imageUri, context, fallbackDate, overrideDate)
         val imgFilename = context.getFilename(imageUri)
 
         return ocrResult.toPlayResult(

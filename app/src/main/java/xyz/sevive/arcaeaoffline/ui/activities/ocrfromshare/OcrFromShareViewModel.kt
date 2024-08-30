@@ -196,17 +196,17 @@ class OcrFromShareViewModel(
                         ortSession = ortSession
                     )
                 }
-                val score = DeviceOcrHelper.ocrResultToScore(
+                val playResult = DeviceOcrHelper.ocrResultToPlayResult(
                     imageUri,
                     context,
                     ocrResult,
                     fallbackDate = Instant.now(),
                 )
 
-                _playResult.value = score
+                _playResult.value = playResult
                 _exception.value = null
 
-                _chart.value = repositoryContainer.chartRepo.find(score).firstOrNull()
+                _chart.value = repositoryContainer.chartRepo.find(playResult).firstOrNull()
             } catch (e: Exception) {
                 _playResult.value = null
                 _exception.value = e
