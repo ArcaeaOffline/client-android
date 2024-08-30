@@ -16,6 +16,7 @@ import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
@@ -75,6 +76,7 @@ class ArcaeaOfflineApplication : Application() {
 
         AndroidThreeTen.init(this)
         DeviceOcrOnnxHelper.loadModelInfo(this)
+        Notifications.createChannels(this)
 
         MainScope().launch {
             GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)

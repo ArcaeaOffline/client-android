@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="notif_group_tasks">任务</string>
+
+    <string name="notif_channel_ocr_queue_job">OCR 队列</string>
+    <string name="notif_description_ocr_queue_job">显示 OCR 队列进度</string>
+    <string name="notif_title_ocr_queue_job">OCR 队列进度</string>
+
+    <string name="notif_channel_ocr_queue_enqueue_checker_job">OCR 队列入队</string>
+    <string name="notif_description_ocr_queue_enqueue_checker_job">显示 OCR 队列入队过滤器的工作进度</string>
+    <string name="notif_title_ocr_queue_enqueue_checker_job">OCR 队列入队过滤器</string>
+</resources>

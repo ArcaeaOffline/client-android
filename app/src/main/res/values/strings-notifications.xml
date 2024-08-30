@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="notif_group_tasks">Tasks</string>
+
+    <string name="notif_channel_ocr_queue_job">OCR Queue</string>
+    <string name="notif_description_ocr_queue_job">Display the progress of OCR queue</string>
+    <string name="notif_title_ocr_queue_job">OCR Queue Progress</string>
+
+    <string name="notif_channel_ocr_queue_enqueue_checker_job">OCR Queue Enqueueing</string>
+    <string name="notif_description_ocr_queue_enqueue_checker_job">Display the progress of OCR queue enqueue checker</string>
+    <string name="notif_title_ocr_queue_enqueue_checker_job">OCR Queue Enqueue Progress</string>
+</resources>
