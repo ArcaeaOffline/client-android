@@ -22,11 +22,13 @@ import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
+import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 
 
 class ArcaeaOfflineApplication : Application() {
     lateinit var arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
     lateinit var appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer
+    val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
     override fun attachBaseContext(base: Context) {
