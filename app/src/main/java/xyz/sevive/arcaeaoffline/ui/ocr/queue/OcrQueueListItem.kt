@@ -43,7 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.Dialog
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
@@ -204,9 +204,9 @@ private fun OcrQueueListItemPlayResult(
 @Composable
 internal fun OcrQueueListItem(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
-    onDeleteTask: (Int) -> Unit,
-    onEditPlayResult: (Int, PlayResult) -> Unit,
-    onSavePlayResult: (Int) -> Unit,
+    onDeleteTask: (Long) -> Unit,
+    onEditPlayResult: (Long, PlayResult) -> Unit,
+    onSavePlayResult: (Long) -> Unit,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.WorkManager
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
@@ -96,8 +97,10 @@ object AppViewModelProvider {
 
         initializer {
             OcrQueueScreenViewModel(
+                WorkManager.getInstance(application()),
                 application().arcaeaOfflineDatabaseRepositoryContainer,
-                application().dataStoreRepositoryContainer.ocrQueuePreferences
+                application().ocrQueueDatabaseRepositoryContainer,
+                application().dataStoreRepositoryContainer.ocrQueuePreferences,
             )
         }
 

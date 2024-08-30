@@ -8,22 +8,23 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
@@ -35,11 +36,6 @@ internal enum class OcrQueueScreenCategory {
 }
 
 @Composable
-internal fun rememberOcrQueueScreenCategory(): MutableState<OcrQueueScreenCategory> {
-    return rememberSaveable { mutableStateOf(OcrQueueScreenCategory.NULL) }
-}
-
-@Composable
 private fun NavigationSubScreen(
     onSwitchScreen: (OcrQueueScreenCategory) -> Unit,
     idleCount: Int,
@@ -48,6 +44,7 @@ private fun NavigationSubScreen(
     doneWithWarningCount: Int,
     errorCount: Int,
     onSaveAllTasks: () -> Unit,
+    onStartSmartFix: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -85,7 +82,11 @@ private fun NavigationSubScreen(
             title = stringResource(R.string.ocr_queue_status_done_with_warning),
             count = doneWithWarningCount,
             tint = MaterialTheme.colorScheme.onSurface,
-        )
+        ) {
+            IconButton(onClick = { onStartSmartFix() }) {
+                Icon(Icons.Filled.Build, contentDescription = null)
+            }
+        }
 
         OcrQueueCategoryItem(
             onClick = { onSwitchScreen(OcrQueueScreenCategory.ERROR) },
@@ -101,15 +102,18 @@ private fun NavigationSubScreen(
 internal fun OcrQueueScreenCategorySubScreen(
     category: OcrQueueScreenCategory,
     onCategoryChange: (OcrQueueScreenCategory) -> Unit,
-    idleUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    processingUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    doneUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    doneWithWarningUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    errorUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    onSavePlayResult: (Int) -> Unit,
+    currentUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
+    currentUiItemsLoading: Boolean,
+    idleCount: Int,
+    processingCount: Int,
+    doneCount: Int,
+    doneWithWarningCount: Int,
+    errorCount: Int,
+    onSavePlayResult: (Long) -> Unit,
     onSaveAllTasks: () -> Unit,
-    onDeleteTask: (Int) -> Unit,
-    onEditPlayResult: (Int, PlayResult) -> Unit,
+    onStartSmartFix: () -> Unit,
+    onDeleteTask: (Long) -> Unit,
+    onEditPlayResult: (Long, PlayResult) -> Unit,
 ) {
     BackHandler(category != OcrQueueScreenCategory.NULL) {
         onCategoryChange(OcrQueueScreenCategory.NULL)
@@ -144,32 +148,23 @@ internal fun OcrQueueScreenCategorySubScreen(
         when (it) {
             OcrQueueScreenCategory.NULL -> NavigationSubScreen(
                 onSwitchScreen = { newCategory -> onCategoryChange(newCategory) },
-                idleCount = idleUiItems.size,
-                processingCount = processingUiItems.size,
-                doneCount = doneUiItems.size,
-                doneWithWarningCount = doneWithWarningUiItems.size,
-                errorCount = errorUiItems.size,
+                idleCount = idleCount,
+                processingCount = processingCount,
+                doneCount = doneCount,
+                doneWithWarningCount = doneWithWarningCount,
+                errorCount = errorCount,
                 onSaveAllTasks = onSaveAllTasks,
+                onStartSmartFix = onStartSmartFix,
             )
 
-            OcrQueueScreenCategory.IDLE -> {
-                OcrQueueListWrapper(uiItems = idleUiItems)
-            }
-
-            OcrQueueScreenCategory.PROCESSING -> {
-                OcrQueueListWrapper(uiItems = processingUiItems)
-            }
-
-            OcrQueueScreenCategory.DONE -> {
-                OcrQueueListWrapper(uiItems = doneUiItems)
-            }
-
-            OcrQueueScreenCategory.DONE_WITH_WARNING -> {
-                OcrQueueListWrapper(uiItems = doneWithWarningUiItems)
-            }
-
-            OcrQueueScreenCategory.ERROR -> {
-                OcrQueueListWrapper(uiItems = errorUiItems)
+            else -> {
+                if (currentUiItemsLoading) {
+                    Box(Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    }
+                } else {
+                    OcrQueueListWrapper(uiItems = currentUiItems)
+                }
             }
         }
     }

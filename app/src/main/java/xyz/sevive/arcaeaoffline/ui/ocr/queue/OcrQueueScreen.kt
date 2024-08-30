@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.ocr.queue
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -85,29 +86,38 @@ fun OcrQueueScreen(
 ) {
     val context = LocalContext.current
 
-    val addImagesFromFolderProcessing by viewModel.addImagesFromFolderProcessing.collectAsStateWithLifecycle()
-    val addImagesProgress by viewModel.addImagesProgress.collectAsStateWithLifecycle()
-    val addImagesProgressTotal by viewModel.addImagesProgressTotal.collectAsStateWithLifecycle()
+    val totalCount by viewModel.totalCount.collectAsStateWithLifecycle()
+    val idleCount by viewModel.idleCount.collectAsStateWithLifecycle()
+    val processingCount by viewModel.processingCount.collectAsStateWithLifecycle()
+    val doneCount by viewModel.doneCount.collectAsStateWithLifecycle()
+    val doneWithWarningCount by viewModel.doneWithWarningCount.collectAsStateWithLifecycle()
+    val errorCount by viewModel.errorCount.collectAsStateWithLifecycle()
 
-    val uiItems by viewModel.uiItems.collectAsStateWithLifecycle()
-    val idleUiItems by viewModel.idleUiItems.collectAsStateWithLifecycle()
-    val processingUiItems by viewModel.processingUiItems.collectAsStateWithLifecycle()
-    val doneUiItems by viewModel.doneUiItems.collectAsStateWithLifecycle()
-    val doneWithWarningUiItems by viewModel.doneWithWarningUiItems.collectAsStateWithLifecycle()
-    val errorUiItems by viewModel.errorUiItems.collectAsStateWithLifecycle()
+    val currentUiItems by viewModel.currentUiItems.collectAsStateWithLifecycle()
+    val currentUiItemsLoading by viewModel.currentUiItemsLoading.collectAsStateWithLifecycle()
 
     val queueRunning by viewModel.queueRunning.collectAsStateWithLifecycle()
 
-    var category by rememberOcrQueueScreenCategory()
+    val queueEnqueueCheckerProgress by viewModel.queueEnqueueCheckerProgress.collectAsStateWithLifecycle()
+
+    val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()
 
     val pickImagesLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetMultipleContents()
-    ) { uris -> viewModel.addImageFiles(uris, context) }
+    ) { uris ->
+        val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        uris.forEach { context.contentResolver.takePersistableUriPermission(it, permissionFlags) }
+        viewModel.addImageFiles(uris, context)
+    }
 
     val folderLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         uri?.let {
+            // persistent access permission to this folder
+            val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            context.contentResolver.takePersistableUriPermission(uri, permissionFlags)
+
             val folder = DocumentFile.fromTreeUri(context, uri)
             folder?.let { viewModel.addFolder(it, context) }
         }
@@ -136,32 +146,33 @@ fun OcrQueueScreen(
                 })
         },
     ) {
-        OcrQueueAddImageFilesProgressDialog(
-            addImagesFromFolderProcessing = addImagesFromFolderProcessing,
-            addImagesProgress = addImagesProgress,
-            addImagesProgressTotal = addImagesProgressTotal,
-            onStopAddImageFiles = { viewModel.stopAddImageFiles() },
-        )
+//        OcrQueueAddImageFilesProgressDialog(
+//            addImagesFromFolderProcessing = addImagesFromFolderProcessing,
+//            addImagesProgress = addImagesProgress,
+//            addImagesProgressTotal = addImagesProgressTotal,
+//            onStopAddImageFiles = { viewModel.stopAddImageFiles() },
+//        )
 
         Column {
             OcrQueueAddTaskActions(
                 onPickImages = { pickImagesLauncher.launch("image/*") },
                 onPickFolder = { folderLauncher.launch(null) },
                 enabled = !queueRunning,
+                queueEnqueueCheckerProgress = queueEnqueueCheckerProgress,
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AnimatedVisibility(visible = category != OcrQueueScreenCategory.NULL) {
-                    IconButton(onClick = { category = OcrQueueScreenCategory.NULL }) {
+                    IconButton(onClick = { viewModel.setCurrentScreenCategory(OcrQueueScreenCategory.NULL) }) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
                     }
                 }
 
                 OcrQueueProgressIndicator(
-                    total = uiItems.size,
-                    processing = processingUiItems.size,
-                    done = doneUiItems.size,
-                    error = errorUiItems.size,
+                    total = totalCount,
+                    processing = processingCount,
+                    done = doneCount,
+                    error = errorCount,
                     modifier = Modifier.weight(1f),
                 )
 
@@ -175,16 +186,19 @@ fun OcrQueueScreen(
 
             OcrQueueScreenCategorySubScreen(
                 category = category,
-                onCategoryChange = { category = it },
-                idleUiItems = idleUiItems,
-                processingUiItems = processingUiItems,
-                doneUiItems = doneUiItems,
-                doneWithWarningUiItems = doneWithWarningUiItems,
-                errorUiItems = errorUiItems,
+                onCategoryChange = { viewModel.setCurrentScreenCategory(it) },
+                idleCount = idleCount,
+                processingCount = processingCount,
+                doneCount = doneCount,
+                doneWithWarningCount = doneWithWarningCount,
+                errorCount = errorCount,
+                currentUiItems = currentUiItems,
+                currentUiItemsLoading = currentUiItemsLoading,
                 onSavePlayResult = { viewModel.saveTaskScore(it) },
                 onDeleteTask = { viewModel.deleteTask(it) },
                 onEditPlayResult = { id, pr -> viewModel.modifyTaskScore(id, pr) },
-                onSaveAllTasks = { viewModel.saveAllTaskPlayResults() }
+                onSaveAllTasks = { viewModel.saveAllTaskPlayResults() },
+                onStartSmartFix = { viewModel.startSmartFix() },
             )
         }
     }
