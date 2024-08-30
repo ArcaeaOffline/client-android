@@ -28,6 +28,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ArcaeaOffline"
         tools:targetApi="34">
+        <profileable
+            android:enabled="true"
+            android:shell="true" />
+
         <activity
             android:name=".OcrFromShareActivity"
             android:exported="true"
