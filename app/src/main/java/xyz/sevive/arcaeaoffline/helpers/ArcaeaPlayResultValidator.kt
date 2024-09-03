@@ -8,7 +8,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 object ArcaeaPlayResultValidator {
     val WARNINGS = listOf(
         ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-        ArcaeaScoreValidatePlayResultOutOfRangeWarning,
+        ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
         ArcaeaPlayResultValidatorPflOverflowWarning,
         ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
         ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
