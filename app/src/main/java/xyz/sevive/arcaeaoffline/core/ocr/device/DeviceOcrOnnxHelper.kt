@@ -34,7 +34,7 @@ object DeviceOcrOnnxHelper {
     private data class ModelInfo(
         @SerialName("image_height") val imageHeight: Long,
         @SerialName("image_width") val imageWidth: Long,
-        @SerialName("classes") val classes: List<String>,
+        @SerialName("labels") val labels: List<String>,
         @SerialName("blank_token") val blankToken: String,
         @SerialName("pad_token") val padToken: String,
     )
@@ -52,7 +52,7 @@ object DeviceOcrOnnxHelper {
 
         imageSize = Size(modelInfo.imageWidth.toDouble(), modelInfo.imageHeight.toDouble())
         imageShape = longArrayOf(modelInfo.imageHeight, modelInfo.imageWidth, 3L)
-        labels = modelInfo.classes.toList()  // make a copy
+        labels = modelInfo.labels.toList()  // make a copy
         blankToken = modelInfo.blankToken
         padToken = modelInfo.padToken
     }
