@@ -46,6 +46,7 @@ class ImageHashesDatabaseBuilderJob(context: Context, params: WorkerParameters) 
 
                 arcaeaPackageHelper.fillHashesDatabaseBuilderTasks(builder)
                 builder.build(hashSize = 16, highFreqFactor = 4)
+                arcaeaPackageHelper.buildHashesDatabaseCleanUp()
             }
 
             return Result.success()

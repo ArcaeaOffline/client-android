@@ -16,15 +16,6 @@ object OcrDependencyLoader {
 
     fun kNearestModel(context: Context) = kNearestModel(OcrDependencyPaths(context))
 
-    fun pHashDatabase(file: File): ImagePhashDatabase {
-        return ImagePhashDatabase(file.absolutePath)
-    }
-
-    fun pHashDatabase(ocrDependencyPaths: OcrDependencyPaths) =
-        pHashDatabase(ocrDependencyPaths.phashDatabaseFile)
-
-    fun pHashDatabase(context: Context) = pHashDatabase(OcrDependencyPaths(context))
-
     fun imageHashesSQLiteDatabase(file: File): SQLiteDatabase {
         return SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
     }

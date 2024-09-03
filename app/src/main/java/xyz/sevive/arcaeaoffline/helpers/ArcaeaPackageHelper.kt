@@ -15,7 +15,6 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashItemType
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import java.io.File
 import java.util.zip.ZipEntry
@@ -39,8 +38,6 @@ class ArcaeaPackageHelper(context: Context) {
     // debug only
     // val jacketsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/jackets")
     // val partnerIconsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/partner_icons")
-
-    val tempPhashDatabaseFile = File(context.cacheDir, TEMP_PHASH_DATABASE_FILENAME)
 
     private fun getPackageInfo(): PackageInfo? {
         return try {
@@ -241,45 +238,9 @@ class ArcaeaPackageHelper(context: Context) {
         extractAssetBase(outputMapping)
     }
 
-    private fun buildPhashDatabaseCleanUp() {
+    fun buildHashesDatabaseCleanUp() {
         if (jacketsCacheDir.exists()) FileUtils.cleanDirectory(jacketsCacheDir)
         if (partnerIconsCacheDir.exists()) FileUtils.cleanDirectory(partnerIconsCacheDir)
-    }
-
-    suspend fun buildPhashDatabase(
-        progressCallback: (progress: Int, total: Int) -> Unit = { _, _ -> }
-    ) {
-        buildPhashDatabaseCleanUp()
-        if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
-        tempPhashDatabaseFile.parentFile?.mkdirs()
-
-        try {
-            extractJackets()
-            extractPartnerIcons()
-
-            val mats = mutableListOf<Mat>()
-            val labels = mutableListOf<String>()
-
-            jacketsCacheDir.listFiles()?.forEach {
-                mats.add(Imgcodecs.imread(it.path, Imgcodecs.IMREAD_GRAYSCALE))
-                labels.add(FilenameUtils.getBaseName(it.name).replace(JACKET_RENAME_REGEX, ""))
-            }
-
-            partnerIconsCacheDir.listFiles()?.forEach {
-                val mat = Imgcodecs.imread(it.path, Imgcodecs.IMREAD_GRAYSCALE)
-                mats.add(DeviceOcr.preprocessPartnerIcon(mat))
-                labels.add("partner_icon||${FilenameUtils.getBaseName(it.name)}")
-            }
-
-            ImagePhashDatabase.build(
-                tempPhashDatabaseFile,
-                mats,
-                labels,
-                progressCallback = progressCallback,
-            )
-        } finally {
-            buildPhashDatabaseCleanUp()
-        }
     }
 
     private fun jacketFileToGrayscaleImage(file: File): Mat {
@@ -297,9 +258,7 @@ class ArcaeaPackageHelper(context: Context) {
     }
 
     suspend fun fillHashesDatabaseBuilderTasks(builder: ImageHashesDatabaseBuilder) {
-        buildPhashDatabaseCleanUp()
-        if (tempPhashDatabaseFile.exists()) tempPhashDatabaseFile.delete()
-        tempPhashDatabaseFile.parentFile?.mkdirs()
+        buildHashesDatabaseCleanUp()
 
         extractJackets()
         jacketsCacheDir.listFiles()?.forEach {
@@ -335,7 +294,5 @@ class ArcaeaPackageHelper(context: Context) {
         val JACKET_RENAME_REGEX = """_.*$""".toRegex()
 
         val PARTNER_ICON_FILENAME_REGEX = """^\d+u?_icon\.(jpg|png)$""".toRegex()
-
-        const val TEMP_PHASH_DATABASE_FILENAME = "phash_temp.db"
     }
 }

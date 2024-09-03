@@ -17,7 +17,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashItem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.getMostConfidentItem
@@ -80,8 +79,7 @@ fun DeviceOcrResult.toPlayResult(
 class DeviceOcr(
     private val extractor: DeviceRoisExtractor,
     private val masker: DeviceRoisMasker,
-    private val knnModel: KNearest,
-    private val phashDb: ImagePhashDatabase,
+    private val kNearestModel: KNearest,
     private val ortSession: OrtSession,
     private val hashesDb: ImageHashesDatabase,
 ) {
@@ -141,7 +139,7 @@ class DeviceOcr(
         val digitRois =
             filteredRects.map { rect -> resizeFillSquare(roiOcr.submat(rect).clone(), 20) }
         val samples = preprocessHog(digitRois)
-        return ocrDigitSamplesKnn(samples, this.knnModel)
+        return ocrDigitSamplesKnn(samples, this.kNearestModel)
     }
 
     fun pure() = pfl(masker.pure(extractor.pure))
@@ -159,7 +157,7 @@ class DeviceOcr(
                 Imgproc.fillPoly(roi, listOf(contour), Scalar(0.0))
             }
         }
-        return ocrDigitsByContourKnn(roi, knnModel)
+        return ocrDigitsByContourKnn(roi, kNearestModel)
     }
 
     fun ratingClass(): ArcaeaRatingClass {
@@ -174,7 +172,8 @@ class DeviceOcr(
         return ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
     }
 
-    fun maxRecall(): Int = ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), knnModel)
+    fun maxRecall(): Int =
+        ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), kNearestModel)
 
     private fun clearStatus(): Int {
         val roi = extractor.clearStatus

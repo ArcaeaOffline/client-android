@@ -16,7 +16,6 @@ import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
@@ -35,8 +34,7 @@ object DeviceOcrHelper {
     fun ocrImage(
         imageUri: Uri,
         context: Context,
-        knnModel: KNearest,
-        phashDatabase: ImagePhashDatabase,
+        kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
@@ -67,8 +65,7 @@ object DeviceOcrHelper {
         return DeviceOcr(
             extractor = extractor,
             masker = masker,
-            knnModel = knnModel,
-            phashDb = phashDatabase,
+            kNearestModel = kNearestModel,
             ortSession = ortSession,
             hashesDb = imageHashesDatabase,
         ).ocr()

@@ -181,7 +181,6 @@ class OcrFromShareViewModel(
         withContext(Dispatchers.IO) {
             try {
                 val kNearestModel = OcrDependencyLoader.kNearestModel(context)
-                val phashDatabase = OcrDependencyLoader.pHashDatabase(context)
                 val imageHashesSQLiteDatabase =
                     OcrDependencyLoader.imageHashesSQLiteDatabase(context)
 
@@ -191,7 +190,6 @@ class OcrFromShareViewModel(
                         imageUri,
                         context,
                         kNearestModel,
-                        phashDatabase,
                         imageHashesDatabase,
                         ortSession = ortSession
                     )

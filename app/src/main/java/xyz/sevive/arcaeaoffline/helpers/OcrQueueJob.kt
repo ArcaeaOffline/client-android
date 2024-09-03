@@ -30,7 +30,6 @@ import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
@@ -178,7 +177,6 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
         chartInfoRepo: ChartInfoRepository,
         ortSession: OrtSession,
         kNearestModel: KNearest,
-        imagePhashDatabase: ImagePhashDatabase,
         imageHashesDatabase: ImageHashesDatabase,
     ) {
         @Suppress("NAME_SHADOWING") var task = task.copy()
@@ -194,7 +192,6 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
                     uri,
                     applicationContext,
                     kNearestModel,
-                    imagePhashDatabase,
                     imageHashesDatabase,
                     ortSession = ortSession
                 )
@@ -234,7 +231,6 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
         DeviceOcrOnnxHelper.createOrtSession(applicationContext).use { ortSession ->
             OcrDependencyLoader.imageHashesSQLiteDatabase(applicationContext).use { sqliteDb ->
                 val kNearestModel = OcrDependencyLoader.kNearestModel(applicationContext)
-                val imagePhashDatabase = OcrDependencyLoader.pHashDatabase(applicationContext)
                 val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
 
                 queue.start(tasks) {
@@ -244,7 +240,6 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
                         chartInfoRepo,
                         ortSession,
                         kNearestModel,
-                        imagePhashDatabase,
                         imageHashesDatabase
                     )
 
