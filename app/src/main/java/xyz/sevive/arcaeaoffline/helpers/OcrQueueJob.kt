@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -150,9 +151,12 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
 
             return Result.success()
         } catch (e: CancellationException) {
-            queue.stop()
+            // I've never observed this idiot catch block being called
+            // wtf bro
+            Log.i(LOG_TAG, "Cancel request received. Attempting to stop queue...")
+            Log.wtf(LOG_TAG, "but wait how did you get here???")
+            queueScope.cancel()
 
-            // TODO: Move cancellation handling to processTask()?
             withContext(NonCancellable) {
                 async(Dispatchers.IO) {
                     repo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
@@ -179,6 +183,8 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
         kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
     ) {
+        if (isStopped) return
+
         @Suppress("NAME_SHADOWING") var task = task.copy()
         task = task.copy(status = OcrQueueTaskStatus.PROCESSING)
         taskRepo.update(task)
@@ -240,20 +246,18 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
                         chartInfoRepo,
                         ortSession,
                         kNearestModel,
-                        imageHashesDatabase
+                        imageHashesDatabase,
                     )
-
-                    setForeground(createForegroundInfo())
                 }
             }
         }
     }
 
     private suspend fun runNormal() {
-        val tasks = repo.findAll().firstOrNull() ?: return
-        processTasks(tasks.filter {
-            it.status == OcrQueueTaskStatus.IDLE || it.status == OcrQueueTaskStatus.ERROR
-        })
+        val tasks = repo.findByStatus(
+            OcrQueueTaskStatus.IDLE, OcrQueueTaskStatus.PROCESSING, OcrQueueTaskStatus.ERROR
+        ).firstOrNull() ?: return
+        processTasks(tasks)
     }
 
     private suspend fun runAll() {
