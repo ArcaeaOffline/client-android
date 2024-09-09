@@ -48,6 +48,7 @@ fun OcrDependenciesScreen(
     val crnnModelUiState by viewModel.crnnModelUiState.collectAsStateWithLifecycle()
 
     val buildHashesDatabaseArcaeaButtonState by GlobalArcaeaButtonStateHelper.buildHashesDatabaseButtonState.collectAsStateWithLifecycle()
+    val buildHashesDatabaseButtonEnabled by viewModel.buildHashesDatabaseButtonEnabled.collectAsStateWithLifecycle()
 
     val kNearestModelFileChooserLauncher = rememberFileChooserLauncher { uri ->
         uri?.let { viewModel.importKNearestModel(it, context) }
@@ -93,11 +94,10 @@ fun OcrDependenciesScreen(
 
                         ArcaeaButton(
                             onClick = {
-                                if (buildHashesDatabaseArcaeaButtonState == ArcaeaButtonState.NORMAL) viewModel.requestImageHashesDatabaseBuild(
-                                    context
-                                )
+                                if (buildHashesDatabaseArcaeaButtonState == ArcaeaButtonState.NORMAL) viewModel.requestImageHashesDatabaseBuild()
                             },
                             state = buildHashesDatabaseArcaeaButtonState,
+                            enabled = buildHashesDatabaseButtonEnabled,
                         ) {
                             Text(stringResource(R.string.general_import_from_arcaea))
                         }

@@ -11,12 +11,11 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
@@ -33,7 +32,6 @@ import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
-import java.util.UUID
 
 class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : ViewModel() {
     companion object {
@@ -42,19 +40,37 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         private const val LOG_TAG = "OcrDependenciesScreenVM"
     }
 
+    private val workManager = WorkManager.getInstance(application)
+
     private val _kNearestModelStatusUiState =
         MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
     val kNearestModelUiState = _kNearestModelStatusUiState.asStateFlow()
 
-    private val _imagesHashesDatabaseBuildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
+    private val imageHashesDatabaseBuilderJobInfo =
+        workManager.getWorkInfosForUniqueWorkFlow(ImageHashesDatabaseBuilderJob.NAME)
+            .map { it.firstOrNull() }
+            .stateIn(viewModelScope, sharingStarted, null)
+
+    val buildHashesDatabaseButtonEnabled = imageHashesDatabaseBuilderJobInfo.map {
+        val disabled = it != null && !it.state.isFinished
+        return@map !disabled
+    }.stateIn(viewModelScope, sharingStarted, true)
+
+    private val _imagesHashesDatabaseBuildProgress = imageHashesDatabaseBuilderJobInfo.map {
+        if (it == null) return@map null
+
+        val progress = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS, -1)
+        val total = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS_TOTAL, -1)
+
+        if (progress == -1) null else progress to total
+    }.stateIn(viewModelScope, sharingStarted, null)
+
     private val _imagesHashesDatabaseStatusDetail =
         MutableStateFlow(ImageHashesDatabaseStatusDetail())
     val imageHashesDatabaseUiState =
         _imagesHashesDatabaseBuildProgress.combine(_imagesHashesDatabaseStatusDetail) { p, s ->
             OcrDependencyImageHashesDatabaseStatusUiState(progress = p, statusDetail = s)
         }.stateIn(viewModelScope, sharingStarted, OcrDependencyImageHashesDatabaseStatusUiState())
-
-    private var imageHashesDatabaseBuilderJobProgressListener: Job? = null
 
     private val _crnnModelUiState = MutableStateFlow(OcrDependencyCrnnModelStatusUiState())
     val crnnModelUiState = _crnnModelUiState.asStateFlow()
@@ -71,7 +87,7 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         return result
     }
 
-    private fun isFileToLarge(
+    private fun isFileTooLarge(
         uri: Uri, context: Context, limit: Long = 20 * 1024 * 1024, logName: String? = null
     ): Boolean {
         val fileSize = context.getFileSize(uri) ?: return false
@@ -91,7 +107,7 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         if (!mkOcrDependencyParentDirs(paths)) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (isFileToLarge(uri, context, logName = "KNearest")) return@launch
+            if (isFileTooLarge(uri, context, logName = "KNearest")) return@launch
 
             val cacheFile = context.copyToCache(uri, "knearest_model_import_temp") ?: return@launch
             try {
@@ -112,7 +128,7 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         if (!mkOcrDependencyParentDirs(paths)) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (isFileToLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
+            if (isFileTooLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
 
             val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
             try {
@@ -150,36 +166,13 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         }
     }
 
-    private fun startImageHashesDatabaseBuilderJobProgressListener(context: Context, workId: UUID) {
-        imageHashesDatabaseBuilderJobProgressListener?.cancel()
-        imageHashesDatabaseBuilderJobProgressListener = viewModelScope.launch {
-            WorkManager.getInstance(context).getWorkInfoByIdFlow(workId).collect {
-                val info = it ?: return@collect
-
-                val progress = info.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS, -1)
-                val total =
-                    info.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS_TOTAL, -1)
-
-                _imagesHashesDatabaseBuildProgress.value =
-                    if (progress == -1) null else progress to total
-
-                if (info.state.isFinished) {
-                    _imagesHashesDatabaseBuildProgress.value = null
-                    reloadImageHashesDatabaseStatusDetailUiState(context)
-                    this.cancel()
-                }
-            }
-        }
-    }
-
-    fun requestImageHashesDatabaseBuild(context: Context) {
+    fun requestImageHashesDatabaseBuild() {
         viewModelScope.launch {
             val workRequest = OneTimeWorkRequestBuilder<ImageHashesDatabaseBuilderJob>().build()
 
-            WorkManager.getInstance(context).enqueueUniqueWork(
+            workManager.enqueueUniqueWork(
                 ImageHashesDatabaseBuilderJob.NAME, ExistingWorkPolicy.REPLACE, workRequest
             )
-            startImageHashesDatabaseBuilderJobProgressListener(context, workRequest.id)
         }
     }
 
