@@ -155,6 +155,14 @@ fun EmergencyModeActivityUi(
                             Text(stringResource(R.string.emergency_mode_ocr_delete_all_dependencies_button))
                         }
                     }
+
+                    Button(onClick = { viewModel.deleteOcrQueueDatabase(context) }) {
+                        IconRow(icon = {
+                            Icon(Icons.Default.DeleteForever, contentDescription = null)
+                        }) {
+                            Text(stringResource(R.string.emergency_mode_delete_ocr_queue_db_button))
+                        }
+                    }
                 }
             }
 

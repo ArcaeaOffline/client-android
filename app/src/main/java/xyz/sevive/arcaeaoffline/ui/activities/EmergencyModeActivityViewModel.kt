@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
 
 
@@ -79,23 +79,39 @@ class EmergencyModeActivityViewModel(
         paths.phashDatabaseFile.delete()
     }
 
-    fun copyDatabase(context: Context) {
-        val originalDatabaseFile = context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_NAME)
-        var outputFile: DocumentFile? = null
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
-                val backupFile =
-                    outputDirectory.value?.createFile("application/octet-stream", backupFileName)
-                        ?: return@withContext
+    fun deleteOcrQueueDatabase(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            launch {
+                context.deleteDatabase(OcrQueueDatabase.DATABASE_FILENAME)
+            }.invokeOnCompletion {
+                launch(Dispatchers.Main) {
+                    val message = if (it == null) {
+                        context.getString(R.string.general_delete)
+                    } else {
+                        it::class.simpleName ?: "ERROR"
+                    }
 
-                val backupFileStream =
-                    context.contentResolver.openOutputStream(backupFile.uri) ?: return@withContext
-
-                backupFileStream.use { IOUtils.copy(originalDatabaseFile.inputStream(), it) }
-
-                outputFile = backupFile
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
             }
+        }
+    }
+
+    fun copyDatabase(context: Context) {
+        val originalDatabaseFile = context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
+        var outputFile: DocumentFile? = null
+        viewModelScope.launch(Dispatchers.IO) {
+            val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
+            val backupFile =
+                outputDirectory.value?.createFile("application/octet-stream", backupFileName)
+                    ?: return@launch
+
+            val backupFileStream =
+                context.contentResolver.openOutputStream(backupFile.uri) ?: return@launch
+
+            backupFileStream.use { IOUtils.copy(originalDatabaseFile.inputStream(), it) }
+
+            outputFile = backupFile
         }.invokeOnCompletion {
             outputFile?.let {
                 val fileSizeReadable = Formatter.formatShortFileSize(context, it.length())

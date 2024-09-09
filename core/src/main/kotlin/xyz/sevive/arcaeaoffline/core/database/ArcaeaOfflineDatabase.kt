@@ -95,7 +95,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun playResultBestDao(): PlayResultBestDao
 
     companion object {
-        const val DATABASE_NAME = "arcaea_offline.db"
+        const val DATABASE_FILENAME = "arcaea_offline.db"
 
         @Volatile
         private var Instance: ArcaeaOfflineDatabase? = null
@@ -104,12 +104,12 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(
-                    context, ArcaeaOfflineDatabase::class.java, DATABASE_NAME
+                    context, ArcaeaOfflineDatabase::class.java, DATABASE_FILENAME
                 ).openHelperFactory { configuration ->
                     // Custom Functions on Android SQLite with Room
                     // https://medium.com/@adarshsharma1904/custom-functions-on-android-sqlite-with-room-e79b53c4c924
                     val config = SQLiteDatabaseConfiguration(
-                        context.getDatabasePath(DATABASE_NAME).path,
+                        context.getDatabasePath(DATABASE_FILENAME).path,
                         SQLiteDatabase.OPEN_CREATE or SQLiteDatabase.OPEN_READWRITE
                     )
 

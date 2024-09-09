@@ -38,13 +38,15 @@ abstract class OcrQueueDatabase : RoomDatabase() {
     abstract fun ocrQueueEnqueueBufferDao(): OcrQueueEnqueueBufferDao
 
     companion object {
+        const val DATABASE_FILENAME = "ocr-queue.db"
+
         @Volatile
         private var instance: OcrQueueDatabase? = null
 
         fun getDatabase(context: Context): OcrQueueDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return instance ?: synchronized(this) {
-                Room.databaseBuilder(context, OcrQueueDatabase::class.java, "ocr-queue.db")
+                Room.databaseBuilder(context, OcrQueueDatabase::class.java, DATABASE_FILENAME)
                     .openHelperFactory(RequerySQLiteOpenHelperFactory()).build()
                     .also { instance = it }
             }
