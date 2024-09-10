@@ -23,9 +23,9 @@ import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
 import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers.St3PlayResultImporter
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
+import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -208,14 +208,9 @@ class DatabaseManageViewModel(
     }
 
     suspend fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
-        val inputStream = context.contentResolver.openInputStream(fileUri) ?: return
         withAction {
-            val databaseCopied = File(context.cacheDir, "chart_info_database_copy.db")
-            if (databaseCopied.exists()) databaseCopied.delete()
-
-            inputStream.use {
-                IOUtils.copy(it, databaseCopied.outputStream())
-            }
+            val databaseCopied =
+                context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@withAction
 
             val chartInfoList = mutableListOf<ChartInfo>()
             SQLiteDatabase.openDatabase(
@@ -277,14 +272,7 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importSt3Suspend(fileUri: Uri, context: Context): Int? {
-        val cacheDir = context.externalCacheDir ?: context.cacheDir
-        if (!cacheDir.exists()) cacheDir.mkdirs()
-
-        val inputStream = context.contentResolver.openInputStream(fileUri) ?: return null
-        val dbCacheFile = File(cacheDir, "st3-import-temp")
-        if (dbCacheFile.exists()) dbCacheFile.delete()
-
-        inputStream.use { IOUtils.copy(it, dbCacheFile.outputStream()) }
+        val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return null
 
         val db = SQLiteDatabase.openDatabase(
             dbCacheFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY

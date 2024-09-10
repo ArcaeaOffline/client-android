@@ -34,7 +34,7 @@ fun Context.getFilename(uri: Uri): String? = when (uri.scheme) {
 }
 
 fun Context.copyToCache(uri: Uri, filename: String): File? = runCatching {
-    val cacheFile = this.cacheDir.resolve(filename)
+    val cacheFile = (this.externalCacheDir ?: this.cacheDir).resolve(filename)
     val inputStream = this.contentResolver.openInputStream(uri) ?: return null
     inputStream.use { IOUtils.copy(it, cacheFile.outputStream()) }
     return cacheFile
