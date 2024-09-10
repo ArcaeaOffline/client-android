@@ -2,11 +2,8 @@ package xyz.sevive.arcaeaoffline.core.ocr
 
 import ai.onnxruntime.OnnxModelMetadata
 import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
 
@@ -74,12 +71,7 @@ data class ImageHashesDatabaseStatusDetail(
         val parts = mutableListOf<String>()
         jacketCount?.let { parts.add("J$it") } ?: parts.add("Jx")
         partnerIconCount?.let { parts.add("PI$it") } ?: parts.add("PIx")
-        builtTime?.let {
-            parts.add(
-                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                    .format(LocalDateTime.ofInstant(builtTime, ZoneId.systemDefault()))
-            )
-        }
+        builtTime?.let { parts.add(builtTime.formatAsLocalizedDateTime()) }
 
         return parts.joinToString(", ")
     }
@@ -105,10 +97,7 @@ data class CrnnModelStatusDetail(
 
     private val builtTimestampRaw get() = modelMetadata?.customMetadata?.get("built_timestamp")
     private val builtTimestamp = builtTimestampRaw?.let { Instant.ofEpochSecond(it.toLong()) }
-    private val builtTimestampReadable = builtTimestamp?.let {
-        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-            .format(LocalDateTime.ofInstant(it, ZoneId.systemDefault()))
-    }
+    private val builtTimestampReadable = builtTimestamp?.formatAsLocalizedDateTime()
 
     override fun summary(): String? {
         if (absence) return null

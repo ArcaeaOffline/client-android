@@ -7,8 +7,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.WorkManager
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
@@ -23,7 +21,6 @@ import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.dependencies.OcrDependenciesScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
-import java.util.Locale
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -73,9 +70,7 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseR30ListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    .withZone(ZoneId.systemDefault())
+                application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }
 

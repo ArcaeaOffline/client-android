@@ -46,16 +46,13 @@ import com.cheonjaeung.compose.grid.SimpleGridCells
 import com.cheonjaeung.compose.grid.VerticalGrid
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
@@ -110,13 +107,7 @@ fun ArcaeaPlayResultCard(
         playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
             .reversed()
     }
-    val dateText = remember(playResult.date) {
-        playResult.date?.let {
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
-                LocalDateTime.ofInstant(it, ZoneId.systemDefault())
-            )
-        }
-    }
+    val dateText = remember(playResult.date) { playResult.date?.formatAsLocalizedDateTime() }
     val clearTypeText = remember(playResult.clearType) { playResult.clearType?.toDisplayString() }
     val modifierText = remember(playResult.modifier) { playResult.modifier?.toDisplayString() }
 

@@ -90,11 +90,10 @@ fun PermissionRequiredDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 Text(
-                    String.format(
-                        pluralStringResource(
-                            R.plurals.permission_required_dialog_content,
-                            permissions.size,
-                        ), functionName.toString()
+                    pluralStringResource(
+                        R.plurals.permission_required_dialog_content,
+                        permissions.size,
+                        functionName.toString()
                     )
                 )
 

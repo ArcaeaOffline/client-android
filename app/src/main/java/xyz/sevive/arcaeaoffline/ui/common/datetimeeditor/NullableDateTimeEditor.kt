@@ -34,16 +34,13 @@ internal fun NullableDateTimeEditor(
     onDateChange: (LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val dateTimeFormatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
     val editable = date != null
 
     DisableSelection {
         TextField(
-            value = if (date != null) date.format(
-                DateTimeFormatter.ofLocalizedDateTime(
-                    FormatStyle.MEDIUM
-                )
-            ) else "",
+            value = date?.format(dateTimeFormatter) ?: "",
             onValueChange = {},
             modifier = modifier.clickable(editable) { showPicker = true },
             readOnly = true,

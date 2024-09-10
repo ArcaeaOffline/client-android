@@ -10,18 +10,17 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
-import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 
 class DatabaseR30ListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    private val dateTimeFormatter: DateTimeFormatter,
 ) : ViewModel() {
     private val r30EntryRepo = repositoryContainer.r30EntryRepo
 
@@ -74,8 +73,7 @@ class DatabaseR30ListViewModel(
         }.sortedByDescending { it.potential }.mapIndexed { i, uiItem -> uiItem.copy(index = i) }
 
         val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
-        val lastUpdatedAtText =
-            if (lastUpdatedAt != null) dateTimeFormatter.format(lastUpdatedAt) else "-"
+        val lastUpdatedAtText = lastUpdatedAt?.formatAsLocalizedDateTime() ?: "-"
 
         emit(
             UiState(

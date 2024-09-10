@@ -208,11 +208,10 @@ fun DatabasePlayResultListScreen(
             icon = { Icon(Icons.Default.DeleteForever, null) },
             text = {
                 Text(
-                    String.format(
-                        pluralStringResource(
-                            R.plurals.database_play_result_list_delete_confirm_dialog_content,
-                            selectedItemsCount
-                        ), selectedItemsCount
+                    pluralStringResource(
+                        R.plurals.database_play_result_list_delete_confirm_dialog_content,
+                        selectedItemsCount,
+                        selectedItemsCount
                     )
                 )
             },

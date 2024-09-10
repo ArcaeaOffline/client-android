@@ -4,14 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import java.util.UUID
 
 
@@ -53,13 +50,7 @@ data class OcrHistory(
                 "" -> {
                     val stringArr = mutableListOf("From OCR cache")
                     if (sourcePackageName != null) stringArr.add("source `$sourcePackageName`")
-                    stringArr.add(
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
-                            LocalDateTime.ofInstant(
-                                Instant.ofEpochSecond(storeDate), ZoneId.systemDefault()
-                            )
-                        )
-                    )
+                    stringArr.add(Instant.ofEpochSecond(storeDate).formatAsLocalizedDateTime())
 
                     stringArr.joinToString(", ")
                 }

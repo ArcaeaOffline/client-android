@@ -237,9 +237,7 @@ internal fun PlayResultEditorDateTimeField(
         modifier = modifier,
     ) {
         NullableDateTimeEditor(
-            date = if (instant != null) LocalDateTime.ofInstant(
-                instant, ZoneId.systemDefault()
-            ) else null,
+            date = instant?.let { LocalDateTime.ofInstant(it, ZoneId.systemDefault()) },
             onDateChange = {
                 onInstantChange(it.toInstant(ZoneId.systemDefault().rules.getOffset(it)))
             },

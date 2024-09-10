@@ -36,6 +36,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -222,7 +223,7 @@ internal fun DateTimeEditDialog(
     onDismiss: () -> Unit,
     onConfirm: (LocalDateTime) -> Unit,
 ) {
-    val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = (date?.toEpochSecond(ZoneOffset.UTC) ?: LocalDateTime.now()
@@ -234,15 +235,19 @@ internal fun DateTimeEditDialog(
         initialMinute = date?.minute ?: 0,
     )
 
-    val pickerStateToLocalDateTime = fun(): LocalDateTime {
-        return dateTimePickerStateToLocalDateTime(datePickerState, timePickerState)
+    val pickerStateToLocalDateTime = remember {
+        fun(): LocalDateTime {
+            return dateTimePickerStateToLocalDateTime(datePickerState, timePickerState)
+        }
     }
 
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     val widthSizeClass =
         LocalContext.current.findActivity()?.calculateWindowSizeClass()?.widthSizeClass
-    val expanded = widthSizeClass != null && widthSizeClass >= WindowWidthSizeClass.Expanded
+    val expanded = remember(widthSizeClass) {
+        widthSizeClass != null && widthSizeClass >= WindowWidthSizeClass.Expanded
+    }
 
     Dialog(
         onDismissRequest = { onDismiss() },
