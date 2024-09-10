@@ -12,15 +12,15 @@ import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabaseAddPlayResultViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabaseNavEntryViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabasePlayResultListViewModel
-import xyz.sevive.arcaeaoffline.ui.database.DatabaseR30ListViewModel
-import xyz.sevive.arcaeaoffline.ui.database.b30list.DatabaseB30ListViewModel
-import xyz.sevive.arcaeaoffline.ui.database.manage.DatabaseManageViewModel
-import xyz.sevive.arcaeaoffline.ui.ocr.dependencies.OcrDependenciesScreenViewModel
-import xyz.sevive.arcaeaoffline.ui.ocr.queue.OcrQueueScreenViewModel
-import xyz.sevive.arcaeaoffline.ui.overview.OverviewViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseAddPlayResultViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.DatabasePlayResultListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseR30ListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
