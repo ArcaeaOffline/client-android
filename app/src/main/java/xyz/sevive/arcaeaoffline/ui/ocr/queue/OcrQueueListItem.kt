@@ -43,7 +43,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.Dialog
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
@@ -51,7 +51,10 @@ import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetails
 
 @Composable
-fun OcrQueueItemImagePreview(uiItem: OcrQueueTaskUiItem, onDismissRequest: () -> Unit) {
+private fun OcrQueueListItemImagePreviewDialog(
+    uiItem: OcrQueueScreenViewModel.TaskUiItem,
+    onDismissRequest: () -> Unit
+) {
     val context = LocalContext.current
 
     val filename = context.getFilename(uiItem.fileUri) ?: "-"
@@ -73,7 +76,7 @@ fun OcrQueueItemImagePreview(uiItem: OcrQueueTaskUiItem, onDismissRequest: () ->
 }
 
 @Composable
-fun OcrQueueItemStatus(status: OcrQueueTaskStatus) {
+private fun OcrQueueListItemStatus(status: OcrQueueTaskStatus) {
     when (status) {
         OcrQueueTaskStatus.IDLE -> Icon(
             Icons.Default.HistoryToggleOff,
@@ -100,10 +103,9 @@ fun OcrQueueItemStatus(status: OcrQueueTaskStatus) {
 }
 
 @Composable
-fun OcrQueueItemHeader(
-    uiItem: OcrQueueTaskUiItem,
+private fun OcrQueueListItemHeader(
+    uiItem: OcrQueueScreenViewModel.TaskUiItem,
     onDeleteTask: () -> Unit,
-    deleteEnabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -129,11 +131,10 @@ fun OcrQueueItemHeader(
 
         Spacer(Modifier.weight(0.1f))
 
-        OcrQueueItemStatus(uiItem.status)
+        OcrQueueListItemStatus(uiItem.status)
 
         IconButton(
             onClick = onDeleteTask,
-            enabled = deleteEnabled,
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = MaterialTheme.colorScheme.error
             ),
@@ -148,8 +149,8 @@ fun OcrQueueItemHeader(
 
 
 @Composable
-fun OcrQueueItemScore(
-    uiItem: OcrQueueTaskUiItem,
+private fun OcrQueueListItemPlayResult(
+    uiItem: OcrQueueScreenViewModel.TaskUiItem,
     onShowEditDialog: () -> Unit,
     onSaveScore: () -> Unit,
     modifier: Modifier = Modifier,
@@ -201,35 +202,33 @@ fun OcrQueueItemScore(
 }
 
 @Composable
-fun OcrQueueItem(
-    uiItem: OcrQueueTaskUiItem,
-    onDeleteTask: (Int) -> Unit,
-    deleteEnabled: Boolean = true,
-    onEditScore: (Int, PlayResult) -> Unit,
-    onSaveScore: (Int) -> Unit,
+internal fun OcrQueueListItem(
+    uiItem: OcrQueueScreenViewModel.TaskUiItem,
+    onDeleteTask: (Long) -> Unit,
+    onEditPlayResult: (Long, PlayResult) -> Unit,
+    onSavePlayResult: (Long) -> Unit,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
-    var showScoreEditor by rememberSaveable { mutableStateOf(false) }
+    var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }
 
     if (showImagePreview) {
-        OcrQueueItemImagePreview(uiItem, onDismissRequest = { showImagePreview = false })
+        OcrQueueListItemImagePreviewDialog(uiItem, onDismissRequest = { showImagePreview = false })
     }
 
-    val score = uiItem.playResult
-    if (showScoreEditor && score != null) {
+    val playResult = uiItem.playResult
+    if (showPlayResultEditor && playResult != null) {
         PlayResultEditorDialog(
-            onDismiss = { showScoreEditor = false },
-            playResult = score,
-            onPlayResultChange = { onEditScore(uiItem.id, it) },
+            onDismiss = { showPlayResultEditor = false },
+            playResult = playResult,
+            onPlayResultChange = { onEditPlayResult(uiItem.id, it) },
         )
     }
 
     OutlinedCard {
         Card(onClick = { showImagePreview = true }) {
-            OcrQueueItemHeader(
+            OcrQueueListItemHeader(
                 uiItem = uiItem,
                 onDeleteTask = { onDeleteTask(uiItem.id) },
-                deleteEnabled = deleteEnabled,
                 modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
             )
         }
@@ -238,10 +237,10 @@ fun OcrQueueItem(
             val contentModifier = Modifier.padding(dimensionResource(R.dimen.card_padding))
 
             when (uiItem.status) {
-                OcrQueueTaskStatus.DONE -> OcrQueueItemScore(
+                OcrQueueTaskStatus.DONE -> OcrQueueListItemPlayResult(
                     uiItem = uiItem,
-                    onShowEditDialog = { showScoreEditor = true },
-                    onSaveScore = { onSaveScore(uiItem.id) },
+                    onShowEditDialog = { showPlayResultEditor = true },
+                    onSaveScore = { onSavePlayResult(uiItem.id) },
                     modifier = contentModifier,
                 )
 

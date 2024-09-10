@@ -58,10 +58,6 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsOcrDependencies(settingsViewModel)
-            }
-
-            item {
                 ActionButton(
                     onClick = {
                         context.startActivity(Intent(context, EmergencyModeActivity::class.java))

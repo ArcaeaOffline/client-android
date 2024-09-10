@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.helpers
 
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
@@ -14,7 +15,7 @@ import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
@@ -25,8 +26,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.toScore
-import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import java.io.FileNotFoundException
 
@@ -34,11 +34,10 @@ object DeviceOcrHelper {
     fun ocrImage(
         imageUri: Uri,
         context: Context,
-        customKnnModel: KNearest? = null,
-        customPhashDatabase: ImagePhashDatabase? = null,
+        kNearestModel: KNearest,
+        imageHashesDatabase: ImageHashesDatabase,
+        ortSession: OrtSession,
     ): DeviceOcrResult {
-        val ocrDependencyPaths = OcrDependencyPaths(context)
-
         val inputStream = context.contentResolver.openInputStream(imageUri)
             ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
 
@@ -62,28 +61,25 @@ object DeviceOcrHelper {
             DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
             else -> DeviceRoisMaskerAutoT2()
         }
-        val knnModel = customKnnModel ?: KNearest.load(ocrDependencyPaths.knnModelFile.path)
-        val phashDatabase =
-            customPhashDatabase ?: ImagePhashDatabase(ocrDependencyPaths.phashDatabaseFile.path)
 
-        val ocr = DeviceOcr(extractor, masker, knnModel, phashDatabase)
-        return ocr.ocr()
+        return DeviceOcr(
+            extractor = extractor,
+            masker = masker,
+            kNearestModel = kNearestModel,
+            ortSession = ortSession,
+            hashesDb = imageHashesDatabase,
+        ).ocr()
     }
 
-    fun ocrResultToScore(
+    fun readImageDateFromExif(
         imageUri: Uri,
         context: Context,
-        ocrResult: DeviceOcrResult,
         fallbackDate: Instant? = null,
-        overrideDate: Instant? = null,
-        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
-    ): PlayResult {
-        val arcaeaPartnerModifiers =
-            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
-
+        overrideDate: Instant? = null
+    ): Instant? {
         val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
 
-        val date = if (overrideDate != null) {
+        return if (overrideDate != null) {
             overrideDate
         } else {
             val imgExif = ExifInterface(byteArray.inputStream())
@@ -109,10 +105,23 @@ object DeviceOcrHelper {
                 fallbackDate
             }
         }
+    }
 
+    fun ocrResultToPlayResult(
+        imageUri: Uri,
+        context: Context,
+        ocrResult: DeviceOcrResult,
+        fallbackDate: Instant? = null,
+        overrideDate: Instant? = null,
+        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
+    ): PlayResult {
+        val arcaeaPartnerModifiers =
+            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
+
+        val date = readImageDateFromExif(imageUri, context, fallbackDate, overrideDate)
         val imgFilename = context.getFilename(imageUri)
 
-        return ocrResult.toScore(
+        return ocrResult.toPlayResult(
             arcaeaPartnerModifiers = arcaeaPartnerModifiers,
             date = date,
             comment = if (imgFilename != null) "OCR $imgFilename" else null,

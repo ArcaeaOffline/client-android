@@ -3,8 +3,10 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
+    alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.androidGitVersion)
@@ -166,7 +168,9 @@ android {
 
 dependencies {
     // android & androidx
-    implementation(androidx.room.runtime)
+    api(androidx.room.runtime)
+    ksp(androidx.room.compiler)
+    implementation(androidx.room.ktx)
 
     implementation(androidx.datastore.core)
     implementation(androidx.datastore.preferences)
@@ -200,8 +204,15 @@ dependencies {
 
     implementation(androidx.documentfile)
 
+    implementation(androidx.work.workRuntime)
+    implementation(androidx.work.workRuntimeKtx)
+
     // 3rd party
+    implementation(libs.kotlinx.serialization)
+
     implementation(libs.opencv)
+
+    implementation(libs.onnxruntime.android)
 
     implementation(libs.apache.commons.io)
 

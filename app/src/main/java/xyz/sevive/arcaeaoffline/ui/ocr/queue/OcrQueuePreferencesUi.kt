@@ -40,7 +40,7 @@ internal fun SettingsTitle(text: String) {
 
 @Composable
 private fun OcrQueuePreferencesDialogContent(
-    uiState: OcrQueueViewModel.PreferencesUiState,
+    uiState: OcrQueueScreenViewModel.PreferencesUiState,
     onSetCheckIsImage: (Boolean) -> Unit,
     onSetCheckIsArcaeaImage: (Boolean) -> Unit,
     onSetParallelCount: (Int) -> Unit,
@@ -102,7 +102,7 @@ private fun OcrQueuePreferencesDialogContent(
 @Composable
 fun OcrQueuePreferencesDialog(
     onDismissRequest: () -> Unit,
-    uiState: OcrQueueViewModel.PreferencesUiState,
+    uiState: OcrQueueScreenViewModel.PreferencesUiState,
     onSetCheckIsImage: (Boolean) -> Unit,
     onSetCheckIsArcaeaImage: (Boolean) -> Unit,
     onSetParallelCount: (Int) -> Unit,
@@ -125,7 +125,7 @@ fun OcrQueuePreferencesDialog(
 private fun OcrQueuePreferencesDialogPreview() {
     var uiState by remember {
         mutableStateOf(
-            OcrQueueViewModel.PreferencesUiState(
+            OcrQueueScreenViewModel.PreferencesUiState(
                 checkIsImage = true,
                 checkIsArcaeaImage = true,
                 parallelCount = 4,

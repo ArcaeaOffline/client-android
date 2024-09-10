@@ -12,4 +12,5 @@
     <string name="emergency_mode_database_title">Database</string>
     <string name="emergency_mode_database_copy_button">Copy</string>
     <string name="emergency_mode_database_copied_message">Database copied to %s, size %s</string>
+    <string name="emergency_mode_delete_ocr_queue_db_button">Delete OCR Queue Database</string>
 </resources>

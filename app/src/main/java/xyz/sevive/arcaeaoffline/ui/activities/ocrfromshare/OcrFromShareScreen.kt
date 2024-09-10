@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -91,7 +93,12 @@ internal fun OcrFromShareScreenContentMedium(
     onStayInApp: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
+    val context = LocalContext.current
+
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
+    val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         Row(
@@ -104,7 +111,7 @@ internal fun OcrFromShareScreenContentMedium(
                 Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
-                OcrFromShareOcrDependencyStatusCard()
+                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)
 
                 if (imageBitmap != null) {
                     Image(imageBitmap!!, null)
@@ -141,7 +148,12 @@ fun OcrFromShareScreenCompact(
     onStayInApp: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
+    val context = LocalContext.current
+
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
+    val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         LazyColumn(
@@ -151,7 +163,7 @@ fun OcrFromShareScreenCompact(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
-                OcrFromShareOcrDependencyStatusCard()
+                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)
             }
 
             if (imageBitmap != null) {

@@ -1,5 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.ocr.device
 
+import ai.onnxruntime.OrtSession
+import kotlinx.serialization.Serializable
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
@@ -13,15 +15,18 @@ import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.FixRects
-import xyz.sevive.arcaeaoffline.core.ocr.ImagePhashDatabase
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashItem
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
+import xyz.sevive.arcaeaoffline.core.ocr.getMostConfidentItem
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
 import java.util.UUID
 
+@Serializable
 data class DeviceOcrResult(
     val ratingClass: ArcaeaRatingClass,
     val pure: Int,
@@ -29,24 +34,28 @@ data class DeviceOcrResult(
     val lost: Int,
     val score: Int,
     val maxRecall: Int?,
-    val songId: String,
-    val songIdPossibility: Double?,
+    val songIdResults: List<ImageHashItem>,
     val clearStatus: Int?,
-    val partnerId: String,
-    val partnerIdPossibility: Double?,
-)
+    val partnerIdResults: List<ImageHashItem>,
+) {
+    val songId = if (songIdResults.isEmpty()) ""
+    else songIdResults.getMostConfidentItem()?.label ?: ""
+
+    val partnerId = if (partnerIdResults.isEmpty()) ""
+    else partnerIdResults.getMostConfidentItem()?.label ?: ""
+}
 
 
-fun DeviceOcrResult.toScore(
+fun DeviceOcrResult.toPlayResult(
     arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
     date: Instant? = null,
     comment: String? = null,
 ): PlayResult {
-    val scoreModifier = if (arcaeaPartnerModifiers != null) {
+    val playResultModifier = if (arcaeaPartnerModifiers != null) {
         arcaeaPartnerModifiers[this.partnerId]
     } else null
-    val clearType = if (scoreModifier != null && this.clearStatus != null) {
-        clearStatusToClearType(this.clearStatus, scoreModifier)
+    val clearType = if (playResultModifier != null && this.clearStatus != null) {
+        clearStatusToClearType(this.clearStatus, playResultModifier)
     } else null
 
     return PlayResult(
@@ -60,7 +69,7 @@ fun DeviceOcrResult.toScore(
         lost = this.lost,
         date = date,
         maxRecall = this.maxRecall,
-        modifier = scoreModifier,
+        modifier = playResultModifier,
         clearType = clearType,
         comment = comment,
     )
@@ -70,8 +79,9 @@ fun DeviceOcrResult.toScore(
 class DeviceOcr(
     private val extractor: DeviceRoisExtractor,
     private val masker: DeviceRoisMasker,
-    private val knnModel: KNearest,
-    private val phashDb: ImagePhashDatabase
+    private val kNearestModel: KNearest,
+    private val ortSession: OrtSession,
+    private val hashesDb: ImageHashesDatabase,
 ) {
     companion object {
         fun preprocessPartnerIcon(imgGray: Mat): Mat {
@@ -129,7 +139,7 @@ class DeviceOcr(
         val digitRois =
             filteredRects.map { rect -> resizeFillSquare(roiOcr.submat(rect).clone(), 20) }
         val samples = preprocessHog(digitRois)
-        return ocrDigitSamplesKnn(samples, this.knnModel)
+        return ocrDigitSamplesKnn(samples, this.kNearestModel)
     }
 
     fun pure() = pfl(masker.pure(extractor.pure))
@@ -147,7 +157,7 @@ class DeviceOcr(
                 Imgproc.fillPoly(roi, listOf(contour), Scalar(0.0))
             }
         }
-        return ocrDigitsByContourKnn(roi, knnModel)
+        return ocrDigitsByContourKnn(roi, kNearestModel)
     }
 
     fun ratingClass(): ArcaeaRatingClass {
@@ -162,7 +172,8 @@ class DeviceOcr(
         return ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
     }
 
-    fun maxRecall(): Int = ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), knnModel)
+    fun maxRecall(): Int =
+        ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), kNearestModel)
 
     private fun clearStatus(): Int {
         val roi = extractor.clearStatus
@@ -175,37 +186,34 @@ class DeviceOcr(
         return results.indices.maxBy { Core.countNonZero(results[it]) }
     }
 
-    private fun lookupSongId(): Pair<String, Int> {
+    private fun lookupSongId(): List<ImageHashItem> {
         val roiGray = Mat()
         Imgproc.cvtColor(extractor.jacket, roiGray, Imgproc.COLOR_BGR2GRAY)
-        return phashDb.lookupJacket(roiGray)
+        return hashesDb.lookupJacket(roiGray)
     }
 
-    fun songId(): String = lookupSongId().first
-
-    private fun lookupPartnerId(): Pair<String, Int> {
+    private fun lookupPartnerId(): List<ImageHashItem> {
         val roiGray = Mat()
         Imgproc.cvtColor(extractor.partnerIcon, roiGray, Imgproc.COLOR_BGR2GRAY)
-        return phashDb.lookupPartnerIcon(preprocessPartnerIcon(roiGray))
+        return hashesDb.lookupPartnerIcon(preprocessPartnerIcon(roiGray))
     }
 
     fun ocr(): DeviceOcrResult {
-        val phashLen = phashDb.hashSize * phashDb.hashSize
-        val (songId, songIdDistance) = lookupSongId()
-        val (partnerId, partnerIdDistance) = lookupPartnerId()
-
         return DeviceOcrResult(
             ratingClass = ratingClass(),
-            pure = pure(),
-            far = far(),
-            lost = lost(),
-            score = score(),
-            maxRecall = maxRecall(),
-            songId = songId,
-            songIdPossibility = 1 - songIdDistance / phashLen.toDouble(),
+//            pure = pure(),
+//            far = far(),
+//            lost = lost(),
+//            score = score(),
+//            maxRecall = maxRecall(),
+            pure = DeviceOcrOnnxHelper.ocrBgrMat(extractor.pure, ortSession).toInt(),
+            far = DeviceOcrOnnxHelper.ocrBgrMat(extractor.far, ortSession).toInt(),
+            lost = DeviceOcrOnnxHelper.ocrBgrMat(extractor.lost, ortSession).toInt(),
+            score = DeviceOcrOnnxHelper.ocrBgrMat(extractor.score, ortSession).toInt(),
+            maxRecall = DeviceOcrOnnxHelper.ocrBgrMat(extractor.maxRecall, ortSession).toInt(),
+            songIdResults = lookupSongId(),
             clearStatus = clearStatus(),
-            partnerId = partnerId,
-            partnerIdPossibility = 1 - partnerIdDistance / phashLen.toDouble(),
+            partnerIdResults = lookupPartnerId(),
         )
     }
 }

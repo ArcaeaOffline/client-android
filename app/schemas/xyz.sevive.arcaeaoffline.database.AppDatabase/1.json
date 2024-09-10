@@ -1,0 +1,106 @@
+{
+    "formatVersion": 1,
+    "database": {
+        "version": 1,
+        "identityHash": "b733cbfb9112b42e22784ea6006f66f6",
+        "entities": [
+            {
+                "tableName": "ocr_history",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `source_package_name` TEXT, `store_date` INTEGER NOT NULL, `song_id` TEXT, `rating_class` TEXT NOT NULL, `playResult` INTEGER NOT NULL, `pure` INTEGER, `far` INTEGER, `lost` INTEGER, `date` INTEGER, `max_recall` INTEGER, `modifier` TEXT, `clear_type` TEXT)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "sourcePackageName",
+                        "columnName": "source_package_name",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "storeDate",
+                        "columnName": "store_date",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "songId",
+                        "columnName": "song_id",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "ratingClass",
+                        "columnName": "rating_class",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "score",
+                        "columnName": "playResult",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "pure",
+                        "columnName": "pure",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "far",
+                        "columnName": "far",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "lost",
+                        "columnName": "lost",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "date",
+                        "columnName": "date",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "maxRecall",
+                        "columnName": "max_recall",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "modifier",
+                        "columnName": "modifier",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "clearType",
+                        "columnName": "clear_type",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": true,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            }
+        ],
+        "views": [],
+        "setupQueries": [
+            "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+            "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b733cbfb9112b42e22784ea6006f66f6')"
+        ]
+    }
+}

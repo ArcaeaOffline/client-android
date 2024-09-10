@@ -1,0 +1,140 @@
+{
+    "formatVersion": 1,
+    "database": {
+        "version": 1,
+        "identityHash": "6c239fc091cf43980a8287de2452e5a5",
+        "entities": [
+            {
+                "tableName": "ocr_queue_tasks",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `inserted_at` INTEGER NOT NULL, `file_uri` TEXT NOT NULL, `file_name` TEXT, `status` INTEGER NOT NULL, `result` TEXT, `play_result` TEXT, `warnings` TEXT, `exception` BLOB)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "insertedAt",
+                        "columnName": "inserted_at",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "fileUri",
+                        "columnName": "file_uri",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "fileName",
+                        "columnName": "file_name",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "status",
+                        "columnName": "status",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "result",
+                        "columnName": "result",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "playResult",
+                        "columnName": "play_result",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "warnings",
+                        "columnName": "warnings",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "exception",
+                        "columnName": "exception",
+                        "affinity": "BLOB",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": true,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_ocr_queue_tasks_file_uri",
+                        "unique": true,
+                        "columnNames": [
+                            "file_uri"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ocr_queue_tasks_file_uri` ON `${TABLE_NAME}` (`file_uri`)"
+                    }
+                ],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "ocr_queue_enqueue_buffer",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT NOT NULL, `checked` INTEGER NOT NULL, `should_insert` INTEGER NOT NULL)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "uri",
+                        "columnName": "uri",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "checked",
+                        "columnName": "checked",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "shouldInsert",
+                        "columnName": "should_insert",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": true,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_ocr_queue_enqueue_buffer_uri",
+                        "unique": true,
+                        "columnNames": [
+                            "uri"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ocr_queue_enqueue_buffer_uri` ON `${TABLE_NAME}` (`uri`)"
+                    }
+                ],
+                "foreignKeys": []
+            }
+        ],
+        "views": [],
+        "setupQueries": [
+            "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+            "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6c239fc091cf43980a8287de2452e5a5')"
+        ]
+    }
+}

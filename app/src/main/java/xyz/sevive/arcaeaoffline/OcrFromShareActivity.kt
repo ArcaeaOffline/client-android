@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
-import xyz.sevive.arcaeaoffline.helpers.GlobalOcrDependencyHelper
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareScreen
@@ -30,7 +29,6 @@ class OcrFromShareActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         OpenCVLoader.initLocal()
-        GlobalOcrDependencyHelper.loadAll(this)
 
         setTitle(R.string.title_activity_ocr_from_share)
 

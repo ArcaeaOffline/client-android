@@ -63,6 +63,14 @@ jobs:
           fileDir: ${{ github.workspace }}
           encodedString: ${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}
 
+      - name: Ensure CRNN OCR model asset folder exists
+        run: mkdir -p app/src/main/assets/ocr
+
+      - name: Download CRNN OCR model to assets
+        run: |
+          curl -L -o app/src/main/assets/ocr/model_patched.onnx https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model-early_stop_patched.onnx
+          curl -L -o app/src/main/assets/ocr/model_info.json https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model_info.json
+
       - name: Build APK using gradle
         run: ./gradlew assembleUnstableRelease
 

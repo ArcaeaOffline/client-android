@@ -15,6 +15,7 @@ interface ChartRepository {
     fun findAll(): Flow<List<Chart>>
     fun findAllBySongId(songId: String): Flow<List<Chart>>
     fun findAllBySongId(song: Song): Flow<List<Chart>> = findAllBySongId(song.id)
+    fun findAllBySongIds(songIds: List<String>): Flow<List<Chart>>
 }
 
 class ChartRepositoryImpl(private val dao: ChartDao) : ChartRepository {
@@ -23,4 +24,6 @@ class ChartRepositoryImpl(private val dao: ChartDao) : ChartRepository {
 
     override fun findAll(): Flow<List<Chart>> = dao.findAll()
     override fun findAllBySongId(songId: String): Flow<List<Chart>> = dao.findAllBySongId(songId)
+    override fun findAllBySongIds(songIds: List<String>): Flow<List<Chart>> =
+        dao.findAllBySongIds(songIds)
 }

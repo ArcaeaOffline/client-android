@@ -8,20 +8,27 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.acra.config.dialog
 import org.acra.config.httpSender
 import org.acra.data.StringFormat
 import org.acra.ktx.initAcra
 import org.acra.sender.HttpSender
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.data.notification.Notifications
+import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
+import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 
 
 class ArcaeaOfflineApplication : Application() {
     lateinit var arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
     lateinit var appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer
+    val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
     override fun attachBaseContext(base: Context) {
@@ -70,6 +77,12 @@ class ArcaeaOfflineApplication : Application() {
         super.onCreate()
 
         AndroidThreeTen.init(this)
+        DeviceOcrOnnxHelper.loadModelInfo(this)
+        Notifications.createChannels(this)
+
+        MainScope().launch {
+            GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)
+        }
 
         addEmergencyModeShortcut()
         arcaeaOfflineDatabaseRepositoryContainer =

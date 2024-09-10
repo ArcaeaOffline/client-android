@@ -1,5 +1,10 @@
 output-metadata.json
 
+# OCR ONNX models
+app/src/main/assets/ocr/model*.onnx
+app/src/main/assets/ocr/model*.ort
+app/src/main/assets/ocr/model_info.json
+
 # Android Studio added
 /.idea/caches
 /.idea/libraries

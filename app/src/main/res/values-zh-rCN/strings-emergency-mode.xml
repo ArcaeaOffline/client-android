@@ -12,4 +12,5 @@
     <string name="emergency_mode_database_title">数据库</string>
     <string name="emergency_mode_database_copy_button">复制</string>
     <string name="emergency_mode_database_copied_message">数据库已复制到 %s，大小 %s</string>
+    <string name="emergency_mode_delete_ocr_queue_db_button">删除 OCR 队列数据库</string>
 </resources>

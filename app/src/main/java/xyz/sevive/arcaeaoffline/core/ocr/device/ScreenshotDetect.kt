@@ -6,25 +6,27 @@ import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 
-class ScreenshotDetect {
-    companion object {
-        private val PURPLE_HSV_LOWER = Scalar(110.0, 45.0, 75.0)
-        private val PURPLE_HSV_UPPER = Scalar(140.0, 150.0, 175.0)
+object ScreenshotDetect {
+    private val PURPLE_HSV_LOWER = Scalar(110.0, 45.0, 75.0)
+    private val PURPLE_HSV_UPPER = Scalar(140.0, 150.0, 175.0)
 
-        fun isArcaeaScreenshot(imgHsv: Mat, ratio: Double = 0.65): Boolean {
-            val rois = DeviceRoisAutoT2(imgHsv.width(), imgHsv.height())
+    private const val ROI_HEIGHT_OFFSET = -510
+    private const val ROI_WIDTH_OFFSET = -250
+    private const val ROI_HEIGHT = 165
 
-            val roiX = 0
-            val roiY = rois.layoutAreaHMid - 510 * rois.factor
-            val roiWidth = rois.wMid - 250 * rois.factor
-            val roiHeight = 165 * rois.factor
-            val roiRect = Rect(roiX, roiY.toInt(), roiWidth.toInt(), roiHeight.toInt())
+    fun isArcaeaScreenshot(imgHsv: Mat, ratio: Double = 0.65): Boolean {
+        val rois = DeviceRoisAutoT2(imgHsv.width(), imgHsv.height())
 
-            val roi = imgHsv.submat(roiRect).clone()
-            val roiFiltered = Mat()
-            Core.inRange(roi, PURPLE_HSV_LOWER, PURPLE_HSV_UPPER, roiFiltered)
+        val roiRect = Rect(
+            0,
+            (rois.layoutAreaHMid + ROI_HEIGHT_OFFSET * rois.factor).toInt(),
+            (rois.wMid + ROI_WIDTH_OFFSET * rois.factor).toInt(),
+            (ROI_HEIGHT * rois.factor).toInt()
+        )
 
-            return Core.countNonZero(roiFiltered) >= roi.width() * roi.height() * ratio
-        }
+        val roi = imgHsv.submat(roiRect)
+        Core.inRange(roi, PURPLE_HSV_LOWER, PURPLE_HSV_UPPER, roi)
+
+        return Core.countNonZero(roi) >= roi.width() * roi.height() * ratio
     }
 }
