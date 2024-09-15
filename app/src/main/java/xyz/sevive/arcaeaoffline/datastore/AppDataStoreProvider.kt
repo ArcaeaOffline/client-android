@@ -15,6 +15,17 @@ object AppDataStoreProvider {
         Log.w(LOG_TAG, "${name} corrupt! Falling back to its default value")
     }
 
+    fun appPreferences(context: Context): DataStore<AppPreferences> {
+        return DataStoreFactory.create(
+            serializer = AppPreferencesSerializer,
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                logCorrupt("AppPreferences")
+                AppPreferencesSerializer.defaultValue
+            },
+            produceFile = { context.preferencesDataStoreFile("app_prefs") },
+        )
+    }
+
     fun emergencyModePreferences(context: Context): DataStore<EmergencyModePreferences> {
         return DataStoreFactory.create(
             serializer = EmergencyModePreferencesSerializer,

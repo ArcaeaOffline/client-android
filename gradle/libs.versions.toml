@@ -11,6 +11,8 @@ opencv = "4.9.0"
 google-guava = "33.2.1-android"
 kotlinx-coroutines-guava = "1.8.1"
 
+io-sentry-sentryAndroid = "7.14.0"
+
 apache-commons-io = "2.4"
 github-requery-sqlite-android = "3.43.0"
 acra = "5.11.3"
@@ -32,6 +34,8 @@ opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "3.21.12" }
 google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinx-coroutines-guava" }
+
+io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.18.0" }
 

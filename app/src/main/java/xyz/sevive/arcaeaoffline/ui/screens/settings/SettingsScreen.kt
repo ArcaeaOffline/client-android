@@ -16,15 +16,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.EmergencyModeActivity
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 
 @Composable
@@ -38,8 +42,13 @@ internal fun settingsTitleActionCardShape(): CornerBasedShape {
 }
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    modifier: Modifier = Modifier,
+    vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+) {
     val context = LocalContext.current
+
+    val appPreferencesUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
 
     Box(
         modifier
@@ -51,6 +60,13 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 item {
                     UnstableBuildAlert(Modifier.fillMaxWidth(), showDetails = true)
                 }
+            }
+
+            item {
+                SettingsAppPreferences(
+                    uiState = appPreferencesUiState,
+                    onSetSentryEnabled = { vm.setEnableSentry(it) },
+                )
             }
 
             item {

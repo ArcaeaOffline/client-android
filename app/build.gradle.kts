@@ -17,6 +17,7 @@ plugins {
 secrets {
     defaultPropertiesFileName = "local.defaults.properties"
     ignoreList += listOf(
+        "SENTRY_DSN",
         "SIGNING_STORE_PASSWORD",
         "SIGNING_KEY_ALIAS",
         "SIGNING_KEY_PASSWORD",
@@ -92,6 +93,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        manifestPlaceholders["sentryDsn"] = localProperties.getProperty("SENTRY_DSN")
 
         room {
             schemaDirectory("$projectDir/schemas")
@@ -210,6 +213,8 @@ dependencies {
     // 3rd party
     implementation(libs.kotlinx.serialization)
 
+    implementation(libs.io.sentry.sentryAndroid)
+
     implementation(libs.opencv)
 
     implementation(libs.onnxruntime.android)
@@ -219,9 +224,6 @@ dependencies {
     implementation(libs.protobuf.protobufJavalite)
 
     implementation(libs.github.requery.sqlite.android)
-
-    implementation(libs.acra.http)
-    implementation(libs.acra.dialog)
 
     implementation(libs.threetenabp)
 

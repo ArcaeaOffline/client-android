@@ -222,6 +222,7 @@ CC BY-SA 3.0
     <string name="ocr_dependencies_title">OCR Dependencies</string>
 
     <!-- SettingsScreen -->
+    <string name="settings_app_pref_enable_sentry">Send crash reports</string>
     <string name="settings_about_title">About</string>
     <string name="settings_about_application_id">Application ID</string>
     <string name="settings_about_version">Version</string>

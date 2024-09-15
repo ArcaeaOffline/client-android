@@ -200,6 +200,7 @@
     <string name="ocr_dependencies_title">OCR 依赖项</string>
 
     <!-- SettingsScreen -->
+    <string name="settings_app_pref_enable_sentry">发送崩溃报告</string>
     <string name="settings_about_title">关于</string>
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>

@@ -1,20 +1,22 @@
 package xyz.sevive.arcaeaoffline
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import com.jakewharton.threetenabp.AndroidThreeTen
-import kotlinx.coroutines.MainScope
+import io.sentry.SentryOptions
+import io.sentry.android.core.SentryAndroid
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.acra.config.dialog
-import org.acra.config.httpSender
-import org.acra.data.StringFormat
-import org.acra.ktx.initAcra
-import org.acra.sender.HttpSender
+import kotlinx.coroutines.plus
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
@@ -26,34 +28,17 @@ import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContaine
 
 
 class ArcaeaOfflineApplication : Application() {
+    private val appScope =
+        CoroutineScope(Dispatchers.Default) + CoroutineName("ArcaeaOfflineApplication")
+
     lateinit var arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
     lateinit var appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer
     val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base)
-
-        initAcra {
-            // core configurations
-            buildConfigClass = BuildConfig::class.java
-            reportFormat = StringFormat.JSON
-            deleteUnapprovedReportsOnApplicationStart = true
-
-            // plugins
-            httpSender {
-                uri = BuildConfig.ACRA_HTTP_URI
-                basicAuthLogin = BuildConfig.ACRA_HTTP_USERNAME
-                basicAuthPassword = BuildConfig.ACRA_HTTP_PASSWORD
-                httpMethod = HttpSender.Method.POST
-            }
-
-            dialog {
-                title = "Uncaught Exception"
-                reportDialogClass = CrashReportActivity::class.java
-            }
-        }
-    }
+    private val enableSentry = dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
+        it.enableSentry
+    }.stateIn(appScope, SharingStarted.Eagerly, false)
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
@@ -77,10 +62,16 @@ class ArcaeaOfflineApplication : Application() {
         super.onCreate()
 
         AndroidThreeTen.init(this)
-        DeviceOcrOnnxHelper.loadModelInfo(this)
-        Notifications.createChannels(this)
 
-        MainScope().launch {
+        SentryAndroid.init(this) {
+            it.beforeSend = SentryOptions.BeforeSendCallback { event, hint ->
+                if (enableSentry.value) event else null
+            }
+        }
+
+        appScope.launch {
+            DeviceOcrOnnxHelper.loadModelInfo(this@ArcaeaOfflineApplication)
+            Notifications.createChannels(this@ArcaeaOfflineApplication)
             GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)
         }
 

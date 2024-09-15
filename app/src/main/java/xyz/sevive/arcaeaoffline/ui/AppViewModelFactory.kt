@@ -21,6 +21,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewMod
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -103,6 +104,12 @@ object AppViewModelProvider {
             OcrFromShareViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer,
                 application().appDatabaseRepositoryContainer
+            )
+        }
+
+        initializer {
+            SettingsViewModel(
+                application().dataStoreRepositoryContainer.appPreferences
             )
         }
     }
