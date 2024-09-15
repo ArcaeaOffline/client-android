@@ -21,7 +21,6 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
@@ -31,8 +30,10 @@ class ArcaeaOfflineApplication : Application() {
     private val appScope =
         CoroutineScope(Dispatchers.Default) + CoroutineName("ArcaeaOfflineApplication")
 
-    lateinit var arcaeaOfflineDatabaseRepositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
-    lateinit var appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer
+    val arcaeaOfflineDatabaseRepositoryContainer by lazy {
+        ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
+    }
+    val appDatabaseRepositoryContainer by lazy { AppDatabaseRepositoryContainer(this) }
     val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
@@ -61,6 +62,8 @@ class ArcaeaOfflineApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        addEmergencyModeShortcut()
+
         AndroidThreeTen.init(this)
 
         SentryAndroid.init(this) {
@@ -74,10 +77,5 @@ class ArcaeaOfflineApplication : Application() {
             Notifications.createChannels(this@ArcaeaOfflineApplication)
             GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)
         }
-
-        addEmergencyModeShortcut()
-        arcaeaOfflineDatabaseRepositoryContainer =
-            ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
-        appDatabaseRepositoryContainer = AppDatabaseRepositoryContainer(this)
     }
 }
