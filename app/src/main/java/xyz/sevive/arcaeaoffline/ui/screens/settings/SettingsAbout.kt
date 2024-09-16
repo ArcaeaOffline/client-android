@@ -47,14 +47,12 @@ import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 @Composable
 fun AppIcon(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-
-    Image(
+    val appIcon = remember {
         context.packageManager.getApplicationIcon(BuildConfig.APPLICATION_ID).toBitmap()
-            .asImageBitmap(),
-        null,
-        modifier = modifier,
-    )
+            .asImageBitmap()
+    }
 
+    Image(appIcon, contentDescription = null, modifier = modifier)
 }
 
 class SettingsAboutException : Exception() {
@@ -149,6 +147,8 @@ fun SettingsAbout() {
                 text = BuildConfig.VERSION_CODE.toString(),
                 label = stringResource(R.string.settings_about_version_code)
             )
+
+            SettingsAboutCommunities()
         }
     }
 }
