@@ -14,9 +14,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
@@ -27,7 +33,10 @@ import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 fun DatabaseNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
+    vm: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
+
     Scaffold(
         modifier,
         topBar = {
@@ -37,7 +46,12 @@ fun DatabaseNavEntry(
     ) {
         LazyColumn(Modifier.padding(it)) {
             item {
-                DatabaseStatus(Modifier.fillMaxWidth())
+                DatabaseStatus(
+                    statusUiState,
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.page_padding))
+                )
             }
 
             item {

@@ -111,24 +111,24 @@ CC BY-SA 3.0
     <!-- Database info/status labels -->
     <string name="database_version_label">Version %d</string>
     <plurals name="database_pack_entries">
-        <item quantity="many">%d pack entries</item>
-        <item quantity="other">%d pack entry</item>
+        <item quantity="many">%d packs</item>
+        <item quantity="other">%d pack</item>
     </plurals>
     <plurals name="database_song_entries">
-        <item quantity="many">%d song entries</item>
-        <item quantity="other">%d song entry</item>
+        <item quantity="many">%d songs</item>
+        <item quantity="other">%d song</item>
     </plurals>
     <plurals name="database_difficulty_entries">
-        <item quantity="many">%d difficulty entries</item>
-        <item quantity="other">%d difficulty entry</item>
+        <item quantity="many">%d difficulties</item>
+        <item quantity="other">%d difficulty</item>
     </plurals>
     <plurals name="database_chart_info_entries">
-        <item quantity="many">%d chart info entries</item>
-        <item quantity="other">%d chart info entry</item>
+        <item quantity="many">%d chart info</item>
+        <item quantity="other">%d chart info</item>
     </plurals>
     <plurals name="database_play_result_entries">
-        <item quantity="many">%d play result entries</item>
-        <item quantity="other">%d play result entry</item>
+        <item quantity="many">%d play results</item>
+        <item quantity="other">%d play result</item>
     </plurals>
 
     <string name="database_status_title">Database Status</string>

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.WorkManager
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
+import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelectorViewModel
@@ -41,7 +42,8 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseNavEntryViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
+                application().arcaeaOfflineDatabaseRepositoryContainer,
+                ArcaeaOfflineDatabase.getDatabase(application()).openHelper.readableDatabase.version,
             )
         }
 
