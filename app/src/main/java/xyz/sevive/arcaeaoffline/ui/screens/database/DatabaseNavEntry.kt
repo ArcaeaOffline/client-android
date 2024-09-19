@@ -11,21 +11,23 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
@@ -34,11 +36,7 @@ fun DatabaseNavEntry(
     Scaffold(
         modifier,
         topBar = {
-            Text(
-                stringResource(R.string.nav_database),
-                Modifier.padding(0.dp, dimensionResource(R.dimen.page_padding)),
-                style = MaterialTheme.typography.titleLarge,
-            )
+            TopAppBar(title = { Text(stringResource(MainScreenDestinations.Database.title)) })
         },
         containerColor = Color.Transparent,
     ) {

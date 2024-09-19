@@ -1,10 +1,17 @@
 package xyz.sevive.arcaeaoffline.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.EaseInCubic
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuOpen
@@ -17,12 +24,11 @@ import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.R
+import kotlin.math.round
 
 /**
- * Simple wrapper of ListDetailPaneScaffold with a general page padding.
+ * Simple wrapper of ListDetailPaneScaffold.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -31,11 +37,7 @@ fun <T> GeneralEntryScreen(
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     detailPane: @Composable ThreePaneScaffoldScope.(T) -> Unit,
 ) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(dimensionResource(R.dimen.page_padding))
-    ) {
+    Box(Modifier.fillMaxSize()) {
         BackHandler(navigator.canNavigateBack()) {
             navigator.navigateBack()
         }
@@ -49,11 +51,22 @@ fun <T> GeneralEntryScreen(
                 }
             },
             detailPane = {
-                AnimatedPane {
-                    Crossfade(
+                AnimatedPane(Modifier.fillMaxSize()) {
+                    AnimatedContent(
                         targetState = navigator.currentDestination?.content,
+                        transitionSpec = {
+                            (slideInVertically {
+                                round(EaseOutCubic.transform(it * 0.025f)).toInt()
+                            } + fadeIn(
+                                animationSpec = tween(easing = EaseOutCubic)
+                            )).togetherWith((slideOutVertically {
+                                round(EaseInCubic.transform(it * 0.025f)).toInt()
+                            } + fadeOut(
+                                animationSpec = tween(easing = EaseInCubic)
+                            )))
+                        },
                         modifier = Modifier.fillMaxSize(),
-                        label = "GeneralEntryScreenDetailPaneWrapper",
+                        label = "detailPaneTransition",
                     ) {
                         if (it != null) {
                             detailPane(it)

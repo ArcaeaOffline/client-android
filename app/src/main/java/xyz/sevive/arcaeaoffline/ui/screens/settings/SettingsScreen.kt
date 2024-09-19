@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
-import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.aboutlibraries.SettingsAboutlibrariesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScreen
@@ -76,10 +75,6 @@ fun SettingsScreen(
 
             SettingsScreenDestination.Aboutlibraries.route -> {
                 SettingsAboutlibrariesScreen(onNavigateUp = { onNavigateUp() })
-            }
-
-            else -> {
-                EmptyScreen()
             }
         }
     }

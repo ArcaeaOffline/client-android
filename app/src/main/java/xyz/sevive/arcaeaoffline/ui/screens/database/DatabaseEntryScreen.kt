@@ -5,6 +5,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListScreen
@@ -16,6 +17,9 @@ fun DatabaseEntryScreen() {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val onNavigateUp = remember {
+        { backPressedDispatcher?.onBackPressed() ?: Unit }
+    }
 
     GeneralEntryScreen(
         navigator = navigator,
@@ -27,23 +31,23 @@ fun DatabaseEntryScreen() {
     ) {
         when (it) {
             DatabaseScreenDestinations.Manage.route -> {
-                DatabaseManageScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabaseManageScreen(onNavigateUp = onNavigateUp)
             }
 
             DatabaseScreenDestinations.AddScore.route -> {
-                DatabaseAddPlayResultScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabaseAddPlayResultScreen(onNavigateUp = onNavigateUp)
             }
 
             DatabaseScreenDestinations.ScoreList.route -> {
-                DatabasePlayResultListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabasePlayResultListScreen(onNavigateUp = onNavigateUp)
             }
 
             DatabaseScreenDestinations.B30.route -> {
-                DatabaseB30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabaseB30ListScreen(onNavigateUp = onNavigateUp)
             }
 
             DatabaseScreenDestinations.R30.route -> {
-                DatabaseR30ListScreen(onNavigateUp = { backPressedDispatcher?.onBackPressed() })
+                DatabaseR30ListScreen(onNavigateUp = onNavigateUp)
             }
         }
     }

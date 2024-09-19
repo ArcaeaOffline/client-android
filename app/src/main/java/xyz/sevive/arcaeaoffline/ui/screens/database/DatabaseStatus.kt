@@ -96,7 +96,7 @@ fun DatabaseStatus(
     TitleOutlinedCard(
         title = { padding ->
             Row(
-                modifier.padding(padding),
+                Modifier.padding(padding),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
                 verticalAlignment = Alignment.CenterVertically
             ) {

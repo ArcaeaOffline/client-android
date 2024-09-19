@@ -12,8 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseEntryScreen
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
 

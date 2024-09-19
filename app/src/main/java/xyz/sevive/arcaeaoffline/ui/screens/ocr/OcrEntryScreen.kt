@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.ocr
+package xyz.sevive.arcaeaoffline.ui.screens.ocr
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
