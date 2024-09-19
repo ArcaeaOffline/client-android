@@ -1,101 +1,85 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings
 
-import android.content.Intent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import xyz.sevive.arcaeaoffline.EmergencyModeActivity
-import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
-import xyz.sevive.arcaeaoffline.ui.components.ActionButton
+import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
+import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
+import xyz.sevive.arcaeaoffline.ui.screens.settings.aboutlibraries.SettingsAboutlibrariesScreen
+import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScreen
+import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScreen
 
-@Composable
-internal fun settingsTitleActionCardShape(): CornerBasedShape {
-    return RoundedCornerShape(
-        topStart = MaterialTheme.shapes.medium.topStart,
-        topEnd = MaterialTheme.shapes.medium.topEnd,
-        bottomStart = CornerSize(0.dp),
-        bottomEnd = CornerSize(0.dp),
-    )
-}
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier,
-    vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val context = LocalContext.current
+    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
 
-    val appPreferencesUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
+    val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val onNavigateUp = remember {
+        { backPressedDispatcher?.onBackPressed() }
+    }
 
-    Box(
-        modifier
-            .fillMaxSize()
-            .padding(dimensionResource(R.dimen.page_padding))
-    ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
-            if (IS_UNSTABLE_VERSION) {
-                item {
-                    UnstableBuildAlert(Modifier.fillMaxWidth(), showDetails = true)
-                }
-            }
+    val generalUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
 
-            item {
-                SettingsAppPreferences(
-                    uiState = appPreferencesUiState,
+    GeneralEntryScreen(
+        navigator = navigator,
+        listPane = {
+            SettingsNavEntry(
+                onNavigateToSubRoute = {
+                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                },
+            )
+        },
+    ) { route ->
+        when (route) {
+            SettingsScreenDestination.General.route -> {
+                SettingsGeneralScreen(
+                    onNavigateUp = { onNavigateUp() },
+                    uiState = generalUiState,
                     onSetSentryEnabled = { vm.setEnableSentry(it) },
                 )
             }
 
-            item {
-                ActionButton(
-                    onClick = {
-                        context.startActivity(Intent(context, EmergencyModeActivity::class.java))
-                    },
-                    title = stringResource(R.string.shortcut_emergency_long_label),
-                    headSlot = {
-                        Icon(
-                            painterResource(R.drawable.ic_activity_emergency_mode),
-                            contentDescription = null,
+            SettingsScreenDestination.About.route -> {
+                SettingsAboutScreen(
+                    onNavigateUp = { onNavigateUp() },
+                    onNavigateToLicenseScreen = {
+                        navigator.navigateTo(
+                            ListDetailPaneScaffoldRole.Detail,
+                            SettingsScreenDestination.License.route
                         )
                     },
-                    tailSlot = {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = null,
+                    onNavigateToAboutlibrariesScreen = {
+                        navigator.navigateTo(
+                            ListDetailPaneScaffoldRole.Detail,
+                            SettingsScreenDestination.Aboutlibraries.route
                         )
                     },
-                    buttonColors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
                 )
             }
 
-            item {
-                SettingsAbout()
+            SettingsScreenDestination.License.route -> {
+                SettingsLicenseScreen(onNavigateUp = { onNavigateUp() })
+            }
+
+            SettingsScreenDestination.Aboutlibraries.route -> {
+                SettingsAboutlibrariesScreen(onNavigateUp = { onNavigateUp() })
+            }
+
+            else -> {
+                EmptyScreen()
             }
         }
     }

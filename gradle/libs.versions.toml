@@ -21,6 +21,7 @@ compose-richtext = "0.17.0"
 github-jvziyaoyao-scale = "1.1.0-alpha.4"
 github-cheonjaeung-gridlayout = "2.0.0"
 compose-settings = "2.3.0"
+aboutlibraries = "11.1.0"
 
 junit = "4.13.2"
 
@@ -50,6 +51,8 @@ github-jvziyaoyao-scale-imageViewer = { module = "com.jvziyaoyao.scale:image-vie
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
 com-github-alorma-composeSettings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
 com-github-alorma-composeSettings-ui-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
+aboutlibrariesCore = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
+aboutlibrariesComposeM3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 
@@ -66,5 +69,7 @@ protobuf = { id = "com.google.protobuf", version = "0.9.4" }
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 androidGitVersion = { id = "com.gladed.androidgitversion", version = "0.4.14" }
+
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }

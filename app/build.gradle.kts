@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.androidGitVersion)
+    alias(libs.plugins.aboutlibraries)
 
     alias(androidx.plugins.room)
 }
@@ -236,6 +237,9 @@ dependencies {
 
     implementation(libs.com.github.alorma.composeSettings.ui)
     implementation(libs.com.github.alorma.composeSettings.ui.extended)
+
+    implementation(libs.aboutlibrariesCore)
+    implementation(libs.aboutlibrariesComposeM3)
 
     // test & debug
     testImplementation(libs.junit)

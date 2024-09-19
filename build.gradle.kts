@@ -12,5 +12,7 @@ plugins {
 
     alias(androidx.plugins.room) apply false
 
+    alias(libs.plugins.aboutlibraries) apply false
+
     alias(libs.plugins.dependencyAnalysis)
 }

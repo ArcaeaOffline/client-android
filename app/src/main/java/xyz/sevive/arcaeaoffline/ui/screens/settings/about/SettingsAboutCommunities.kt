@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.settings
+package xyz.sevive.arcaeaoffline.ui.screens.settings.about
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

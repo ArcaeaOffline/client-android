@@ -201,10 +201,13 @@
 
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">发送崩溃报告</string>
+    <string name="settings_general_title">通用</string>
     <string name="settings_about_title">关于</string>
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>
     <string name="settings_about_version_code">版本代号</string>
+    <string name="settings_license_title">许可证</string>
+    <string name="settings_aboutlibraries_title">开源组件</string>
 
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
 
