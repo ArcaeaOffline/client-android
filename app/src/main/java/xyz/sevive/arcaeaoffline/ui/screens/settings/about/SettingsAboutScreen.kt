@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.DataObject
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,8 +26,8 @@ import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.components.ActionButton
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
 
 class AppIconBeingClickedTooManyTimesSoEmbarrassingException : Exception() {
@@ -64,9 +65,7 @@ internal fun SettingsAboutScreen(
         onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.About.title)
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
-        ) {
+        LazyColumn {
             item {
                 Column(
                     Modifier.fillMaxWidth(),
@@ -87,19 +86,26 @@ internal fun SettingsAboutScreen(
             }
 
             item {
-                SettingsLicenseNoticeCard(
-                    onClick = { onNavigateToLicenseScreen() }
-                )
+                HorizontalDivider()
             }
 
             item {
-                ActionButton(
-                    onClick = { onNavigateToAboutlibrariesScreen() },
-                    title = stringResource(SettingsScreenDestination.Aboutlibraries.title),
-                    headSlot = {
-                        Icon(Icons.Default.DataObject, contentDescription = null)
-                    },
-                )
+                NavEntryNavigateButton(
+                    titleResId = R.string.open_source_license_notice,
+                    descriptionResId = R.string.copyright_notice,
+                    icon = Icons.Default.Balance,
+                ) {
+                    onNavigateToLicenseScreen()
+                }
+            }
+
+            item {
+                NavEntryNavigateButton(
+                    titleResId = SettingsScreenDestination.Aboutlibraries.title,
+                    icon = Icons.Default.DataObject,
+                ) {
+                    onNavigateToAboutlibrariesScreen()
+                }
             }
         }
     }
