@@ -1,24 +1,30 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
@@ -42,8 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.cheonjaeung.compose.grid.SimpleGridCells
-import com.cheonjaeung.compose.grid.VerticalGrid
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
@@ -53,6 +56,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaPflExtendedColors
@@ -70,46 +74,72 @@ internal fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
 }
 
 @Composable
-internal fun DetailsTextWithLabel(label: String, text: String, modifier: Modifier = Modifier) {
-    TextWithLabel(
-        text = { Text(text = text, style = MaterialTheme.typography.labelMedium) },
-        label = { color, _ ->
-            Text(
-                text = label,
-                color = color,
-                style = MaterialTheme.typography.labelSmall,
-            )
+private fun PlayResultDetailsDialog(
+    onDismissRequest: () -> Unit,
+    playResult: PlayResult,
+) {
+    val context = LocalContext.current
+    val items = remember(playResult) {
+        with(playResult) {
+            buildMap {
+                put(key = "ID (UUID)", value = "$id ($uuid)")
+                put(key = "songId.ratingClass", value = "${songId}.${ratingClass}")
+                clearType?.let {
+                    put(
+                        key = context.getString(R.string.arcaea_play_result_clear_type),
+                        value = it.toDisplayString(),
+                    )
+                }
+                modifier?.let {
+                    put(
+                        key = context.getString(R.string.arcaea_play_result_modifier),
+                        value = it.toDisplayString(),
+                    )
+                }
+                comment?.let {
+                    put(
+                        key = context.getString(R.string.arcaea_play_result_comment), value = it
+                    )
+                }
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+        text = {
+            LazyColumn {
+                items.entries.forEach {
+                    item {
+                        TextPreferencesWidget(title = it.key, content = it.value)
+                    }
+                }
+            }
         },
-        modifier = modifier,
+        confirmButton = { /* Nothing */ },
     )
 }
 
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
     val cardColors = colors ?: CardDefaults.cardColors()
 
     var showDetails by rememberSaveable { mutableStateOf(false) }
-    val expandArrowRotateDegree by animateFloatAsState(
-        targetValue = if (showDetails) 180f else 0f, label = "expandArrow"
-    )
 
-    val idText = remember(playResult.id) { playResult.id.toString() }
-    val uuidText = remember(playResult.uuid) { playResult.uuid.toString() }
-    val songIdRatingClassText = remember(playResult.songId, playResult.ratingClass) {
-        "${playResult.songId}.${playResult.ratingClass}"
-    }
     val scoreText = remember(playResult.score) {
         playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
             .reversed()
     }
     val dateText = remember(playResult.date) { playResult.date?.formatAsLocalizedDateTime() }
-    val clearTypeText = remember(playResult.clearType) { playResult.clearType?.toDisplayString() }
-    val modifierText = remember(playResult.modifier) { playResult.modifier?.toDisplayString() }
 
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
@@ -121,19 +151,29 @@ fun ArcaeaPlayResultCard(
         density.run { textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp() }
     }
 
+    if (showDetails) {
+        PlayResultDetailsDialog(onDismissRequest = { showDetails = false }, playResult = playResult)
+    }
+
     Card(
-        onClick = { showDetails = !showDetails },
-        modifier = modifier,
+        modifier = Modifier
+            .clickable(onClick != null) { onClick?.invoke() }
+            .height(IntrinsicSize.Min)
+            .then(modifier),
         shape = shape,
         colors = cardColors,
     ) {
-        Column(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Row {
+            Row(
+                Modifier
+                    .weight(1f)
+                    .padding(dimensionResource(R.dimen.card_padding)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     ArcaeaFormatters.scoreToLevelText(playResult.score),
-                    Modifier
-                        .width(exPlusWidthDp)
-                        .padding(end = 4.dp),
+                    Modifier.width(exPlusWidthDp),
                     style = levelTextTextStyle,
                     textAlign = TextAlign.Right,
                     maxLines = 1,
@@ -142,9 +182,7 @@ fun ArcaeaPlayResultCard(
                 Column(Modifier.weight(1f)) {
                     Text(scoreText, style = MaterialTheme.typography.titleLarge)
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             pflAnnotatedString("P", playResult.pure),
                             color = ArcaeaPflExtendedColors.current.pure,
@@ -159,69 +197,33 @@ fun ArcaeaPlayResultCard(
                             pflAnnotatedString("L", playResult.lost),
                             color = ArcaeaPflExtendedColors.current.lost,
                         )
+
+                        Text(
+                            pflAnnotatedString(
+                                stringResource(R.string.arcaea_play_result_max_recall),
+                                playResult.maxRecall
+                            )
+                        )
                     }
 
                     Text(
-                        pflAnnotatedString(
-                            stringResource(R.string.arcaea_play_result_max_recall),
-                            playResult.maxRecall
-                        )
+                        dateText ?: stringResource(R.string.play_result_no_date),
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
-
-                Icon(
-                    Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    Modifier.graphicsLayer { rotationZ = expandArrowRotateDegree },
-                )
             }
 
-            Text(
-                dateText ?: stringResource(R.string.play_result_no_date),
-                style = MaterialTheme.typography.labelMedium,
-            )
-
-            AnimatedVisibility(showDetails) {
-                Column(Modifier.fillMaxWidth()) {
-                    HorizontalDivider(
-                        Modifier.padding(vertical = 2.dp),
-                        thickness = 1.dp,
-                        color = LocalContentColor.current.copy(0.5f),
-                    )
-
-                    VerticalGrid(
-                        columns = SimpleGridCells.Fixed(2),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        DetailsTextWithLabel(
-                            label = "UUID",
-                            text = uuidText,
-                            modifier = Modifier.span(2)
-                        )
-
-                        DetailsTextWithLabel(label = "ID", text = idText)
-
-                        DetailsTextWithLabel(label = "sI.rC", text = songIdRatingClassText)
-
-                        DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_play_result_clear_type),
-                            text = clearTypeText
-                                ?: stringResource(R.string.play_result_no_clear_type),
-                        )
-
-                        DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_play_result_modifier),
-                            text = modifierText ?: stringResource(R.string.play_result_no_modifier),
-                        )
-
-                        DetailsTextWithLabel(
-                            label = stringResource(R.string.arcaea_play_result_comment),
-                            text = playResult.comment
-                                ?: stringResource(R.string.play_result_no_comment),
-                            modifier = Modifier.span(2),
-                        )
-                    }
-                }
+            Box(
+                Modifier
+                    .clickable { showDetails = !showDetails }
+                    .minimumInteractiveComponentSize()
+                    .fillMaxHeight(),
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = null,
+                    Modifier.align(Alignment.Center),
+                )
             }
         }
     }
