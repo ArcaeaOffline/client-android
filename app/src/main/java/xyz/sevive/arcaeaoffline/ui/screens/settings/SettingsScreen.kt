@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings
 
+import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
@@ -7,8 +8,10 @@ import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import xyz.sevive.arcaeaoffline.EmergencyModeActivity
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
@@ -23,6 +26,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScree
 fun SettingsScreen(
     vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -38,6 +42,9 @@ fun SettingsScreen(
             SettingsNavEntry(
                 onNavigateToSubRoute = {
                     navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                },
+                onNavigateToEmergencyModeActivity = {
+                    context.startActivity(Intent(context, EmergencyModeActivity::class.java))
                 },
             )
         },
