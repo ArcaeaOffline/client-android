@@ -134,7 +134,8 @@ private fun ActionsContent(
             contentColor = MaterialTheme.colorScheme.error,
         ),
     ) {
-        IconRow(icon = { Icon(Icons.AutoMirrored.Default.Logout, null) }) {
+        IconRow {
+            Icon(Icons.AutoMirrored.Default.Logout, null)
             Text(stringResource(R.string.unstable_version_alert_screen_actions_deny))
         }
     }
@@ -147,18 +148,20 @@ private fun ActionsContent(
         ),
         enabled = enabled,
     ) {
-        IconRow(icon = {
-            if (enabled) Icon(Icons.AutoMirrored.Default.Login, null)
-            else CircularProgressIndicator(
-                progress = { progressIndicatorValue },
-                Modifier
-                    .size(22.dp)
-                    .padding(1.dp),
-                strokeWidth = 2.dp,
-                color = MaterialTheme.colorScheme.onSurface,
-                trackColor = Color.Transparent,
-            )
-        }) {
+        IconRow {
+            when {
+                enabled -> Icon(Icons.AutoMirrored.Default.Login, null)
+                else -> CircularProgressIndicator(
+                    progress = { progressIndicatorValue },
+                    Modifier
+                        .size(22.dp)
+                        .padding(1.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    trackColor = Color.Transparent,
+                )
+            }
+
             Text(stringResource(R.string.unstable_version_alert_screen_actions_confirm))
         }
     }

@@ -21,13 +21,13 @@ class DatabaseAddPlayResultViewModel(
     }
 
     private val _playResult = MutableStateFlow<PlayResult?>(null)
-    val score = _playResult.asStateFlow()
+    val playResult = _playResult.asStateFlow()
 
     private val _scoreWarnings = MutableStateFlow<List<ArcaeaPlayResultValidatorWarning>>(listOf())
-    val scoreWarnings = _scoreWarnings.asStateFlow()
+    val warnings = _scoreWarnings.asStateFlow()
 
     private fun validateScore() {
-        val score = score.value ?: return
+        val score = playResult.value ?: return
         val chart = chart.value
 
         _scoreWarnings.value =
@@ -63,8 +63,8 @@ class DatabaseAddPlayResultViewModel(
     }
 
     suspend fun saveScore() {
-        if (score.value != null) {
-            repositoryContainer.playResultRepo.upsert(score.value!!)
+        if (playResult.value != null) {
+            repositoryContainer.playResultRepo.upsert(playResult.value!!)
             reset()
         }
     }

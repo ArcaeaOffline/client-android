@@ -93,15 +93,13 @@ fun ArcaeaButton(
     }
 
     Button(onClick = onClick, modifier, enabled = enabled, colors = colors) {
-        IconRow(icon = {
-            if (enabled && arcaeaIcon != null) {
-                Image(arcaeaIcon, contentDescription = null)
-            } else if (enabled) {
-                Icon(Icons.Default.Settings, contentDescription = null)
-            } else {
-                Icon(Icons.Default.Cancel, contentDescription = null)
+        IconRow {
+            when {
+                enabled && arcaeaIcon != null -> Image(arcaeaIcon, contentDescription = null)
+                enabled -> Icon(Icons.Default.Settings, contentDescription = null)
+                else -> Icon(Icons.Default.Cancel, contentDescription = null)
             }
-        }) {
+
             when (state) {
                 ArcaeaButtonState.NORMAL -> enabledContent()
 

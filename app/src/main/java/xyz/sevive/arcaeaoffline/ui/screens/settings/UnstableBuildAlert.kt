@@ -35,7 +35,8 @@ fun UnstableBuildAlert(modifier: Modifier = Modifier, showDetails: Boolean = tru
         ),
     ) {
         Column(Modifier.padding(dimensionResource(R.dimen.action_button_padding))) {
-            IconRow(icon = { Icon(painterResource(R.drawable.ic_unstable_build), null) }) {
+            IconRow {
+                Icon(painterResource(R.drawable.ic_unstable_build), null)
                 Text(
                     stringResource(R.string.unstable_version_alert_title),
                     fontWeight = FontWeight.Bold,

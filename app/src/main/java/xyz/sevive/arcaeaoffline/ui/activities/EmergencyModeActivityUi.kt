@@ -1,6 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +18,6 @@ import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -34,30 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 
-
-@Composable
-private fun SectionTitle(text: String) {
-    Row(
-        Modifier.padding(top = 8.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        HorizontalDivider(Modifier.width(4.dp))
-
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 8.dp),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary,
-        )
-
-        HorizontalDivider()
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +68,7 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EmergencyModeActivityUi(
     onSelectOutputDirectory: () -> Unit,
@@ -107,18 +90,20 @@ fun EmergencyModeActivityUi(
             contentPadding = PaddingValues(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
-                SectionTitle(stringResource(R.string.emergency_mode_output_directory_title))
+                ListGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))
             }
             item {
                 Column {
-                    IconRow(icon = { Icon(Icons.Default.Code, contentDescription = null) }) {
+                    IconRow {
+                        Icon(Icons.Default.Code, contentDescription = null)
                         Text(
                             outputDirectory?.uri?.path.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    IconRow(icon = { Icon(Icons.Outlined.Folder, contentDescription = null) }) {
+                    IconRow {
+                        Icon(Icons.Outlined.Folder, contentDescription = null)
                         Text(outputDirectory?.name.toString())
                     }
 
@@ -144,22 +129,20 @@ fun EmergencyModeActivityUi(
             }
 
             item {
-                SectionTitle(stringResource(R.string.emergency_mode_ocr_title))
+                ListGroupHeader(stringResource(R.string.emergency_mode_ocr_title))
             }
             item {
-                Column {
+                FlowRow {
                     Button(onClick = { viewModel.deleteAllOcrDependencies(context) }) {
-                        IconRow(icon = {
+                        IconRow {
                             Icon(Icons.Default.DeleteForever, contentDescription = null)
-                        }) {
                             Text(stringResource(R.string.emergency_mode_ocr_delete_all_dependencies_button))
                         }
                     }
 
                     Button(onClick = { viewModel.deleteOcrQueueDatabase(context) }) {
-                        IconRow(icon = {
+                        IconRow {
                             Icon(Icons.Default.DeleteForever, contentDescription = null)
-                        }) {
                             Text(stringResource(R.string.emergency_mode_delete_ocr_queue_db_button))
                         }
                     }
@@ -167,17 +150,16 @@ fun EmergencyModeActivityUi(
             }
 
             item {
-                SectionTitle(stringResource(R.string.emergency_mode_database_title))
+                ListGroupHeader(stringResource(R.string.emergency_mode_database_title))
             }
             item {
-                Column {
+                FlowRow {
                     Button(
                         onClick = { viewModel.copyDatabase(context) },
                         enabled = outputDirectoryValid,
                     ) {
-                        IconRow(icon = {
+                        IconRow {
                             Icon(Icons.Default.FileCopy, contentDescription = null)
-                        }) {
                             Text(stringResource(R.string.emergency_mode_database_copy_button))
                         }
                     }

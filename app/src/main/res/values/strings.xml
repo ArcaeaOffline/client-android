@@ -154,7 +154,7 @@ CC BY-SA 3.0
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>
     <string name="database_add_play_result_select_chart_header">Select a chart…</string>
-    <string name="database_add_play_result_edit_score_header">Then edit your playResult…</string>
+    <string name="database_add_play_result_edit_play_result_header">Then edit your playResult…</string>
     <string name="database_add_play_result_click_select_chart">Click here to select a chart.</string>
     <string name="database_add_play_result_select_chart_first">Select a chart first.</string>
 

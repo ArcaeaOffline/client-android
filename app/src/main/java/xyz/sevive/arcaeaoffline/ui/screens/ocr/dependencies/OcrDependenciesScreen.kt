@@ -72,7 +72,8 @@ fun OcrDependenciesScreen(
                     OcrDependencyKNearestModelStatusViewer(kNearestModelUiState)
 
                     Button(onClick = { kNearestModelFileChooserLauncher.launch("*/*") }) {
-                        IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                        IconRow {
+                            Icon(Icons.Default.FileOpen, null)
                             Text(stringResource(R.string.general_import))
                         }
                     }
@@ -87,7 +88,8 @@ fun OcrDependenciesScreen(
 
                     Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                         Button(onClick = { imageHashesDatabaseFileChooserLauncher.launch("*/*") }) {
-                            IconRow(icon = { Icon(Icons.Default.FileOpen, null) }) {
+                            IconRow {
+                                Icon(Icons.Default.FileOpen, null)
                                 Text(stringResource(R.string.general_import))
                             }
                         }

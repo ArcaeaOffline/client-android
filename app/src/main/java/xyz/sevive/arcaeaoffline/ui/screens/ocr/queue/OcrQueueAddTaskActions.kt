@@ -49,7 +49,8 @@ internal fun OcrQueueAddTaskActions(
             Modifier.weight(1f),
             enabled = enabled,
         ) {
-            IconRow(icon = { Icon(Icons.Default.PhotoLibrary, null) }) {
+            IconRow {
+                Icon(Icons.Default.PhotoLibrary, null)
                 Text(stringResource(R.string.ocr_queue_pick_images_button))
             }
         }
@@ -59,7 +60,8 @@ internal fun OcrQueueAddTaskActions(
             Modifier.weight(1f),
             enabled = enabled,
         ) {
-            IconRow(icon = { Icon(Icons.Default.PermMedia, null) }) {
+            IconRow {
+                Icon(Icons.Default.PermMedia, null)
                 Text(stringResource(R.string.ocr_queue_pick_folder_button))
             }
         }

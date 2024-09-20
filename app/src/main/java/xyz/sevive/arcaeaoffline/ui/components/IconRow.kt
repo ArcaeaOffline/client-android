@@ -22,23 +22,3 @@ fun IconRow(
         content = content,
     )
 }
-
-@Deprecated(
-    "This component is too stupid",
-    ReplaceWith("IconRow { icon\ncontent }")
-)
-@Composable
-fun IconRow(
-    modifier: Modifier = Modifier,
-    icon: @Composable () -> Unit = {},
-    content: @Composable RowScope.() -> Unit
-) {
-    Row(
-        modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        icon()
-        content()
-    }
-}

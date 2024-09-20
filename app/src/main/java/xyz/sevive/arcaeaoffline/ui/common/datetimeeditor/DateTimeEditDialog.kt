@@ -106,13 +106,15 @@ internal fun DateTimeEditDialogBottomBar(
                 contentColor = MaterialTheme.colorScheme.secondary
             ),
         ) {
-            IconRow(icon = { Icon(Icons.Default.Close, null) }) {
+            IconRow {
+                Icon(Icons.Default.Close, null)
                 Text(stringResource(R.string.general_cancel))
             }
         }
 
         Button(onClick = onConfirm) {
-            IconRow(icon = { Icon(Icons.Default.Check, null) }) {
+            IconRow {
+                Icon(Icons.Default.Check, null)
                 Text(stringResource(R.string.general_ok))
             }
         }

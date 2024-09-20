@@ -68,7 +68,8 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 onClick = { coroutineScope.launch { ocrFromShareViewModel.saveScore() } },
                 enabled = score != null && !scoreSaved && !scoreCached,
             ) {
-                IconRow(icon = { Icon(Icons.Default.Save, null) }) {
+                IconRow {
+                    Icon(Icons.Default.Save, null)
                     Text(stringResource(R.string.general_save))
                 }
             }
@@ -77,7 +78,8 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 onClick = { coroutineScope.launch { ocrFromShareViewModel.cacheScore(context) } },
                 enabled = score != null && !scoreSaved && !scoreCached,
             ) {
-                IconRow(icon = { Icon(Icons.Default.Archive, null) }) {
+                IconRow {
+                    Icon(Icons.Default.Archive, null)
                     Text(stringResource(R.string.ocr_from_share_cache_score_button))
                 }
             }
@@ -93,7 +95,8 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 contentColor = MaterialTheme.colorScheme.secondary
             ),
         ) {
-            IconRow(icon = { Icon(Icons.Default.FileDownload, null) }) {
+            IconRow {
+                Icon(Icons.Default.FileDownload, null)
                 Text(stringResource(R.string.ocr_from_share_save_image_button))
             }
         }

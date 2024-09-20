@@ -133,7 +133,7 @@
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">添加游玩记录</string>
     <string name="database_add_play_result_select_chart_header">选择谱面……</string>
-    <string name="database_add_play_result_edit_score_header">编辑游玩记录……</string>
+    <string name="database_add_play_result_edit_play_result_header">编辑游玩记录……</string>
     <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
     <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
 

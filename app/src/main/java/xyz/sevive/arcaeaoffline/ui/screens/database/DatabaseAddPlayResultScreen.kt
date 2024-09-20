@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +26,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -52,6 +53,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
 
@@ -72,17 +74,6 @@ fun SelectChartDialog(
 }
 
 @Composable
-internal fun DelimiterWithText(text: String, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.padding(bottom = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text)
-        HorizontalDivider(Modifier.padding(start = 20.dp))
-    }
-}
-
-@Composable
 internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
@@ -95,12 +86,8 @@ internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Un
                 onClick = onOpenSelectChartDialogRequest,
                 Modifier.weight(1f),
             ) {
-                IconRow(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
-                    icon = {
-                        Icon(Icons.Default.TouchApp, null)
-                    },
-                ) {
+                IconRow(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
+                    Icon(Icons.Default.TouchApp, null)
                     Text(stringResource(R.string.database_add_play_result_click_select_chart))
                 }
             }
@@ -113,7 +100,7 @@ internal fun ChartAction(chart: Chart?, onOpenSelectChartDialogRequest: () -> Un
 }
 
 @Composable
-internal fun ScoreWarningsCard(
+internal fun PlayResultWarningsCard(
     warnings: List<ArcaeaPlayResultValidatorWarning>,
     modifier: Modifier = Modifier,
 ) {
@@ -127,17 +114,11 @@ internal fun ScoreWarningsCard(
     }
 
     Card(onClick = { showWarningsDialog = true }, modifier = modifier) {
-        IconRow(
-            modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
-            icon = {
-                Icon(Icons.Default.Warning, null)
-            },
-        ) {
+        IconRow(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
+            Icon(Icons.Default.Warning, null)
             Text(
                 pluralStringResource(
-                    R.plurals.play_result_validator_warning_count,
-                    warnings.size,
-                    warnings.size
+                    R.plurals.play_result_validator_warning_count, warnings.size, warnings.size
                 )
             )
         }
@@ -145,10 +126,10 @@ internal fun ScoreWarningsCard(
 }
 
 @Composable
-internal fun ScoreAction(
+internal fun PlayResultAction(
     playResult: PlayResult?,
-    scoreEditEnabled: Boolean,
-    onOpenScoreEditorDialogRequest: () -> Unit,
+    playResultEditEnabled: Boolean,
+    onOpenPlayResultEditorDialogRequest: () -> Unit,
     warnings: List<ArcaeaPlayResultValidatorWarning>,
 ) {
     Row(
@@ -158,30 +139,23 @@ internal fun ScoreAction(
         if (playResult != null) {
             Column(Modifier.weight(1f)) {
                 AnimatedVisibility(warnings.isNotEmpty()) {
-                    ScoreWarningsCard(
-                        warnings = warnings,
-                        Modifier.fillMaxWidth()
-                    )
+                    PlayResultWarningsCard(warnings = warnings, Modifier.fillMaxWidth())
                 }
 
                 ArcaeaPlayResultCard(playResult = playResult)
             }
         } else {
             Card(Modifier.weight(1f)) {
-                IconRow(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
-                    icon = {
-                        Icon(Icons.Default.Block, null)
-                    },
-                ) {
+                IconRow(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
+                    Icon(Icons.Default.Block, null)
                     Text(stringResource(R.string.database_add_play_result_select_chart_first))
                 }
             }
         }
 
         IconButton(
-            onClick = onOpenScoreEditorDialogRequest,
-            enabled = scoreEditEnabled,
+            onClick = onOpenPlayResultEditorDialogRequest,
+            enabled = playResultEditEnabled,
         ) {
             Icon(Icons.Default.Edit, contentDescription = null)
         }
@@ -200,7 +174,8 @@ internal fun BottomActionsBar(
             onClick = onReset,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
         ) {
-            IconRow(icon = { Icon(Icons.Default.RestartAlt, contentDescription = null) }) {
+            IconRow {
+                Icon(Icons.Default.RestartAlt, contentDescription = null)
                 Text(stringResource(R.string.general_reset))
             }
         }
@@ -208,7 +183,8 @@ internal fun BottomActionsBar(
         Spacer(Modifier.weight(1f))
 
         Button(onClick = onSave, enabled = saveEnabled) {
-            IconRow(icon = { Icon(Icons.Default.Save, contentDescription = null) }) {
+            IconRow {
+                Icon(Icons.Default.Save, contentDescription = null)
                 Text(stringResource(R.string.general_save))
             }
         }
@@ -224,14 +200,14 @@ fun DatabaseAddPlayResultScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val chart by viewModel.chart.collectAsStateWithLifecycle()
-    val score by viewModel.score.collectAsStateWithLifecycle()
+    val playResult by viewModel.playResult.collectAsStateWithLifecycle()
 
-    val scoreWarnings by viewModel.scoreWarnings.collectAsStateWithLifecycle()
+    val warnings by viewModel.warnings.collectAsStateWithLifecycle()
 
-    val scoreEditEnabled = score != null
+    val playResultEditEnabled by remember { derivedStateOf { playResult != null } }
 
     var showSelectChartDialog by rememberSaveable { mutableStateOf(false) }
-    var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
+    var showPlayResultEditorDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showSelectChartDialog) {
         SelectChartDialog(
@@ -241,10 +217,10 @@ fun DatabaseAddPlayResultScreen(
         )
     }
 
-    if (showScoreEditorDialog && scoreEditEnabled) {
+    if (showPlayResultEditorDialog && playResultEditEnabled) {
         PlayResultEditorDialog(
-            onDismiss = { showScoreEditorDialog = false },
-            playResult = score!!,
+            onDismiss = { showPlayResultEditorDialog = false },
+            playResult = playResult!!,
             onPlayResultChange = { viewModel.setScore(it) },
         )
     }
@@ -256,41 +232,38 @@ fun DatabaseAddPlayResultScreen(
             BottomActionsBar(
                 onReset = { viewModel.reset() },
                 onSave = { coroutineScope.launch { viewModel.saveScore() } },
-                saveEnabled = scoreEditEnabled,
+                saveEnabled = playResultEditEnabled,
                 modifier = Modifier.fillMaxWidth(),
             )
         }) {
-            LazyColumn(Modifier.padding(it)) {
+            LazyColumn(
+                Modifier.padding(it),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
+            ) {
                 item {
-                    DelimiterWithText(stringResource(R.string.database_add_play_result_select_chart_header))
+                    Column {
+                        ListGroupHeader(stringResource(R.string.database_add_play_result_select_chart_header))
+
+                        ChartAction(
+                            chart = chart,
+                            onOpenSelectChartDialogRequest = { showSelectChartDialog = true },
+                        )
+                    }
                 }
 
                 item {
-                    ChartAction(
-                        chart = chart,
-                        onOpenSelectChartDialogRequest = { showSelectChartDialog = true },
-                    )
-                }
+                    Column {
+                        ListGroupHeader(stringResource(R.string.database_add_play_result_edit_play_result_header))
 
-                item {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = dimensionResource(R.dimen.page_padding)),
-                    ) {}
-                }
-
-                item {
-                    DelimiterWithText(stringResource(R.string.database_add_play_result_edit_score_header))
-                }
-
-                item {
-                    ScoreAction(
-                        playResult = score,
-                        scoreEditEnabled = scoreEditEnabled,
-                        onOpenScoreEditorDialogRequest = { showScoreEditorDialog = true },
-                        warnings = scoreWarnings,
-                    )
+                        PlayResultAction(
+                            playResult = playResult,
+                            playResultEditEnabled = playResultEditEnabled,
+                            onOpenPlayResultEditorDialogRequest = {
+                                showPlayResultEditorDialog = true
+                            },
+                            warnings = warnings,
+                        )
+                    }
                 }
             }
         }

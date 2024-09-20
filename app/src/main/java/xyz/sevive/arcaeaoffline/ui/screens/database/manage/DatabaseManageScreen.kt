@@ -82,9 +82,8 @@ fun DatabaseManageScreen(
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
-                IconRow(
-                    icon = { Icon(headerIcon, contentDescription = null, Modifier.size(36.dp)) },
-                ) {
+                IconRow {
+                    Icon(headerIcon, contentDescription = null, Modifier.size(36.dp))
                     Text(headerText, style = MaterialTheme.typography.titleLarge)
                 }
 

@@ -68,7 +68,8 @@ internal fun OcrQueueAddImageFilesProgressDialog(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
                 ) {
-                    IconRow(icon = { Icon(Icons.Default.Stop, null) }) {
+                    IconRow {
+                        Icon(Icons.Default.Stop, null)
                         Text(stringResource(R.string.general_stop))
                     }
                 }
