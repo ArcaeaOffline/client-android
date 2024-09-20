@@ -53,7 +53,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetails
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
 
 
 @Composable
@@ -120,16 +120,10 @@ internal fun ScoreWarningsCard(
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showWarningsDialog) {
-        Dialog(onDismissRequest = { showWarningsDialog = false }) {
-            Surface {
-                Card {
-                    PlayResultValidatorWarningDetails(
-                        warnings = warnings,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
-            }
-        }
+        PlayResultValidatorWarningDetailsDialog(
+            onDismissRequest = { showWarningsDialog = false },
+            warnings = warnings,
+        )
     }
 
     Card(onClick = { showWarningsDialog = true }, modifier = modifier) {

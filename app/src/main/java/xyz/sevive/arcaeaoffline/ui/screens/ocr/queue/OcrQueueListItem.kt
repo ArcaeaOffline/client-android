@@ -40,7 +40,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.window.Dialog
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
@@ -48,7 +47,7 @@ import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetails
+import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
 
 @Composable
 private fun OcrQueueListItemImagePreviewDialog(
@@ -160,11 +159,10 @@ private fun OcrQueueListItemPlayResult(
 
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog && warnings.isNotEmpty()) {
-        Dialog(onDismissRequest = { showWarningsDialog = false }) {
-            Card {
-                PlayResultValidatorWarningDetails(warnings)
-            }
-        }
+        PlayResultValidatorWarningDetailsDialog(
+            onDismissRequest = { showWarningsDialog = false },
+            warnings = warnings
+        )
     }
 
     Row(
