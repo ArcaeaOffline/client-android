@@ -5,10 +5,6 @@
     <dimen name="card_padding">8dp</dimen>
     <dimen name="list_padding">8dp</dimen>
 
-    <dimen name="text_label_padding">2dp</dimen>
-
-    <dimen name="list_padding_main_screen">12dp</dimen>
-
     <dimen name="action_button_padding">16dp</dimen>
     <dimen name="action_button_icon_text_padding">10dp</dimen>
 </resources>
