@@ -3,9 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -19,7 +17,6 @@ import kotlinx.coroutines.launch
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.TitleOutlinedCard
 
 private class CreateJsonDocument : ActivityResultContracts.CreateDocument("application/json")
 
@@ -39,22 +36,17 @@ fun DatabaseManageExport(viewModel: DatabaseManageViewModel, modifier: Modifier 
         }
     }
 
-    TitleOutlinedCard(title = {
-        IconRow(Modifier.padding(it), icon = { Icon(Icons.Default.Upload, null) }) {
-            Text(stringResource(R.string.database_manage_export_title))
-        }
-    }, modifier = modifier) {
-        Column(Modifier.padding(it)) {
-            Button(
-                onClick = {
-                    exportScoreHandler.launch(
-                        "arcaea-offline-data-exchange-${Instant.now().toEpochMilli()}"
-                    )
-                },
-            ) {
-                IconRow(icon = { Icon(Icons.Default.UploadFile, null) }) {
-                    Text(stringResource(R.string.database_manage_export_scores))
-                }
+    Column(modifier) {
+        Button(
+            onClick = {
+                exportScoreHandler.launch(
+                    "arcaea-offline-data-exchange-${Instant.now().toEpochMilli()}"
+                )
+            },
+        ) {
+            IconRow {
+                Icon(Icons.Default.UploadFile, null)
+                Text(stringResource(R.string.database_manage_export_play_results))
             }
         }
     }

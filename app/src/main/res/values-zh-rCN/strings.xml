@@ -128,7 +128,7 @@
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
 
     <string name="database_manage_export_title">导出</string>
-    <string name="database_manage_export_scores">游玩记录</string>
+    <string name="database_manage_export_play_results">游玩记录</string>
 
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">添加游玩记录</string>

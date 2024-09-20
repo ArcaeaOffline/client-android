@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +38,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,16 +97,45 @@ fun DatabaseManageScreen(
         onNavigateUp = onNavigateUp,
         title = stringResource(R.string.database_manage_title),
     ) {
-        LazyColumn(
-            modifier,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-        ) {
+        LazyColumn(modifier) {
             item {
-                DatabaseManageImport(viewModel, Modifier.fillMaxWidth())
+                ListGroupHeader {
+                    IconRow {
+                        Icon(Icons.Default.Download, contentDescription = null)
+                        Text(stringResource(R.string.database_manage_import_title))
+                    }
+                }
             }
 
             item {
-                DatabaseManageExport(viewModel, Modifier.fillMaxWidth())
+                DatabaseManageImport(
+                    viewModel,
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.card_padding)),
+                )
+            }
+
+            item {
+                HorizontalDivider()
+            }
+
+            item {
+                ListGroupHeader {
+                    IconRow {
+                        Icon(Icons.Default.Upload, contentDescription = null)
+                        Text(stringResource(R.string.database_manage_export_title))
+                    }
+                }
+            }
+
+            item {
+                DatabaseManageExport(
+                    viewModel,
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.card_padding)),
+                )
             }
         }
     }

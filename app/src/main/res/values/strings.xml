@@ -149,7 +149,7 @@ CC BY-SA 3.0
     <string name="database_manage_import_chart_info_database">Chart Info Database</string>
 
     <string name="database_manage_export_title">Export…</string>
-    <string name="database_manage_export_scores">Scores</string>
+    <string name="database_manage_export_play_results">Scores</string>
 
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>
