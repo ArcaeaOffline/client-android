@@ -25,11 +25,13 @@ import xyz.sevive.arcaeaoffline.R
 fun SubScreenContainer(
     topBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    floatingActionButton: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = topBar,
+        floatingActionButton = floatingActionButton,
     ) {
         Box(Modifier.padding(it)) {
             content()
