@@ -1,16 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,25 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.alorma.compose.settings.ui.SettingsCheckbox
-import com.alorma.compose.settings.ui.SettingsSlider
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.round
 
-@Composable
-internal fun SettingsTitle(text: String) {
-    Text(
-        text,
-        Modifier.padding(vertical = dimensionResource(R.dimen.icon_text_padding)),
-        style = MaterialTheme.typography.titleLarge,
-    )
-}
 
 @Composable
 private fun OcrQueuePreferencesDialogContent(
@@ -52,47 +37,40 @@ private fun OcrQueuePreferencesDialogContent(
         (uiState.parallelCountMax - uiState.parallelCountMin) / 2 - 1
     }
 
-    LazyColumn(
-        contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding)),
-    ) {
+    LazyColumn {
         item {
-            SettingsTitle(stringResource(R.string.ocr_queue_add_image_options_title))
+            ListGroupHeader(stringResource(R.string.ocr_queue_add_image_options_title))
         }
 
         item {
-            SettingsCheckbox(
-                state = uiState.checkIsImage,
-                onCheckedChange = { onSetCheckIsImage(it) },
-                title = { Text(stringResource(R.string.ocr_queue_add_image_options_check_is_image)) },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            SwitchPreferencesWidget(
+                value = uiState.checkIsImage,
+                onValueChange = { onSetCheckIsImage(it) },
+                title = stringResource(R.string.ocr_queue_add_image_options_check_is_image),
             )
         }
 
         item {
-            SettingsCheckbox(
-                state = uiState.checkIsArcaeaImage,
-                onCheckedChange = { onSetCheckIsArcaeaImage(it) },
-                title = { Text(stringResource(R.string.ocr_queue_add_image_options_detect_screenshot)) },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            SwitchPreferencesWidget(
+                value = uiState.checkIsArcaeaImage,
+                onValueChange = { onSetCheckIsArcaeaImage(it) },
+                title = stringResource(R.string.ocr_queue_add_image_options_detect_screenshot),
             )
         }
 
         item {
-            Text(
-                stringResource(R.string.ocr_queue_queue_options_title),
-                style = MaterialTheme.typography.titleLarge,
-            )
+            ListGroupHeader(stringResource(R.string.ocr_queue_queue_options_title))
         }
 
         item {
-            SettingsSlider(
-                title = { Text(stringResource(R.string.ocr_queue_queue_options_parallel_count) + " - ${uiState.parallelCount}") },
-                icon = { Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null) },
+            SliderPreferencesWidget(
                 value = uiState.parallelCount.toFloat(),
                 onValueChange = { onSetParallelCount(round(it).toInt()) },
+                icon = Icons.AutoMirrored.Default.Sort,
+                title = stringResource(R.string.ocr_queue_queue_options_parallel_count),
+                description = uiState.parallelCount.toString(),
                 valueRange = parallelCountValueRange,
                 steps = parallelCountSliderSteps,
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             )
         }
     }

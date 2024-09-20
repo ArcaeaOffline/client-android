@@ -3,14 +3,12 @@ package xyz.sevive.arcaeaoffline.ui.screens.settings.general
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.alorma.compose.settings.ui.SettingsSwitch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
@@ -28,11 +26,11 @@ internal fun SettingsGeneralScreen(
     ) {
         LazyColumn(modifier) {
             item {
-                SettingsSwitch(
-                    state = uiState.enableSentry,
-                    title = { Text(stringResource(R.string.settings_app_pref_enable_sentry)) },
-                    icon = { Icon(Icons.Default.BugReport, contentDescription = null) },
-                    onCheckedChange = onSetSentryEnabled,
+                SwitchPreferencesWidget(
+                    value = uiState.enableSentry,
+                    onValueChange = { onSetSentryEnabled(it) },
+                    icon = Icons.Default.BugReport,
+                    title = stringResource(R.string.settings_app_pref_enable_sentry),
                 )
             }
         }

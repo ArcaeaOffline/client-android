@@ -235,9 +235,6 @@ dependencies {
 
     implementation(libs.github.cheonjaeung.gridlayout)
 
-    implementation(libs.com.github.alorma.composeSettings.ui)
-    implementation(libs.com.github.alorma.composeSettings.ui.extended)
-
     implementation(libs.aboutlibrariesCore)
     implementation(libs.aboutlibrariesComposeM3)
 

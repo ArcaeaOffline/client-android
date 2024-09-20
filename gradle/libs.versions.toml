@@ -49,8 +49,6 @@ compose-richtext-commonmark = { module = "com.halilibo.compose-richtext:richtext
 compose-richtext-ui-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "compose-richtext" }
 github-jvziyaoyao-scale-imageViewer = { module = "com.jvziyaoyao.scale:image-viewer", version.ref = "github-jvziyaoyao-scale" }
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
-com-github-alorma-composeSettings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
-com-github-alorma-composeSettings-ui-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
 aboutlibrariesCore = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibrariesComposeM3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
