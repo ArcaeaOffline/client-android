@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,9 +24,11 @@ import xyz.sevive.arcaeaoffline.R
 @Composable
 fun SubScreenContainer(
     topBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = topBar,
     ) {
         Box(Modifier.padding(it)) {
@@ -69,9 +72,11 @@ fun SubScreenTopAppBar(
 fun SubScreenContainer(
     onNavigateUp: () -> Unit,
     title: String,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     SubScreenContainer(
+        modifier = modifier,
         topBar = { SubScreenTopAppBar(onNavigateUp = onNavigateUp, title = { Text(title) }) },
         content = content,
     )
@@ -82,10 +87,12 @@ fun SubScreenContainer(
 fun SubScreenContainer(
     onNavigateUp: () -> Unit,
     title: String,
+    modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     SubScreenContainer(
+        modifier = modifier,
         topBar = {
             SubScreenTopAppBar(
                 onNavigateUp = onNavigateUp,
