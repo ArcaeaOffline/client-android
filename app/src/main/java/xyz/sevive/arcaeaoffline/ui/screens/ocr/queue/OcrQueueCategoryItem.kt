@@ -1,13 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.MoreHoriz
@@ -15,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,6 +22,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
@@ -40,23 +39,24 @@ internal fun OcrQueueCategoryItem(
 ) {
     val countString = remember(count) { count.toString() }
 
-    Row(
-        Modifier
-            .clickable { onClick() }
-            .minimumInteractiveComponentSize()
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
-    ) {
-        Icon(icon, contentDescription = null, tint = tint)
-        Text(title)
-
-        Spacer(Modifier.weight(1f))
-
-        Text(countString, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-        tailSlot()
-        Icon(Icons.Default.ChevronRight, contentDescription = null)
-    }
+    TextPreferencesWidget(
+        onClick = onClick,
+        title = title,
+        modifier = modifier,
+        leadingIcon = {
+            Icon(icon, contentDescription = null, tint = tint)
+        },
+        trailingIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
+            ) {
+                Text(countString, Modifier.secondaryItemAlpha())
+                tailSlot()
+                Icon(Icons.AutoMirrored.Default.ArrowRight, contentDescription = null)
+            }
+        },
+    )
 }
 
 @PreviewLightDark
