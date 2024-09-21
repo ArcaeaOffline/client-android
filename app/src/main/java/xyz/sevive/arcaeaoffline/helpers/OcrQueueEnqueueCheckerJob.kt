@@ -10,19 +10,31 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
+import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
+import kotlin.time.Duration.Companion.seconds
 
 
 class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
@@ -52,30 +64,31 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
         checkIsArcaeaImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_ARCAEA_IMAGE, true)
     )
 
-    private fun getRepo() =
-        (applicationContext as ArcaeaOfflineApplication).ocrQueueDatabaseRepositoryContainer.ocrQueueEnqueueBufferRepo
-
-    private fun getTaskRepo() =
-        (applicationContext as ArcaeaOfflineApplication).ocrQueueDatabaseRepositoryContainer.ocrQueueTaskRepo
+    private val repoContainer = OcrQueueDatabaseRepositoryContainer(applicationContext)
+    private val repo = repoContainer.ocrQueueEnqueueBufferRepo
+    private val taskRepo = repoContainer.ocrQueueTaskRepo
 
     private suspend fun cleanup() {
-        val repo = getRepo()
-        val taskRepo = getTaskRepo()
+        Log.i(LOG_TAG, "Cleaning up")
 
         val urisToEnqueue = repo.findShouldInsertUris().firstOrNull() ?: emptyList()
         taskRepo.insertBatch(urisToEnqueue, applicationContext)
         repo.deleteChecked()
     }
 
-    private val queueScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val queue = SimpleChannelTaskQueue<OcrQueueEnqueueBuffer>(queueScope)
+    private val channelScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val channel = Channel<OcrQueueEnqueueBuffer>()
 
+    private val _progress = MutableStateFlow(0)
+    private val _progressTotal = MutableStateFlow(-1)
+
+    private val progressLock = Mutex()
     private val progressListenScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var progressListenJob: Job? = null
     private val progress =
-        combine(queue.isRunning, queue.progress, queue.progressTotal) { running, progress, total ->
-            if (running && total > 0) progress to total
-            else null
+        combine(_progress, _progressTotal) { progress, total ->
+            if (total == -1) null
+            else progress to total
         }.stateIn(progressListenScope, SharingStarted.Eagerly, null)
 
     private fun createNotification(progress: Pair<Int, Int>?): Notification {
@@ -116,8 +129,6 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
 
             cleanup()
 
-            val repo = getRepo()
-
             val dbItems = repo.findUnchecked().firstOrNull() ?: return Result.failure()
             val workOptions = getWorkOptions()
 
@@ -129,34 +140,67 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
                 }
             }
 
-            queue.start(dbItems) {
-                var shouldInsert = true
+            withContext(Dispatchers.IO) {
+                _progressTotal.value = dbItems.size
 
-                if (workOptions.checkIsImage) {
-                    if (!OcrQueueHelper.isUriImage(it.uri, applicationContext)) {
-                        shouldInsert = false
-                    }
+                channelScope.launch {
+                    dbItems.forEach { channel.send(it) }
+                    channel.close()
+                }.invokeOnCompletion {
+                    Log.d(LOG_TAG, "Channel send complete")
                 }
 
-                if (workOptions.checkIsArcaeaImage) {
-                    if (!OcrQueueHelper.isUriArcaeaImage(it.uri, applicationContext)) {
-                        shouldInsert = false
-                    }
-                }
+                delay(0.5.seconds)
 
-                repo.update(
-                    it.copy(checked = true, shouldInsert = shouldInsert)
-                )
+                channel.consumeEach {
+                    processItem(it, repo, workOptions)
+                    progressLock.withLock { _progress.value += 1 }
+                }
             }
 
             return Result.success()
+        } catch (e: CancellationException) {
+            Log.i(LOG_TAG, "CancellationException caught")
+            withContext(NonCancellable) {
+                cleanup()
+                repo.deleteAll()
+            }
+            return Result.failure()
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Unexpected error during enqueue checking", e)
+            withContext(NonCancellable) {
+                cleanup()
+            }
             return Result.failure()
         } finally {
-            cleanup()
+            Log.i(LOG_TAG, "doWork finally cleaning up")
+            channelScope.coroutineContext.cancelChildren()
             progressListenJob?.cancel()
             notificationManager.cancel(NOTIFICATION_ID)
         }
+    }
+
+    private suspend fun processItem(
+        dbItem: OcrQueueEnqueueBuffer,
+        repo: OcrQueueEnqueueBufferRepository,
+        workOptions: WorkOptions,
+    ) {
+        var shouldInsert = true
+
+        if (workOptions.checkIsImage) {
+            if (!OcrQueueHelper.isUriImage(dbItem.uri, applicationContext)) {
+                shouldInsert = false
+            }
+        }
+
+        if (workOptions.checkIsArcaeaImage) {
+            if (!OcrQueueHelper.isUriArcaeaImage(dbItem.uri, applicationContext)) {
+                shouldInsert = false
+            }
+        }
+
+        repo.update(
+            dbItem.copy(checked = true, shouldInsert = shouldInsert)
+        )
     }
 }
