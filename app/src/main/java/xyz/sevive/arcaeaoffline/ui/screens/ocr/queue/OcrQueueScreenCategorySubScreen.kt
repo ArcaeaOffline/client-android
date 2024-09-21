@@ -9,8 +9,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
@@ -47,54 +47,64 @@ private fun NavigationSubScreen(
     onStartSmartFix: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier) {
-        OcrQueueCategoryItem(
-            onClick = { onSwitchScreen(OcrQueueScreenCategory.IDLE) },
-            icon = Icons.Default.MoreHoriz,
-            title = stringResource(R.string.ocr_queue_status_idle),
-            count = idleCount,
-            tint = MaterialTheme.colorScheme.onSurface,
-        )
+    LazyColumn(modifier) {
+        item {
+            OcrQueueCategoryItem(
+                onClick = { onSwitchScreen(OcrQueueScreenCategory.IDLE) },
+                icon = Icons.Default.MoreHoriz,
+                title = stringResource(R.string.ocr_queue_status_idle),
+                count = idleCount,
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
 
-        OcrQueueCategoryItem(
-            onClick = { onSwitchScreen(OcrQueueScreenCategory.PROCESSING) },
-            icon = Icons.Default.HourglassBottom,
-            title = stringResource(R.string.ocr_queue_status_processing),
-            count = processingCount,
-            tint = processingColor(),
-        )
+        item {
+            OcrQueueCategoryItem(
+                onClick = { onSwitchScreen(OcrQueueScreenCategory.PROCESSING) },
+                icon = Icons.Default.HourglassBottom,
+                title = stringResource(R.string.ocr_queue_status_processing),
+                count = processingCount,
+                tint = processingColor(),
+            )
+        }
 
-        OcrQueueCategoryItem(
-            onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE) },
-            icon = Icons.Default.Check,
-            title = stringResource(R.string.ocr_queue_status_done),
-            count = doneCount,
-            tint = doneColor(),
-        ) {
-            IconButton(onClick = onSaveAllTasks) {
-                Icon(Icons.Default.SaveAlt, contentDescription = null)
+        item {
+            OcrQueueCategoryItem(
+                onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE) },
+                icon = Icons.Default.Check,
+                title = stringResource(R.string.ocr_queue_status_done),
+                count = doneCount,
+                tint = doneColor(),
+            ) {
+                IconButton(onClick = onSaveAllTasks) {
+                    Icon(Icons.Default.SaveAlt, contentDescription = null)
+                }
             }
         }
 
-        OcrQueueCategoryItem(
-            onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE_WITH_WARNING) },
-            icon = Icons.Default.Warning,
-            title = stringResource(R.string.ocr_queue_status_done_with_warning),
-            count = doneWithWarningCount,
-            tint = MaterialTheme.colorScheme.onSurface,
-        ) {
-            IconButton(onClick = { onStartSmartFix() }) {
-                Icon(Icons.Filled.Build, contentDescription = null)
+        item {
+            OcrQueueCategoryItem(
+                onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE_WITH_WARNING) },
+                icon = Icons.Default.Warning,
+                title = stringResource(R.string.ocr_queue_status_done_with_warning),
+                count = doneWithWarningCount,
+                tint = MaterialTheme.colorScheme.onSurface,
+            ) {
+                IconButton(onClick = { onStartSmartFix() }) {
+                    Icon(Icons.Filled.Build, contentDescription = null)
+                }
             }
         }
 
-        OcrQueueCategoryItem(
-            onClick = { onSwitchScreen(OcrQueueScreenCategory.ERROR) },
-            icon = Icons.Default.Close,
-            title = stringResource(R.string.ocr_queue_status_error),
-            count = errorCount,
-            tint = errorColor(),
-        )
+        item {
+            OcrQueueCategoryItem(
+                onClick = { onSwitchScreen(OcrQueueScreenCategory.ERROR) },
+                icon = Icons.Default.Close,
+                title = stringResource(R.string.ocr_queue_status_error),
+                count = errorCount,
+                tint = errorColor(),
+            )
+        }
     }
 }
 
@@ -114,6 +124,7 @@ internal fun OcrQueueScreenCategorySubScreen(
     onStartSmartFix: () -> Unit,
     onDeleteTask: (Long) -> Unit,
     onEditPlayResult: (Long, PlayResult) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BackHandler(category != OcrQueueScreenCategory.NULL) {
         onCategoryChange(OcrQueueScreenCategory.NULL)
@@ -130,12 +141,14 @@ internal fun OcrQueueScreenCategorySubScreen(
             uiItems = uiItems,
             onSaveScore = onSavePlayResult,
             onDeleteTask = onDeleteTask,
-            onEditPlayResult = onEditPlayResult
+            onEditPlayResult = onEditPlayResult,
+            modifier = Modifier.fillMaxSize(),
         )
     }
 
     AnimatedContent(
         targetState = category,
+        modifier = modifier,
         transitionSpec = {
             val isSlideToSubScreen = targetState != OcrQueueScreenCategory.NULL
 
@@ -155,6 +168,7 @@ internal fun OcrQueueScreenCategorySubScreen(
                 errorCount = errorCount,
                 onSaveAllTasks = onSaveAllTasks,
                 onStartSmartFix = onStartSmartFix,
+                modifier = Modifier.fillMaxSize(),
             )
 
             else -> {
