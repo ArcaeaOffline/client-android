@@ -16,12 +16,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -288,33 +288,35 @@ class OcrQueueScreenViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val currentUiItems = _currentScreenCategory.flatMapLatest {
-        // first, map category to db items
-        when (it) {
-            OcrQueueScreenCategory.NULL -> emptyFlow()
-            OcrQueueScreenCategory.DONE_WITH_WARNING -> ocrQueueTaskRepo.findDoneWithWarning()
+    val currentUiItems = currentScreenCategory.transformLatest {
+        // clear previous items when category changed
+        emit(emptyList())
 
-            else -> {
-                val taskStatus = when (it) {
-                    OcrQueueScreenCategory.IDLE -> OcrQueueTaskStatus.IDLE
-                    OcrQueueScreenCategory.PROCESSING -> OcrQueueTaskStatus.PROCESSING
-                    OcrQueueScreenCategory.DONE -> OcrQueueTaskStatus.DONE
-                    OcrQueueScreenCategory.ERROR -> OcrQueueTaskStatus.ERROR
-                    else -> throw IllegalStateException("Category not implemented: $it")
+        // map category to db items
+        emitAll(
+            when (it) {
+                OcrQueueScreenCategory.NULL -> emptyFlow()
+                OcrQueueScreenCategory.DONE_WITH_WARNING -> ocrQueueTaskRepo.findDoneWithWarning()
+
+                else -> {
+                    val taskStatus = when (it) {
+                        OcrQueueScreenCategory.IDLE -> OcrQueueTaskStatus.IDLE
+                        OcrQueueScreenCategory.PROCESSING -> OcrQueueTaskStatus.PROCESSING
+                        OcrQueueScreenCategory.DONE -> OcrQueueTaskStatus.DONE
+                        OcrQueueScreenCategory.ERROR -> OcrQueueTaskStatus.ERROR
+                        else -> throw IllegalStateException("Category not implemented: $it")
+                    }
+                    ocrQueueTaskRepo.findByStatus(taskStatus)
                 }
-                ocrQueueTaskRepo.findByStatus(taskStatus)
             }
-        }
-    }.mapLatest {
-        // then, map db items to ui items
+        )
+    }.transformLatest {
         _currentUiItemsLoading.value = true
-        val uiItems = mapDbItemsToUiItems(it)
+        emit(mapDbItemsToUiItems(it))
         _currentUiItemsLoading.value = false
-
-        uiItems
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(1.seconds.inWholeMilliseconds),
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
         emptyList(),
     )
 }
