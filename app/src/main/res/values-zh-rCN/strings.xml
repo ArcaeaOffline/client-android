@@ -185,6 +185,7 @@
 
     <string name="ocr_queue_pick_images_button">多选图像</string>
     <string name="ocr_queue_pick_folder_button">导入文件夹</string>
+    <string name="ocr_queue_stop_enqueue_checker_job_button">停止当前任务</string>
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>

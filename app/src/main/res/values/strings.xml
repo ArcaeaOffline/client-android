@@ -210,6 +210,7 @@ CC BY-SA 3.0
 
     <string name="ocr_queue_pick_images_button">Add Images</string>
     <string name="ocr_queue_pick_folder_button">Import Folder</string>
+    <string name="ocr_queue_stop_enqueue_checker_job_button">Stop Current Job</string>
     <string name="ocr_queue_add_image_options_title">Adding Images</string>
     <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>

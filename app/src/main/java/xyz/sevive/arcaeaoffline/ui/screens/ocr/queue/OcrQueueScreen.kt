@@ -6,18 +6,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,48 +30,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
-
-
-@Composable
-internal fun OcrQueueAddImageFilesProgressDialog(
-    addImagesFromFolderProcessing: Boolean,
-    addImagesProgress: Int,
-    addImagesProgressTotal: Int,
-    onStopAddImageFiles: () -> Unit,
-) {
-    val showDialog = addImagesFromFolderProcessing || addImagesProgressTotal > -1
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { },
-            icon = { Icon(Icons.Default.PhotoLibrary, contentDescription = null) },
-            text = {
-                LinearProgressIndicatorWrapper(
-                    current = addImagesProgress,
-                    total = addImagesProgressTotal,
-                    indeterminateLabel = stringResource(R.string.general_please_wait)
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = onStopAddImageFiles,
-                    enabled = addImagesProgressTotal > -1,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
-                ) {
-                    IconRow {
-                        Icon(Icons.Default.Stop, null)
-                        Text(stringResource(R.string.general_stop))
-                    }
-                }
-            },
-        )
-    }
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,7 +52,7 @@ fun OcrQueueScreen(
 
     val queueRunning by viewModel.queueRunning.collectAsStateWithLifecycle()
 
-    val queueEnqueueCheckerProgress by viewModel.queueEnqueueCheckerProgress.collectAsStateWithLifecycle()
+    val enqueueCheckerJobUiState by viewModel.enqueueCheckerJobUiState.collectAsStateWithLifecycle()
 
     val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()
 
@@ -108,7 +61,7 @@ fun OcrQueueScreen(
     ) { uris ->
         val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         uris.forEach { context.contentResolver.takePersistableUriPermission(it, permissionFlags) }
-        viewModel.addImageFiles(uris, context)
+        viewModel.addImageFiles(uris)
     }
 
     val folderLauncher = rememberLauncherForActivityResult(
@@ -120,7 +73,7 @@ fun OcrQueueScreen(
             context.contentResolver.takePersistableUriPermission(uri, permissionFlags)
 
             val folder = DocumentFile.fromTreeUri(context, uri)
-            folder?.let { viewModel.addFolder(it, context) }
+            folder?.let { viewModel.addFolder(it) }
         }
     }
 
@@ -138,33 +91,34 @@ fun OcrQueueScreen(
 
     SubScreenContainer(
         topBar = {
-            SubScreenTopAppBar(onNavigateUp = onNavigateUp,
+            SubScreenTopAppBar(
+                onNavigateUp = onNavigateUp,
                 title = { Text(stringResource(R.string.ocr_queue_title)) },
                 actions = {
                     IconButton(onClick = { showPreferencesDialog = true }) {
                         Icon(Icons.Default.Settings, null)
                     }
-                })
+                },
+            )
         },
-    ) {
-//        OcrQueueAddImageFilesProgressDialog(
-//            addImagesFromFolderProcessing = addImagesFromFolderProcessing,
-//            addImagesProgress = addImagesProgress,
-//            addImagesProgressTotal = addImagesProgressTotal,
-//            onStopAddImageFiles = { viewModel.stopAddImageFiles() },
-//        )
-
-        Column {
-            OcrQueueAddTaskActions(
+        floatingActionButton = {
+            OcrQueueAddTaskFloatingActionButton(
                 onPickImages = { pickImagesLauncher.launch("image/*") },
                 onPickFolder = { folderLauncher.launch(null) },
+                onStopJob = { viewModel.stopAddImageFiles() },
                 enabled = !queueRunning,
-                queueEnqueueCheckerProgress = queueEnqueueCheckerProgress,
+                uiState = enqueueCheckerJobUiState,
             )
-
+        },
+    ) {
+        Column(Modifier.fillMaxSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AnimatedVisibility(visible = category != OcrQueueScreenCategory.NULL) {
-                    IconButton(onClick = { viewModel.setCurrentScreenCategory(OcrQueueScreenCategory.NULL) }) {
+                    IconButton(
+                        onClick = {
+                            viewModel.setCurrentScreenCategory(OcrQueueScreenCategory.NULL)
+                        },
+                    ) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
                     }
                 }

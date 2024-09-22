@@ -9,6 +9,7 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
@@ -117,6 +117,12 @@ class OcrQueueScreenViewModel(
         )
     }
 
+    data class EnqueueCheckerJobUiState(
+        val isPreparing: Boolean = false,
+        val isRunning: Boolean = false,
+        val progress: Pair<Int, Int>? = null,
+    )
+
     val queueRunning = workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
         it != null && it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), false)
@@ -179,13 +185,33 @@ class OcrQueueScreenViewModel(
         }
     }
 
-    val queueEnqueueCheckerProgress = combine(
-        ocrQueueEnqueueBufferRepo.countChecked(), ocrQueueEnqueueBufferRepo.count()
-    ) { p, t ->
-        if (t > 0) Pair(p, t) else null
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), null)
+    private val enqueueCheckerJobWorkInfo =
+        workManager.getWorkInfosForUniqueWorkFlow(OcrQueueEnqueueCheckerJob.WORK_NAME).map {
+            it.getOrNull(0)
+        }
+    private val enqueueCheckerIsPreparing = MutableStateFlow(false)
+    private val enqueueCheckerProgress = combine(
+        enqueueCheckerJobWorkInfo,
+        ocrQueueEnqueueBufferRepo.countChecked(),
+        ocrQueueEnqueueBufferRepo.count(),
+    ) { workInfo, p, t ->
+        if (workInfo?.state == WorkInfo.State.RUNNING && t > 0) Pair(p, t)
+        else if (workInfo?.state == WorkInfo.State.ENQUEUED) Pair(0, -1)
+        else null
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    val enqueueCheckerJobUiState = combine(
+        enqueueCheckerJobWorkInfo,
+        enqueueCheckerIsPreparing,
+        enqueueCheckerProgress,
+    ) { workInfo, isPreparing, progress ->
+        EnqueueCheckerJobUiState(
+            isPreparing = isPreparing,
+            isRunning = workInfo?.state == WorkInfo.State.RUNNING,
+            progress = progress
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EnqueueCheckerJobUiState())
 
-    fun addImageFiles(uris: List<Uri>, context: Context) {
+    fun addImageFiles(uris: List<Uri>) {
         viewModelScope.launch(Dispatchers.IO) {
             ocrQueueEnqueueBufferRepo.insertBatch(uris)
 
@@ -205,11 +231,14 @@ class OcrQueueScreenViewModel(
         }
     }
 
-    fun addFolder(folder: DocumentFile, context: Context) {
+    fun addFolder(folder: DocumentFile) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
+            enqueueCheckerIsPreparing.value = true
+            try {
                 val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
-                addImageFiles(uris, context)
+                addImageFiles(uris)
+            } finally {
+                enqueueCheckerIsPreparing.value = false
             }
         }
     }
