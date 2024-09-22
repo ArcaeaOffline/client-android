@@ -10,6 +10,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -168,12 +169,13 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
             return Result.failure()
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Unexpected error during enqueue checking", e)
-            withContext(NonCancellable) {
-                cleanup()
-            }
+            Sentry.captureException(e)
             return Result.failure()
         } finally {
             Log.i(LOG_TAG, "doWork finally cleaning up")
+            withContext(NonCancellable) {
+                cleanup()
+            }
             channelScope.coroutineContext.cancelChildren()
             progressListenJob?.cancel()
             notificationManager.cancel(NOTIFICATION_ID)
