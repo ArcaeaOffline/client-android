@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 
@@ -32,50 +32,57 @@ internal fun doneColor() = MaterialTheme.colorScheme.primary
 internal fun errorColor() = MaterialTheme.colorScheme.error
 
 @Composable
+private fun rememberItemWidth(parentWidth: Dp, itemCount: Int, totalCount: Int): Dp {
+    return remember(parentWidth, itemCount, totalCount) {
+        if (totalCount == 0) 0.dp else parentWidth * itemCount / totalCount
+    }
+}
+
+@Composable
 internal fun OcrQueueProgressIndicator(
-    total: Int, processing: Int, done: Int, error: Int,
+    taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
-        val density = LocalDensity.current
-        var width by remember { mutableStateOf(0.dp) }
-        val doneWidth = if (total == 0) 0.dp else width * done / total
-        val errorWidth = if (total == 0) 0.dp else width * error / total
-        val processingWidth = if (total == 0) 0.dp else width * processing / total
+    val density = LocalDensity.current
+    var width by remember { mutableStateOf(0.dp) }
+    val doneWidth = rememberItemWidth(width, taskCounts.done, taskCounts.total)
+    val errorWidth = rememberItemWidth(width, taskCounts.error, taskCounts.total)
+    val processingWidth = rememberItemWidth(width, taskCounts.processing, taskCounts.total)
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(4.dp)
+            .background(ProgressIndicatorDefaults.linearTrackColor)
+            .onGloballyPositioned {
+                width = density.run { it.size.width.toDp() }
+            }
+            .then(modifier),
+    ) {
+        Box(
+            Modifier
+                .width(doneWidth)
+                .fillMaxHeight()
+                .background(doneColor())
+                .align(Alignment.CenterStart)
+        )
 
         Box(
             Modifier
-                .fillMaxWidth()
-                .height(4.dp)
-                .background(ProgressIndicatorDefaults.linearTrackColor)
-                .onGloballyPositioned {
-                    width = density.run { it.size.width.toDp() }
-                }) {
-            Box(
-                Modifier
-                    .width(doneWidth)
-                    .fillMaxHeight()
-                    .background(doneColor())
-                    .align(Alignment.CenterStart)
-            )
+                .width(errorWidth)
+                .fillMaxHeight()
+                .offset(x = doneWidth)
+                .background(errorColor())
+                .align(Alignment.CenterStart)
+        )
 
-            Box(
-                Modifier
-                    .width(errorWidth)
-                    .fillMaxHeight()
-                    .offset(x = doneWidth)
-                    .background(errorColor())
-                    .align(Alignment.CenterStart)
-            )
-
-            Box(
-                Modifier
-                    .width(processingWidth)
-                    .fillMaxHeight()
-                    .offset(x = doneWidth + errorWidth)
-                    .background(processingColor())
-                    .align(Alignment.CenterStart)
-            )
-        }
+        Box(
+            Modifier
+                .width(processingWidth)
+                .fillMaxHeight()
+                .offset(x = doneWidth + errorWidth)
+                .background(processingColor())
+                .align(Alignment.CenterStart)
+        )
     }
 }

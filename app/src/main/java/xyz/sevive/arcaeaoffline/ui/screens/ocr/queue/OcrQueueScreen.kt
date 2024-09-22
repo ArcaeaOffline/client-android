@@ -36,17 +36,11 @@ fun OcrQueueScreen(
     onNavigateUp: () -> Unit,
     viewModel: OcrQueueScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val totalCount by viewModel.totalCount.collectAsStateWithLifecycle()
-    val idleCount by viewModel.idleCount.collectAsStateWithLifecycle()
-    val processingCount by viewModel.processingCount.collectAsStateWithLifecycle()
-    val doneCount by viewModel.doneCount.collectAsStateWithLifecycle()
-    val doneWithWarningCount by viewModel.doneWithWarningCount.collectAsStateWithLifecycle()
-    val errorCount by viewModel.errorCount.collectAsStateWithLifecycle()
+    val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
+    val queueTaskCounts by viewModel.queueTaskCounts.collectAsStateWithLifecycle()
 
     val currentUiItems by viewModel.currentUiItems.collectAsStateWithLifecycle()
     val currentUiItemsLoading by viewModel.currentUiItemsLoading.collectAsStateWithLifecycle()
-
-    val queueRunning by viewModel.queueRunning.collectAsStateWithLifecycle()
 
     val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()
 
@@ -71,7 +65,7 @@ fun OcrQueueScreen(
         },
         floatingActionButton = {
             OcrQueueEnqueueCheckerFloatingActionButton(
-                ocrQueueRunning = queueRunning,
+                ocrQueueRunning = queueStatus.isRunning,
             )
         },
     ) {
@@ -88,10 +82,7 @@ fun OcrQueueScreen(
                 }
 
                 OcrQueueProgressIndicator(
-                    total = totalCount,
-                    processing = processingCount,
-                    done = doneCount,
-                    error = errorCount,
+                    taskCounts = queueTaskCounts,
                     modifier = Modifier.weight(1f),
                 )
 
@@ -99,18 +90,14 @@ fun OcrQueueScreen(
                     onStartQueue = { viewModel.startQueue() },
                     onStopQueue = { viewModel.tryStopQueue() },
                     onClearAllTasks = { viewModel.clearTasks() },
-                    queueRunning = queueRunning,
+                    queueRunning = queueStatus.isRunning,
                 )
             }
 
             OcrQueueScreenCategorySubScreen(
                 category = category,
                 onCategoryChange = { viewModel.setCurrentScreenCategory(it) },
-                idleCount = idleCount,
-                processingCount = processingCount,
-                doneCount = doneCount,
-                doneWithWarningCount = doneWithWarningCount,
-                errorCount = errorCount,
+                taskCounts = queueTaskCounts,
                 currentUiItems = currentUiItems,
                 currentUiItemsLoading = currentUiItemsLoading,
                 onSavePlayResult = { viewModel.saveTaskScore(it) },

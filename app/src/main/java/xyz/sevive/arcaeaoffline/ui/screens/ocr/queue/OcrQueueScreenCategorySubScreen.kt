@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,11 +37,7 @@ internal enum class OcrQueueScreenCategory {
 @Composable
 private fun NavigationSubScreen(
     onSwitchScreen: (OcrQueueScreenCategory) -> Unit,
-    idleCount: Int,
-    processingCount: Int,
-    doneCount: Int,
-    doneWithWarningCount: Int,
-    errorCount: Int,
+    taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
     modifier: Modifier = Modifier
@@ -53,7 +48,7 @@ private fun NavigationSubScreen(
                 onClick = { onSwitchScreen(OcrQueueScreenCategory.IDLE) },
                 icon = Icons.Default.MoreHoriz,
                 title = stringResource(R.string.ocr_queue_status_idle),
-                count = idleCount,
+                count = taskCounts.idle,
                 tint = MaterialTheme.colorScheme.onSurface,
             )
         }
@@ -63,7 +58,7 @@ private fun NavigationSubScreen(
                 onClick = { onSwitchScreen(OcrQueueScreenCategory.PROCESSING) },
                 icon = Icons.Default.HourglassBottom,
                 title = stringResource(R.string.ocr_queue_status_processing),
-                count = processingCount,
+                count = taskCounts.processing,
                 tint = processingColor(),
             )
         }
@@ -73,7 +68,7 @@ private fun NavigationSubScreen(
                 onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE) },
                 icon = Icons.Default.Check,
                 title = stringResource(R.string.ocr_queue_status_done),
-                count = doneCount,
+                count = taskCounts.done,
                 tint = doneColor(),
             ) {
                 IconButton(onClick = onSaveAllTasks) {
@@ -87,7 +82,7 @@ private fun NavigationSubScreen(
                 onClick = { onSwitchScreen(OcrQueueScreenCategory.DONE_WITH_WARNING) },
                 icon = Icons.Default.Warning,
                 title = stringResource(R.string.ocr_queue_status_done_with_warning),
-                count = doneWithWarningCount,
+                count = taskCounts.doneWithWarning,
                 tint = MaterialTheme.colorScheme.onSurface,
             ) {
                 IconButton(onClick = { onStartSmartFix() }) {
@@ -101,7 +96,7 @@ private fun NavigationSubScreen(
                 onClick = { onSwitchScreen(OcrQueueScreenCategory.ERROR) },
                 icon = Icons.Default.Close,
                 title = stringResource(R.string.ocr_queue_status_error),
-                count = errorCount,
+                count = taskCounts.error,
                 tint = errorColor(),
             )
         }
@@ -135,11 +130,7 @@ internal fun OcrQueueScreenCategorySubScreen(
     onCategoryChange: (OcrQueueScreenCategory) -> Unit,
     currentUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
     currentUiItemsLoading: Boolean,
-    idleCount: Int,
-    processingCount: Int,
-    doneCount: Int,
-    doneWithWarningCount: Int,
-    errorCount: Int,
+    taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
     onSavePlayResult: (Long) -> Unit,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
@@ -166,11 +157,7 @@ internal fun OcrQueueScreenCategorySubScreen(
         when (it) {
             OcrQueueScreenCategory.NULL -> NavigationSubScreen(
                 onSwitchScreen = { newCategory -> onCategoryChange(newCategory) },
-                idleCount = idleCount,
-                processingCount = processingCount,
-                doneCount = doneCount,
-                doneWithWarningCount = doneWithWarningCount,
-                errorCount = errorCount,
+                taskCounts = taskCounts,
                 onSaveAllTasks = onSaveAllTasks,
                 onStartSmartFix = onStartSmartFix,
                 modifier = modifier,

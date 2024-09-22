@@ -13,10 +13,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
@@ -82,22 +84,58 @@ class OcrQueueScreenViewModel(
         )
     }
 
-    val queueRunning = workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
-        it != null && it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), false)
+    data class QueueTaskCounts(
+        val total: Int = 0,
+        val idle: Int = 0,
+        val processing: Int = 0,
+        val done: Int = 0,
+        val doneWithWarning: Int = 0,
+        val error: Int = 0,
+    )
 
-    val totalCount =
-        ocrQueueTaskRepo.count().stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
-    val idleCount = ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.IDLE)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
-    val processingCount = ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.PROCESSING)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
-    val doneCount = ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.DONE)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
-    val doneWithWarningCount = ocrQueueTaskRepo.countDoneWithWarning()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
-    val errorCount = ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.ERROR)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), 0)
+    data class QueueStatusUiState(
+        val isRunning: Boolean = true,
+    )
+
+    val queueTaskCounts = combine(
+        ocrQueueTaskRepo.count(),
+        ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.IDLE),
+        ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.PROCESSING),
+        ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.DONE),
+        ocrQueueTaskRepo.countDoneWithWarning(),
+        ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.ERROR),
+    ) {
+        QueueTaskCounts(
+            total = it[0],
+            idle = it[1],
+            processing = it[2],
+            done = it[3],
+            doneWithWarning = it[4],
+            error = it[5],
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        QueueTaskCounts(),
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val queueStatusUiState = workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
+        it.getOrNull(0)
+    }.mapLatest {
+        QueueStatusUiState(
+            isRunning = it?.state == androidx.work.WorkInfo.State.RUNNING,
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        QueueStatusUiState(),
+    )
+
+    private val queueRunning =
+        workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
+            it != null && it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun deleteTask(taskId: Long) {
         if (queueRunning.value) return
