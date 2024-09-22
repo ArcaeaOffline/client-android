@@ -49,6 +49,7 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
 
         const val KEY_INPUT_CHECK_IS_IMAGE = "checkIsImage"
         const val KEY_INPUT_CHECK_IS_ARCAEA_IMAGE = "checkIsArcaeaImage"
+        const val KEY_PARALLEL_COUNT = "parallelCount"
     }
 
     private val notificationManager = NotificationManagerCompat.from(applicationContext)
@@ -58,11 +59,15 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
     private data class WorkOptions(
         val checkIsImage: Boolean,
         val checkIsArcaeaImage: Boolean,
+        val parallelCount: Int,
     )
 
     private fun getWorkOptions(): WorkOptions = WorkOptions(
         checkIsImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_IMAGE, true),
-        checkIsArcaeaImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_ARCAEA_IMAGE, true)
+        checkIsArcaeaImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_ARCAEA_IMAGE, true),
+        parallelCount = inputData.getInt(
+            KEY_PARALLEL_COUNT, Runtime.getRuntime().availableProcessors() / 2
+        )
     )
 
     private val repoContainer = OcrQueueDatabaseRepositoryContainer(applicationContext)
@@ -86,11 +91,10 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
     private val progressLock = Mutex()
     private val progressListenScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var progressListenJob: Job? = null
-    private val progress =
-        combine(_progress, _progressTotal) { progress, total ->
-            if (total == -1) null
-            else progress to total
-        }.stateIn(progressListenScope, SharingStarted.Eagerly, null)
+    private val progress = combine(_progress, _progressTotal) { progress, total ->
+        if (total == -1) null
+        else progress to total
+    }.stateIn(progressListenScope, SharingStarted.Eagerly, null)
 
     private fun createNotification(progress: Pair<Int, Int>?): Notification {
         val builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
@@ -125,13 +129,14 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
     }
 
     override suspend fun doWork(): Result {
+        val workOptions = getWorkOptions()
+
         try {
             setForeground(createForegroundInfo())
 
             cleanup()
 
             val dbItems = repo.findUnchecked().firstOrNull() ?: return Result.failure()
-            val workOptions = getWorkOptions()
 
             progressListenJob = progressListenScope.launch {
                 progress.collect {
@@ -153,9 +158,13 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
 
                 delay(0.5.seconds)
 
-                channel.consumeEach {
-                    processItem(it, repo, workOptions)
-                    progressLock.withLock { _progress.value += 1 }
+                repeat(workOptions.parallelCount) {
+                    launch(Dispatchers.IO) {
+                        channel.consumeEach {
+                            processItem(it, repo, workOptions)
+                            progressLock.withLock { _progress.value += 1 }
+                        }
+                    }
                 }
             }
 
@@ -169,7 +178,10 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
             return Result.failure()
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Unexpected error during enqueue checking", e)
-            Sentry.captureException(e)
+            Sentry.configureScope {
+                it.setContexts(WORK_NAME, workOptions)
+                Sentry.captureException(e)
+            }
             return Result.failure()
         } finally {
             Log.i(LOG_TAG, "doWork finally cleaning up")

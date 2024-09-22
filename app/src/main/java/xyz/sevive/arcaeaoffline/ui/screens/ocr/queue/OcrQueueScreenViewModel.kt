@@ -222,6 +222,9 @@ class OcrQueueScreenViewModel(
                 ).putBoolean(
                     OcrQueueEnqueueCheckerJob.KEY_INPUT_CHECK_IS_ARCAEA_IMAGE,
                     preferencesUiState.value.checkIsArcaeaImage
+                ).putInt(
+                    OcrQueueEnqueueCheckerJob.KEY_PARALLEL_COUNT,
+                    preferencesUiState.value.parallelCount
                 ).build()
             ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 
