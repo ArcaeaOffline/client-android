@@ -12,13 +12,16 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
@@ -33,6 +36,7 @@ import xyz.sevive.arcaeaoffline.helpers.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
+import kotlin.time.Duration.Companion.seconds
 
 
 class OcrQueueScreenViewModel(
@@ -273,9 +277,6 @@ class OcrQueueScreenViewModel(
         _currentScreenCategory.value = category
     }
 
-    private val _currentUiItems = MutableStateFlow(emptyList<TaskUiItem>())
-    val currentUiItems = _currentUiItems.asStateFlow()
-
     private val _currentUiItemsLoading = MutableStateFlow(true)
     val currentUiItemsLoading = _currentUiItemsLoading.asStateFlow()
 
@@ -294,40 +295,34 @@ class OcrQueueScreenViewModel(
         }
     }
 
-    private var uiItemsListenJob: Job? = null
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currentUiItems = _currentScreenCategory.flatMapLatest {
+        // first, map category to db items
+        when (it) {
+            OcrQueueScreenCategory.NULL -> emptyFlow()
+            OcrQueueScreenCategory.DONE_WITH_WARNING -> ocrQueueTaskRepo.findDoneWithWarning()
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            currentScreenCategory.collect { cat ->
-                _currentUiItemsLoading.value = true
-                _currentUiItems.value = emptyList()
-                if (cat == OcrQueueScreenCategory.NULL) {
-                    _currentUiItemsLoading.value = false
-                    return@collect
-                }
-
-                val taskStatus = when (cat) {
+            else -> {
+                val taskStatus = when (it) {
                     OcrQueueScreenCategory.IDLE -> OcrQueueTaskStatus.IDLE
                     OcrQueueScreenCategory.PROCESSING -> OcrQueueTaskStatus.PROCESSING
                     OcrQueueScreenCategory.DONE -> OcrQueueTaskStatus.DONE
-                    OcrQueueScreenCategory.DONE_WITH_WARNING -> OcrQueueTaskStatus.DONE
                     OcrQueueScreenCategory.ERROR -> OcrQueueTaskStatus.ERROR
-                    else -> throw IllegalArgumentException("Category not implemented: $cat")
+                    else -> throw IllegalStateException("Category not implemented: $it")
                 }
-
-                uiItemsListenJob?.cancel()
-                uiItemsListenJob = viewModelScope.launch {
-                    ocrQueueTaskRepo.findByStatus(taskStatus).collect {
-                        _currentUiItemsLoading.value = true
-                        val dbItems =
-                            if (cat == OcrQueueScreenCategory.DONE_WITH_WARNING) it.filter { !it.warnings.isNullOrEmpty() }
-                            else it
-
-                        _currentUiItems.value = mapDbItemsToUiItems(dbItems)
-                        _currentUiItemsLoading.value = false
-                    }
-                }
+                ocrQueueTaskRepo.findByStatus(taskStatus)
             }
         }
-    }
+    }.mapLatest {
+        // then, map db items to ui items
+        _currentUiItemsLoading.value = true
+        val uiItems = mapDbItemsToUiItems(it)
+        _currentUiItemsLoading.value = false
+
+        uiItems
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(1.seconds.inWholeMilliseconds),
+        emptyList(),
+    )
 }
