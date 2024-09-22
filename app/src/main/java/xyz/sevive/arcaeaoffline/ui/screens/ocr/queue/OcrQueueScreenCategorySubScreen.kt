@@ -9,7 +9,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -24,6 +23,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -109,6 +111,31 @@ private fun NavigationSubScreen(
 }
 
 @Composable
+private fun OcrQueueListWrapper(
+    uiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
+    onSavePlayResult: (Long) -> Unit,
+    onDeleteTask: (Long) -> Unit,
+    onEditPlayResult: (Long, PlayResult) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val showEmptyScreen by remember {
+        derivedStateOf { uiItems.isEmpty() }
+    }
+
+    if (showEmptyScreen) {
+        EmptyScreen(modifier)
+    } else {
+        OcrQueueList(
+            uiItems = uiItems,
+            onSaveScore = onSavePlayResult,
+            onDeleteTask = onDeleteTask,
+            onEditPlayResult = onEditPlayResult,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
 internal fun OcrQueueScreenCategorySubScreen(
     category: OcrQueueScreenCategory,
     onCategoryChange: (OcrQueueScreenCategory) -> Unit,
@@ -128,22 +155,6 @@ internal fun OcrQueueScreenCategorySubScreen(
 ) {
     BackHandler(category != OcrQueueScreenCategory.NULL) {
         onCategoryChange(OcrQueueScreenCategory.NULL)
-    }
-
-    @Composable
-    fun OcrQueueListWrapper(uiItems: List<OcrQueueScreenViewModel.TaskUiItem>) {
-        if (uiItems.isEmpty()) {
-            EmptyScreen(Modifier.fillMaxSize())
-            return
-        }
-
-        OcrQueueList(
-            uiItems = uiItems,
-            onSaveScore = onSavePlayResult,
-            onDeleteTask = onDeleteTask,
-            onEditPlayResult = onEditPlayResult,
-            modifier = Modifier.fillMaxSize(),
-        )
     }
 
     AnimatedContent(
@@ -168,16 +179,22 @@ internal fun OcrQueueScreenCategorySubScreen(
                 errorCount = errorCount,
                 onSaveAllTasks = onSaveAllTasks,
                 onStartSmartFix = onStartSmartFix,
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier,
             )
 
             else -> {
                 if (currentUiItemsLoading) {
-                    Box(Modifier.fillMaxSize()) {
+                    Box(modifier) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
                 } else {
-                    OcrQueueListWrapper(uiItems = currentUiItems)
+                    OcrQueueListWrapper(
+                        uiItems = currentUiItems,
+                        onSavePlayResult = onSavePlayResult,
+                        onDeleteTask = onDeleteTask,
+                        onEditPlayResult = onEditPlayResult,
+                        modifier = modifier,
+                    )
                 }
             }
         }

@@ -154,6 +154,7 @@ fun OcrQueueScreen(
                 onEditPlayResult = { id, pr -> viewModel.modifyTaskScore(id, pr) },
                 onSaveAllTasks = { viewModel.saveAllTaskPlayResults() },
                 onStartSmartFix = { viewModel.startSmartFix() },
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
