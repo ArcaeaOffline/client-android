@@ -1,5 +1,8 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -25,24 +28,74 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.roundToInt
 
 
 @Composable
-internal fun OcrQueueAddTaskFloatingActionButton(
+internal fun OcrQueueEnqueueCheckerFloatingActionButton(
+    ocrQueueRunning: Boolean,
+    modifier: Modifier = Modifier,
+    vm: OcrQueueEnqueueCheckerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+) {
+    val context = LocalContext.current
+
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+    val pickImagesLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        // persist access permission to these images, ensuring the image preview function
+        // will work even if the application restarted
+        val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        uris.forEach { context.contentResolver.takePersistableUriPermission(it, permissionFlags) }
+
+        vm.addImageFiles(uris)
+    }
+
+    val pickFolderLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        uri?.let {
+            // persistent access permission to this folder
+            val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            context.contentResolver.takePersistableUriPermission(uri, permissionFlags)
+
+            val folder = DocumentFile.fromTreeUri(context, uri)
+            folder?.let { vm.addFolder(it) }
+        }
+    }
+
+    OcrQueueEnqueueCheckerFloatingActionButton(
+        uiState = uiState,
+        onPickImages = { pickImagesLauncher.launch("image/*") },
+        onPickFolder = { pickFolderLauncher.launch(null) },
+        onStopJob = { vm.cancelWork() },
+        ocrQueueRunning = ocrQueueRunning,
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     onPickImages: () -> Unit,
     onPickFolder: () -> Unit,
     onStopJob: () -> Unit,
-    enabled: Boolean,
-    uiState: OcrQueueScreenViewModel.EnqueueCheckerJobUiState,
+    ocrQueueRunning: Boolean,
+    uiState: OcrQueueEnqueueCheckerViewModel.UiState,
     modifier: Modifier = Modifier,
 ) {
+    val enabled = remember(ocrQueueRunning) { !ocrQueueRunning }
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = enabled) {
@@ -50,7 +103,7 @@ internal fun OcrQueueAddTaskFloatingActionButton(
     }
 
     if (showBottomSheet) {
-        OcrQueueAddTaskBottomSheet(
+        OcrQueueEnqueueCheckerBottomSheet(
             onDismissRequest = { showBottomSheet = false },
             onPickImagesRequest = {
                 onPickImages()
@@ -73,8 +126,8 @@ internal fun OcrQueueAddTaskFloatingActionButton(
         uiState.progress?.let { it.first.toFloat() / it.second }
     }
     val progressText = remember(progress) { progress?.let { "${(it * 100).roundToInt()}%" } }
-    val iconAlpha by animateFloatAsState(
-        targetValue = if (uiState.isPreparing || progress != null) 0.1f else 1f,
+    val imagePlusIconAlpha by animateFloatAsState(
+        targetValue = if (uiState.isPreparing || progress != null) 0.05f else 1f,
         label = "imagePlusIconAlpha",
     )
 
@@ -91,7 +144,7 @@ internal fun OcrQueueAddTaskFloatingActionButton(
                     contentDescription = null,
                     Modifier
                         .align(Alignment.Center)
-                        .alpha(iconAlpha)
+                        .alpha(imagePlusIconAlpha)
                 )
 
                 if (uiState.isPreparing) {
@@ -124,37 +177,37 @@ internal fun OcrQueueAddTaskFloatingActionButton(
 
 @PreviewLightDark
 @Composable
-private fun OcrQueueAddTaskFloatingActionButtonPreview() {
+private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
     ArcaeaOfflineTheme {
         Surface {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OcrQueueAddTaskFloatingActionButton(
+                OcrQueueEnqueueCheckerFloatingActionButton(
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueScreenViewModel.EnqueueCheckerJobUiState(),
-                    enabled = true,
+                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(),
+                    ocrQueueRunning = false,
                 )
 
-                OcrQueueAddTaskFloatingActionButton(
+                OcrQueueEnqueueCheckerFloatingActionButton(
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueScreenViewModel.EnqueueCheckerJobUiState(
+                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
                         isPreparing = true,
                     ),
-                    enabled = true,
+                    ocrQueueRunning = false,
                 )
 
-                OcrQueueAddTaskFloatingActionButton(
+                OcrQueueEnqueueCheckerFloatingActionButton(
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueScreenViewModel.EnqueueCheckerJobUiState(
+                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
                         isRunning = true,
                         progress = 33 to 100,
                     ),
-                    enabled = true,
+                    ocrQueueRunning = false,
                 )
             }
         }

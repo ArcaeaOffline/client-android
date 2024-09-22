@@ -1,21 +1,18 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
 import android.net.Uri
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -32,7 +29,6 @@ import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
@@ -50,7 +46,6 @@ class OcrQueueScreenViewModel(
     }
 
     private val ocrQueueTaskRepo = ocrQueueRepos.ocrQueueTaskRepo
-    private val ocrQueueEnqueueBufferRepo = ocrQueueRepos.ocrQueueEnqueueBufferRepo
 
     private val ocrQueuePreferences = preferencesRepository.preferencesFlow.stateIn(
         viewModelScope,
@@ -86,12 +81,6 @@ class OcrQueueScreenViewModel(
             exception = dbItem.exception,
         )
     }
-
-    data class EnqueueCheckerJobUiState(
-        val isPreparing: Boolean = false,
-        val isRunning: Boolean = false,
-        val progress: Pair<Int, Int>? = null,
-    )
 
     val queueRunning = workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
         it != null && it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
@@ -138,71 +127,6 @@ class OcrQueueScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             ocrQueueTaskRepo.saveAll(repositoryContainer.playResultRepo)
         }
-    }
-
-    private val enqueueCheckerJobWorkInfo =
-        workManager.getWorkInfosForUniqueWorkFlow(OcrQueueEnqueueCheckerJob.WORK_NAME).map {
-            it.getOrNull(0)
-        }
-    private val enqueueCheckerIsPreparing = MutableStateFlow(false)
-    private val enqueueCheckerProgress = combine(
-        enqueueCheckerJobWorkInfo,
-        ocrQueueEnqueueBufferRepo.countChecked(),
-        ocrQueueEnqueueBufferRepo.count(),
-    ) { workInfo, p, t ->
-        if (workInfo?.state == WorkInfo.State.RUNNING && t > 0) Pair(p, t)
-        else if (workInfo?.state == WorkInfo.State.ENQUEUED) Pair(0, -1)
-        else null
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
-    val enqueueCheckerJobUiState = combine(
-        enqueueCheckerJobWorkInfo,
-        enqueueCheckerIsPreparing,
-        enqueueCheckerProgress,
-    ) { workInfo, isPreparing, progress ->
-        EnqueueCheckerJobUiState(
-            isPreparing = isPreparing,
-            isRunning = workInfo?.state == WorkInfo.State.RUNNING,
-            progress = progress
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EnqueueCheckerJobUiState())
-
-    fun addImageFiles(uris: List<Uri>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueEnqueueBufferRepo.insertBatch(uris)
-
-            val workRequest = OneTimeWorkRequestBuilder<OcrQueueEnqueueCheckerJob>().setInputData(
-                Data.Builder().putBoolean(
-                    OcrQueueEnqueueCheckerJob.KEY_INPUT_CHECK_IS_IMAGE,
-                    ocrQueuePreferences.value.checkIsImage
-                ).putBoolean(
-                    OcrQueueEnqueueCheckerJob.KEY_INPUT_CHECK_IS_ARCAEA_IMAGE,
-                    ocrQueuePreferences.value.checkIsArcaeaImage
-                ).putInt(
-                    OcrQueueEnqueueCheckerJob.KEY_PARALLEL_COUNT,
-                    ocrQueuePreferences.value.parallelCount
-                ).build()
-            ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-
-            workManager.enqueueUniqueWork(
-                OcrQueueEnqueueCheckerJob.WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest.build()
-            )
-        }
-    }
-
-    fun addFolder(folder: DocumentFile) {
-        viewModelScope.launch(Dispatchers.IO) {
-            enqueueCheckerIsPreparing.value = true
-            try {
-                val uris = folder.listFiles().filter { it.isFile }.map { it.uri }
-                addImageFiles(uris)
-            } finally {
-                enqueueCheckerIsPreparing.value = false
-            }
-        }
-    }
-
-    fun stopAddImageFiles() {
-        workManager.cancelUniqueWork(OcrQueueEnqueueCheckerJob.WORK_NAME)
     }
 
     fun tryStopQueue() {

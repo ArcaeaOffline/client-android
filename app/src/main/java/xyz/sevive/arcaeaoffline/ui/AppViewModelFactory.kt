@@ -21,6 +21,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListViewM
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker.OcrQueueEnqueueCheckerViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePreferencesViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
@@ -98,6 +99,14 @@ object AppViewModelProvider {
             OcrQueueScreenViewModel(
                 WorkManager.getInstance(application()),
                 application().arcaeaOfflineDatabaseRepositoryContainer,
+                application().ocrQueueDatabaseRepositoryContainer,
+                application().dataStoreRepositoryContainer.ocrQueuePreferences,
+            )
+        }
+
+        initializer {
+            OcrQueueEnqueueCheckerViewModel(
+                WorkManager.getInstance(application()),
                 application().ocrQueueDatabaseRepositoryContainer,
                 application().dataStoreRepositoryContainer.ocrQueuePreferences,
             )

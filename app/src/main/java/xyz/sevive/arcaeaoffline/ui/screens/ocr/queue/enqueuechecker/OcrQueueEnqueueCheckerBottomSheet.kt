@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +38,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun OcrQueueAddTaskBottomSheet(
+internal fun OcrQueueEnqueueCheckerBottomSheet(
     onDismissRequest: () -> Unit,
     onPickImagesRequest: () -> Unit,
     onPickFolderRequest: () -> Unit,
