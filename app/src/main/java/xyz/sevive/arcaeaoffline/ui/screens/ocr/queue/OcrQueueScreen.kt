@@ -27,6 +27,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
@@ -132,7 +133,7 @@ fun OcrQueueScreen(
                 )
 
                 OcrQueueActions(
-                    onStartQueue = { viewModel.startQueue(context) },
+                    onStartQueue = { viewModel.startQueue() },
                     onStopQueue = { viewModel.tryStopQueue() },
                     onClearAllTasks = { viewModel.clearTasks() },
                     queueRunning = queueRunning,
@@ -153,7 +154,7 @@ fun OcrQueueScreen(
                 onDeleteTask = { viewModel.deleteTask(it) },
                 onEditPlayResult = { id, pr -> viewModel.modifyTaskScore(id, pr) },
                 onSaveAllTasks = { viewModel.saveAllTaskPlayResults() },
-                onStartSmartFix = { viewModel.startSmartFix() },
+                onStartSmartFix = { viewModel.startQueue(OcrQueueJob.RunMode.SMART_FIX) },
                 modifier = Modifier.fillMaxSize(),
             )
         }

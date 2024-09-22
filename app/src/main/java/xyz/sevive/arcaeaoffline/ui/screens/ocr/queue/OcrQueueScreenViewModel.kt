@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
-import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
@@ -174,21 +173,6 @@ class OcrQueueScreenViewModel(
         }
     }
 
-    fun startSmartFix() {
-        if (queueRunning.value) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val workRequest = OneTimeWorkRequestBuilder<OcrQueueJob>().setInputData(
-                Data.Builder()
-                    .putInt(OcrQueueJob.DATA_RUN_MODE, OcrQueueJob.RunMode.SMART_FIX.value).build()
-            ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
-
-            workManager.enqueueUniqueWork(
-                OcrQueueJob.WORK_NAME, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest
-            )
-        }
-    }
-
     private val enqueueCheckerJobWorkInfo =
         workManager.getWorkInfosForUniqueWorkFlow(OcrQueueEnqueueCheckerJob.WORK_NAME).map {
             it.getOrNull(0)
@@ -258,11 +242,19 @@ class OcrQueueScreenViewModel(
         workManager.cancelUniqueWork(OcrQueueJob.WORK_NAME)
     }
 
-    fun startQueue(context: Context) {
+    fun startQueue(runMode: OcrQueueJob.RunMode = OcrQueueJob.RunMode.NORMAL) {
         viewModelScope.launch(Dispatchers.Default) {
             val workRequest =
                 OneTimeWorkRequestBuilder<OcrQueueJob>().setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-                    .build()
+                    .setInputData(
+                        Data.Builder().putInt(
+                            OcrQueueJob.DATA_RUN_MODE,
+                            runMode.value,
+                        ).putInt(
+                            OcrQueueJob.DATA_PARALLEL_COUNT,
+                            preferencesUiState.value.parallelCount,
+                        ).build()
+                    ).build()
 
             workManager.enqueueUniqueWork(
                 OcrQueueJob.WORK_NAME, ExistingWorkPolicy.KEEP, workRequest
