@@ -31,6 +31,7 @@ import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePreferencesBottomSheet
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,14 +80,9 @@ fun OcrQueueScreen(
     }
 
     var showPreferencesDialog by rememberSaveable { mutableStateOf(false) }
-    val preferencesUiState by viewModel.preferencesUiState.collectAsStateWithLifecycle()
     if (showPreferencesDialog) {
-        OcrQueuePreferencesDialog(
-            onDismissRequest = { showPreferencesDialog = false },
-            uiState = preferencesUiState,
-            onSetCheckIsImage = { viewModel.setCheckIsImage(it) },
-            onSetCheckIsArcaeaImage = { viewModel.setCheckIsArcaeaImage(it) },
-            onSetParallelCount = { viewModel.setParallelCount(it) },
+        OcrQueuePreferencesBottomSheet(
+            onDismissRequest = { showPreferencesDialog = false }
         )
     }
 

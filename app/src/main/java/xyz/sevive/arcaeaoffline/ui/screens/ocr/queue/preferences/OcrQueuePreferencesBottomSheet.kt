@@ -1,12 +1,13 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,7 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
@@ -24,19 +28,12 @@ import kotlin.math.round
 
 
 @Composable
-private fun OcrQueuePreferencesDialogContent(
-    uiState: OcrQueueScreenViewModel.PreferencesUiState,
+private fun Content(
+    uiState: OcrQueuePreferencesViewModel.PreferencesUiState,
     onSetCheckIsImage: (Boolean) -> Unit,
     onSetCheckIsArcaeaImage: (Boolean) -> Unit,
     onSetParallelCount: (Int) -> Unit,
 ) {
-    val parallelCountValueRange = remember(uiState.parallelCountMin, uiState.parallelCountMax) {
-        uiState.parallelCountMin.toFloat()..uiState.parallelCountMax.toFloat()
-    }
-    val parallelCountSliderSteps = remember(uiState.parallelCountMin, uiState.parallelCountMax) {
-        (uiState.parallelCountMax - uiState.parallelCountMin) / 2 - 1
-    }
-
     LazyColumn {
         item {
             ListGroupHeader(stringResource(R.string.ocr_queue_add_image_options_title))
@@ -69,8 +66,8 @@ private fun OcrQueuePreferencesDialogContent(
                 icon = Icons.AutoMirrored.Default.Sort,
                 title = stringResource(R.string.ocr_queue_queue_options_parallel_count),
                 description = uiState.parallelCount.toString(),
-                valueRange = parallelCountValueRange,
-                steps = parallelCountSliderSteps,
+                valueRange = uiState.parallelCountSliderRange,
+                steps = uiState.parallelCountSliderSteps,
             )
         }
     }
@@ -78,50 +75,49 @@ private fun OcrQueuePreferencesDialogContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OcrQueuePreferencesDialog(
+internal fun OcrQueuePreferencesBottomSheet(
     onDismissRequest: () -> Unit,
-    uiState: OcrQueueScreenViewModel.PreferencesUiState,
-    onSetCheckIsImage: (Boolean) -> Unit,
-    onSetCheckIsArcaeaImage: (Boolean) -> Unit,
-    onSetParallelCount: (Int) -> Unit,
+    vm: OcrQueuePreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val uiState by vm.preferencesUiState.collectAsStateWithLifecycle()
+
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
-        Card {
-            OcrQueuePreferencesDialogContent(
-                uiState = uiState,
-                onSetCheckIsImage = onSetCheckIsImage,
-                onSetCheckIsArcaeaImage = onSetCheckIsArcaeaImage,
-                onSetParallelCount = onSetParallelCount,
-            )
-        }
+        Content(
+            uiState = uiState,
+            onSetCheckIsImage = { vm.setCheckIsImage(it) },
+            onSetCheckIsArcaeaImage = { vm.setCheckIsArcaeaImage(it) },
+            onSetParallelCount = { vm.setParallelCount(it) },
+        )
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @PreviewLightDark
 @Composable
-private fun OcrQueuePreferencesDialogPreview() {
+private fun ContentPreview() {
     var uiState by remember {
         mutableStateOf(
-            OcrQueueScreenViewModel.PreferencesUiState(
+            OcrQueuePreferencesViewModel.PreferencesUiState(
                 checkIsImage = true,
                 checkIsArcaeaImage = true,
                 parallelCount = 4,
-                parallelCountMax = 32,
+                parallelCountMax = 16,
             )
         )
     }
 
     ArcaeaOfflineTheme {
-        Card {
-            Text(uiState.toString())
+        Surface {
+            Column {
+                Text(uiState.toString())
 
-            OcrQueuePreferencesDialogContent(
-                uiState = uiState,
-                onSetCheckIsImage = { uiState = uiState.copy(checkIsImage = it) },
-                onSetCheckIsArcaeaImage = { uiState = uiState.copy(checkIsArcaeaImage = it) },
-                onSetParallelCount = { uiState = uiState.copy(parallelCount = it) },
-            )
+                Content(
+                    uiState = uiState,
+                    onSetCheckIsImage = { uiState = uiState.copy(checkIsImage = it) },
+                    onSetCheckIsArcaeaImage = { uiState = uiState.copy(checkIsArcaeaImage = it) },
+                    onSetParallelCount = { uiState = uiState.copy(parallelCount = it) },
+                )
+            }
         }
     }
 }

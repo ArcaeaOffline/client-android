@@ -29,6 +29,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
+import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueEnqueueCheckerJob
@@ -42,7 +43,7 @@ class OcrQueueScreenViewModel(
     private val workManager: WorkManager,
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
     ocrQueueRepos: OcrQueueDatabaseRepositoryContainer,
-    private val preferencesRepository: OcrQueuePreferencesRepository,
+    preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
     companion object {
         const val LOG_TAG = "OcrQueueScreenViewModel"
@@ -51,45 +52,11 @@ class OcrQueueScreenViewModel(
     private val ocrQueueTaskRepo = ocrQueueRepos.ocrQueueTaskRepo
     private val ocrQueueEnqueueBufferRepo = ocrQueueRepos.ocrQueueEnqueueBufferRepo
 
-    // #region Preferences
-    data class PreferencesUiState(
-        val checkIsImage: Boolean = false,
-        val checkIsArcaeaImage: Boolean = false,
-        val parallelCount: Int = -1,
-
-        val parallelCountMin: Int = 2,
-        val parallelCountMax: Int = Runtime.getRuntime().availableProcessors() * 4,
+    private val ocrQueuePreferences = preferencesRepository.preferencesFlow.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        OcrQueuePreferencesSerializer.defaultValue,
     )
-
-    private val _preferencesUiState = MutableStateFlow(PreferencesUiState())
-    val preferencesUiState = _preferencesUiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            preferencesRepository.preferencesFlow.collect {
-                _preferencesUiState.value = PreferencesUiState(
-                    checkIsImage = it.checkIsImage,
-                    checkIsArcaeaImage = it.checkIsArcaeaImage,
-                    parallelCount = it.parallelCount,
-                )
-            }
-        }
-    }
-
-    fun setCheckIsImage(value: Boolean) {
-        viewModelScope.launch { preferencesRepository.setCheckIsImage(value) }
-    }
-
-    fun setCheckIsArcaeaImage(value: Boolean) {
-        viewModelScope.launch { preferencesRepository.setCheckIsArcaeaImage(value) }
-    }
-
-    fun setParallelCount(value: Int) {
-        // `ocrQueue.setParallelCount(value)` is handled in the upper
-        // `preferencesFlow.collect {...}`.
-        viewModelScope.launch { preferencesRepository.setParallelCount(value) }
-    }
-    // #endregion
 
     data class TaskUiItem(
         val id: Long,
@@ -206,13 +173,13 @@ class OcrQueueScreenViewModel(
             val workRequest = OneTimeWorkRequestBuilder<OcrQueueEnqueueCheckerJob>().setInputData(
                 Data.Builder().putBoolean(
                     OcrQueueEnqueueCheckerJob.KEY_INPUT_CHECK_IS_IMAGE,
-                    preferencesUiState.value.checkIsImage
+                    ocrQueuePreferences.value.checkIsImage
                 ).putBoolean(
                     OcrQueueEnqueueCheckerJob.KEY_INPUT_CHECK_IS_ARCAEA_IMAGE,
-                    preferencesUiState.value.checkIsArcaeaImage
+                    ocrQueuePreferences.value.checkIsArcaeaImage
                 ).putInt(
                     OcrQueueEnqueueCheckerJob.KEY_PARALLEL_COUNT,
-                    preferencesUiState.value.parallelCount
+                    ocrQueuePreferences.value.parallelCount
                 ).build()
             ).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 
@@ -252,7 +219,7 @@ class OcrQueueScreenViewModel(
                             runMode.value,
                         ).putInt(
                             OcrQueueJob.DATA_PARALLEL_COUNT,
-                            preferencesUiState.value.parallelCount,
+                            ocrQueuePreferences.value.parallelCount,
                         ).build()
                     ).build()
 
