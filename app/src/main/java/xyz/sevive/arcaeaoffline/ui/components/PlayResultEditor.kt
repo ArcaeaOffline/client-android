@@ -11,49 +11,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import org.threeten.bp.Instant
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import java.util.UUID
 
 
-// TODO: change this to kotlinx-serialization-json after ocr branch merged
-private val playResultSaver: Saver<PlayResult, *> = listSaver(
-    save = {
-        listOf(
-            it.id, it.uuid.toString(), it.songId, it.ratingClass.value,
-            it.score, it.pure, it.far, it.lost, it.maxRecall,
-            it.date?.toEpochMilli(), it.modifier?.value, it.clearType?.value, it.comment
-        )
-    },
-    restore = {
-        PlayResult(
-            id = it[0] as Long,
-            uuid = UUID.fromString(it[1] as String),
-            songId = it[2] as String,
-            ratingClass = ArcaeaRatingClass.fromInt(it[3] as Int),
-            score = it[4] as Int,
-            pure = it[5] as Int?,
-            far = it[6] as Int?,
-            lost = it[7] as Int?,
-            maxRecall = it[8] as Int?,
-            date = (it[9] as Long?)?.let { long -> Instant.ofEpochMilli(long) },
-            modifier = (it[10] as Int?)?.let { int -> ArcaeaPlayResultModifier.fromInt(int) },
-            clearType = (it[11] as Int?)?.let { int -> ArcaeaPlayResultClearType.fromInt(int) },
-            comment = it[12] as String?
-        )
-    }
+private val playResultSaver: Saver<PlayResult, String> = Saver(
+    save = { Json.encodeToString(it) },
+    restore = { Json.decodeFromString(it) },
 )
 
 @Composable
@@ -66,7 +39,7 @@ fun PlayResultEditorContent(
 
     val tabs = listOf(
         R.string.play_result_editor_main_fields,
-        R.string.play_result_editor_other_fields
+        R.string.play_result_editor_other_fields,
     )
 
     Column(modifier = modifier) {
