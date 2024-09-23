@@ -117,7 +117,7 @@ fun PlayResultEditorDialog(
     }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {},
         modifier = modifier,
         text = {
             PlayResultEditorContent(
