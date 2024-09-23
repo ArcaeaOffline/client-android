@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueEnqueueCheckerJob
+import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
@@ -41,17 +42,22 @@ class OcrQueueEnqueueCheckerViewModel(
         val isPreparing: Boolean = false,
         val isRunning: Boolean = false,
         val progress: Pair<Int, Int>? = null,
+        val ocrQueueRunning: Boolean = true,
     )
 
-    private val jobWorkInfo =
+    private val jobWorkInfoFlow =
         workManager.getWorkInfosForUniqueWorkFlow(OcrQueueEnqueueCheckerJob.WORK_NAME).map {
+            it.getOrNull(0)
+        }
+    private val ocrQueueJobWorkInfoFlow =
+        workManager.getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME).map {
             it.getOrNull(0)
         }
 
     private val isPreparing = MutableStateFlow(false)
 
     private val progress = combine(
-        jobWorkInfo,
+        jobWorkInfoFlow,
         bufferRepo.countChecked(),
         bufferRepo.count(),
     ) { workInfo, p, t ->
@@ -60,11 +66,17 @@ class OcrQueueEnqueueCheckerViewModel(
         else null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
-    val uiState = combine(jobWorkInfo, isPreparing, progress) { workInfo, isPreparing, progress ->
+    val uiState = combine(
+        jobWorkInfoFlow,
+        isPreparing,
+        progress,
+        ocrQueueJobWorkInfoFlow
+    ) { workInfo, isPreparing, progress, ocrQueueJobWorkInfo ->
         UiState(
             isPreparing = isPreparing,
             isRunning = workInfo?.state == WorkInfo.State.RUNNING,
-            progress = progress
+            progress = progress,
+            ocrQueueRunning = ocrQueueJobWorkInfo?.state == WorkInfo.State.RUNNING,
         )
     }.stateIn(
         viewModelScope,

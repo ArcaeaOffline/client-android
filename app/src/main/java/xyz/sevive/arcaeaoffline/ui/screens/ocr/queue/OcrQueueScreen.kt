@@ -46,9 +46,7 @@ fun OcrQueueScreen(
 
     var showPreferencesDialog by rememberSaveable { mutableStateOf(false) }
     if (showPreferencesDialog) {
-        OcrQueuePreferencesBottomSheet(
-            onDismissRequest = { showPreferencesDialog = false }
-        )
+        OcrQueuePreferencesBottomSheet(onDismissRequest = { showPreferencesDialog = false })
     }
 
     SubScreenContainer(
@@ -64,9 +62,7 @@ fun OcrQueueScreen(
             )
         },
         floatingActionButton = {
-            OcrQueueEnqueueCheckerFloatingActionButton(
-                ocrQueueRunning = queueStatus.isRunning,
-            )
+            OcrQueueEnqueueCheckerFloatingActionButton()
         },
     ) {
         Column(Modifier.fillMaxSize()) {

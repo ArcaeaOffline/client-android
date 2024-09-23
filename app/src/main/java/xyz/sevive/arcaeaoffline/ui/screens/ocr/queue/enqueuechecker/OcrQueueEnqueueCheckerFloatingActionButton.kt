@@ -44,7 +44,6 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun OcrQueueEnqueueCheckerFloatingActionButton(
-    ocrQueueRunning: Boolean,
     modifier: Modifier = Modifier,
     vm: OcrQueueEnqueueCheckerViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -81,7 +80,6 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
         onPickImages = { pickImagesLauncher.launch("image/*") },
         onPickFolder = { pickFolderLauncher.launch(null) },
         onStopJob = { vm.cancelWork() },
-        ocrQueueRunning = ocrQueueRunning,
         modifier = modifier,
     )
 }
@@ -91,11 +89,10 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     onPickImages: () -> Unit,
     onPickFolder: () -> Unit,
     onStopJob: () -> Unit,
-    ocrQueueRunning: Boolean,
     uiState: OcrQueueEnqueueCheckerViewModel.UiState,
     modifier: Modifier = Modifier,
 ) {
-    val enabled = remember(ocrQueueRunning) { !ocrQueueRunning }
+    val enabled = !uiState.ocrQueueRunning
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = enabled) {
@@ -185,8 +182,9 @@ private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(),
-                    ocrQueueRunning = false,
+                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
+                        ocrQueueRunning = false,
+                    ),
                 )
 
                 OcrQueueEnqueueCheckerFloatingActionButton(
@@ -195,8 +193,8 @@ private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
                     onStopJob = {},
                     uiState = OcrQueueEnqueueCheckerViewModel.UiState(
                         isPreparing = true,
+                        ocrQueueRunning = false,
                     ),
-                    ocrQueueRunning = false,
                 )
 
                 OcrQueueEnqueueCheckerFloatingActionButton(
@@ -206,8 +204,8 @@ private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
                     uiState = OcrQueueEnqueueCheckerViewModel.UiState(
                         isRunning = true,
                         progress = 33 to 100,
+                        ocrQueueRunning = false,
                     ),
-                    ocrQueueRunning = false,
                 )
             }
         }
