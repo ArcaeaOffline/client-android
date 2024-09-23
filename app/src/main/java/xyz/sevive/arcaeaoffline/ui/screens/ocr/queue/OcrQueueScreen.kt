@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +11,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +44,9 @@ fun OcrQueueScreen(
     val currentUiItemsLoading by viewModel.currentUiItemsLoading.collectAsStateWithLifecycle()
 
     val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()
+    val categoryBackButtonEnabled by remember {
+        derivedStateOf { category != OcrQueueScreenCategory.NULL }
+    }
 
     var showPreferencesDialog by rememberSaveable { mutableStateOf(false) }
     if (showPreferencesDialog) {
@@ -67,14 +71,11 @@ fun OcrQueueScreen(
     ) {
         Column(Modifier.fillMaxSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AnimatedVisibility(visible = category != OcrQueueScreenCategory.NULL) {
-                    IconButton(
-                        onClick = {
-                            viewModel.setCurrentScreenCategory(OcrQueueScreenCategory.NULL)
-                        },
-                    ) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-                    }
+                IconButton(
+                    onClick = { viewModel.setCurrentScreenCategory(OcrQueueScreenCategory.NULL) },
+                    enabled = categoryBackButtonEnabled,
+                ) {
+                    Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
                 }
 
                 OcrQueueProgressIndicator(
