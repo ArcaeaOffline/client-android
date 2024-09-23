@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
@@ -35,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
-import org.threeten.bp.LocalTime
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
@@ -52,49 +52,47 @@ private fun SecondEditor(
 ) {
     val selection = remember { TextRange(2, 2) }  // force cursor to the end
 
-    TextField(
-        value = TextFieldValue(second.toString(), selection = selection),
-        onValueChange = {
-            if (it.text.isEmpty()) onSecondChange(0)
-            else {
-                it.text.toIntOrNull()?.let { int -> if (int in 0..59) onSecondChange(int) }
-            }
-        },
-        modifier = modifier,
-        singleLine = true,
-        leadingIcon = {
-            IconButton(onClick = { if (second > 0) onSecondChange(second - 1) }) {
-                Icon(Icons.Default.Remove, contentDescription = null)
-            }
-        },
-        trailingIcon = {
-            IconButton(onClick = { if (second < 59) onSecondChange(second + 1) }) {
-                Icon(Icons.Default.Add, contentDescription = null)
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-    )
+    DisableSelection {
+        TextField(
+            value = TextFieldValue(second.toString(), selection = selection),
+            onValueChange = {
+                if (it.text.isEmpty()) onSecondChange(0)
+                else {
+                    it.text.toIntOrNull()?.let { int -> if (int in 0..59) onSecondChange(int) }
+                }
+            },
+            modifier = modifier,
+            singleLine = true,
+            leadingIcon = {
+                IconButton(onClick = { if (second > 0) onSecondChange(second - 1) }) {
+                    Icon(Icons.Default.Remove, contentDescription = null)
+                }
+            },
+            trailingIcon = {
+                IconButton(onClick = { if (second < 59) onSecondChange(second + 1) }) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                }
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+    }
 }
 
 @Composable
 internal fun DateTimeEditDialog(
     onDismissRequest: () -> Unit,
-    dateTime: LocalDateTime?,
+    dateTime: LocalDateTime,
     minDate: LocalDate? = null,
     onDateTimeChange: (LocalDateTime) -> Unit,
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
     val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM) }
 
-    var date by rememberSaveable {
-        mutableStateOf(dateTime?.toLocalDate() ?: LocalDate.now())
-    }
+    var date by rememberSaveable { mutableStateOf(dateTime.toLocalDate()) }
     var selectedTime by rememberSaveable {
-        mutableStateOf((dateTime?.toLocalTime() ?: LocalTime.now()).withSecond(0).withNano(0))
+        mutableStateOf(dateTime.toLocalTime().withSecond(0).withNano(0))
     }
-    var second by rememberSaveable {
-        mutableIntStateOf(dateTime?.toLocalTime()?.second ?: 0)
-    }
+    var second by rememberSaveable { mutableIntStateOf(dateTime.toLocalTime().second) }
     val time = remember(selectedTime, second) { selectedTime.withSecond(second) }
     val dateText = remember(date) { dateFormatter.format(date) }
     val timeText = remember(time) { timeFormatter.format(time) }

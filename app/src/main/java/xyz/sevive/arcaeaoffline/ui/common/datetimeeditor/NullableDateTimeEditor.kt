@@ -64,7 +64,7 @@ internal fun NullableDateTimeEditor(
         )
     }
 
-    if (showEditor) {
+    if (showEditor && dateTime != null) {
         DateTimeEditDialog(
             dateTime = dateTime,
             minDate = minDate,
