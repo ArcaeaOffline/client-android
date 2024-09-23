@@ -70,8 +70,8 @@ CC BY-SA 3.0
     <!-- Permission helpers -->
     <string name="permission_required_dialog_title">Permission Required</string>
     <plurals name="permission_required_dialog_content">
-        <item quantity="many">[%s] function needs these permissions:</item>
-        <item quantity="other">[%s] function needs this permission:</item>
+        <item quantity="many">\"%s\" needs these permissions:</item>
+        <item quantity="other">\"%s\" needs this permission:</item>
     </plurals>
     <!-- Functions that need permissions -->
     <string name="permission_function_save_image">Save image</string>

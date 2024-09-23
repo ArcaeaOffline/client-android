@@ -1,65 +1,92 @@
 package xyz.sevive.arcaeaoffline.ui.common
 
 import android.Manifest
-import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flaky
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.em
+import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
-private fun getPermissionIcon(permission: String): ImageVector? {
-    return when (permission) {
-        Manifest.permission.WRITE_EXTERNAL_STORAGE -> Icons.Default.Save
-        Manifest.permission.POST_NOTIFICATIONS -> Icons.Default.NotificationsActive
+@Composable
+fun rememberPermissionIcon(permission: String): ImageVector? {
+    return remember(permission) {
+        when (permission) {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> Icons.Default.Storage
+            Manifest.permission.POST_NOTIFICATIONS -> Icons.Default.NotificationsActive
 
-        else -> null
+            else -> null
+        }
     }
-}
-
-private fun getPermissionLocalizedLabel(
-    permission: String,
-    pm: PackageManager,
-): String {
-    return pm.getPermissionInfo(permission, 0).loadLabel(pm).toString()
 }
 
 @Composable
-private fun getPermissionDisplayAnnotatedString(permission: String): AnnotatedString {
-    val permissionSplitBefore = permission.substringBeforeLast('.')
-    val permissionSplitAfter = permission.substringAfterLast('.')
-
-    return buildAnnotatedString {
-        withStyle(SpanStyle(fontSize = 0.8.em)) {
-            append("$permissionSplitBefore.")
-        }
-        append("\n$permissionSplitAfter")
+fun rememberPermissionDescription(permission: String): String {
+    val context = LocalContext.current
+    return remember(permission) {
+        context.packageManager.getPermissionInfo(permission, 0).loadLabel(context.packageManager)
+            .toString()
     }
+}
+
+@Composable
+private fun PermissionTitle(permission: String, modifier: Modifier = Modifier) {
+    val upperText = remember(permission) { permission.substringBeforeLast('.') }
+    val lowerText = remember(permission) { permission.substringAfterLast('.') }
+
+    Column(modifier) {
+        Text(
+            upperText,
+            Modifier.secondaryItemAlpha(),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Normal,
+            lineHeight = MaterialTheme.typography.labelSmall.fontSize,
+        )
+        Text(lowerText)
+    }
+}
+
+@Composable
+private fun PermissionWidget(permission: String, modifier: Modifier = Modifier) {
+    val content = rememberPermissionDescription(permission)
+    val icon = rememberPermissionIcon(permission)
+
+    BasePreferencesWidget(
+        title = { PermissionTitle(permission) },
+        content = {
+            Text(
+                content,
+                Modifier.secondaryItemAlpha(),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        leadingSlot = icon?.let { { Icon(it, contentDescription = null) } },
+        trailingSlot = null,
+        onClick = null,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -68,10 +95,8 @@ fun PermissionRequiredDialog(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     functionName: String? = null,
-    permissions: Array<String> = arrayOf(),
+    permissions: List<String> = emptyList(),
 ) {
-    val context = LocalContext.current
-
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -85,40 +110,42 @@ fun PermissionRequiredDialog(
                 Text(stringResource(R.string.general_cancel))
             }
         },
-        icon = { Icon(Icons.Default.Flaky, null) },
+        icon = { Icon(Icons.Default.Flaky, contentDescription = null) },
         title = { Text(stringResource(R.string.permission_required_dialog_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
                 Text(
                     pluralStringResource(
                         R.plurals.permission_required_dialog_content,
-                        permissions.size,
+                        count = permissions.size,
                         functionName.toString()
                     )
                 )
 
-                for (permission in permissions) {
-                    HorizontalDivider()
-
-                    Column {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
-                            verticalAlignment = Alignment.Bottom,
-                        ) {
-                            val permissionIcon = getPermissionIcon(permission)
-                            if (permissionIcon != null) Icon(permissionIcon, null)
-
-                            Text(getPermissionDisplayAnnotatedString(permission))
-                        }
-
-                        Text(
-                            getPermissionLocalizedLabel(permission, context.packageManager),
-                            fontWeight = FontWeight.Normal,
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                    }
+                Column {
+                    permissions.forEach { PermissionWidget(it) }
                 }
             }
         },
     )
+}
+
+@Preview
+@Composable
+private fun PermissionRequiredDialogRealDevicePreview() {
+    ArcaeaOfflineTheme {
+        PermissionRequiredDialog(
+            onDismiss = {},
+            onConfirm = {},
+            functionName = "Preview",
+            permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                listOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                )
+            } else {
+                listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            },
+        )
+    }
 }

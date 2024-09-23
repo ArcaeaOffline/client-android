@@ -53,7 +53,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 showSavePicturePermissionRequiredDialog = false
             },
             functionName = stringResource(R.string.permission_function_save_image),
-            permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         )
     }
 
