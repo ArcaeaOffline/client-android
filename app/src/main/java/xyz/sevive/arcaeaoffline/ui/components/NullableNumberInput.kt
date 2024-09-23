@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -13,8 +14,10 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -123,23 +126,33 @@ fun NullableNumberInput(
         )
     }
 
-    val tryOpenEditDialog = remember(editable) { { if (editable) showEditDialog = true } }
+    val tryOpenEditDialog = { if (editable) showEditDialog = true }
 
-    TextField(
-        value = textFieldValue,
-        onValueChange = { },
-        modifier = Modifier
-            .clickable(editable) { tryOpenEditDialog() }
-            .then(modifier),
-        readOnly = true,
-        enabled = editable,
-        label = label,
-        trailingIcon = {
-            IconButton(onClick = tryOpenEditDialog, enabled = editable) {
-                Icon(Icons.Default.Edit, contentDescription = null)
-            }
-        },
-        singleLine = true,
-        visualTransformation = visualTransformation,
-    )
+    DisableSelection {
+        TextField(
+            value = textFieldValue,
+            onValueChange = { },
+            modifier = Modifier
+                .clickable(editable) { tryOpenEditDialog() }
+                .then(modifier),
+            readOnly = true,
+            enabled = false,  // so custom clickable Modifier works
+            colors = if (value != null) TextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+//                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ) else TextFieldDefaults.colors(),  // so colors look like normal TextField even disabled
+            label = label,
+            trailingIcon = {
+                IconButton(onClick = tryOpenEditDialog, enabled = editable) {
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                }
+            },
+            singleLine = true,
+            visualTransformation = visualTransformation,
+        )
+    }
 }
