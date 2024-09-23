@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jakewharton.threetenabp.AndroidThreeTen
+import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
@@ -30,23 +31,24 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
 internal fun NullableDateTimeEditor(
-    date: LocalDateTime?,
-    onDateChange: (LocalDateTime) -> Unit,
+    dateTime: LocalDateTime?,
+    onDateTimeChange: (LocalDateTime) -> Unit,
     modifier: Modifier = Modifier,
+    minDate: LocalDate? = null,
 ) {
     val dateTimeFormatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM) }
-    var showPicker by rememberSaveable { mutableStateOf(false) }
-    val editable = date != null
+    var showEditor by rememberSaveable { mutableStateOf(false) }
+    val editable = dateTime != null
 
     DisableSelection {
         TextField(
-            value = date?.format(dateTimeFormatter) ?: "",
+            value = dateTime?.format(dateTimeFormatter) ?: "",
             onValueChange = {},
-            modifier = modifier.clickable(editable) { showPicker = true },
+            modifier = modifier.clickable(editable) { showEditor = true },
             readOnly = true,
             enabled = false,
             label = { Text(stringResource(R.string.datetime_picker_label)) },
-            colors = if (date != null) TextFieldDefaults.colors(
+            colors = if (dateTime != null) TextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
 //                disabledBorderColor = MaterialTheme.colorScheme.outline,
                 disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -55,21 +57,22 @@ internal fun NullableDateTimeEditor(
                 disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) else TextFieldDefaults.colors(),
             trailingIcon = {
-                IconButton(onClick = { showPicker = true }, enabled = editable) {
+                IconButton(onClick = { showEditor = true }, enabled = editable) {
                     Icon(Icons.Default.Edit, null)
                 }
             },
         )
     }
 
-    if (showPicker) {
+    if (showEditor) {
         DateTimeEditDialog(
-            date = date,
-            onConfirm = {
-                onDateChange(it)
-                showPicker = false
+            dateTime = dateTime,
+            minDate = minDate,
+            onDateTimeChange = {
+                onDateTimeChange(it)
+                showEditor = false
             },
-            onDismiss = { showPicker = false },
+            onDismissRequest = { showEditor = false },
         )
     }
 }
@@ -78,10 +81,9 @@ internal fun NullableDateTimeEditor(
 @Composable
 private fun NullableDateTimeEditorPreview() {
     AndroidThreeTen.init(LocalContext.current)
-
-    var date by remember { mutableStateOf(LocalDateTime.now()) }
+    var dateTime by remember { mutableStateOf(LocalDateTime.now()) }
 
     ArcaeaOfflineTheme {
-        NullableDateTimeEditor(date = date, onDateChange = { date = it })
+        NullableDateTimeEditor(dateTime = dateTime, onDateTimeChange = { dateTime = it })
     }
 }

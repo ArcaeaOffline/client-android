@@ -1,280 +1,199 @@
 package xyz.sevive.arcaeaoffline.ui.common.datetimeeditor
 
-import androidx.annotation.StringRes
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import org.threeten.bp.Instant
+import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.LocalTime
-import org.threeten.bp.ZoneId
-import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
-import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.activity.calculateWindowSizeClass
-import xyz.sevive.arcaeaoffline.helpers.context.findActivity
-import xyz.sevive.arcaeaoffline.ui.common.customtab.CustomTab
-import xyz.sevive.arcaeaoffline.ui.common.customtab.CustomTabIndicatorPosition
-import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-/**
- * FUCK COMPOSE
- */
 
-@OptIn(ExperimentalMaterial3Api::class)
-internal fun dateTimePickerStateToLocalDateTime(
-    datePickerState: DatePickerState,
-    timePickerState: TimePickerState,
-    zoneId: ZoneId = ZoneId.systemDefault(),
-): LocalDateTime {
-    val instant = Instant.ofEpochMilli(datePickerState.selectedDateMillis ?: 0)
-    val localDate = instant.atZone(zoneId).toLocalDate()
+@Composable
+private fun SecondEditor(
+    second: Int,
+    onSecondChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selection = remember { TextRange(2, 2) }  // force cursor to the end
 
-    return LocalDateTime.of(
-        localDate, LocalTime.of(timePickerState.hour, timePickerState.minute)
+    TextField(
+        value = TextFieldValue(second.toString(), selection = selection),
+        onValueChange = {
+            if (it.text.isEmpty()) onSecondChange(0)
+            else {
+                it.text.toIntOrNull()?.let { int -> if (int in 0..59) onSecondChange(int) }
+            }
+        },
+        modifier = modifier,
+        singleLine = true,
+        leadingIcon = {
+            IconButton(onClick = { if (second > 0) onSecondChange(second - 1) }) {
+                Icon(Icons.Default.Remove, contentDescription = null)
+            }
+        },
+        trailingIcon = {
+            IconButton(onClick = { if (second < 59) onSecondChange(second + 1) }) {
+                Icon(Icons.Default.Add, contentDescription = null)
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
     )
 }
 
-private data class DateTimeEditDialogTab(
-    @StringRes val textId: Int, val icon: ImageVector
-)
-
-private val DateTimeEditDialogTabs = listOf(
-    DateTimeEditDialogTab(R.string.datetime_picker_date_tab, Icons.Default.CalendarMonth),
-    DateTimeEditDialogTab(R.string.datetime_picker_time_tab, Icons.Default.Schedule),
-)
-
-@Composable
-internal fun DateTimeEditDialogBottomBar(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    HorizontalDivider()
-
-    Row(
-        Modifier.padding(dimensionResource(R.dimen.page_padding)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-    ) {
-        Spacer(Modifier.weight(1f))
-
-        TextButton(
-            onClick = onDismiss,
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = MaterialTheme.colorScheme.secondary
-            ),
-        ) {
-            IconRow {
-                Icon(Icons.Default.Close, null)
-                Text(stringResource(R.string.general_cancel))
-            }
-        }
-
-        Button(onClick = onConfirm) {
-            IconRow {
-                Icon(Icons.Default.Check, null)
-                Text(stringResource(R.string.general_ok))
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun DateTimeEditDialogContent(
-    datePickerState: DatePickerState,
-    timePickerState: TimePickerState,
-    selectedTab: Int,
-    onSelectedTabChange: (Int) -> Unit,
-    formattedDate: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    Scaffold(
-        Modifier.fillMaxHeight(),
-        topBar = {
-            Column {
-                TabRow(selectedTabIndex = selectedTab) {
-                    DateTimeEditDialogTabs.forEachIndexed { index, tabItem ->
-                        Tab(
-                            text = { Text(stringResource(tabItem.textId)) },
-                            selected = selectedTab == index,
-                            onClick = { onSelectedTabChange(index) },
-                            icon = { Icon(tabItem.icon, null) },
-                        )
-                    }
-                }
-            }
-        },
-        bottomBar = {
-            DateTimeEditDialogBottomBar(onDismiss = onDismiss, onConfirm = onConfirm)
-        },
-    ) { padding ->
-        Scaffold(
-            Modifier
-                .padding(padding)
-                .padding(dimensionResource(R.dimen.page_padding)),
-            bottomBar = { Text(formattedDate) },
-        ) {
-            Column(
-                Modifier
-                    .padding(it)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                when (selectedTab) {
-                    0 -> DatePicker(datePickerState, Modifier.fillMaxWidth())
-                    1 -> TimePicker(timePickerState, Modifier.fillMaxWidth())
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DateTimeEditDialogContentExpanded(
-    datePickerState: DatePickerState,
-    timePickerState: TimePickerState,
-    selectedTab: Int,
-    onSelectedTabChange: (Int) -> Unit,
-    formattedDate: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    Scaffold(bottomBar = {
-        DateTimeEditDialogBottomBar(onDismiss = onDismiss, onConfirm = onConfirm)
-    }) { padding ->
-        Scaffold(
-            Modifier.padding(padding),
-            bottomBar = { Text(formattedDate) },
-        ) {
-            Row(Modifier.padding(it)) {
-                Column {
-                    DateTimeEditDialogTabs.forEachIndexed { index, tabItem ->
-                        CustomTab(
-                            selected = selectedTab == index,
-                            onClick = { onSelectedTabChange(index) },
-                            text = stringResource(tabItem.textId),
-                            icon = { Icon(tabItem.icon, null) },
-                            indicatorPosition = CustomTabIndicatorPosition.END,
-                        )
-                    }
-                }
-
-                Column(
-                    Modifier
-                        .padding(dimensionResource(R.dimen.page_padding))
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    when (selectedTab) {
-                        0 -> DatePicker(datePickerState, Modifier.fillMaxWidth())
-                        1 -> TimePicker(timePickerState, Modifier.fillMaxWidth())
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateTimeEditDialog(
-    date: LocalDateTime?,
-    onDismiss: () -> Unit,
-    onConfirm: (LocalDateTime) -> Unit,
+    onDismissRequest: () -> Unit,
+    dateTime: LocalDateTime?,
+    minDate: LocalDate? = null,
+    onDateTimeChange: (LocalDateTime) -> Unit,
 ) {
-    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM) }
+    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
+    val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM) }
 
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = (date?.toEpochSecond(ZoneOffset.UTC) ?: LocalDateTime.now()
-            .toEpochSecond(ZoneOffset.UTC)) * 1000,
-        yearRange = IntRange(2017, 2100),
-    )
-    val timePickerState = rememberTimePickerState(
-        initialHour = date?.hour ?: 0,
-        initialMinute = date?.minute ?: 0,
-    )
+    var date by rememberSaveable {
+        mutableStateOf(dateTime?.toLocalDate() ?: LocalDate.now())
+    }
+    var selectedTime by rememberSaveable {
+        mutableStateOf((dateTime?.toLocalTime() ?: LocalTime.now()).withSecond(0).withNano(0))
+    }
+    var second by rememberSaveable {
+        mutableIntStateOf(dateTime?.toLocalTime()?.second ?: 0)
+    }
+    val time = remember(selectedTime, second) { selectedTime.withSecond(second) }
+    val dateText = remember(date) { dateFormatter.format(date) }
+    val timeText = remember(time) { timeFormatter.format(time) }
 
-    val pickerStateToLocalDateTime = remember {
-        fun(): LocalDateTime {
-            return dateTimePickerStateToLocalDateTime(datePickerState, timePickerState)
+    var showDateEditDialog by rememberSaveable { mutableStateOf(false) }
+    var showTimeEditDialog by rememberSaveable { mutableStateOf(false) }
+
+    if (showDateEditDialog) {
+        Dialog(onDismissRequest = { showDateEditDialog = false }) {
+            Surface {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    AndroidViewDatePickerDialog(
+                        date = date,
+                        minDate = minDate,
+                        onDateSelect = { date = it },
+                    )
+                } else {
+                    AndroidViewCalendar(
+                        date = date,
+                        minDate = minDate,
+                        onDateSelect = { date = it },
+                    )
+                }
+            }
+        }
+    }
+    if (showTimeEditDialog) {
+        Dialog(onDismissRequest = { showTimeEditDialog = false }) {
+            Surface {
+                AndroidViewTimePicker(time = selectedTime, onTimeSelect = { selectedTime = it })
+            }
         }
     }
 
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
-
-    val widthSizeClass =
-        LocalContext.current.findActivity()?.calculateWindowSizeClass()?.widthSizeClass
-    val expanded = remember(widthSizeClass) {
-        widthSizeClass != null && widthSizeClass >= WindowWidthSizeClass.Expanded
-    }
-
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        if (expanded) {
-            DateTimeEditDialogContentExpanded(
-                datePickerState = datePickerState,
-                timePickerState = timePickerState,
-                selectedTab = selectedTab,
-                onSelectedTabChange = { selectedTab = it },
-                formattedDate = pickerStateToLocalDateTime().format(dateFormatter),
-                onDismiss = onDismiss,
-                onConfirm = { onConfirm(pickerStateToLocalDateTime()) },
+    AlertDialog(
+        onDismissRequest = {},
+        confirmButton = {
+            DialogConfirmButton(
+                onClick = {
+                    onDateTimeChange(date.atTime(time))
+                    onDismissRequest()
+                },
             )
-        } else {
-            DateTimeEditDialogContent(
-                datePickerState = datePickerState,
-                timePickerState = timePickerState,
-                selectedTab = selectedTab,
-                onSelectedTabChange = { selectedTab = it },
-                formattedDate = pickerStateToLocalDateTime().format(dateFormatter),
-                onDismiss = onDismiss,
-                onConfirm = { onConfirm(pickerStateToLocalDateTime()) },
-            )
+        },
+        dismissButton = { DialogDismissTextButton(onClick = onDismissRequest) },
+        icon = { Icon(Icons.Default.EditCalendar, contentDescription = null) },
+        text = {
+            Column {
+                TextPreferencesWidget(
+                    onClick = { showDateEditDialog = true },
+                    leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
+                    trailingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                    title = dateText,
+                )
+
+                Row {
+                    TextPreferencesWidget(
+                        onClick = { showTimeEditDialog = true },
+                        leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null) },
+                        trailingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                        title = timeText,
+                        modifier = Modifier.weight(2f),
+                    )
+
+                    SecondEditor(
+                        second = second,
+                        onSecondChange = { second = it },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Preview
+@Composable
+private fun DateTimeEditDialogRealDevicePreview() {
+    var dateTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var showDialog by remember { mutableStateOf(true) }
+
+    ArcaeaOfflineTheme {
+        Surface {
+            if (showDialog) {
+                DateTimeEditDialog(
+                    onDismissRequest = { showDialog = false },
+                    dateTime = dateTime,
+                    minDate = LocalDate.of(2017, 6, 16),
+                    onDateTimeChange = { dateTime = it },
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(text = dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+
+                Button(onClick = { showDialog = true }) {
+                    Text("Open dialog")
+                }
+            }
         }
     }
 }
