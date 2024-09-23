@@ -13,7 +13,6 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -24,10 +23,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButtonDefaults
 
 
 @Composable
@@ -67,22 +69,30 @@ private fun NullableNumberInputEditDialog(
             }
         },
         confirmButton = {
-            FilledIconButton(onClick = {
-                onNumberChangeCoerceIn(textFieldValue.text.toIntOrNull() ?: 0)
-                onDismiss()
-            }) {
-                Icon(Icons.Default.Check, contentDescription = null)
+            FilledIconButton(
+                onClick = {
+                    onNumberChangeCoerceIn(textFieldValue.text.toIntOrNull() ?: 0)
+                    onDismiss()
+                },
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = stringResource(R.string.general_confirm),
+                )
             }
         },
         dismissButton = {
             IconButton(
                 onClick = onDismiss,
                 colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                    containerColor = MaterialTheme.colorScheme.errorContainer
+                    contentColor = DialogDismissTextButtonDefaults.defaultColors.contentColor,
+                    containerColor = DialogDismissTextButtonDefaults.defaultColors.containerColor,
                 ),
             ) {
-                Icon(Icons.Default.Close, contentDescription = null)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.general_cancel),
+                )
             }
         },
     )

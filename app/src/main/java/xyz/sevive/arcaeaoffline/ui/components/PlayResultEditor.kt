@@ -2,15 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -31,6 +23,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import java.util.UUID
 
 
@@ -156,28 +150,16 @@ fun PlayResultEditorDialog(
             PlayResultEditorContent(
                 playResult = playResultCache,
                 onPlayResultChange = { playResultCache = it },
-//                modifier = modifier.padding(dimensionResource(R.dimen.page_padding)),
             )
-
         },
         confirmButton = {
-            FilledIconButton(onClick = {
-                onPlayResultChange(playResultCache)
-                onDismiss()
-            }) {
-                Icon(Icons.Default.Check, contentDescription = null)
-            }
+            DialogConfirmButton(
+                onClick = {
+                    onPlayResultChange(playResultCache)
+                    onDismiss()
+                },
+            )
         },
-        dismissButton = {
-            IconButton(
-                onClick = onDismiss,
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-            ) {
-                Icon(Icons.Default.Close, contentDescription = null)
-            }
-        },
+        dismissButton = { DialogDismissTextButton(onClick = onDismiss) },
     )
 }

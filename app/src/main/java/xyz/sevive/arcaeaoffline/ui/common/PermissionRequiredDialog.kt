@@ -9,11 +9,9 @@ import androidx.compose.material.icons.filled.Flaky
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -99,17 +99,9 @@ fun PermissionRequiredDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(stringResource(R.string.general_ok))
-            }
-        },
+        confirmButton = { DialogConfirmButton(onClick = onConfirm) },
         modifier = modifier,
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.general_cancel))
-            }
-        },
+        dismissButton = { DialogDismissTextButton(onClick = onDismiss) },
         icon = { Icon(Icons.Default.Flaky, contentDescription = null) },
         title = { Text(stringResource(R.string.permission_required_dialog_title)) },
         text = {

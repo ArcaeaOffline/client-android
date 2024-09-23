@@ -19,8 +19,6 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +49,9 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
+import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
@@ -187,23 +187,16 @@ fun DatabasePlayResultListScreen(
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
             confirmButton = {
-                Button(
+                DialogConfirmButton(
                     onClick = {
                         viewModel.deleteSelectedItems()
                         showDeleteConfirmDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = contentColor,
-                    ),
-                ) {
-                    Text(stringResource(R.string.general_confirm))
-                }
+                    colors = DialogConfirmButtonDefaults.dangerColors,
+                )
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text(stringResource(R.string.general_cancel))
-                }
+                DialogDismissTextButton(onClick = { showDeleteConfirmDialog = false })
             },
             icon = { Icon(Icons.Default.DeleteForever, null) },
             text = {
