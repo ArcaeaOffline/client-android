@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import org.threeten.bp.Instant
+import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import xyz.sevive.arcaeaoffline.R
@@ -230,6 +231,9 @@ internal fun PlayResultEditorMaxRecallField(
 internal fun PlayResultEditorDateTimeField(
     instant: Instant?, onInstantChange: (Instant?) -> Unit, modifier: Modifier = Modifier
 ) {
+    /* The initial release date of Arcaea */
+    val minDate = remember { LocalDate.of(2017, 3, 7) }
+
     GeneralNullableFieldWrapper(
         value = instant,
         defaultValueConstructor = { Instant.now() },
@@ -241,7 +245,8 @@ internal fun PlayResultEditorDateTimeField(
             onDateTimeChange = {
                 onInstantChange(it.toInstant(ZoneId.systemDefault().rules.getOffset(it)))
             },
-            Modifier.weight(1f),
+            modifier = Modifier.weight(1f),
+            minDate = minDate,
         )
     }
 }
