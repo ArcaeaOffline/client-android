@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.twotone.DashboardCustomize
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -99,15 +97,13 @@ fun OcrDependencyStatusChip(
 
     CompositionLocalProvider(
         LocalContentColor provides uiState.color,
-        LocalTextStyle provides MaterialTheme.typography.labelLarge
+        LocalTextStyle provides MaterialTheme.typography.labelLarge,
     ) {
         Row(Modifier.then(modifier), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 uiState.icon,
                 contentDescription = null,
-                Modifier
-                    .padding(end = padding)
-                    .size(AssistChipDefaults.IconSize)
+                Modifier.padding(end = padding)
             )
             AnimatedVisibility(visible = uiState.expanded) {
                 Text(uiState.text)
