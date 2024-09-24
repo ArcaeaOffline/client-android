@@ -69,6 +69,28 @@ object ArcaeaButtonDefaults {
             else -> false
         }
     }
+
+    @Composable
+    fun title(state: ArcaeaButtonState, defaultTitle: String): String {
+        return when (state) {
+            ArcaeaButtonState.NORMAL -> defaultTitle
+            ArcaeaButtonState.NOT_INSTALLED -> stringResource(R.string.general_arcaea_not_installed)
+            ArcaeaButtonState.RESOURCE_UNAVAILABLE -> stringResource(R.string.arcaea_button_resource_unavailable)
+        }
+    }
+
+    @Composable
+    fun ArcaeaIcon(enabled: Boolean) {
+        val context = LocalContext.current
+        val packageHelper = remember { ArcaeaPackageHelper(context) }
+        val arcaeaIcon = arcaeaIconBitmapPainter(packageHelper)
+
+        when {
+            enabled && arcaeaIcon != null -> Image(arcaeaIcon, contentDescription = null)
+            enabled -> Icon(Icons.Default.Settings, contentDescription = null)
+            else -> Icon(Icons.Default.Cancel, contentDescription = null)
+        }
+    }
 }
 
 @Composable
@@ -79,10 +101,6 @@ fun ArcaeaButton(
     enabled: Boolean = ArcaeaButtonDefaults.enabled(state),
     enabledContent: @Composable () -> Unit,
 ) {
-    val packageHelper = ArcaeaPackageHelper(LocalContext.current)
-
-    val arcaeaIcon = arcaeaIconBitmapPainter(packageHelper)
-
     val colors = if (state != ArcaeaButtonState.RESOURCE_UNAVAILABLE) {
         ButtonDefaults.buttonColors()
     } else {
@@ -94,11 +112,7 @@ fun ArcaeaButton(
 
     Button(onClick = onClick, modifier, enabled = enabled, colors = colors) {
         IconRow {
-            when {
-                enabled && arcaeaIcon != null -> Image(arcaeaIcon, contentDescription = null)
-                enabled -> Icon(Icons.Default.Settings, contentDescription = null)
-                else -> Icon(Icons.Default.Cancel, contentDescription = null)
-            }
+            ArcaeaButtonDefaults.ArcaeaIcon(enabled = enabled)
 
             when (state) {
                 ArcaeaButtonState.NORMAL -> enabledContent()

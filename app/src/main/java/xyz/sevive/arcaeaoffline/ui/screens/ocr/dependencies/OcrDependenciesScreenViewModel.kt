@@ -27,8 +27,10 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
@@ -51,9 +53,13 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
             .map { it.firstOrNull() }
             .stateIn(viewModelScope, sharingStarted, null)
 
-    val buildHashesDatabaseButtonEnabled = imageHashesDatabaseBuilderJobInfo.map {
-        val disabled = it != null && !it.state.isFinished
-        return@map !disabled
+    val buildHashesDatabaseButtonEnabled = combine(
+        GlobalArcaeaButtonStateHelper.buildHashesDatabaseButtonState,
+        imageHashesDatabaseBuilderJobInfo,
+    ) { arcaeaButtonState, workInfo ->
+        val enabledByArcaeaButtonState = arcaeaButtonState == ArcaeaButtonState.NORMAL
+        val enabledByWorkInfo = workInfo == null || workInfo.state.isFinished
+        enabledByArcaeaButtonState && enabledByWorkInfo
     }.stateIn(viewModelScope, sharingStarted, true)
 
     private val _imagesHashesDatabaseBuildProgress = imageHashesDatabaseBuilderJobInfo.map {
