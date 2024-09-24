@@ -3,7 +3,9 @@ package xyz.sevive.arcaeaoffline.ui.components.ocr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.ocr.KNearestModelStatusDetail
 
@@ -21,6 +23,7 @@ fun OcrDependencyKNearestModelStatusViewer(
     val details = remember(uiState) { uiState.statusDetail.details() }
 
     OcrDependencyStatusViewer(
+        icon = ImageVector.vectorResource(R.drawable.ic_knearest_model),
         title = stringResource(R.string.ocr_dependency_knn_model),
         status = status,
         summary = summary,
