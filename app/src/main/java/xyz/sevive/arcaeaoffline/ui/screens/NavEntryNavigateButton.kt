@@ -3,8 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.screens
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -21,12 +19,8 @@ fun NavEntryNavigateButton(
     TextPreferencesWidget(
         title = title,
         content = description,
-        leadingIcon = icon?.let {
-            { Icon(it, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
-        },
-        trailingIcon = {
-            Icon(Icons.AutoMirrored.Default.ArrowRight, contentDescription = null)
-        },
+        leadingIcon = icon,
+        trailingIcon = Icons.AutoMirrored.Default.ArrowRight,
         onClick = onClick,
     )
 }

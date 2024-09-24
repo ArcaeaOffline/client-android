@@ -17,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -143,16 +144,18 @@ internal fun DateTimeEditDialog(
             Column {
                 TextPreferencesWidget(
                     onClick = { showDateEditDialog = true },
-                    leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
-                    trailingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                    leadingIcon = Icons.Default.CalendarMonth,
+                    leadingIconTint = MaterialTheme.colorScheme.secondary,
+                    trailingIcon = Icons.Default.Edit,
                     title = dateText,
                 )
 
                 Row {
                     TextPreferencesWidget(
                         onClick = { showTimeEditDialog = true },
-                        leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                        leadingIcon = Icons.Default.AccessTime,
+                        leadingIconTint = MaterialTheme.colorScheme.secondary,
+                        trailingIcon = Icons.Default.Edit,
                         title = timeText,
                         modifier = Modifier.weight(2f),
                     )

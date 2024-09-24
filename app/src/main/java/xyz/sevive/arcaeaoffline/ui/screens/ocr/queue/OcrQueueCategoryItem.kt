@@ -43,10 +43,10 @@ internal fun OcrQueueCategoryItem(
         onClick = onClick,
         title = title,
         modifier = modifier,
-        leadingIcon = {
+        leadingSlot = {
             Icon(icon, contentDescription = null, tint = tint)
         },
-        trailingIcon = {
+        trailingSlot = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),

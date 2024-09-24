@@ -112,7 +112,8 @@ private fun ExpandedContent(
                 TextPreferencesWidget(
                     onClick = it,
                     title = UiVariables.stopJobLabel,
-                    leadingIcon = { Icon(UiVariables.stopJobIcon, contentDescription = null) },
+                    leadingIcon = UiVariables.stopJobIcon,
+                    leadingIconTint = LocalContentColor.current,
                 )
             }
         }
@@ -149,7 +150,7 @@ private fun DefaultContent(
                 TextPreferencesWidget(
                     onClick = it,
                     title = UiVariables.stopJobLabel,
-                    leadingIcon = { Icon(UiVariables.stopJobIcon, contentDescription = null) },
+                    leadingSlot = { Icon(UiVariables.stopJobIcon, contentDescription = null) },
                 )
             }
         }
@@ -157,7 +158,7 @@ private fun DefaultContent(
         TextPreferencesWidget(
             onClick = onPickImagesRequest,
             title = UiVariables.pickImagesLabel,
-            leadingIcon = {
+            leadingSlot = {
                 Icon(
                     UiVariables.pickImagesIcon,
                     contentDescription = null,
@@ -169,7 +170,7 @@ private fun DefaultContent(
         TextPreferencesWidget(
             onClick = onPickFolderRequest,
             title = UiVariables.pickFolderLabel,
-            leadingIcon = {
+            leadingSlot = {
                 Icon(
                     UiVariables.pickFolderIcon,
                     contentDescription = null,
