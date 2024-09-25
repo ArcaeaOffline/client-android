@@ -26,14 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -48,8 +51,12 @@ fun DatabaseManageScreen(
     modifier: Modifier = Modifier,
     viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     val actionRunning by viewModel.actionRunning.collectAsStateWithLifecycle()
     val messages by viewModel.messages.collectAsStateWithLifecycle()
+    val importArcaeaApkFromInstalledButtonState by viewModel.importArcaeaApkFromInstalledButtonState.collectAsStateWithLifecycle()
 
     var showLogsSheet by rememberSaveable { mutableStateOf(false) }
     val logsSheetState = rememberModalBottomSheetState(confirmValueChange = { !actionRunning })
@@ -87,7 +94,12 @@ fun DatabaseManageScreen(
                     Text(headerText, style = MaterialTheme.typography.titleLarge)
                 }
 
-                Text(messages.joinToString("\n"), Modifier.animateContentSize())
+                Text(
+                    messages.joinToString("\n"),
+                    Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(),
+                )
             }
         }
     }
@@ -108,10 +120,30 @@ fun DatabaseManageScreen(
 
             item {
                 DatabaseManageImport(
-                    viewModel,
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.card_padding)),
+                    onImportPacklist = { uri ->
+                        coroutineScope.launch { viewModel.importPacklist(uri, context) }
+                    },
+                    onImportSonglist = { uri ->
+                        coroutineScope.launch { viewModel.importSonglist(uri, context) }
+                    },
+                    onImportArcaeaApk = { uri ->
+                        context.contentResolver.openInputStream(uri)?.use {
+                            coroutineScope.launch {
+                                viewModel.importArcaeaApkFromInputStream(it, context)
+                            }
+                        }
+                    },
+                    arcaeaButtonState = importArcaeaApkFromInstalledButtonState,
+                    onImportFromInstalledArcaea = {
+                        coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
+                    },
+                    onImportChartInfoDatabase = { uri ->
+                        coroutineScope.launch { viewModel.importChartsInfoDatabase(uri, context) }
+                    },
+                    onImportSt3 = { uri ->
+                        coroutineScope.launch { viewModel.importSt3(uri, context) }
+                    },
+                    Modifier.fillMaxWidth(),
                 )
             }
 
@@ -130,10 +162,12 @@ fun DatabaseManageScreen(
 
             item {
                 DatabaseManageExport(
-                    viewModel,
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.card_padding)),
+                    onExportPlayResults = { uri ->
+                        context.contentResolver.openOutputStream(uri)?.use {
+                            coroutineScope.launch { viewModel.exportScores(it) }
+                        }
+                    },
+                    Modifier.fillMaxWidth(),
                 )
             }
         }

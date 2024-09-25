@@ -1,143 +1,105 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.FileOpen
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
+import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButton
-import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DatabaseManageImport(viewModel: DatabaseManageViewModel, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+private fun joinImportEntries(entries: List<String>): String {
+    return remember(entries) { entries.joinToString(" · ") }
+}
 
-    val importPacklistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { fileUri ->
-        fileUri?.let {
-            coroutineScope.launch { viewModel.importPacklist(it, context) }
-        }
-    }
+@Composable
+fun DatabaseManageImport(
+    onImportPacklist: (Uri) -> Unit,
+    onImportSonglist: (Uri) -> Unit,
+    onImportArcaeaApk: (Uri) -> Unit,
+    arcaeaButtonState: ArcaeaButtonState,
+    onImportFromInstalledArcaea: () -> Unit,
+    onImportChartInfoDatabase: (Uri) -> Unit,
+    onImportSt3: (Uri) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val importPacklistLauncher = rememberFileChooserLauncher { it?.let(onImportPacklist) }
+    val importSonglistLauncher = rememberFileChooserLauncher { it?.let(onImportSonglist) }
+    val importArcaeaApkLauncher = rememberFileChooserLauncher { it?.let(onImportArcaeaApk) }
+    val importChartInfoDatabaseLauncher =
+        rememberFileChooserLauncher { it?.let(onImportChartInfoDatabase) }
+    val importSt3Launcher = rememberFileChooserLauncher { it?.let(onImportSt3) }
 
-    val importSonglistLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { fileUri ->
-        fileUri?.let {
-            coroutineScope.launch { viewModel.importSonglist(it, context) }
-        }
-    }
+    val descPackEntries = stringResource(R.string.database_manage_import_pack_entries)
+    val descSongEntries = stringResource(R.string.database_manage_import_song_entries)
+    val descDifficultyEntries = stringResource(R.string.database_manage_import_difficulty_entries)
+    val descChartInfoEntries = stringResource(R.string.database_manage_import_chart_info_entries)
+    val descPlayResultEntries = stringResource(R.string.database_manage_import_play_result_entries)
 
-    val importArcaeaApkLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { fileUri ->
-        fileUri?.let { uri ->
-            context.contentResolver.openInputStream(uri)?.let {
-                coroutineScope.launch { viewModel.importArcaeaApkFromInputStream(it, context) }
-            }
-        }
-    }
+    Column(modifier) {
+        TextPreferencesWidget(
+            onClick = { importPacklistLauncher.launch("*/*") },
+            title = stringResource(R.string.database_manage_import_packlist),
+            content = joinImportEntries(listOf(descPackEntries)),
+            leadingIcon = Icons.Default.DataObject,
+        )
 
-    val importChartInfoDatabaseLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) {
-        it?.let {
-            coroutineScope.launch {
-                viewModel.importChartsInfoDatabase(it, context)
-            }
-        }
-    }
+        TextPreferencesWidget(
+            onClick = { importSonglistLauncher.launch("*/*") },
+            title = stringResource(R.string.database_manage_import_songlist),
+            content = joinImportEntries(listOf(descSongEntries, descDifficultyEntries)),
+            leadingIcon = Icons.Default.DataObject,
+        )
 
-    val importSt3Launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { it?.let { viewModel.importSt3(it, context) } }
+        TextPreferencesWidget(
+            onClick = { importArcaeaApkLauncher.launch("*/*") },
+            title = stringResource(R.string.database_manage_import_from_arcaea_apk),
+            content = joinImportEntries(
+                listOf(descPackEntries, descSongEntries, descDifficultyEntries)
+            ),
+            leadingIcon = Icons.Default.Android,
+        )
 
-    val importArcaeaApkFromInstalledButtonState by viewModel.importArcaeaApkFromInstalledButtonState.collectAsStateWithLifecycle()
-
-    Column(
-        modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
-    ) {
-        Column {
-
-            ListGroupHeader(stringResource(R.string.database_manage_import_song_info_title))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
-            ) {
-                Button({ importPacklistLauncher.launch("*/*") }) {
-                    IconRow {
-                        Icon(Icons.Default.FileOpen, null)
-                        Text(stringResource(R.string.database_manage_import_packlist))
-                    }
-                }
-
-                Button({ importSonglistLauncher.launch("*/*") }) {
-                    IconRow {
-                        Icon(Icons.Default.FileOpen, null)
-                        Text(stringResource(R.string.database_manage_import_songlist))
-                    }
-                }
-
-                Button({ importArcaeaApkLauncher.launch("*/*") }) {
-                    IconRow {
-                        Icon(Icons.Default.Android, null)
-                        Text(stringResource(R.string.database_manage_import_from_arcaea_apk))
-                    }
-                }
-
-                ArcaeaButton(
-                    onClick = {
-                        coroutineScope.launch { viewModel.importArcaeaApkFromInstalled(context) }
-                    },
-                    state = importArcaeaApkFromInstalledButtonState,
-                ) {
-                    Text(stringResource(R.string.database_manage_import_from_arcaea_installed))
-                }
-            }
+        if (arcaeaButtonState == ArcaeaButtonState.NORMAL) {
+            TextPreferencesWidget(
+                onClick = onImportFromInstalledArcaea,
+                title = stringResource(R.string.database_manage_import_from_arcaea_installed),
+                content = joinImportEntries(
+                    listOf(descPackEntries, descSongEntries, descDifficultyEntries)
+                ),
+                leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
+            )
+        } else {
+            TextPreferencesWidget(
+                title = stringResource(R.string.arcaea_button_resource_unavailable),
+                leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
+            )
         }
 
-        Column {
-            ListGroupHeader(stringResource(R.string.database_manage_import_chart_info_title))
+        TextPreferencesWidget(
+            onClick = { importChartInfoDatabaseLauncher.launch("*/*") },
+            title = stringResource(R.string.database_manage_import_chart_info_database),
+            content = joinImportEntries(listOf(descChartInfoEntries)),
+            leadingIcon = ImageVector.vectorResource(R.drawable.ic_database),
+        )
 
-            Button(onClick = { importChartInfoDatabaseLauncher.launch("*/*") }) {
-                IconRow {
-                    Icon(Icons.Default.FileOpen, null)
-                    Text(stringResource(R.string.database_manage_import_chart_info_database))
-                }
-            }
-        }
-
-        Column {
-            ListGroupHeader(stringResource(R.string.arcaea_play_result))
-
-            Button(onClick = { importSt3Launcher.launch("*/*") }) {
-                IconRow {
-                    Icon(Icons.Default.FileOpen, null)
-                    Text(stringResource(R.string.arcaea_st3))
-                }
-            }
-        }
+        TextPreferencesWidget(
+            onClick = { importSt3Launcher.launch("*/*") },
+            title = stringResource(R.string.arcaea_st3),
+            content = joinImportEntries(listOf(descPlayResultEntries)),
+            leadingIcon = Icons.Default.FileOpen,
+        )
     }
 }

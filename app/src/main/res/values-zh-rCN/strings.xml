@@ -118,13 +118,16 @@
     <string name="database_manage_title">管理</string>
 
     <string name="database_manage_import_title">导入</string>
-    <string name="database_manage_import_song_info_title">曲包 &amp; 歌曲信息</string>
+    <string name="database_manage_import_pack_entries">曲包</string>
+    <string name="database_manage_import_song_entries">歌曲</string>
+    <string name="database_manage_import_difficulty_entries">难度</string>
+    <string name="database_manage_import_chart_info_entries">谱面信息</string>
+    <string name="database_manage_import_play_result_entries">游玩记录</string>
     <string name="database_manage_import_packlist">packlist</string>
     <string name="database_manage_import_songlist">songlist</string>
     <string name="database_manage_import_from_arcaea_apk">从 Arcaea 安装包导入</string>
     <string name="database_manage_import_reading_apk">正在读取安装包，耗时可能较长……</string>
     <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
-    <string name="database_manage_import_chart_info_title">谱面信息</string>
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
 
     <string name="database_manage_export_title">导出</string>

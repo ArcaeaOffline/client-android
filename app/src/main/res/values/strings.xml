@@ -139,17 +139,20 @@ CC BY-SA 3.0
     <string name="database_manage_title">Manage</string>
 
     <string name="database_manage_import_title">Import…</string>
-    <string name="database_manage_import_song_info_title">Pack &amp; Song Info</string>
+    <string name="database_manage_import_pack_entries">Packs</string>
+    <string name="database_manage_import_song_entries">Songs</string>
+    <string name="database_manage_import_difficulty_entries">Difficulties</string>
+    <string name="database_manage_import_chart_info_entries">Chart Info</string>
+    <string name="database_manage_import_play_result_entries">Play Results</string>
     <string name="database_manage_import_packlist">packlist</string>
     <string name="database_manage_import_songlist">songlist</string>
     <string name="database_manage_import_from_arcaea_apk">From Arcaea .apk</string>
     <string name="database_manage_import_reading_apk">Reading apk, this might take a while…</string>
     <string name="database_manage_import_from_arcaea_installed">From installed Arcaea</string>
-    <string name="database_manage_import_chart_info_title">Chart Info</string>
     <string name="database_manage_import_chart_info_database">Chart Info Database</string>
 
     <string name="database_manage_export_title">Export…</string>
-    <string name="database_manage_export_play_results">Scores</string>
+    <string name="database_manage_export_play_results">Play Results</string>
 
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>
