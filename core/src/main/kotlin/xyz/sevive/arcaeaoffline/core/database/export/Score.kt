@@ -57,7 +57,7 @@ data class ArcaeaOfflineExportScoreRoot(
 class ArcaeaOfflineExportScore(private val playResultRepository: PlayResultRepository) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    private suspend fun toJsonObject(): ArcaeaOfflineExportScoreRoot? {
+    suspend fun toJsonObject(): ArcaeaOfflineExportScoreRoot? {
         val scores = playResultRepository.findAll().firstOrNull() ?: return null
 
         val exportScores = mutableListOf<ArcaeaOfflineExportPlayResultItem>()
@@ -87,7 +87,7 @@ class ArcaeaOfflineExportScore(private val playResultRepository: PlayResultRepos
         )
     }
 
-    suspend fun toJsonString(): String? {
-        return toJsonObject()?.let { json.encodeToString(it) }
+    fun toJsonString(obj: ArcaeaOfflineExportScoreRoot): String {
+        return json.encodeToString(obj)
     }
 }

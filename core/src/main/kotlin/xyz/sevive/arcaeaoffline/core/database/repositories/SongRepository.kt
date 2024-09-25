@@ -10,10 +10,10 @@ interface SongRepository {
     fun find(playResult: PlayResult) = find(playResult.songId)
     fun findBySet(set: String): Flow<List<Song>>
     fun findAll(): Flow<List<Song>>
-    suspend fun upsert(item: Song)
-    suspend fun upsertAll(vararg items: Song): LongArray
-    suspend fun delete(item: Song)
-    suspend fun deleteAll(vararg items: Song)
+    suspend fun upsert(item: Song): Long
+    suspend fun upsertAll(vararg items: Song): List<Long>
+    suspend fun delete(item: Song): Int
+    suspend fun deleteAll(vararg items: Song): Int
 }
 
 

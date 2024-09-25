@@ -14,10 +14,10 @@ interface PlayResultRepository {
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
     fun findAll(): Flow<List<PlayResult>>
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
-    suspend fun upsert(item: PlayResult)
-    suspend fun upsertAll(vararg items: PlayResult)
-    suspend fun delete(item: PlayResult)
-    suspend fun deleteAll(vararg items: PlayResult)
+    suspend fun upsert(item: PlayResult): Long
+    suspend fun upsertAll(vararg items: PlayResult): List<Long>
+    suspend fun delete(item: PlayResult): Int
+    suspend fun deleteAll(vararg items: PlayResult): Int
 }
 
 class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {

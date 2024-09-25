@@ -20,14 +20,14 @@ interface DifficultyDao {
     fun findAllBySongId(songId: String): Flow<List<Difficulty>>
 
     @Upsert
-    suspend fun upsert(item: Difficulty)
+    suspend fun upsert(item: Difficulty): Long
 
     @Upsert
-    suspend fun upsertAll(vararg items: Difficulty): LongArray
+    suspend fun upsertAll(vararg items: Difficulty): List<Long>
 
     @Delete
-    suspend fun delete(item: Difficulty)
+    suspend fun delete(item: Difficulty): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Difficulty)
+    suspend fun deleteAll(vararg items: Difficulty): Int
 }

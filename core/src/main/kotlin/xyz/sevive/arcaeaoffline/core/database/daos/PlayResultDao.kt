@@ -29,16 +29,16 @@ interface PlayResultDao {
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
     @Upsert
-    suspend fun upsert(item: PlayResult)
+    suspend fun upsert(item: PlayResult): Long
 
     @Upsert
-    suspend fun upsertAll(vararg items: PlayResult)
+    suspend fun upsertAll(vararg items: PlayResult): List<Long>
 
     @Delete
-    suspend fun delete(item: PlayResult)
+    suspend fun delete(item: PlayResult): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: PlayResult)
+    suspend fun deleteAll(vararg items: PlayResult): Int
 }
 
 

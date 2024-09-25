@@ -10,10 +10,10 @@ interface PackRepository {
     fun find(id: String): Flow<Pack?>
     fun findAll(): Flow<List<Pack>>
     fun findBasePack(id: String): Flow<Pack?>
-    suspend fun upsert(item: Pack)
-    suspend fun upsertAll(vararg items: Pack): LongArray
-    suspend fun delete(item: Pack)
-    suspend fun deleteAll(vararg items: Pack)
+    suspend fun upsert(item: Pack): Long
+    suspend fun upsertAll(vararg items: Pack): List<Long>
+    suspend fun delete(item: Pack): Int
+    suspend fun deleteAll(vararg items: Pack): Int
 }
 
 class PackRepositoryImpl(private val dao: PackDao) : PackRepository {

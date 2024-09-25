@@ -17,16 +17,16 @@ interface PackDao {
     fun findAll(): Flow<List<Pack>>
 
     @Upsert
-    suspend fun upsert(item: Pack)
+    suspend fun upsert(item: Pack): Long
 
     @Upsert
-    suspend fun upsertAll(vararg items: Pack): LongArray
+    suspend fun upsertAll(vararg items: Pack): List<Long>
 
     @Delete
-    suspend fun delete(item: Pack)
+    suspend fun delete(item: Pack): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Pack)
+    suspend fun deleteAll(vararg items: Pack): Int
 }
 
 

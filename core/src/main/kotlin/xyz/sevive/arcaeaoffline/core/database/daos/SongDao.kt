@@ -19,16 +19,16 @@ interface SongDao {
     fun findAll(): Flow<List<Song>>
 
     @Upsert
-    suspend fun upsert(item: Song)
+    suspend fun upsert(item: Song): Long
 
     @Upsert
-    suspend fun upsertAll(vararg items: Song): LongArray
+    suspend fun upsertAll(vararg items: Song): List<Long>
 
     @Delete
-    suspend fun delete(item: Song)
+    suspend fun delete(item: Song): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Song)
+    suspend fun deleteAll(vararg items: Song): Int
 }
 
 
