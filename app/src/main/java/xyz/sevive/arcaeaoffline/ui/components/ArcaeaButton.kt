@@ -1,30 +1,20 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
 import android.content.Context
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
@@ -38,15 +28,6 @@ internal fun defaultState(packageHelper: ArcaeaPackageHelper): ArcaeaButtonState
     } else {
         ArcaeaButtonState.NOT_INSTALLED
     }
-}
-
-@Composable
-internal fun arcaeaIconBitmapPainter(packageHelper: ArcaeaPackageHelper): BitmapPainter? {
-    val iconDrawable = packageHelper.getIcon() ?: return null
-    val iconPx = LocalDensity.current.run { 24.dp.toPx() }.toInt()
-    val iconBitmap = iconDrawable.toBitmap(iconPx, iconPx).asImageBitmap()
-    val iconBitmapPainter = remember(iconBitmap) { BitmapPainter(iconBitmap) }
-    return iconBitmapPainter
 }
 
 object ArcaeaButtonDefaults {
@@ -80,16 +61,11 @@ object ArcaeaButtonDefaults {
     }
 
     @Composable
-    fun ArcaeaIcon(enabled: Boolean) {
-        val context = LocalContext.current
-        val packageHelper = remember { ArcaeaPackageHelper(context) }
-        val arcaeaIcon = arcaeaIconBitmapPainter(packageHelper)
-
-        when {
-            enabled && arcaeaIcon != null -> Image(arcaeaIcon, contentDescription = null)
-            enabled -> Icon(Icons.Default.Settings, contentDescription = null)
-            else -> Icon(Icons.Default.Cancel, contentDescription = null)
-        }
+    fun Icon(state: ArcaeaButtonState, modifier: Modifier = Modifier) {
+        ArcaeaAppIcon(
+            modifier = modifier,
+            forceDisabled = state != ArcaeaButtonState.NORMAL,
+        )
     }
 }
 
@@ -112,7 +88,7 @@ fun ArcaeaButton(
 
     Button(onClick = onClick, modifier, enabled = enabled, colors = colors) {
         IconRow {
-            ArcaeaButtonDefaults.ArcaeaIcon(enabled = enabled)
+            ArcaeaButtonDefaults.Icon(state = state)
 
             when (state) {
                 ArcaeaButtonState.NORMAL -> enabledContent()

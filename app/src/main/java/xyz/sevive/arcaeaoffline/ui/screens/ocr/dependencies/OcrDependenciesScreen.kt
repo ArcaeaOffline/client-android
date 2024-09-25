@@ -90,7 +90,7 @@ fun OcrDependenciesScreen(
                         { viewModel.requestImageHashesDatabaseBuild() }
                     } else null,
                     leadingSlot = {
-                        ArcaeaButtonDefaults.ArcaeaIcon(enabled = buildHashesDatabaseButtonEnabled)
+                        ArcaeaButtonDefaults.Icon(state = buildHashesDatabaseArcaeaButtonState)
                     },
                     title = ArcaeaButtonDefaults.title(
                         state = buildHashesDatabaseArcaeaButtonState,
