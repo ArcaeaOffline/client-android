@@ -85,6 +85,7 @@ fun DatabaseManageImport(
             TextPreferencesWidget(
                 title = stringResource(R.string.arcaea_button_resource_unavailable),
                 leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
+                enabled = false,
             )
         }
 

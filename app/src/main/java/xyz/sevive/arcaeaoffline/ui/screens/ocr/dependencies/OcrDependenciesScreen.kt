@@ -86,9 +86,8 @@ fun OcrDependenciesScreen(
 
             item {
                 TextPreferencesWidget(
-                    onClick = if (buildHashesDatabaseButtonEnabled) {
-                        { viewModel.requestImageHashesDatabaseBuild() }
-                    } else null,
+                    enabled = buildHashesDatabaseButtonEnabled,
+                    onClick = { viewModel.requestImageHashesDatabaseBuild() },
                     leadingSlot = {
                         ArcaeaButtonDefaults.Icon(state = buildHashesDatabaseArcaeaButtonState)
                     },
