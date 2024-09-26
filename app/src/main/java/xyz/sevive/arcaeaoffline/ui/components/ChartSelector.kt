@@ -36,7 +36,7 @@ fun ChartSelector(
     val ratingDetails by viewModel.ratingDetails.collectAsStateWithLifecycle()
 
     val chartInViewModel by viewModel.chart.collectAsStateWithLifecycle()
-    val songId = chartInViewModel?.songId
+    val song by viewModel.song.collectAsStateWithLifecycle()
     val ratingClass = chartInViewModel?.ratingClass
 
     LaunchedEffect(key1 = chartInViewModel) {
@@ -48,10 +48,10 @@ fun ChartSelector(
         Modifier.padding(dimensionResource(R.dimen.card_padding)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
-        SongIdSelector(
-            songId = songId,
-            onSongIdChanged = {
-                coroutineScope.launch { viewModel.setSongId(it) }
+        ArcaeaPackAndSongSelector(
+            song = song,
+            onSongChanged = {
+                coroutineScope.launch { viewModel.setSong(it) }
             },
         )
 

@@ -6,13 +6,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 class ChartSelectorViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    private val _songId = MutableStateFlow<String?>(null)
-    val songId = _songId.asStateFlow()
+    private val _song = MutableStateFlow<Song?>(null)
+    val song = _song.asStateFlow()
 
     private val _ratingClass = MutableStateFlow<ArcaeaRatingClass?>(null)
     val ratingClass = _ratingClass.asStateFlow()
@@ -33,15 +34,15 @@ class ChartSelectorViewModel(
      * If the `songId` is null or no difficulties found with it, set the rating classes
      * to an empty list.
      */
-    private suspend fun updateRatingClassSelectorParams(songId: String?) {
-        if (songId == null) {
+    private suspend fun updateRatingClassSelectorParams(song: Song?) {
+        if (song == null) {
             _enabledRatingClasses.value = listOf()
             _ratingDetails.value = mapOf()
             return
         }
 
         val difficulties =
-            repositoryContainer.difficultyRepo.findAllBySongId(songId).firstOrNull()
+            repositoryContainer.difficultyRepo.findAllBySongId(song.id).firstOrNull()
 
         if (difficulties == null) {
             _enabledRatingClasses.value = listOf()
@@ -55,10 +56,10 @@ class ChartSelectorViewModel(
         }
     }
 
-    suspend fun setSongId(songId: String?) {
-        _songId.value = songId
+    suspend fun setSong(song: Song?) {
+        _song.value = song
 
-        updateRatingClassSelectorParams(songId)
+        updateRatingClassSelectorParams(song)
 
         if (!enabledRatingClasses.value.contains(ratingClass.value) && enabledRatingClasses.value.isNotEmpty()) {
             setRatingClass(enabledRatingClasses.value.maxBy { it.value })
@@ -73,20 +74,20 @@ class ChartSelectorViewModel(
     }
 
     private suspend fun updateChart() {
-        val songId = songId.value
+        val song = song.value
         val ratingClass = ratingClass.value
 
-        if (songId == null || ratingClass == null) {
+        if (song == null || ratingClass == null) {
             _chart.value = null
             return
         }
 
-        val chart = repositoryContainer.chartRepo.find(songId, ratingClass).firstOrNull()
+        val chart = repositoryContainer.chartRepo.find(song.id, ratingClass).firstOrNull()
         _chart.value = chart
     }
 
     private fun reset() {
-        _songId.value = null
+        _song.value = null
         _ratingClass.value = null
         _enabledRatingClasses.value = listOf()
         _ratingDetails.value = mapOf()
@@ -99,7 +100,7 @@ class ChartSelectorViewModel(
             return
         }
 
-        setSongId(chart.songId)
+        setSong(repositoryContainer.songRepo.find(chart.songId).firstOrNull())
         setRatingClass(chart.ratingClass)
     }
 }

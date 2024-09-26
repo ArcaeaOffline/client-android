@@ -12,7 +12,6 @@ import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ChartSelectorViewModel
-import xyz.sevive.arcaeaoffline.ui.components.SongIdSelectorViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabasePlayResultListViewModel
@@ -76,12 +75,6 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseR30ListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
-
-        initializer {
-            SongIdSelectorViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }
