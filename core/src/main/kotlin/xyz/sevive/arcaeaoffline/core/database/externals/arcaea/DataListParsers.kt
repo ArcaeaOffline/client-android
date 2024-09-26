@@ -11,7 +11,7 @@ val format = Json { ignoreUnknownKeys = true }
 
 class PacklistParser(private val content: String) {
     fun parsePack(): List<Pack> {
-        val contentDecoded = format.decodeFromString<PacklistRoot>(content)
+        val contentDecoded = format.decodeFromString<ArcaeaPacklistRoot>(content)
 
         val result = mutableListOf(Pack(id = "single", name = "Memory Archive"))
         for (pack in contentDecoded.packs) {
@@ -29,7 +29,7 @@ class PacklistParser(private val content: String) {
 
 class SonglistParser(private val content: String) {
     fun parseSong(): List<Song> {
-        val contentDecoded = format.decodeFromString<SonglistRoot>(content)
+        val contentDecoded = format.decodeFromString<ArcaeaSonglistRoot>(content)
 
         val result = mutableListOf<Song>()
         for (song in contentDecoded.songs) {
@@ -60,7 +60,7 @@ class SonglistParser(private val content: String) {
     }
 
     fun parseDifficulty(): List<Difficulty> {
-        val contentDecoded = format.decodeFromString<SonglistRoot>(content)
+        val contentDecoded = format.decodeFromString<ArcaeaSonglistRoot>(content)
 
         val result = mutableListOf<Difficulty>()
         for (song in contentDecoded.songs) {
