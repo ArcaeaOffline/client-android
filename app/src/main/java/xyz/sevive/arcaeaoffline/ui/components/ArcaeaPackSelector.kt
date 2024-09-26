@@ -63,7 +63,7 @@ fun ArcaeaPackSelector(
     }
 
     ReadonlyClickableTextField(
-        value = if (selectedIndex > -1) TextFieldValue(labels[selectedIndex]) else null,
+        value = labels.getOrNull(selectedIndex)?.let { TextFieldValue(it) },
         onClick = { showSelectDialog = true },
         enabled = if (disableIfEmpty) packs.isNotEmpty() else true,
         label = { Text(stringResource(R.string.song_id_selector_select_pack)) },
