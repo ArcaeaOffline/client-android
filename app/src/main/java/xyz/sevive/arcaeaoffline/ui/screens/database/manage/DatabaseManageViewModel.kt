@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
 import android.util.Log
-import androidx.core.database.getIntOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.requery.android.database.sqlite.SQLiteDatabase
@@ -16,6 +15,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -23,12 +23,11 @@ import kotlinx.coroutines.sync.withLock
 import org.apache.commons.io.IOUtils
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
-import xyz.sevive.arcaeaoffline.core.database.export.ArcaeaOfflineExportScore
-import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.PacklistParser
-import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.SonglistParser
-import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers.St3PlayResultImporter
+import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
+import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaPacklistImporter
+import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSonglistImporter
+import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSt3PlayResultImporter
+import xyz.sevive.arcaeaoffline.core.database.externals.importers.ChartInfoDatabaseImporter
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
@@ -114,15 +113,28 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importPacklistTask(packlistContent: String) {
-        val packs = PacklistParser(packlistContent).parsePack().toTypedArray()
-        val affectedRows = repositoryContainer.packRepo.upsertAll(*packs).size
+        val importer = ArcaeaPacklistImporter(packlistContent)
 
-        Log.i(LOG_TAG, "$affectedRows packs updated")
+        val packs = importer.packs().toTypedArray()
+        val packsAffectedRows = repositoryContainer.packRepo.upsertAll(*packs).size
+        Log.i(LOG_TAG, "$packsAffectedRows packs updated")
         appendLog(
             res.getQuantityString(
-                R.plurals.database_packlist_imported,
-                affectedRows,
-                affectedRows,
+                R.plurals.database_packs_imported,
+                packsAffectedRows,
+                packsAffectedRows,
+            )
+        )
+
+        val packsLocalized = importer.packsLocalized()
+        val packsLocalizedAffectedRows =
+            repositoryContainer.packLocalizedRepo.insertAll(packsLocalized).size
+        Log.i(LOG_TAG, "$packsLocalizedAffectedRows packs localized updated")
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_packs_localized_imported,
+                packsLocalizedAffectedRows,
+                packsLocalizedAffectedRows,
             )
         )
     }
@@ -143,28 +155,52 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importSonglistTask(songlistContent: String) {
-        val songs = SonglistParser(songlistContent).parseSong().toTypedArray()
-        val difficulties = SonglistParser(songlistContent).parseDifficulty().toTypedArray()
+        val importer = ArcaeaSonglistImporter(songlistContent)
 
+        val songs = importer.songs().toTypedArray()
         val songsAffectedRows = repositoryContainer.songRepo.upsertAll(*songs).size
-        val difficultiesAffectedRows =
-            repositoryContainer.difficultyRepo.upsertAll(*difficulties).size
-
         Log.i(LOG_TAG, "$songsAffectedRows songs updated")
-        Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
-
         appendLog(
             res.getQuantityString(
-                R.plurals.database_songlist_song_imported,
+                R.plurals.database_songs_imported,
                 songsAffectedRows,
                 songsAffectedRows,
             )
         )
+
+        val difficulties = importer.difficulties().toTypedArray()
+        val difficultiesAffectedRows =
+            repositoryContainer.difficultyRepo.upsertAll(*difficulties).size
+        Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
         appendLog(
             res.getQuantityString(
-                R.plurals.database_songlist_difficulty_imported,
+                R.plurals.database_difficulties_imported,
                 difficultiesAffectedRows,
                 difficultiesAffectedRows,
+            )
+        )
+
+        val songsLocalized = importer.songsLocalized()
+        val songsLocalizedAffectedRows =
+            repositoryContainer.songLocalizedRepo.insertAll(songsLocalized).size
+        Log.i(LOG_TAG, "$songsLocalizedAffectedRows songs localized updated")
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_songs_localized_imported,
+                songsLocalizedAffectedRows,
+                songsLocalizedAffectedRows,
+            )
+        )
+
+        val difficultiesLocalized = importer.difficultiesLocalized()
+        val difficultiesLocalizedAffectedRows =
+            repositoryContainer.difficultyLocalizedRepo.insertAll(difficultiesLocalized).size
+        Log.i(LOG_TAG, "$difficultiesLocalizedAffectedRows difficulties localized updated")
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_difficulties_localized_imported,
+                difficultiesLocalizedAffectedRows,
+                difficultiesLocalizedAffectedRows,
             )
         )
     }
@@ -251,51 +287,9 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importChartsInfoDatabase(db: SQLiteDatabase) {
-        val chartInfoList = mutableListOf<ChartInfo>()
-
-        val cursor = db.query(
-            "charts_info",
-            arrayOf("song_id", "rating_class", "constant", "notes"),
-            null,
-            null,
-            null,
-            null,
-            null,
-        )
-
-        cursor.moveToFirst()
-        cursor.use {
-            val songIdColumnIndex = it.getColumnIndex("song_id")
-            val ratingClassColumnIndex = it.getColumnIndex("rating_class")
-            val constantColumnIndex = it.getColumnIndex("constant")
-            try {
-                assert(songIdColumnIndex >= 0)
-                assert(ratingClassColumnIndex >= 0)
-                assert(constantColumnIndex >= 0)
-            } catch (e: AssertionError) {
-                appendLog("Database invalid!")
-            }
-
-            do {
-                val songId = it.getString(songIdColumnIndex)
-                val ratingClass = it.getInt(ratingClassColumnIndex)
-                val constant = it.getInt(constantColumnIndex)
-                val notes = it.getIntOrNull(it.getColumnIndex("notes"))
-
-                val chartInfo = ChartInfo(
-                    songId = songId,
-                    ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
-                    constant = constant,
-                    notes = notes
-                )
-                chartInfoList.add(chartInfo)
-            } while (it.moveToNext())
-        }
-
-        val affectedRows = repositoryContainer.chartInfoRepo.insertAll(
-            *chartInfoList.toTypedArray()
-        ).size
-
+        val chartInfo = ChartInfoDatabaseImporter.chartInfo(db)
+        val affectedRows =
+            repositoryContainer.chartInfoRepo.insertAll(*chartInfo.toTypedArray()).size
         Log.i(LOG_TAG, "$affectedRows chart info imported")
         appendLog(
             res.getQuantityString(
@@ -322,13 +316,13 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importSt3(db: SQLiteDatabase) {
-        val playResults = St3PlayResultImporter.playResults(db)
+        val playResults = ArcaeaSt3PlayResultImporter.playResults(db)
         val affectedRows =
             repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray()).size
 
         appendLog(
             res.getQuantityString(
-                R.plurals.database_play_result_imported,
+                R.plurals.database_play_results_imported,
                 affectedRows,
                 affectedRows,
             )
@@ -350,14 +344,15 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun exportPlayResults(outputStream: OutputStream) {
-        val writer = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo)
-        writer.toJsonObject()?.let {
-            IOUtils.write(writer.toJsonString(it), outputStream)
+        val playResults = repositoryContainer.playResultRepo.findAll().firstOrNull() ?: return
+
+        ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
+            IOUtils.write(ArcaeaOfflineDEFv2Exporter.playResults(it), outputStream)
             appendLog(
                 res.getQuantityString(
-                    R.plurals.database_play_result_exported,
-                    it.scores.size,
-                    it.scores.size,
+                    R.plurals.database_play_results_exported,
+                    it.playResults.size,
+                    it.playResults.size,
                 )
             )
         }

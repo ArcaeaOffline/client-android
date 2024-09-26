@@ -43,32 +43,56 @@ fun DatabaseManageImport(
     val importSt3Launcher = rememberFileChooserLauncher { it?.let(onImportSt3) }
 
     val descPackEntries = stringResource(R.string.database_manage_import_pack_entries)
+    val descPackLocalizedEntries =
+        stringResource(R.string.database_manage_import_pack_localized_entries)
     val descSongEntries = stringResource(R.string.database_manage_import_song_entries)
+    val descSongLocalizedEntries =
+        stringResource(R.string.database_manage_import_song_localized_entries)
     val descDifficultyEntries = stringResource(R.string.database_manage_import_difficulty_entries)
+    val descDifficultyLocalizedEntries =
+        stringResource(R.string.database_manage_import_difficulty_localized_entries)
     val descChartInfoEntries = stringResource(R.string.database_manage_import_chart_info_entries)
     val descPlayResultEntries = stringResource(R.string.database_manage_import_play_result_entries)
+
+    val descPacklist = joinImportEntries(listOf(descPackEntries, descPackLocalizedEntries))
+    val descSonglist = joinImportEntries(
+        listOf(
+            descSongEntries,
+            descSongLocalizedEntries,
+            descDifficultyEntries,
+            descDifficultyLocalizedEntries,
+        )
+    )
+    val descArcaeaApk = joinImportEntries(
+        listOf(
+            descPackEntries,
+            descPackLocalizedEntries,
+            descSongEntries,
+            descSongLocalizedEntries,
+            descDifficultyEntries,
+            descDifficultyLocalizedEntries,
+        )
+    )
 
     Column(modifier) {
         TextPreferencesWidget(
             onClick = { importPacklistLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_packlist),
-            content = joinImportEntries(listOf(descPackEntries)),
+            content = descPacklist,
             leadingIcon = Icons.Default.DataObject,
         )
 
         TextPreferencesWidget(
             onClick = { importSonglistLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_songlist),
-            content = joinImportEntries(listOf(descSongEntries, descDifficultyEntries)),
+            content = descSonglist,
             leadingIcon = Icons.Default.DataObject,
         )
 
         TextPreferencesWidget(
             onClick = { importArcaeaApkLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_from_arcaea_apk),
-            content = joinImportEntries(
-                listOf(descPackEntries, descSongEntries, descDifficultyEntries)
-            ),
+            content = descArcaeaApk,
             leadingIcon = Icons.Default.Android,
         )
 
@@ -76,9 +100,7 @@ fun DatabaseManageImport(
             TextPreferencesWidget(
                 onClick = onImportFromInstalledArcaea,
                 title = stringResource(R.string.database_manage_import_from_arcaea_installed),
-                content = joinImportEntries(
-                    listOf(descPackEntries, descSongEntries, descDifficultyEntries)
-                ),
+                content = descArcaeaApk,
                 leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
             )
         } else {

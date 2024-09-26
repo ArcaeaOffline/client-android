@@ -119,8 +119,11 @@
 
     <string name="database_manage_import_title">导入</string>
     <string name="database_manage_import_pack_entries">曲包</string>
+    <string name="database_manage_import_pack_localized_entries">曲包本地化对象</string>
     <string name="database_manage_import_song_entries">歌曲</string>
+    <string name="database_manage_import_song_localized_entries">歌曲本地化对象</string>
     <string name="database_manage_import_difficulty_entries">难度</string>
+    <string name="database_manage_import_difficulty_localized_entries">难度本地化对象</string>
     <string name="database_manage_import_chart_info_entries">谱面信息</string>
     <string name="database_manage_import_play_result_entries">游玩记录</string>
     <string name="database_manage_import_packlist">packlist</string>
@@ -156,22 +159,31 @@
     <string name="database_r30_rebuild_dialog_content">将清除目前 R30 列表内的所有记录，然后再从头计算 R30。确定吗？</string>
 
     <!-- Database toasts -->
-    <plurals name="database_packlist_imported">
+    <plurals name="database_packs_imported">
         <item quantity="other">已导入 %d 个曲包</item>
     </plurals>
-    <plurals name="database_songlist_song_imported">
+    <plurals name="database_packs_localized_imported">
+        <item quantity="other">已导入 %d 个曲包本地化对象</item>
+    </plurals>
+    <plurals name="database_songs_imported">
         <item quantity="other">已导入 %d 首歌曲</item>
     </plurals>
-    <plurals name="database_songlist_difficulty_imported">
+    <plurals name="database_songs_localized_imported">
+        <item quantity="other">已导入 %d 个歌曲本地化对象</item>
+    </plurals>
+    <plurals name="database_difficulties_imported">
         <item quantity="other">已导入 %d 个难度</item>
+    </plurals>
+    <plurals name="database_difficulties_localized_imported">
+        <item quantity="other">已导入 %d 个难度本地化对象</item>
     </plurals>
     <plurals name="database_chart_info_imported">
         <item quantity="other">已导入 %d 个谱面信息</item>
     </plurals>
-    <plurals name="database_play_result_imported">
+    <plurals name="database_play_results_imported">
         <item quantity="other">已导入 %d 个游玩记录</item>
     </plurals>
-    <plurals name="database_play_result_exported">
+    <plurals name="database_play_results_exported">
         <item quantity="other">已导出 %d 个游玩记录</item>
     </plurals>
 

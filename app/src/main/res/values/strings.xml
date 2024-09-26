@@ -140,8 +140,11 @@ CC BY-SA 3.0
 
     <string name="database_manage_import_title">Import…</string>
     <string name="database_manage_import_pack_entries">Packs</string>
+    <string name="database_manage_import_pack_localized_entries">Pack Localized Objects</string>
     <string name="database_manage_import_song_entries">Songs</string>
+    <string name="database_manage_import_song_localized_entries">Song Localized Objects</string>
     <string name="database_manage_import_difficulty_entries">Difficulties</string>
+    <string name="database_manage_import_difficulty_localized_entries">Difficulty Localized Objects</string>
     <string name="database_manage_import_chart_info_entries">Chart Info</string>
     <string name="database_manage_import_play_result_entries">Play Results</string>
     <string name="database_manage_import_packlist">packlist</string>
@@ -177,27 +180,39 @@ CC BY-SA 3.0
     <string name="database_r30_rebuild_dialog_content">This will remove all the records in the current Recent30 list, and then re-calculate the list from scratch. Continue?</string>
 
     <!-- Database toasts -->
-    <plurals name="database_packlist_imported">
+    <plurals name="database_packs_imported">
         <item quantity="many">%d packs imported</item>
         <item quantity="other">%d pack imported</item>
     </plurals>
-    <plurals name="database_songlist_song_imported">
+    <plurals name="database_packs_localized_imported">
+        <item quantity="many">%d pack localized objects imported</item>
+        <item quantity="other">%d pack localized objects imported</item>
+    </plurals>
+    <plurals name="database_songs_imported">
         <item quantity="many">%d songs imported</item>
         <item quantity="other">%d song imported</item>
     </plurals>
-    <plurals name="database_songlist_difficulty_imported">
+    <plurals name="database_songs_localized_imported">
+        <item quantity="many">%d song localized objects imported</item>
+        <item quantity="other">%d song localized objects imported</item>
+    </plurals>
+    <plurals name="database_difficulties_imported">
         <item quantity="many">%d difficulties imported</item>
         <item quantity="other">%d difficulty imported</item>
+    </plurals>
+    <plurals name="database_difficulties_localized_imported">
+        <item quantity="many">%d difficulty localized objects imported</item>
+        <item quantity="other">%d difficulty localized objects imported</item>
     </plurals>
     <plurals name="database_chart_info_imported">
         <item quantity="many">%d chart info imported</item>
         <item quantity="other">%d chart info imported</item>
     </plurals>
-    <plurals name="database_play_result_imported">
+    <plurals name="database_play_results_imported">
         <item quantity="many">%d play results imported</item>
         <item quantity="other">%d play result imported</item>
     </plurals>
-    <plurals name="database_play_result_exported">
+    <plurals name="database_play_results_exported">
         <item quantity="many">%d play results exported</item>
         <item quantity="other">%d play result exported</item>
     </plurals>
