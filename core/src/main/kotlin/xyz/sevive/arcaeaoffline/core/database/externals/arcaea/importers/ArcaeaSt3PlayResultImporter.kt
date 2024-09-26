@@ -12,7 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.getIntOrNull
 import xyz.sevive.arcaeaoffline.core.database.migrations.getLongOrNull
 
 
-object St3PlayResultImporter {
+object ArcaeaSt3PlayResultImporter {
     /**
      * Some of the `date` column in st3 are unexpectedly truncated. For example,
      * a `1670283375` may be truncated to `167028`, even a single `1`.
