@@ -27,7 +27,5 @@ data class SongLocalized(
     @PrimaryKey val id: String,
     val lang: ArcaeaLanguage,
     val title: String?,
-    @ColumnInfo(name = "search_title") val searchTitle: String?,
-    @ColumnInfo(name = "search_artist") val searchArtist: String?,
-    @ColumnInfo(name = "source_title") val sourceTitle: String?,
+    @ColumnInfo(name = "source") val source: String?,
 )

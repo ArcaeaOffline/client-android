@@ -44,6 +44,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
+import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 import kotlin.math.floor
@@ -67,8 +68,9 @@ import kotlin.math.floor
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
         AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10, spec = AutoMigration_9_10::class),
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(
