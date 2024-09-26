@@ -50,8 +50,8 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
-import xyz.sevive.arcaeaoffline.ui.components.ChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
@@ -67,7 +67,11 @@ fun SelectChartDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface {
             Card {
-                ChartSelector(chart = chart, onChartChange = onChartChange)
+                ArcaeaChartSelector(
+                    chart = chart,
+                    onChartChange = onChartChange,
+                    allowFakeChart = true,
+                )
             }
         }
     }
