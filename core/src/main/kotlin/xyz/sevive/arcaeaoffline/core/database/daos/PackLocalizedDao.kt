@@ -2,8 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 
@@ -15,17 +16,15 @@ interface PackLocalizedDao {
     @Query("SELECT * FROM packs_localized")
     fun findAll(): Flow<List<PackLocalized>>
 
-    @Upsert
-    suspend fun upsert(item: PackLocalized)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: PackLocalized): Long
 
-    @Upsert
-    suspend fun upsertAll(vararg items: PackLocalized)
-
-    @Delete
-    suspend fun delete(item: PackLocalized)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(vararg items: PackLocalized): List<Long>
 
     @Delete
-    suspend fun deleteAll(vararg items: PackLocalized)
+    suspend fun delete(item: PackLocalized): Int
+
+    @Delete
+    suspend fun deleteAll(vararg items: PackLocalized): Int
 }
-
-

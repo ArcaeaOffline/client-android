@@ -7,10 +7,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 interface SongLocalizedRepository {
     fun find(id: String): Flow<SongLocalized?>
     fun findAll(): Flow<List<SongLocalized>>
-    suspend fun upsert(item: SongLocalized)
-    suspend fun upsertAll(vararg items: SongLocalized)
-    suspend fun delete(item: SongLocalized)
-    suspend fun deleteAll(vararg items: SongLocalized)
+    suspend fun insert(item: SongLocalized): Long
+    suspend fun insertAll(vararg items: SongLocalized): List<Long>
+    suspend fun insertAll(items: List<SongLocalized>) = insertAll(*items.toTypedArray())
+    suspend fun delete(item: SongLocalized): Int
+    suspend fun deleteAll(vararg items: SongLocalized): Int
 }
 
 class SongLocalizedRepositoryImpl(private val dao: SongLocalizedDao) : SongLocalizedRepository {
@@ -18,13 +19,11 @@ class SongLocalizedRepositoryImpl(private val dao: SongLocalizedDao) : SongLocal
 
     override fun findAll(): Flow<List<SongLocalized>> = dao.findAll()
 
-    override suspend fun upsert(item: SongLocalized) = dao.upsert(item)
+    override suspend fun insert(item: SongLocalized) = dao.insert(item)
 
-    override suspend fun upsertAll(vararg items: SongLocalized) = dao.upsertAll(*items)
+    override suspend fun insertAll(vararg items: SongLocalized) = dao.insertAll(*items)
 
     override suspend fun delete(item: SongLocalized) = dao.delete(item)
 
     override suspend fun deleteAll(vararg items: SongLocalized) = dao.deleteAll(*items)
 }
-
-

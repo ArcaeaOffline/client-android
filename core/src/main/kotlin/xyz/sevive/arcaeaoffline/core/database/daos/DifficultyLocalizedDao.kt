@@ -2,8 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
@@ -19,16 +20,15 @@ interface DifficultyLocalizedDao {
     @Query("SELECT * FROM difficulties_localized WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>>
 
-    @Upsert
-    suspend fun upsert(item: DifficultyLocalized)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(item: DifficultyLocalized): Long
 
-    @Upsert
-    suspend fun upsertAll(vararg items: DifficultyLocalized)
-
-    @Delete
-    suspend fun delete(item: DifficultyLocalized)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(vararg items: DifficultyLocalized): List<Long>
 
     @Delete
-    suspend fun deleteAll(vararg items: DifficultyLocalized)
+    suspend fun delete(item: DifficultyLocalized): Int
+
+    @Delete
+    suspend fun deleteAll(vararg items: DifficultyLocalized): Int
 }
-

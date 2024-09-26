@@ -9,10 +9,11 @@ interface DifficultyLocalizedRepository {
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<DifficultyLocalized?>
     fun findAll(): Flow<List<DifficultyLocalized>>
     fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>>
-    suspend fun upsert(item: DifficultyLocalized)
-    suspend fun upsertAll(vararg items: DifficultyLocalized)
-    suspend fun delete(item: DifficultyLocalized)
-    suspend fun deleteAll(vararg items: DifficultyLocalized)
+    suspend fun insert(item: DifficultyLocalized): Long
+    suspend fun insertAll(vararg items: DifficultyLocalized): List<Long>
+    suspend fun insertAll(items: List<DifficultyLocalized>) = insertAll(*items.toTypedArray())
+    suspend fun delete(item: DifficultyLocalized): Int
+    suspend fun deleteAll(vararg items: DifficultyLocalized): Int
 }
 
 class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao) :
@@ -28,9 +29,9 @@ class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao)
     override fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>> =
         dao.findAllBySongId(songId)
 
-    override suspend fun upsert(item: DifficultyLocalized) = dao.upsert(item)
+    override suspend fun insert(item: DifficultyLocalized) = dao.insert(item)
 
-    override suspend fun upsertAll(vararg items: DifficultyLocalized) = dao.upsertAll(*items)
+    override suspend fun insertAll(vararg items: DifficultyLocalized) = dao.insertAll(*items)
 
     override suspend fun delete(item: DifficultyLocalized) = dao.delete(item)
 

@@ -6,8 +6,12 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultBestRepository
@@ -24,6 +28,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepositoryImpl
 
@@ -35,6 +41,10 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val difficultyRepo: DifficultyRepository
     val chartInfoRepo: ChartInfoRepository
     val chartRepo: ChartRepository
+
+    val packLocalizedRepo: PackLocalizedRepository
+    val songLocalizedRepo: SongLocalizedRepository
+    val difficultyLocalizedRepo: DifficultyLocalizedRepository
 
     val playResultRepo: PlayResultRepository
     val playResultCalculatedRepo: PlayResultCalculatedRepository
@@ -73,6 +83,18 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
 
     override val chartRepo: ChartRepository by lazy {
         ChartRepositoryImpl(db.chartDao())
+    }
+
+    override val packLocalizedRepo: PackLocalizedRepository by lazy {
+        PackLocalizedRepositoryImpl(db.packLocalizedDao())
+    }
+
+    override val songLocalizedRepo: SongLocalizedRepository by lazy {
+        SongLocalizedRepositoryImpl(db.songLocalizedDao())
+    }
+
+    override val difficultyLocalizedRepo: DifficultyLocalizedRepository by lazy {
+        DifficultyLocalizedRepositoryImpl(db.difficultyLocalizedDao())
     }
 
     override val playResultRepo: PlayResultRepository by lazy {
