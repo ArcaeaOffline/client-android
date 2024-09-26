@@ -72,7 +72,14 @@ class DatabaseManageViewModel(
             taskChannel.consumeEach {
                 taskChannelActive.value = true
                 Log.d(LOG_TAG, "Processing task ${it.uuid}")
-                taskScope.launch { it.action(this) }.join()
+                taskScope.launch {
+                    try {
+                        it.action(this)
+                    } catch (e: Throwable) {
+                        Log.e(LOG_TAG, "Error processing task ${it.uuid}", e)
+                        appendLog(e.toString())
+                    }
+                }.join()
                 taskChannelActive.value = false
             }
         }
