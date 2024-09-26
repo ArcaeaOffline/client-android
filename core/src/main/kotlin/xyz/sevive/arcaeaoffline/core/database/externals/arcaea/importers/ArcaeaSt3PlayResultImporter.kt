@@ -1,5 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers
 
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
 import io.requery.android.database.sqlite.SQLiteDatabase
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
@@ -8,8 +10,6 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.migrations.getIntOrNull
-import xyz.sevive.arcaeaoffline.core.database.migrations.getLongOrNull
 
 
 object ArcaeaSt3PlayResultImporter {
@@ -62,12 +62,12 @@ object ArcaeaSt3PlayResultImporter {
             val songId = cursor.getString(songIdIdx)
             val ratingClass = cursor.getInt(ratingClassIdx)
             val score = cursor.getInt(scoreIdx)
-            val pure = cursor.getIntOrNull("pure")
-            val far = cursor.getIntOrNull("far")
-            val lost = cursor.getIntOrNull("lost")
-            val date = fixTimestamp(cursor.getLongOrNull("date"))
-            val modifier = cursor.getIntOrNull("modifier")
-            val clearType = cursor.getIntOrNull("clearType")
+            val pure = cursor.getIntOrNull(cursor.getColumnIndex("pure"))
+            val far = cursor.getIntOrNull(cursor.getColumnIndex("far"))
+            val lost = cursor.getIntOrNull(cursor.getColumnIndex("lost"))
+            val date = fixTimestamp(cursor.getLongOrNull(cursor.getColumnIndex("date")))
+            val modifier = cursor.getIntOrNull(cursor.getColumnIndex("modifier"))
+            val clearType = cursor.getIntOrNull(cursor.getColumnIndex("clearType"))
 
             val commentDateString = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
 

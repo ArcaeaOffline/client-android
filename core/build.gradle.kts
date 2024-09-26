@@ -44,6 +44,8 @@ dependencies {
     implementation(libs.kotlinx.serialization)
 
     // android & androidx
+    implementation(androidx.core.ktx)
+
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)

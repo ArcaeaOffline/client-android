@@ -2,6 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.migrations
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
+import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -32,14 +35,14 @@ object Migration_6_7 : Migration(6, 7) {
                 val songId = it.getString(it.getColumnIndexOrThrow("song_id"))
                 val ratingClass = it.getString(it.getColumnIndexOrThrow("rating_class"))
                 val score = it.getInt(it.getColumnIndexOrThrow("score"))
-                val pure = it.getIntOrNull("pure")
-                val far = it.getIntOrNull("far")
-                val lost = it.getIntOrNull("lost")
-                val date = it.getLongOrNull("date")
-                val maxRecall = it.getIntOrNull("max_recall")
-                val modifier = it.getStringOrNull("modifier")
-                val clearType = it.getStringOrNull("clear_type")
-                val comment = it.getStringOrNull("comment")
+                val pure = it.getIntOrNull(it.getColumnIndex("pure"))
+                val far = it.getIntOrNull(it.getColumnIndex("far"))
+                val lost = it.getIntOrNull(it.getColumnIndex("lost"))
+                val date = it.getLongOrNull(it.getColumnIndex("date"))
+                val maxRecall = it.getIntOrNull(it.getColumnIndex("max_recall"))
+                val modifier = it.getStringOrNull(it.getColumnIndex("modifier"))
+                val clearType = it.getStringOrNull(it.getColumnIndex("clear_type"))
+                val comment = it.getStringOrNull(it.getColumnIndex("comment"))
 
                 ContentValues().apply {
                     put("id", id)
