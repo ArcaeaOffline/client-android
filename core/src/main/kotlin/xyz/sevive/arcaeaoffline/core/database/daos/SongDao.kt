@@ -2,8 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
@@ -18,10 +19,10 @@ interface SongDao {
     @Query("SELECT * FROM songs")
     fun findAll(): Flow<List<Song>>
 
-    @Upsert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Song): Long
 
-    @Upsert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(vararg items: Song): List<Long>
 
     @Delete
@@ -30,5 +31,3 @@ interface SongDao {
     @Delete
     suspend fun deleteAll(vararg items: Song): Int
 }
-
-
