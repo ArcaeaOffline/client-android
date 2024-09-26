@@ -52,40 +52,37 @@ object ArcaeaSt3PlayResultImporter {
             """, emptyArray()
         )
 
-        val songIdIdx = cursor.getColumnIndexOrThrow("songId")
-        val ratingClassIdx = cursor.getColumnIndexOrThrow("ratingClass")
-        val scoreIdx = cursor.getColumnIndexOrThrow("score")
-
         if (!cursor.moveToFirst()) return emptyList()
+        cursor.use {
+            do {
+                val songId = it.getString(it.getColumnIndexOrThrow("songId"))
+                val ratingClass = it.getInt(it.getColumnIndexOrThrow("ratingClass"))
+                val score = it.getInt(it.getColumnIndexOrThrow("score"))
+                val pure = it.getIntOrNull(it.getColumnIndex("pure"))
+                val far = it.getIntOrNull(it.getColumnIndex("far"))
+                val lost = it.getIntOrNull(it.getColumnIndex("lost"))
+                val date = fixTimestamp(it.getLongOrNull(it.getColumnIndex("date")))
+                val modifier = it.getIntOrNull(it.getColumnIndex("modifier"))
+                val clearType = it.getIntOrNull(it.getColumnIndex("clearType"))
 
-        do {
-            val songId = cursor.getString(songIdIdx)
-            val ratingClass = cursor.getInt(ratingClassIdx)
-            val score = cursor.getInt(scoreIdx)
-            val pure = cursor.getIntOrNull(cursor.getColumnIndex("pure"))
-            val far = cursor.getIntOrNull(cursor.getColumnIndex("far"))
-            val lost = cursor.getIntOrNull(cursor.getColumnIndex("lost"))
-            val date = fixTimestamp(cursor.getLongOrNull(cursor.getColumnIndex("date")))
-            val modifier = cursor.getIntOrNull(cursor.getColumnIndex("modifier"))
-            val clearType = cursor.getIntOrNull(cursor.getColumnIndex("clearType"))
+                val commentDateString = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
 
-            val commentDateString = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-
-            items.add(
-                PlayResult(
-                    songId = songId,
-                    ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
-                    score = score,
-                    pure = pure,
-                    far = far,
-                    lost = lost,
-                    date = date?.let { Instant.ofEpochSecond(it) },
-                    modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(it) },
-                    clearType = clearType?.let { ArcaeaPlayResultClearType.fromInt(it) },
-                    comment = "Imported from st3 at $commentDateString"
+                items.add(
+                    PlayResult(
+                        songId = songId,
+                        ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
+                        score = score,
+                        pure = pure,
+                        far = far,
+                        lost = lost,
+                        date = date?.let { Instant.ofEpochSecond(date) },
+                        modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
+                        clearType = clearType?.let { ArcaeaPlayResultClearType.fromInt(clearType) },
+                        comment = "Imported from st3 at $commentDateString"
+                    )
                 )
-            )
-        } while (cursor.moveToNext())
+            } while (it.moveToNext())
+        }
 
         return items
     }
