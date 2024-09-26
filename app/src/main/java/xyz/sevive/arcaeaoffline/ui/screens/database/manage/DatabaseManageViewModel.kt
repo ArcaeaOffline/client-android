@@ -1,19 +1,27 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import android.content.Context
+import android.content.res.Resources
 import android.net.Uri
 import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.requery.android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.apache.commons.io.IOUtils
+import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -25,289 +33,340 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import java.util.zip.ZipInputStream
+import kotlin.time.Duration.Companion.seconds
 
 
 class DatabaseManageViewModel(
+    private val res: Resources,
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    private val _messages = MutableStateFlow<List<String>>(listOf())
-    val messages = _messages.asStateFlow()
+    data class LogObject(
+        val uuid: UUID = UUID.randomUUID(),
+        val timestamp: Instant,
+        val message: String,
+    )
 
-    private val _actionRunning = MutableStateFlow(false)
-    val actionRunning = _actionRunning.asStateFlow()
+    data class UiState(
+        val isWorking: Boolean = false,
+        val logObjects: List<LogObject> = emptyList(),
+    )
 
-    private fun actionStart() {
-        _actionRunning.value = true
-        _messages.value = listOf()
-    }
+    data class Task(
+        val uuid: UUID = UUID.randomUUID(),
+        val action: suspend CoroutineScope.() -> Unit,
+    )
 
-    private fun actionEnd() {
-        _actionRunning.value = false
-    }
+    private val taskChannelActive = MutableStateFlow(false)
+    private val taskScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private class ActionScope(private val messages: MutableStateFlow<List<String>>) {
-        fun appendMessage(message: String) {
-            val newMessages = messages.value.toMutableList()
-            newMessages.add(message)
-            messages.value = newMessages
-        }
-    }
+    private val taskChannel = Channel<Task>(Channel.UNLIMITED)
 
-    private suspend fun withAction(block: suspend ActionScope. () -> Unit) {
-        val anotherActionRunning = actionRunning.value
-        if (!anotherActionRunning) actionStart()
-        block(ActionScope(_messages))
-        if (!anotherActionRunning) actionEnd()
-    }
-
-
-    private suspend fun importPacklist(packlistContent: String, context: Context? = null) {
-        withAction {
-            val packs = PacklistParser(packlistContent).parsePack().toTypedArray()
-            val affectedRows = repositoryContainer.packRepo.upsertAll(*packs)
-            Log.i(LOG_TAG, "${affectedRows.size} packs updated")
-
-            context?.let {
-                appendMessage(
-                    context.resources.getQuantityString(
-                        R.plurals.database_packlist_imported, affectedRows.size, affectedRows.size
-                    )
-                )
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            taskChannel.consumeEach {
+                taskChannelActive.value = true
+                Log.d(LOG_TAG, "Processing task ${it.uuid}")
+                taskScope.launch { it.action(this) }.join()
+                taskChannelActive.value = false
             }
         }
     }
 
-    suspend fun importPacklist(uri: Uri, context: Context) {
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return
-        importPacklist(IOUtils.toString(inputStream, StandardCharsets.UTF_8), context)
+    private val logLock = Mutex()
+    private val logs = MutableStateFlow(emptyList<LogObject>())
+
+    val uiState = combine(taskChannelActive, logs) { isWorking, logs ->
+        UiState(isWorking = isWorking, logObjects = logs.sortedByDescending { it.timestamp })
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        UiState(),
+    )
+
+    private fun InputStream.convertToString(charset: Charset = StandardCharsets.UTF_8): String {
+        return IOUtils.toString(this, charset)
     }
 
-    private suspend fun importSonglist(songlistContent: String, context: Context? = null) {
-        withAction {
-            val songs = SonglistParser(songlistContent).parseSong().toTypedArray()
-            val difficulties = SonglistParser(songlistContent).parseDifficulty().toTypedArray()
-
-            val songsAffected = repositoryContainer.songRepo.upsertAll(*songs)
-            val difficultiesAffected = repositoryContainer.difficultyRepo.upsertAll(*difficulties)
-
-            context?.let {
-                val songText = context.resources.getQuantityString(
-                    R.plurals.database_songlist_song_imported,
-                    songsAffected.size,
-                    songsAffected.size
-                )
-                appendMessage(songText)
-
-                val difficultyText = context.resources.getQuantityString(
-                    R.plurals.database_songlist_difficulty_imported,
-                    difficultiesAffected.size,
-                    difficultiesAffected.size
-                )
-                appendMessage(difficultyText)
-            }
-
-            Log.i(LOG_TAG, "${songsAffected.size} songs updated")
-            Log.i(LOG_TAG, "${difficultiesAffected.size} difficulties updated")
+    private suspend fun appendLog(message: String) {
+        logLock.withLock {
+            logs.value += LogObject(timestamp = Instant.now(), message = message)
         }
     }
 
-    suspend fun importSonglist(uri: Uri, context: Context) {
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return
-        importSonglist(IOUtils.toString(inputStream, StandardCharsets.UTF_8), context)
+    private suspend fun sendTask(action: suspend CoroutineScope.() -> Unit) {
+        Task(action = action).let {
+            taskChannel.send(it)
+            Log.d(LOG_TAG, "Task ${it.uuid} sent")
+        }
     }
 
-    private suspend fun importArcaeaApkFromZipInputStream(
-        zipInputStream: ZipInputStream, context: Context? = null
-    ) {
-        withAction {
-            context?.let {
-                appendMessage(
-                    context.resources.getString(R.string.database_manage_import_reading_apk)
-                )
+    private suspend fun importPacklistTask(packlistContent: String) {
+        val packs = PacklistParser(packlistContent).parsePack().toTypedArray()
+        val affectedRows = repositoryContainer.packRepo.upsertAll(*packs).size
+
+        Log.i(LOG_TAG, "$affectedRows packs updated")
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_packlist_imported,
+                affectedRows,
+                affectedRows,
+            )
+        )
+    }
+
+    fun importPacklist(uri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream == null) {
+                    appendLog("Cannot open packlist inputStream from $uri, aborting!")
+                    return@sendTask
+                }
+                val packlistContent = inputStream.use { inputStream.convertToString() }
+
+                importPacklistTask(packlistContent)
+            }
+        }
+    }
+
+    private suspend fun importSonglistTask(songlistContent: String) {
+        val songs = SonglistParser(songlistContent).parseSong().toTypedArray()
+        val difficulties = SonglistParser(songlistContent).parseDifficulty().toTypedArray()
+
+        val songsAffectedRows = repositoryContainer.songRepo.upsertAll(*songs).size
+        val difficultiesAffectedRows =
+            repositoryContainer.difficultyRepo.upsertAll(*difficulties).size
+
+        Log.i(LOG_TAG, "$songsAffectedRows songs updated")
+        Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
+
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_songlist_song_imported,
+                songsAffectedRows,
+                songsAffectedRows,
+            )
+        )
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_songlist_difficulty_imported,
+                difficultiesAffectedRows,
+                difficultiesAffectedRows,
+            )
+        )
+    }
+
+    fun importSonglist(uri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream == null) {
+                    appendLog("Cannot open songlist inputStream from $uri, aborting!")
+                    return@sendTask
+                }
+                val songlistContent = inputStream.use { inputStream.convertToString() }
+
+                importSonglistTask(songlistContent)
+            }
+        }
+    }
+
+    private suspend fun importArcaeaApkFromSelectedTask(zipInputStream: ZipInputStream) {
+        appendLog(res.getString(R.string.database_manage_import_reading_apk))
+
+        var entry = zipInputStream.nextEntry
+
+        var packlistFound = false
+        var songlistFound = false
+
+        while (entry != null) {
+            if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
+                packlistFound = true
+                importPacklistTask(zipInputStream.use { zipInputStream.convertToString() })
             }
 
-            var entry = zipInputStream.nextEntry
+            if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
+                songlistFound = true
+                importSonglistTask(zipInputStream.use { zipInputStream.convertToString() })
+            }
 
-            var packlistFound = false
-            var songlistFound = false
-            withContext(Dispatchers.IO) {
-                while (entry != null) {
-                    if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
-                        packlistFound = true
-                        val buffer = ByteArrayOutputStream()
-                        IOUtils.copy(zipInputStream, buffer)
-                        importPacklist(
-                            packlistContent = buffer.toByteArray().toString(StandardCharsets.UTF_8),
-                            context = context,
-                        )
-                    }
+            entry = zipInputStream.nextEntry
+        }
 
-                    if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
-                        songlistFound = true
-                        val buffer = ByteArrayOutputStream()
-                        IOUtils.copy(zipInputStream, buffer)
-                        importSonglist(
-                            songlistContent = buffer.toByteArray().toString(StandardCharsets.UTF_8),
-                            context = context,
-                        )
-                    }
+        if (!packlistFound) appendLog("packlist not found!")
+        if (!songlistFound) appendLog("songlist not found!")
+    }
 
-                    entry = zipInputStream.nextEntry
+    fun importArcaeaApkFromSelected(uri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                context.contentResolver.openInputStream(uri)?.use { fis ->
+                    ZipInputStream(fis).use { zis -> importArcaeaApkFromSelectedTask(zis) }
                 }
             }
-
-            context?.let {
-                if (!packlistFound) appendMessage("packlist not found!")
-                if (!songlistFound) appendMessage("songlist not found!")
-            }
-        }
-    }
-
-    suspend fun importArcaeaApkFromInputStream(inputStream: InputStream, context: Context) {
-        ZipInputStream(inputStream).use {
-            importArcaeaApkFromZipInputStream(it, context)
         }
     }
 
     val importArcaeaApkFromInstalledButtonState =
         GlobalArcaeaButtonStateHelper.importListsFromApkButtonState
 
-    suspend fun importArcaeaApkFromInstalled(context: Context) {
-        val packageHelper = ArcaeaPackageHelper(context)
-        withAction {
-            packageHelper.getApkZipFile().use {
-                val packlistEntry = packageHelper.getPacklistEntry()
-                val songlistEntry = packageHelper.getSonglistEntry()
+    fun importArcaeaApkFromInstalled(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                val packageHelper = ArcaeaPackageHelper(context)
 
-                if (packlistEntry != null) {
-                    val packlistInputStream = it.getInputStream(packlistEntry)
-                    importPacklist(
-                        IOUtils.toString(packlistInputStream, StandardCharsets.UTF_8), context
-                    )
-                } else {
-                    delay(100L)  // ensuring a recomposition, same for below
-                    appendMessage("packlist not found!")
-                }
+                packageHelper.getApkZipFile().use {
+                    val packlistEntry = packageHelper.getPacklistEntry()
+                    val songlistEntry = packageHelper.getSonglistEntry()
 
-                if (songlistEntry != null) {
-                    val songlistInputStream = it.getInputStream(songlistEntry)
-                    importSonglist(
-                        IOUtils.toString(songlistInputStream, StandardCharsets.UTF_8), context
-                    )
-                } else {
-                    delay(100L)
-                    appendMessage("songlist not found!")
-                }
-            }
-        }
-    }
-
-    suspend fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
-        withAction {
-            val databaseCopied =
-                context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@withAction
-
-            val chartInfoList = mutableListOf<ChartInfo>()
-            SQLiteDatabase.openDatabase(
-                databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
-            ).use { db ->
-                val cursor = db.query(
-                    "charts_info",
-                    arrayOf("song_id", "rating_class", "constant", "notes"),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                )
-
-                cursor.moveToFirst()
-                cursor.use {
-                    val songIdColumnIndex = it.getColumnIndex("song_id")
-                    val ratingClassColumnIndex = it.getColumnIndex("rating_class")
-                    val constantColumnIndex = it.getColumnIndex("constant")
-                    try {
-                        assert(songIdColumnIndex >= 0)
-                        assert(ratingClassColumnIndex >= 0)
-                        assert(constantColumnIndex >= 0)
-                    } catch (e: AssertionError) {
-                        appendMessage("Database invalid!")
+                    if (packlistEntry != null) {
+                        val inputStream = it.getInputStream(packlistEntry)
+                        importPacklistTask(inputStream.use { inputStream.convertToString() })
+                    } else {
+                        appendLog("packlist not found!")
                     }
 
-                    do {
-                        val songId = it.getString(songIdColumnIndex)
-                        val ratingClass = it.getInt(ratingClassColumnIndex)
-                        val constant = it.getInt(constantColumnIndex)
-                        val notes = it.getIntOrNull(it.getColumnIndex("notes"))
-
-                        val chartInfo = ChartInfo(
-                            songId = songId,
-                            ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
-                            constant = constant,
-                            notes = notes
-                        )
-                        chartInfoList.add(chartInfo)
-                    } while (it.moveToNext())
+                    if (songlistEntry != null) {
+                        val inputStream = it.getInputStream(songlistEntry)
+                        importSonglistTask(inputStream.use { inputStream.convertToString() })
+                    } else {
+                        appendLog("songlist not found!")
+                    }
                 }
             }
-
-            val affectedRows = repositoryContainer.chartInfoRepo.insertAll(
-                *chartInfoList.toTypedArray()
-            )
-
-            appendMessage(
-                context.resources.getString(
-                    R.string.database_chart_info_imported,
-                    affectedRows.size,
-                )
-            )
-
-            databaseCopied.delete()
         }
     }
 
-    private suspend fun importSt3Suspend(fileUri: Uri, context: Context): Int? {
-        val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return null
+    private suspend fun importChartsInfoDatabase(db: SQLiteDatabase) {
+        val chartInfoList = mutableListOf<ChartInfo>()
 
-        val db = SQLiteDatabase.openDatabase(
-            dbCacheFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY
+        val cursor = db.query(
+            "charts_info",
+            arrayOf("song_id", "rating_class", "constant", "notes"),
+            null,
+            null,
+            null,
+            null,
+            null,
         )
-        val playResults = db.use { St3PlayResultImporter.playResults(it) }
 
-        repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray())
-        return playResults.size
+        cursor.moveToFirst()
+        cursor.use {
+            val songIdColumnIndex = it.getColumnIndex("song_id")
+            val ratingClassColumnIndex = it.getColumnIndex("rating_class")
+            val constantColumnIndex = it.getColumnIndex("constant")
+            try {
+                assert(songIdColumnIndex >= 0)
+                assert(ratingClassColumnIndex >= 0)
+                assert(constantColumnIndex >= 0)
+            } catch (e: AssertionError) {
+                appendLog("Database invalid!")
+            }
+
+            do {
+                val songId = it.getString(songIdColumnIndex)
+                val ratingClass = it.getInt(ratingClassColumnIndex)
+                val constant = it.getInt(constantColumnIndex)
+                val notes = it.getIntOrNull(it.getColumnIndex("notes"))
+
+                val chartInfo = ChartInfo(
+                    songId = songId,
+                    ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
+                    constant = constant,
+                    notes = notes
+                )
+                chartInfoList.add(chartInfo)
+            } while (it.moveToNext())
+        }
+
+        val affectedRows = repositoryContainer.chartInfoRepo.insertAll(
+            *chartInfoList.toTypedArray()
+        ).size
+
+        Log.i(LOG_TAG, "$affectedRows chart info imported")
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_chart_info_imported,
+                affectedRows,
+                affectedRows,
+            )
+        )
+    }
+
+    fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                val databaseCopied =
+                    context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
+
+                SQLiteDatabase.openDatabase(
+                    databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
+                ).use { importChartsInfoDatabase(it) }
+
+                databaseCopied.delete()
+            }
+        }
+    }
+
+    private suspend fun importSt3(db: SQLiteDatabase) {
+        val playResults = St3PlayResultImporter.playResults(db)
+        val affectedRows =
+            repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray()).size
+
+        appendLog(
+            res.getQuantityString(
+                R.plurals.database_play_result_imported,
+                affectedRows,
+                affectedRows,
+            )
+        )
     }
 
     fun importSt3(fileUri: Uri, context: Context) {
-        viewModelScope.launch {
-            withAction {
-                val count = importSt3Suspend(fileUri, context)
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
-                delay(100L)
+                SQLiteDatabase.openDatabase(
+                    dbCacheFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY
+                ).use { importSt3(it) }
 
-                if (count != null) appendMessage(
-                    context.resources.getQuantityString(
-                        R.plurals.database_play_result_imported, count, count
-                    )
-                )
-                else appendMessage(context.resources.getString(R.string.general_unknown_error))
+                dbCacheFile.delete()
             }
         }
     }
 
-    suspend fun exportScores(outputStream: OutputStream) {
-        val content = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo).toJsonString()
-        content?.let {
-            IOUtils.write(content, outputStream)
+    private suspend fun exportPlayResults(outputStream: OutputStream) {
+        val writer = ArcaeaOfflineExportScore(repositoryContainer.playResultRepo)
+        writer.toJsonObject()?.let {
+            IOUtils.write(writer.toJsonString(it), outputStream)
+            appendLog(
+                res.getQuantityString(
+                    R.plurals.database_play_result_exported,
+                    it.scores.size,
+                    it.scores.size,
+                )
+            )
+        }
+    }
+
+    fun exportPlayResults(uri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sendTask {
+                context.contentResolver.openOutputStream(uri)?.use {
+                    exportPlayResults(it)
+                }
+            }
         }
     }
 
     companion object {
-        const val LOG_TAG = "DatabaseManageViewModel"
+        const val LOG_TAG = "DatabaseManageVM"
     }
 }

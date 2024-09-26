@@ -51,6 +51,7 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseManageViewModel(
+                application().resources,
                 application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }

@@ -165,9 +165,14 @@
     <plurals name="database_songlist_difficulty_imported">
         <item quantity="other">已导入 %d 个难度</item>
     </plurals>
-    <string name="database_chart_info_imported">已导入 %d 个谱面信息</string>
+    <plurals name="database_chart_info_imported">
+        <item quantity="other">已导入 %d 个谱面信息</item>
+    </plurals>
     <plurals name="database_play_result_imported">
         <item quantity="other">已导入 %d 个游玩记录</item>
+    </plurals>
+    <plurals name="database_play_result_exported">
+        <item quantity="other">已导出 %d 个游玩记录</item>
     </plurals>
 
     <!-- components -->

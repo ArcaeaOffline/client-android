@@ -189,10 +189,17 @@ CC BY-SA 3.0
         <item quantity="many">%d difficulties imported</item>
         <item quantity="other">%d difficulty imported</item>
     </plurals>
-    <string name="database_chart_info_imported">%d chart info imported</string>
+    <plurals name="database_chart_info_imported">
+        <item quantity="many">%d chart info imported</item>
+        <item quantity="other">%d chart info imported</item>
+    </plurals>
     <plurals name="database_play_result_imported">
         <item quantity="many">%d play results imported</item>
         <item quantity="other">%d play result imported</item>
+    </plurals>
+    <plurals name="database_play_result_exported">
+        <item quantity="many">%d play results exported</item>
+        <item quantity="other">%d play result exported</item>
     </plurals>
 
     <!-- components -->
