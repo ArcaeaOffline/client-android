@@ -10,6 +10,7 @@ import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
 import io.requery.android.database.sqlite.SQLiteFunction
+import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaLanguageConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultClearTypeConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifierConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaRatingClassConverters
@@ -76,6 +77,7 @@ import kotlin.math.floor
     ArcaeaRatingClassConverters::class,
     ArcaeaPlayResultClearTypeConverters::class,
     ArcaeaPlayResultModifierConverters::class,
+    ArcaeaLanguageConverters::class,
 )
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun propertyDao(): PropertyDao

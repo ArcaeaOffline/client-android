@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 
@@ -26,7 +27,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 data class DifficultyLocalized(
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
-    val lang: String,
+    val lang: ArcaeaLanguage,
     val title: String?,
     val artist: String?,
 )

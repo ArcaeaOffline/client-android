@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 
 
 @Entity(
@@ -23,7 +24,7 @@ import androidx.room.PrimaryKey
 )
 data class PackLocalized(
     @PrimaryKey val id: String,
-    val lang: String,
+    val lang: ArcaeaLanguage,
     val name: String?,
     val description: String?,
 )

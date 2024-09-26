@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.converters
 
 import androidx.room.TypeConverter
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -30,7 +31,6 @@ object ArcaeaPlayResultClearTypeConverters {
     }
 }
 
-
 object ArcaeaPlayResultModifierConverters {
     @TypeConverter
     fun fromDatabaseValue(value: Int?): ArcaeaPlayResultModifier? {
@@ -40,5 +40,17 @@ object ArcaeaPlayResultModifierConverters {
     @TypeConverter
     fun toDatabaseValue(value: ArcaeaPlayResultModifier?): Int? {
         return value?.value
+    }
+}
+
+object ArcaeaLanguageConverters {
+    @TypeConverter
+    fun fromDatabaseValue(value: String?): ArcaeaLanguage? {
+        return value?.let { ArcaeaLanguage.entries.find { it.code == value } }
+    }
+
+    @TypeConverter
+    fun toDatabaseValue(value: ArcaeaLanguage?): String? {
+        return value?.code
     }
 }

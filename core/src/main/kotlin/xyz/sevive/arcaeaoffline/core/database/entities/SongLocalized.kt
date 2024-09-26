@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 
 
 @Entity(
@@ -24,7 +25,7 @@ import androidx.room.PrimaryKey
 )
 data class SongLocalized(
     @PrimaryKey val id: String,
-    val lang: String,
+    val lang: ArcaeaLanguage,
     val title: String?,
     @ColumnInfo(name = "search_title") val searchTitle: String?,
     @ColumnInfo(name = "search_artist") val searchArtist: String?,
