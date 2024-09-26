@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers
+package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
 import android.util.Log
 import kotlinx.serialization.json.Json
@@ -8,7 +8,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
-import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.ArcaeaSonglistRoot
+import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistRoot
 
 
 class ArcaeaSonglistImporter(songlistContent: String) {

@@ -1,10 +1,10 @@
-package xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers
+package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
-import xyz.sevive.arcaeaoffline.core.database.externals.arcaea.ArcaeaPacklistRoot
+import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaPacklistRoot
 
 
 class ArcaeaPacklistImporter(packlistContent: String) {

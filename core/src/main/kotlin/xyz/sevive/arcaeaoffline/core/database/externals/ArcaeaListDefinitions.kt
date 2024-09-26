@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.database.externals.arcaea
+package xyz.sevive.arcaeaoffline.core.database.externals
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

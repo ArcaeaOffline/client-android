@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.database.externals.arcaea.importers
+package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
 import androidx.core.database.getIntOrNull
 import io.requery.android.database.sqlite.SQLiteDatabase
