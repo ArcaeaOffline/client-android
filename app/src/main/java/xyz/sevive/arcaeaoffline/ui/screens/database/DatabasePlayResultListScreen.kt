@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -182,8 +184,6 @@ fun DatabasePlayResultListScreen(
     }
 
     if (showDeleteConfirmDialog) {
-        val contentColor = MaterialTheme.colorScheme.error
-
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
             confirmButton = {
@@ -198,7 +198,12 @@ fun DatabasePlayResultListScreen(
             dismissButton = {
                 DialogDismissTextButton(onClick = { showDeleteConfirmDialog = false })
             },
-            icon = { Icon(Icons.Default.DeleteForever, null) },
+            icon = {
+                BadgedBox(badge = { Badge { Text(selectedItemsCount.toString()) } }) {
+                    Icon(Icons.Default.DeleteForever, null)
+                }
+            },
+            title = { Text(stringResource(R.string.general_delete)) },
             text = {
                 Text(
                     pluralStringResource(
@@ -208,9 +213,8 @@ fun DatabasePlayResultListScreen(
                     )
                 )
             },
-            iconContentColor = contentColor,
-            titleContentColor = contentColor,
-            textContentColor = contentColor,
+            iconContentColor = MaterialTheme.colorScheme.error,
+            titleContentColor = MaterialTheme.colorScheme.error,
         )
     }
 }
