@@ -45,9 +45,22 @@ class DatabaseManageViewModel(
     private val res: Resources,
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
+    companion object {
+        private const val LOG_TAG = "DatabaseManageVM"
+
+        private const val LOG_TAG_IMPORT_PACKLIST = "I-Pklst"
+        private const val LOG_TAG_IMPORT_SONGLIST = "I-Slst"
+        private const val LOG_TAG_IMPORT_ARCAEA_APK = "I-ArcApk"
+        private const val LOG_TAG_IMPORT_ARCAEA_INSTALLED = "I-ArcLocal"
+        private const val LOG_TAG_IMPORT_CHART_INFO_DATABASE = "I-CIDb"
+        private const val LOG_TAG_IMPORT_ST3 = "I-St3"
+        private const val LOG_TAG_EXPORT_PLAY_RESULTS = "E-PR"
+    }
+
     data class LogObject(
         val uuid: UUID = UUID.randomUUID(),
         val timestamp: Instant,
+        val tag: String? = null,
         val message: String,
     )
 
@@ -76,7 +89,7 @@ class DatabaseManageViewModel(
                         it.action(this)
                     } catch (e: Throwable) {
                         Log.e(LOG_TAG, "Error processing task ${it.uuid}", e)
-                        appendLog(e.toString())
+                        appendUiLog(tag = null, message = e.toString())
                     }
                 }.join()
                 taskChannelActive.value = false
@@ -95,13 +108,13 @@ class DatabaseManageViewModel(
         UiState(),
     )
 
-    private fun InputStream.convertToString(charset: Charset = StandardCharsets.UTF_8): String {
+    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String {
         return IOUtils.toString(this, charset)
     }
 
-    private suspend fun appendLog(message: String) {
+    private suspend fun appendUiLog(tag: String?, message: String) {
         logLock.withLock {
-            logs.value += LogObject(timestamp = Instant.now(), message = message)
+            logs.value += LogObject(timestamp = Instant.now(), tag = tag, message = message)
         }
     }
 
@@ -118,7 +131,8 @@ class DatabaseManageViewModel(
         val packs = importer.packs().toTypedArray()
         val packsAffectedRows = repositoryContainer.packRepo.upsertAll(*packs).size
         Log.i(LOG_TAG, "$packsAffectedRows packs updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_PACKLIST,
             res.getQuantityString(
                 R.plurals.database_packs_imported,
                 packsAffectedRows,
@@ -130,7 +144,8 @@ class DatabaseManageViewModel(
         val packsLocalizedAffectedRows =
             repositoryContainer.packLocalizedRepo.insertAll(packsLocalized).size
         Log.i(LOG_TAG, "$packsLocalizedAffectedRows packs localized updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_PACKLIST,
             res.getQuantityString(
                 R.plurals.database_packs_localized_imported,
                 packsLocalizedAffectedRows,
@@ -144,10 +159,13 @@ class DatabaseManageViewModel(
             sendTask {
                 val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
-                    appendLog("Cannot open packlist inputStream from $uri, aborting!")
+                    appendUiLog(
+                        LOG_TAG_IMPORT_PACKLIST,
+                        "Cannot open packlist inputStream from $uri, aborting!"
+                    )
                     return@sendTask
                 }
-                val packlistContent = inputStream.use { inputStream.convertToString() }
+                val packlistContent = inputStream.use { inputStream.readText() }
 
                 importPacklistTask(packlistContent)
             }
@@ -160,7 +178,8 @@ class DatabaseManageViewModel(
         val songs = importer.songs().toTypedArray()
         val songsAffectedRows = repositoryContainer.songRepo.upsertAll(*songs).size
         Log.i(LOG_TAG, "$songsAffectedRows songs updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
                 R.plurals.database_songs_imported,
                 songsAffectedRows,
@@ -172,7 +191,8 @@ class DatabaseManageViewModel(
         val difficultiesAffectedRows =
             repositoryContainer.difficultyRepo.upsertAll(*difficulties).size
         Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
                 R.plurals.database_difficulties_imported,
                 difficultiesAffectedRows,
@@ -184,7 +204,8 @@ class DatabaseManageViewModel(
         val songsLocalizedAffectedRows =
             repositoryContainer.songLocalizedRepo.insertAll(songsLocalized).size
         Log.i(LOG_TAG, "$songsLocalizedAffectedRows songs localized updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
                 R.plurals.database_songs_localized_imported,
                 songsLocalizedAffectedRows,
@@ -196,7 +217,8 @@ class DatabaseManageViewModel(
         val difficultiesLocalizedAffectedRows =
             repositoryContainer.difficultyLocalizedRepo.insertAll(difficultiesLocalized).size
         Log.i(LOG_TAG, "$difficultiesLocalizedAffectedRows difficulties localized updated")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
                 R.plurals.database_difficulties_localized_imported,
                 difficultiesLocalizedAffectedRows,
@@ -210,10 +232,13 @@ class DatabaseManageViewModel(
             sendTask {
                 val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
-                    appendLog("Cannot open songlist inputStream from $uri, aborting!")
+                    appendUiLog(
+                        LOG_TAG_IMPORT_SONGLIST,
+                        "Cannot open songlist inputStream from $uri, aborting!"
+                    )
                     return@sendTask
                 }
-                val songlistContent = inputStream.use { inputStream.convertToString() }
+                val songlistContent = inputStream.use { inputStream.readText() }
 
                 importSonglistTask(songlistContent)
             }
@@ -221,7 +246,10 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importArcaeaApkFromSelectedTask(zipInputStream: ZipInputStream) {
-        appendLog(res.getString(R.string.database_manage_import_reading_apk))
+        appendUiLog(
+            LOG_TAG_IMPORT_ARCAEA_APK,
+            res.getString(R.string.database_manage_import_reading_apk)
+        )
 
         var entry = zipInputStream.nextEntry
 
@@ -242,8 +270,8 @@ class DatabaseManageViewModel(
             entry = zipInputStream.nextEntry
         }
 
-        if (!packlistFound) appendLog("packlist not found!")
-        if (!songlistFound) appendLog("songlist not found!")
+        if (!packlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "packlist not found!")
+        if (!songlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "songlist not found!")
     }
 
     fun importArcaeaApkFromSelected(uri: Uri, context: Context) {
@@ -270,16 +298,16 @@ class DatabaseManageViewModel(
 
                     if (packlistEntry != null) {
                         val inputStream = it.getInputStream(packlistEntry)
-                        importPacklistTask(inputStream.use { inputStream.convertToString() })
+                        importPacklistTask(inputStream.use { inputStream.readText() })
                     } else {
-                        appendLog("packlist not found!")
+                        appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "packlist not found!")
                     }
 
                     if (songlistEntry != null) {
                         val inputStream = it.getInputStream(songlistEntry)
-                        importSonglistTask(inputStream.use { inputStream.convertToString() })
+                        importSonglistTask(inputStream.use { inputStream.readText() })
                     } else {
-                        appendLog("songlist not found!")
+                        appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "songlist not found!")
                     }
                 }
             }
@@ -291,7 +319,8 @@ class DatabaseManageViewModel(
         val affectedRows =
             repositoryContainer.chartInfoRepo.insertAll(*chartInfo.toTypedArray()).size
         Log.i(LOG_TAG, "$affectedRows chart info imported")
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_CHART_INFO_DATABASE,
             res.getQuantityString(
                 R.plurals.database_chart_info_imported,
                 affectedRows,
@@ -320,7 +349,8 @@ class DatabaseManageViewModel(
         val affectedRows =
             repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray()).size
 
-        appendLog(
+        appendUiLog(
+            LOG_TAG_IMPORT_ST3,
             res.getQuantityString(
                 R.plurals.database_play_results_imported,
                 affectedRows,
@@ -348,7 +378,8 @@ class DatabaseManageViewModel(
 
         ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
             IOUtils.write(ArcaeaOfflineDEFv2Exporter.playResults(it), outputStream)
-            appendLog(
+            appendUiLog(
+                LOG_TAG_EXPORT_PLAY_RESULTS,
                 res.getQuantityString(
                     R.plurals.database_play_results_exported,
                     it.playResults.size,
@@ -366,9 +397,5 @@ class DatabaseManageViewModel(
                 }
             }
         }
-    }
-
-    companion object {
-        const val LOG_TAG = "DatabaseManageVM"
     }
 }
