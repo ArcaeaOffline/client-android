@@ -231,12 +231,12 @@ class DatabaseManageViewModel(
         while (entry != null) {
             if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
                 packlistFound = true
-                importPacklistTask(zipInputStream.use { zipInputStream.convertToString() })
+                importPacklistTask(zipInputStream.readText())
             }
 
             if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
                 songlistFound = true
-                importSonglistTask(zipInputStream.use { zipInputStream.convertToString() })
+                importSonglistTask(zipInputStream.readText())
             }
 
             entry = zipInputStream.nextEntry
