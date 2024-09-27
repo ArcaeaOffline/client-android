@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,12 +18,18 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,10 +38,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.context.findActivity
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
+import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -43,12 +54,17 @@ import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun LogsBottomSheet(
     onDismissRequest: () -> Unit,
     logObjects: List<DatabaseManageViewModel.LogObject>,
 ) {
+    val context = LocalContext.current
+    val widthSizeClass =
+        context.findActivity()?.let { calculateWindowSizeClass(it) }?.widthSizeClass
+            ?: WindowWidthSizeClass.Compact
+
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         LazyColumn(
             Modifier
@@ -62,20 +78,35 @@ private fun LogsBottomSheet(
             }
 
             items(logObjects, key = { it.uuid }) {
+                val timestampText = remember(widthSizeClass) {
+                    if (widthSizeClass >= WindowWidthSizeClass.Medium) {
+                        it.timestamp.formatAsLocalizedDateTime()
+                    } else {
+                        it.timestamp.formatAsLocalizedDate() + "\n" + it.timestamp.formatAsLocalizedTime()
+                    }
+                }
+
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.list_padding))
                         .animateItem(),
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                    verticalAlignment = Alignment.Bottom,
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    Text(
-                        it.timestamp.formatAsLocalizedDateTime(),
+                    Column(
                         Modifier.secondaryItemAlpha(),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Normal,
-                    )
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        CompositionLocalProvider(
+                            LocalTextStyle provides MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Normal
+                            )
+                        ) {
+                            Text(timestampText, textAlign = TextAlign.End)
+                            it.tag?.let { tag -> Text("[${tag}]") }
+                        }
+                    }
 
                     Text(it.message, Modifier.weight(1f))
                 }
