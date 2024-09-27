@@ -8,10 +8,22 @@ import org.threeten.bp.format.FormatStyle
 
 
 fun Instant.formatAsLocalizedDateTime(
-    dateTimeStyle: FormatStyle = FormatStyle.MEDIUM,
+    formatStyle: FormatStyle = FormatStyle.MEDIUM,
     zone: ZoneId = ZoneId.systemDefault(),
-): String {
-    return DateTimeFormatter.ofLocalizedDateTime(dateTimeStyle).format(
-        LocalDateTime.ofInstant(this, zone)
-    )
-}
+): String = DateTimeFormatter.ofLocalizedDateTime(formatStyle).format(
+    LocalDateTime.ofInstant(this, zone)
+)
+
+fun Instant.formatAsLocalizedDate(
+    formatStyle: FormatStyle = FormatStyle.MEDIUM,
+    zone: ZoneId = ZoneId.systemDefault(),
+): String = DateTimeFormatter.ofLocalizedDate(formatStyle).format(
+    LocalDateTime.ofInstant(this, zone).toLocalDate()
+)
+
+fun Instant.formatAsLocalizedTime(
+    formatStyle: FormatStyle = FormatStyle.MEDIUM,
+    zone: ZoneId = ZoneId.systemDefault(),
+): String = DateTimeFormatter.ofLocalizedTime(formatStyle).format(
+    LocalDateTime.ofInstant(this, zone).toLocalTime()
+)
