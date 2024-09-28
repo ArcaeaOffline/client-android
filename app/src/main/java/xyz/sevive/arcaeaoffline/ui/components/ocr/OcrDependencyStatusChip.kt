@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.twotone.DashboardCustomize
@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 
 data class OcrDependencyStatusChipUiState(
@@ -60,12 +61,12 @@ data class OcrDependencyStatusChipUiState(
             @Composable get() = OcrDependencyStatusChipUiState(
                 icon = Icons.Default.Warning,
                 text = "WARNING",
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.extendedColorScheme.warning,
             )
 
         val ERROR: OcrDependencyStatusChipUiState
             @Composable get() = OcrDependencyStatusChipUiState(
-                icon = Icons.Default.ErrorOutline,
+                icon = Icons.Default.Cancel,
                 text = "ERROR",
                 color = MaterialTheme.colorScheme.error,
             )

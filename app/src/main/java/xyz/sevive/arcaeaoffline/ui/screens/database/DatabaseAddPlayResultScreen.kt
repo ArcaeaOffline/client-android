@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +57,7 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 
 @Composable
@@ -117,7 +119,14 @@ internal fun PlayResultWarningsCard(
         )
     }
 
-    Card(onClick = { showWarningsDialog = true }, modifier = modifier) {
+    Card(
+        onClick = { showWarningsDialog = true },
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            contentColor = MaterialTheme.extendedColorScheme.warning,
+            containerColor = MaterialTheme.extendedColorScheme.warningContainer,
+        ),
+    ) {
         IconRow(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
             Icon(Icons.Default.Warning, null)
             Text(

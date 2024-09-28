@@ -48,6 +48,7 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPureMemoryFarLo
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 @Composable
 internal fun PlayResultValidatorWarningDetailItem(
@@ -87,7 +88,7 @@ internal fun PlayResultValidatorWarningDetailItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.error
+                LocalContentColor provides MaterialTheme.extendedColorScheme.warning
             ) {
                 Icon(Icons.Default.ErrorOutline, contentDescription = null)
 
@@ -147,7 +148,16 @@ fun PlayResultValidatorWarningDetailsDialog(
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         icon = {
-            BadgedBox(badge = { Badge { Text(warnings.size.toString()) } }) {
+            BadgedBox(
+                badge = {
+                    Badge(
+                        contentColor = MaterialTheme.extendedColorScheme.warning,
+                        containerColor = MaterialTheme.extendedColorScheme.warningContainer,
+                    ) {
+                        Text(warnings.size.toString())
+                    }
+                },
+            ) {
                 Icon(Icons.Default.Warning, contentDescription = null)
             }
         },

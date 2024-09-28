@@ -59,7 +59,7 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import xyz.sevive.arcaeaoffline.ui.theme.LocalArcaeaColors
+import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
 
 @Composable
@@ -185,17 +185,17 @@ fun ArcaeaPlayResultCard(
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             pflAnnotatedString("P", playResult.pure),
-                            color = LocalArcaeaColors.current.pure,
+                            color = MaterialTheme.arcaeaColors.pure,
                         )
 
                         Text(
                             pflAnnotatedString("F", playResult.far),
-                            color = LocalArcaeaColors.current.far,
+                            color = MaterialTheme.arcaeaColors.far,
                         )
 
                         Text(
                             pflAnnotatedString("L", playResult.lost),
-                            color = LocalArcaeaColors.current.lost,
+                            color = MaterialTheme.arcaeaColors.lost,
                         )
 
                         Text(
