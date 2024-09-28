@@ -2,8 +2,9 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 
@@ -13,7 +14,7 @@ interface PropertyDao {
     @Query("SELECT * FROM properties WHERE `key` = :key")
     fun find(key: String): Flow<Property>
 
-    @Upsert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Property)
 
     @Delete
