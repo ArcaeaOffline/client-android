@@ -15,9 +15,9 @@ interface PlayResultRepository {
     fun findAll(): Flow<List<PlayResult>>
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
     suspend fun upsert(item: PlayResult): Long
-    suspend fun upsertAll(vararg items: PlayResult): List<Long>
+    suspend fun upsertBatch(vararg items: PlayResult): List<Long>
     suspend fun delete(item: PlayResult): Int
-    suspend fun deleteAll(vararg items: PlayResult): Int
+    suspend fun deleteBatch(vararg items: PlayResult): Int
 }
 
 class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {
@@ -35,9 +35,9 @@ class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {
 
     override suspend fun upsert(item: PlayResult) = dao.upsert(item)
 
-    override suspend fun upsertAll(vararg items: PlayResult) = dao.upsertAll(*items)
+    override suspend fun upsertBatch(vararg items: PlayResult) = dao.upsertBatch(*items)
 
     override suspend fun delete(item: PlayResult) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: PlayResult) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: PlayResult) = dao.deleteBatch(*items)
 }

@@ -8,10 +8,10 @@ interface SongLocalizedRepository {
     fun find(id: String): Flow<SongLocalized?>
     fun findAll(): Flow<List<SongLocalized>>
     suspend fun insert(item: SongLocalized): Long
-    suspend fun insertAll(vararg items: SongLocalized): List<Long>
-    suspend fun insertAll(items: List<SongLocalized>) = insertAll(*items.toTypedArray())
+    suspend fun insertBatch(vararg items: SongLocalized): List<Long>
+    suspend fun insertBatch(items: List<SongLocalized>) = insertBatch(*items.toTypedArray())
     suspend fun delete(item: SongLocalized): Int
-    suspend fun deleteAll(vararg items: SongLocalized): Int
+    suspend fun deleteBatch(vararg items: SongLocalized): Int
 }
 
 class SongLocalizedRepositoryImpl(private val dao: SongLocalizedDao) : SongLocalizedRepository {
@@ -21,9 +21,9 @@ class SongLocalizedRepositoryImpl(private val dao: SongLocalizedDao) : SongLocal
 
     override suspend fun insert(item: SongLocalized) = dao.insert(item)
 
-    override suspend fun insertAll(vararg items: SongLocalized) = dao.insertAll(*items)
+    override suspend fun insertBatch(vararg items: SongLocalized) = dao.insertBatch(*items)
 
     override suspend fun delete(item: SongLocalized) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: SongLocalized) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: SongLocalized) = dao.deleteBatch(*items)
 }

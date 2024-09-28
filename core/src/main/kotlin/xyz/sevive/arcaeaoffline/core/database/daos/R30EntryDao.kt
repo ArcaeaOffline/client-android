@@ -28,13 +28,13 @@ interface R30EntryDao {
     fun insert(item: R30Entry)
 
     @Insert
-    fun insertAll(vararg items: R30Entry)
+    fun insertBatch(vararg items: R30Entry)
 
     @Delete
     fun delete(item: R30Entry)
 
     @Delete
-    fun deleteAll(vararg items: R30Entry)
+    fun deleteBatch(vararg items: R30Entry)
 
     /**
      * ```sql
@@ -43,5 +43,5 @@ interface R30EntryDao {
      * CAUTION! ONLY CALL THIS WHEN YOU KNOW WHAT YOU ARE DOING!
      */
     @Query("DELETE FROM r30_entries")
-    fun emptyTable()
+    fun deleteAll()
 }

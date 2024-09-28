@@ -20,11 +20,11 @@ interface PackLocalizedDao {
     suspend fun insert(item: PackLocalized): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg items: PackLocalized): List<Long>
+    suspend fun insertBatch(vararg items: PackLocalized): List<Long>
 
     @Delete
     suspend fun delete(item: PackLocalized): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: PackLocalized): Int
+    suspend fun deleteBatch(vararg items: PackLocalized): Int
 }

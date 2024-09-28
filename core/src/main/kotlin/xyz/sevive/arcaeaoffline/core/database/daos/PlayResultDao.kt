@@ -32,13 +32,13 @@ interface PlayResultDao {
     suspend fun upsert(item: PlayResult): Long
 
     @Upsert
-    suspend fun upsertAll(vararg items: PlayResult): List<Long>
+    suspend fun upsertBatch(vararg items: PlayResult): List<Long>
 
     @Delete
     suspend fun delete(item: PlayResult): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: PlayResult): Int
+    suspend fun deleteBatch(vararg items: PlayResult): Int
 }
 
 

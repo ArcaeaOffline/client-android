@@ -11,9 +11,9 @@ interface SongRepository {
     fun findBySet(set: String): Flow<List<Song>>
     fun findAll(): Flow<List<Song>>
     suspend fun upsert(item: Song): Long
-    suspend fun upsertAll(vararg items: Song): List<Long>
+    suspend fun upsertBatch(vararg items: Song): List<Long>
     suspend fun delete(item: Song): Int
-    suspend fun deleteAll(vararg items: Song): Int
+    suspend fun deleteBatch(vararg items: Song): Int
 }
 
 
@@ -26,9 +26,9 @@ class SongRepositoryImpl(private val dao: SongDao) : SongRepository {
 
     override suspend fun upsert(item: Song) = dao.upsert(item)
 
-    override suspend fun upsertAll(vararg items: Song) = dao.upsertAll(*items)
+    override suspend fun upsertBatch(vararg items: Song) = dao.upsertBatch(*items)
 
     override suspend fun delete(item: Song) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: Song) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: Song) = dao.deleteBatch(*items)
 }

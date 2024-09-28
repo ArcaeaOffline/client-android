@@ -10,10 +10,10 @@ interface DifficultyLocalizedRepository {
     fun findAll(): Flow<List<DifficultyLocalized>>
     fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>>
     suspend fun insert(item: DifficultyLocalized): Long
-    suspend fun insertAll(vararg items: DifficultyLocalized): List<Long>
-    suspend fun insertAll(items: List<DifficultyLocalized>) = insertAll(*items.toTypedArray())
+    suspend fun insertBatch(vararg items: DifficultyLocalized): List<Long>
+    suspend fun insertBatch(items: List<DifficultyLocalized>) = insertBatch(*items.toTypedArray())
     suspend fun delete(item: DifficultyLocalized): Int
-    suspend fun deleteAll(vararg items: DifficultyLocalized): Int
+    suspend fun deleteBatch(vararg items: DifficultyLocalized): Int
 }
 
 class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao) :
@@ -31,9 +31,9 @@ class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao)
 
     override suspend fun insert(item: DifficultyLocalized) = dao.insert(item)
 
-    override suspend fun insertAll(vararg items: DifficultyLocalized) = dao.insertAll(*items)
+    override suspend fun insertBatch(vararg items: DifficultyLocalized) = dao.insertBatch(*items)
 
     override suspend fun delete(item: DifficultyLocalized) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: DifficultyLocalized) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: DifficultyLocalized) = dao.deleteBatch(*items)
 }

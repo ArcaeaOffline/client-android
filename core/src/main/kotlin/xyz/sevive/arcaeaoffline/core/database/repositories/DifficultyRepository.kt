@@ -14,9 +14,9 @@ interface DifficultyRepository {
     fun findAll(): Flow<List<Difficulty>>
     fun findAllBySongId(songId: String): Flow<List<Difficulty>>
     suspend fun upsert(item: Difficulty): Long
-    suspend fun upsertAll(vararg items: Difficulty): List<Long>
+    suspend fun upsertBatch(vararg items: Difficulty): List<Long>
     suspend fun delete(item: Difficulty): Int
-    suspend fun deleteAll(vararg items: Difficulty): Int
+    suspend fun deleteBatch(vararg items: Difficulty): Int
 }
 
 class DifficultyRepositoryImpl(private val dao: DifficultyDao) : DifficultyRepository {
@@ -30,9 +30,9 @@ class DifficultyRepositoryImpl(private val dao: DifficultyDao) : DifficultyRepos
 
     override suspend fun upsert(item: Difficulty) = dao.upsert(item)
 
-    override suspend fun upsertAll(vararg items: Difficulty) = dao.upsertAll(*items)
+    override suspend fun upsertBatch(vararg items: Difficulty) = dao.upsertBatch(*items)
 
     override suspend fun delete(item: Difficulty) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: Difficulty) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: Difficulty) = dao.deleteBatch(*items)
 }

@@ -8,10 +8,10 @@ interface PackLocalizedRepository {
     fun find(id: String): Flow<PackLocalized?>
     fun findAll(): Flow<List<PackLocalized>>
     suspend fun insert(item: PackLocalized): Long
-    suspend fun insertAll(vararg items: PackLocalized): List<Long>
-    suspend fun insertAll(items: List<PackLocalized>) = insertAll(*items.toTypedArray())
+    suspend fun insertBatch(vararg items: PackLocalized): List<Long>
+    suspend fun insertBatch(items: List<PackLocalized>) = insertBatch(*items.toTypedArray())
     suspend fun delete(item: PackLocalized): Int
-    suspend fun deleteAll(vararg items: PackLocalized): Int
+    suspend fun deleteBatch(vararg items: PackLocalized): Int
 }
 
 class PackLocalizedRepositoryImpl(private val dao: PackLocalizedDao) : PackLocalizedRepository {
@@ -21,9 +21,9 @@ class PackLocalizedRepositoryImpl(private val dao: PackLocalizedDao) : PackLocal
 
     override suspend fun insert(item: PackLocalized) = dao.insert(item)
 
-    override suspend fun insertAll(vararg items: PackLocalized) = dao.insertAll(*items)
+    override suspend fun insertBatch(vararg items: PackLocalized) = dao.insertBatch(*items)
 
     override suspend fun delete(item: PackLocalized) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: PackLocalized) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: PackLocalized) = dao.deleteBatch(*items)
 }

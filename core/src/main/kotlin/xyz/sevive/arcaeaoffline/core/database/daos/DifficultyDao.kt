@@ -24,11 +24,11 @@ interface DifficultyDao {
     suspend fun upsert(item: Difficulty): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertAll(vararg items: Difficulty): List<Long>
+    suspend fun upsertBatch(vararg items: Difficulty): List<Long>
 
     @Delete
     suspend fun delete(item: Difficulty): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Difficulty): Int
+    suspend fun deleteBatch(vararg items: Difficulty): Int
 }

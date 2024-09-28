@@ -46,9 +46,9 @@ interface R30EntryRepository {
 
     fun findAll(): Flow<List<R30Entry>>
     fun findAllCombined(): Flow<List<R30EntryCombined>>
-    suspend fun insertAll(vararg items: R30Entry)
-    suspend fun deleteAll(vararg items: R30Entry)
-    suspend fun emptyTable()
+    suspend fun insertBatch(vararg items: R30Entry)
+    suspend fun deleteBatch(vararg items: R30Entry)
+    suspend fun deleteAll()
 }
 
 class R30EntryRepositoryImpl(private val dao: R30EntryDao) : R30EntryRepository {
@@ -63,9 +63,9 @@ class R30EntryRepositoryImpl(private val dao: R30EntryDao) : R30EntryRepository 
     override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
 
     override fun findAll(): Flow<List<R30Entry>> = dao.findAll()
-    override suspend fun insertAll(vararg items: R30Entry) = dao.insertAll(*items)
-    override suspend fun deleteAll(vararg items: R30Entry) = dao.deleteAll(*items)
-    override suspend fun emptyTable() = dao.emptyTable()
+    override suspend fun insertBatch(vararg items: R30Entry) = dao.insertBatch(*items)
+    override suspend fun deleteBatch(vararg items: R30Entry) = dao.deleteBatch(*items)
+    override suspend fun deleteAll() = dao.deleteAll()
 
     override fun findAllCombined(): Flow<List<R30EntryCombined>> {
         return combine(dao.findAllWithPlayResult(), dao.findAllWithChartInfo()) { mpr, mci ->

@@ -20,11 +20,11 @@ interface SongLocalizedDao {
     suspend fun insert(item: SongLocalized): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg items: SongLocalized): List<Long>
+    suspend fun insertBatch(vararg items: SongLocalized): List<Long>
 
     @Delete
     suspend fun delete(item: SongLocalized): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: SongLocalized): Int
+    suspend fun deleteBatch(vararg items: SongLocalized): Int
 }

@@ -118,7 +118,7 @@ class DatabasePlayResultListViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val playResults = _uiListItems.filter { it.selected }.map { it.playResult }
-                repositoryContainer.playResultRepo.deleteAll(*playResults.toTypedArray())
+                repositoryContainer.playResultRepo.deleteBatch(*playResults.toTypedArray())
             }
         }
     }

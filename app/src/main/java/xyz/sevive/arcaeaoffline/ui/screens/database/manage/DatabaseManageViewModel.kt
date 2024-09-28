@@ -129,7 +129,7 @@ class DatabaseManageViewModel(
         val importer = ArcaeaPacklistImporter(packlistContent)
 
         val packs = importer.packs().toTypedArray()
-        val packsAffectedRows = repositoryContainer.packRepo.upsertAll(*packs).size
+        val packsAffectedRows = repositoryContainer.packRepo.upsertBatch(*packs).size
         Log.i(LOG_TAG, "$packsAffectedRows packs updated")
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
@@ -142,7 +142,7 @@ class DatabaseManageViewModel(
 
         val packsLocalized = importer.packsLocalized()
         val packsLocalizedAffectedRows =
-            repositoryContainer.packLocalizedRepo.insertAll(packsLocalized).size
+            repositoryContainer.packLocalizedRepo.insertBatch(packsLocalized).size
         Log.i(LOG_TAG, "$packsLocalizedAffectedRows packs localized updated")
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
@@ -176,7 +176,7 @@ class DatabaseManageViewModel(
         val importer = ArcaeaSonglistImporter(songlistContent)
 
         val songs = importer.songs().toTypedArray()
-        val songsAffectedRows = repositoryContainer.songRepo.upsertAll(*songs).size
+        val songsAffectedRows = repositoryContainer.songRepo.upsertBatch(*songs).size
         Log.i(LOG_TAG, "$songsAffectedRows songs updated")
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
@@ -189,7 +189,7 @@ class DatabaseManageViewModel(
 
         val difficulties = importer.difficulties().toTypedArray()
         val difficultiesAffectedRows =
-            repositoryContainer.difficultyRepo.upsertAll(*difficulties).size
+            repositoryContainer.difficultyRepo.upsertBatch(*difficulties).size
         Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
@@ -202,7 +202,7 @@ class DatabaseManageViewModel(
 
         val songsLocalized = importer.songsLocalized()
         val songsLocalizedAffectedRows =
-            repositoryContainer.songLocalizedRepo.insertAll(songsLocalized).size
+            repositoryContainer.songLocalizedRepo.insertBatch(songsLocalized).size
         Log.i(LOG_TAG, "$songsLocalizedAffectedRows songs localized updated")
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
@@ -215,7 +215,7 @@ class DatabaseManageViewModel(
 
         val difficultiesLocalized = importer.difficultiesLocalized()
         val difficultiesLocalizedAffectedRows =
-            repositoryContainer.difficultyLocalizedRepo.insertAll(difficultiesLocalized).size
+            repositoryContainer.difficultyLocalizedRepo.insertBatch(difficultiesLocalized).size
         Log.i(LOG_TAG, "$difficultiesLocalizedAffectedRows difficulties localized updated")
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
@@ -317,7 +317,7 @@ class DatabaseManageViewModel(
     private suspend fun importChartsInfoDatabase(db: SQLiteDatabase) {
         val chartInfo = ChartInfoDatabaseImporter.chartInfo(db)
         val affectedRows =
-            repositoryContainer.chartInfoRepo.insertAll(*chartInfo.toTypedArray()).size
+            repositoryContainer.chartInfoRepo.insertBatch(*chartInfo.toTypedArray()).size
         Log.i(LOG_TAG, "$affectedRows chart info imported")
         appendUiLog(
             LOG_TAG_IMPORT_CHART_INFO_DATABASE,
@@ -347,7 +347,7 @@ class DatabaseManageViewModel(
     private suspend fun importSt3(db: SQLiteDatabase) {
         val playResults = ArcaeaSt3PlayResultImporter.playResults(db)
         val affectedRows =
-            repositoryContainer.playResultRepo.upsertAll(*playResults.toTypedArray()).size
+            repositoryContainer.playResultRepo.upsertBatch(*playResults.toTypedArray()).size
 
         appendUiLog(
             LOG_TAG_IMPORT_ST3,

@@ -23,11 +23,11 @@ interface SongDao {
     suspend fun upsert(item: Song): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertAll(vararg items: Song): List<Long>
+    suspend fun upsertBatch(vararg items: Song): List<Long>
 
     @Delete
     suspend fun delete(item: Song): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Song): Int
+    suspend fun deleteBatch(vararg items: Song): Int
 }

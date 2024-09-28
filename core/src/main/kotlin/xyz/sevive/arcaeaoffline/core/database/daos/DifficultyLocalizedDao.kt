@@ -24,11 +24,11 @@ interface DifficultyLocalizedDao {
     suspend fun insert(item: DifficultyLocalized): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg items: DifficultyLocalized): List<Long>
+    suspend fun insertBatch(vararg items: DifficultyLocalized): List<Long>
 
     @Delete
     suspend fun delete(item: DifficultyLocalized): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: DifficultyLocalized): Int
+    suspend fun deleteBatch(vararg items: DifficultyLocalized): Int
 }

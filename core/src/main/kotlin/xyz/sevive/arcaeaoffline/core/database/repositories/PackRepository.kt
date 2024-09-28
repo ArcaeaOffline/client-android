@@ -11,9 +11,9 @@ interface PackRepository {
     fun findAll(): Flow<List<Pack>>
     fun findBasePack(id: String): Flow<Pack?>
     suspend fun upsert(item: Pack): Long
-    suspend fun upsertAll(vararg items: Pack): List<Long>
+    suspend fun upsertBatch(vararg items: Pack): List<Long>
     suspend fun delete(item: Pack): Int
-    suspend fun deleteAll(vararg items: Pack): Int
+    suspend fun deleteBatch(vararg items: Pack): Int
 }
 
 class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
@@ -31,11 +31,11 @@ class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
 
     override suspend fun upsert(item: Pack) = dao.upsert(item)
 
-    override suspend fun upsertAll(vararg items: Pack) = dao.upsertAll(*items)
+    override suspend fun upsertBatch(vararg items: Pack) = dao.upsertBatch(*items)
 
     override suspend fun delete(item: Pack) = dao.delete(item)
 
-    override suspend fun deleteAll(vararg items: Pack) = dao.deleteAll(*items)
+    override suspend fun deleteBatch(vararg items: Pack) = dao.deleteBatch(*items)
 }
 
 

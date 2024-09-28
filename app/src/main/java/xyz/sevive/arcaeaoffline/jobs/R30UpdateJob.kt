@@ -108,8 +108,8 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
             }
 
             ArcaeaOfflineDatabase.getDatabase(applicationContext).withTransaction {
-                r30EntryRepo.emptyTable()
-                r30EntryRepo.insertAll(*r30EntryCombinedList.map { it.entry }.toTypedArray())
+                r30EntryRepo.deleteAll()
+                r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
                 propertyRepo.setR30LastUpdatedAt(Instant.now())
             }

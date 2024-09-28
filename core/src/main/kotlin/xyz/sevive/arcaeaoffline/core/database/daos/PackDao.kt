@@ -21,11 +21,11 @@ interface PackDao {
     suspend fun upsert(item: Pack): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertAll(vararg items: Pack): List<Long>
+    suspend fun upsertBatch(vararg items: Pack): List<Long>
 
     @Delete
     suspend fun delete(item: Pack): Int
 
     @Delete
-    suspend fun deleteAll(vararg items: Pack): Int
+    suspend fun deleteBatch(vararg items: Pack): Int
 }

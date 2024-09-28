@@ -25,12 +25,12 @@ interface ChartInfoDao {
     suspend fun insert(item: ChartInfo)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg items: ChartInfo): LongArray
+    suspend fun insertBatch(vararg items: ChartInfo): LongArray
 
     @Delete
     suspend fun delete(item: ChartInfo)
 
     @Delete
-    suspend fun deleteAll(vararg items: ChartInfo)
+    suspend fun deleteBatch(vararg items: ChartInfo)
 }
 
