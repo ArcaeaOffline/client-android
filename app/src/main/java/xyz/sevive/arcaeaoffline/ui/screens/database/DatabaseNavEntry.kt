@@ -65,10 +65,10 @@ fun DatabaseNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.AddScore.title,
+                    titleResId = DatabaseScreenDestinations.AddPlayResult.title,
                     icon = Icons.Default.Add,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.AddScore.route)
+                    onNavigateToSubRoute(DatabaseScreenDestinations.AddPlayResult.route)
                 }
             }
 

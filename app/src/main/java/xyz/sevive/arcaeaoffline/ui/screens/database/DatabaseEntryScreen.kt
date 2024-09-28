@@ -37,7 +37,7 @@ fun DatabaseEntryScreen() {
                 DatabaseManageScreen(onNavigateUp = onNavigateUp)
             }
 
-            DatabaseScreenDestinations.AddScore.route -> {
+            DatabaseScreenDestinations.AddPlayResult.route -> {
                 DatabaseAddPlayResultScreen(onNavigateUp = onNavigateUp)
             }
 

@@ -1,60 +1,73 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import kotlin.time.Duration.Companion.seconds
 
 class DatabaseAddPlayResultViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
+    data class UiState(
+        val chart: Chart? = null,
+        val playResult: PlayResult? = null,
+        val warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
+    )
+
     private val _chart = MutableStateFlow<Chart?>(null)
     val chart = _chart.asStateFlow()
-
-    fun setChart(chart: Chart?) {
-        _chart.value = chart
-        initScore()
-    }
 
     private val _playResult = MutableStateFlow<PlayResult?>(null)
     val playResult = _playResult.asStateFlow()
 
-    private val _scoreWarnings = MutableStateFlow<List<ArcaeaPlayResultValidatorWarning>>(listOf())
-    val warnings = _scoreWarnings.asStateFlow()
+    private suspend fun getPlayResultWarnings(playResult: PlayResult?): List<ArcaeaPlayResultValidatorWarning> {
+        if (playResult == null) return emptyList()
 
-    private fun validateScore() {
-        val score = playResult.value ?: return
-        val chart = chart.value
-
-        _scoreWarnings.value =
-            ArcaeaPlayResultValidator.validateScore(playResult = score, chart = chart)
+        val chartInfo = repositoryContainer.chartInfoRepo.find(playResult).firstOrNull()
+        return ArcaeaPlayResultValidator.validateScore(playResult, chartInfo)
     }
 
-    private fun initScore() {
-        val songId = chart.value?.songId
-        val ratingClass = chart.value?.ratingClass
+    val uiState = combine(chart, playResult) { chart, playResult ->
+        UiState(
+            chart = chart,
+            playResult = playResult,
+            warnings = getPlayResultWarnings(playResult),
+        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        UiState(),
+    )
 
-        if (songId == null || ratingClass == null) {
-            setScore(null)
-            return
-        }
+    fun setChart(chart: Chart?) {
+        _chart.value = chart
+        initPlayResult()
+    }
 
-        setScore(
-            playResult = if (_playResult.value != null) {
-                _playResult.value!!.copy(songId = songId, ratingClass = ratingClass)
-            } else {
-                PlayResult(songId = songId, ratingClass = ratingClass, score = 0)
+    private fun initPlayResult() {
+        setPlayResult(
+            _chart.value?.let {
+                _playResult.value?.copy(songId = it.songId, ratingClass = it.ratingClass)
+                    ?: PlayResult(songId = it.songId, ratingClass = it.ratingClass, score = 0)
             }
         )
     }
 
-    fun setScore(playResult: PlayResult?) {
+    fun setPlayResult(playResult: PlayResult?) {
         _playResult.value = playResult
-        validateScore()
     }
 
     fun reset() {
@@ -62,10 +75,16 @@ class DatabaseAddPlayResultViewModel(
         _playResult.value = null
     }
 
-    suspend fun saveScore() {
-        if (playResult.value != null) {
-            repositoryContainer.playResultRepo.upsert(playResult.value!!)
-            reset()
+    private var savePlayResultJob: Job? = null
+    fun savePlayResult() {
+        savePlayResultJob?.cancel()
+        if (playResult.value == null) return
+
+        savePlayResultJob = viewModelScope.launch(Dispatchers.IO) {
+            playResult.value?.let {
+                repositoryContainer.playResultRepo.upsert(it)
+                reset()
+            }
         }
     }
 }
