@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.helpers
+package xyz.sevive.arcaeaoffline.jobs
 
 import ai.onnxruntime.OrtSession
 import android.app.Notification
@@ -44,6 +44,8 @@ import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 
 
 class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {

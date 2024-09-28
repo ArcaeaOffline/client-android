@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.helpers
+package xyz.sevive.arcaeaoffline.jobs
 
 import android.app.Notification
 import android.content.Context
@@ -34,6 +34,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
+import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 

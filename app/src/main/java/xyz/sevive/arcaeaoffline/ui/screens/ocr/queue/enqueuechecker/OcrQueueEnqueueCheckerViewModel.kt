@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueEnqueueCheckerJob
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueJob
+import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
+import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
