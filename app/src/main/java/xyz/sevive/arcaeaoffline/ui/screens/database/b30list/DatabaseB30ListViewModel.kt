@@ -2,52 +2,65 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.b30list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import kotlin.time.Duration.Companion.seconds
 
 
 class DatabaseB30ListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
-    data class UiItem(
+    data class ListItem(
         val index: Int,
         val playResultBest: PlayResultBest,
         val chart: Chart?,
         val potentialText: String = ArcaeaFormatters.potentialToText(playResultBest.potential),
-    ) {
-        val id get() = playResultBest.id
-    }
+    )
 
     data class UiState(
         val isLoading: Boolean = false,
-        val uiItems: List<UiItem> = emptyList(),
+        val limit: Int = 0,
+        val listItems: List<ListItem> = emptyList(),
     )
 
-    private val _limit = MutableStateFlow(INIT_LIMIT)
-    val limit = _limit.asStateFlow()
+    private val limit = MutableStateFlow(INIT_LIMIT)
 
-    val uiState = _limit.transform {
-        emit(UiState(isLoading = true))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState = limit.transformLatest { limit ->
+        emit(UiState(isLoading = true, limit = limit))
 
-        val dbItems = repositoryContainer.relationshipsRepo.playResultsBestWithCharts(it)
-            .firstOrNull() ?: emptyList()
-        val uiItems = dbItems.mapIndexed { i, dbItem ->
-            UiItem(index = i, playResultBest = dbItem.playResultBest, chart = dbItem.chart)
-        }
+        repositoryContainer.relationshipsRepo.playResultsBestWithCharts(limit)
+            .collectLatest { dbItems ->
+                val listItems = dbItems.mapIndexed { i, dbItem ->
+                    ListItem(
+                        index = i, playResultBest = dbItem.playResultBest, chart = dbItem.chart
+                    )
+                }
 
-        emit(UiState(isLoading = false, uiItems = uiItems))
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState())
+                emit(UiState(isLoading = false, limit = limit, listItems = listItems))
+            }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        UiState(),
+    )
 
     fun setLimit(limit: Int) {
-        _limit.value = limit
+        this.limit.value = limit
+    }
+
+    fun forceReload() {
+        val limitValue = this.limit.value
+        this.limit.value = 0
+        this.limit.value = limitValue
     }
 
     companion object {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 import xyz.sevive.arcaeaoffline.core.database.entities.toPlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
@@ -33,14 +35,14 @@ import java.util.UUID
 
 @Composable
 internal fun DatabaseB30ListItem(
-    uiItem: DatabaseB30ListViewModel.UiItem,
+    item: DatabaseB30ListViewModel.ListItem,
     modifier: Modifier = Modifier,
 ) {
     val indexTextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    val indexText = remember(uiItem.index) {
+    val indexText = remember(item.index) {
         buildAnnotatedString {
             append("#")
-            withStyle(indexTextStyle.toSpanStyle()) { append("${uiItem.index + 1}") }
+            withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
         }
     }
 
@@ -56,9 +58,9 @@ internal fun DatabaseB30ListItem(
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaPlayResultCard(
-            playResult = uiItem.playResultBest.toPlayResult(),
+            playResult = item.playResultBest.toPlayResult(),
             Modifier.weight(1f),
-            chart = uiItem.chart,
+            chart = item.chart,
         )
 
         Column(
@@ -72,41 +74,60 @@ internal fun DatabaseB30ListItem(
             Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
-            Text(uiItem.potentialText, style = MaterialTheme.typography.labelMedium)
+            Text(item.potentialText, style = MaterialTheme.typography.labelMedium)
         }
     }
 }
 
-
 @Preview
 @Composable
 private fun DatabaseB30ListItemPreview() {
-    ArcaeaOfflineTheme {
-        AndroidThreeTen.init(LocalContext.current)
+    AndroidThreeTen.init(LocalContext.current)
 
-        DatabaseB30ListItem(
-            DatabaseB30ListViewModel.UiItem(
-                index = 5,
-                playResultBest = PlayResultBest(
-                    id = 1,
-                    uuid = UUID.randomUUID(),
-                    songId = "test",
-                    ratingClass = ArcaeaRatingClass.FUTURE,
-                    score = 99500000,
-                    pure = null,
-                    shinyPure = null,
-                    far = null,
-                    lost = null,
-                    date = Instant.ofEpochMilli(0),
-                    maxRecall = null,
-                    modifier = null,
-                    clearType = null,
-                    potential = 12.00,
-                    comment = null,
-                ),
-                chart = null,
-            )
+    fun fakeListItem(index: Int, withChart: Boolean = true): DatabaseB30ListViewModel.ListItem {
+        return DatabaseB30ListViewModel.ListItem(
+            index = index,
+            playResultBest = PlayResultBest(
+                id = 1,
+                uuid = UUID.randomUUID(),
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 99500000,
+                pure = null,
+                shinyPure = null,
+                far = null,
+                lost = null,
+                date = Instant.ofEpochMilli(0),
+                maxRecall = null,
+                modifier = null,
+                clearType = null,
+                potential = 12.00,
+                comment = null,
+            ),
+            chart = if (withChart) Chart(
+                songIdx = 0,
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                rating = 9,
+                ratingPlus = true,
+                title = "Preview",
+                artist = "Preview",
+                set = "preview",
+                audioOverride = false,
+                jacketOverride = false,
+                constant = 90,
+                side = 0,
+            ) else null,
         )
+    }
+
+    ArcaeaOfflineTheme {
+        Surface {
+            Column {
+                DatabaseB30ListItem(fakeListItem(index = 0))
+                DatabaseB30ListItem(fakeListItem(index = 1, withChart = true))
+            }
+        }
     }
 }
 
