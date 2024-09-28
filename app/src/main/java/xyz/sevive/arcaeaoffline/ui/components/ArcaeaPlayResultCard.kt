@@ -4,8 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -111,7 +109,6 @@ private fun PlayResultDetailsDialog(
 }
 
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ArcaeaPlayResultCard(
     playResult: PlayResult,
@@ -183,7 +180,7 @@ fun ArcaeaPlayResultCard(
                 Column(Modifier.weight(1f)) {
                     Text(scoreText, style = MaterialTheme.typography.titleLarge)
 
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             pflAnnotatedString("P", playResult.pure),
                             color = MaterialTheme.arcaeaColors.pure,
@@ -198,22 +195,25 @@ fun ArcaeaPlayResultCard(
                             pflAnnotatedString("L", playResult.lost),
                             color = MaterialTheme.arcaeaColors.lost,
                         )
-
-                        Text(
-                            pflAnnotatedString(
-                                stringResource(R.string.arcaea_play_result_max_recall),
-                                playResult.maxRecall
-                            )
-                        )
                     }
+
+                    Text(
+                        pflAnnotatedString(
+                            stringResource(R.string.arcaea_play_result_max_recall),
+                            playResult.maxRecall
+                        )
+                    )
 
                     Text(
                         dateText,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
                     )
+
                     Text(
                         clearTypeAndModifierText,
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
                     )
                 }
             }
