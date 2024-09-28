@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database
+package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

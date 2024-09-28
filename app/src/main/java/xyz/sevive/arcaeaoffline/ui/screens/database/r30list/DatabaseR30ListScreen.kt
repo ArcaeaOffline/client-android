@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database
+package xyz.sevive.arcaeaoffline.ui.screens.database.r30list
 
 
 import androidx.compose.foundation.layout.Arrangement

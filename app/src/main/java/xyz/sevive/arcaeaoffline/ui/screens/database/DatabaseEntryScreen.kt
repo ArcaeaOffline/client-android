@@ -8,8 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageScreen
+import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListScreen
+import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListScreen
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable

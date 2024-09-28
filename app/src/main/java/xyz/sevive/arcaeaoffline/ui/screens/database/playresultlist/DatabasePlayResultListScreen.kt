@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database
+package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler

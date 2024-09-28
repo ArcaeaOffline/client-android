@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database
+package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement

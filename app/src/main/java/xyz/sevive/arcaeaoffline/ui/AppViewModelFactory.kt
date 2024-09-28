@@ -11,12 +11,12 @@ import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.database.DatabasePlayResultListViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseR30ListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker.OcrQueueEnqueueCheckerViewModel

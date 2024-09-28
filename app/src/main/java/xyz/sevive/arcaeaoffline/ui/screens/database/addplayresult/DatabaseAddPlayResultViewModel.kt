@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database
+package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
