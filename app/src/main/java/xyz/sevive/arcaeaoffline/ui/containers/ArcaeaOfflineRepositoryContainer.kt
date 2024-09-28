@@ -110,7 +110,7 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
     }
 
     override val r30EntryRepo: R30EntryRepository by lazy {
-        R30EntryRepositoryImpl(db.r30EntryDao(), playResultRepo, chartInfoRepo, propertyRepo)
+        R30EntryRepositoryImpl(db.r30EntryDao())
     }
 
     override val relationshipsRepo: RelationshipsRepository by lazy {

@@ -21,17 +21,18 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 
 @Composable
 internal fun DatabaseR30ListItem(
-    uiItem: DatabaseR30ListViewModel.UiItem,
+    item: DatabaseR30ListViewModel.ListItem,
     modifier: Modifier = Modifier,
 ) {
     val indexTextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    val indexText = remember(uiItem.index) {
+    val indexText = remember(item.index) {
         buildAnnotatedString {
             append("#")
-            withStyle(indexTextStyle.toSpanStyle()) { append("${uiItem.index + 1}") }
+            withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
         }
     }
 
@@ -41,15 +42,19 @@ internal fun DatabaseR30ListItem(
         density.run { textMeasurer.measure("#00", style = indexTextStyle).size.width.toDp() }
     }
 
+    val potentialText = remember(item.potential) {
+        ArcaeaFormatters.potentialToText(item.potential)
+    }
+
     Row(
         modifier,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaPlayResultCard(
-            playResult = uiItem.playResult,
+            playResult = item.playResult,
             Modifier.weight(1f),
-            chart = uiItem.chart,
+            chart = item.chart,
         )
 
         Column(
@@ -63,7 +68,7 @@ internal fun DatabaseR30ListItem(
             Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
-            Text(uiItem.potentialText, style = MaterialTheme.typography.labelMedium)
+            Text(potentialText, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

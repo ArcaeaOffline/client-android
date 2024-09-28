@@ -74,7 +74,8 @@ object AppViewModelProvider {
 
         initializer {
             DatabaseR30ListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
+                WorkManager.getInstance(application()),
+                application().arcaeaOfflineDatabaseRepositoryContainer,
             )
         }
 

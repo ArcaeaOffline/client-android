@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.map
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
-import java.util.UUID
 
 
 interface PropertyRepository {
@@ -19,10 +18,8 @@ interface PropertyRepository {
     suspend fun setDatabaseVersion(ver: Int)
 
     suspend fun r30LastUpdatedAt(): Instant?
-    suspend fun setR30LastUpdatedAt(instant: Instant = Instant.now())
+    suspend fun setR30LastUpdatedAt(instant: Instant)
     suspend fun deleteR30LastUpdatedAt()
-
-    suspend fun r30LastUpdatedPlayResultUUID(): UUID?
 }
 
 class PropertyRepositoryImpl(private val dao: PropertyDao) : PropertyRepository {
@@ -57,11 +54,5 @@ class PropertyRepositoryImpl(private val dao: PropertyDao) : PropertyRepository 
 
     override suspend fun deleteR30LastUpdatedAt() {
         this.delete(Property.KEY_R30_LAST_UPDATED_AT)
-    }
-
-    override suspend fun r30LastUpdatedPlayResultUUID(): UUID? {
-        val property = this.find(Property.KEY_R30_LAST_UPDATED_PLAY_RESULT_UUID).firstOrNull()
-            ?: return null
-        return UUID.fromString(property.value)
     }
 }
