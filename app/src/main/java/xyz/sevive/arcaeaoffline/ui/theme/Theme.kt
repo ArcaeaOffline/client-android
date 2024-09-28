@@ -36,10 +36,8 @@ onSurface = Color(0xFF1C1B1F),
 
 @Composable
 fun ArcaeaOfflineTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(),  // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = true, content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -60,12 +58,8 @@ fun ArcaeaOfflineTheme(
     }
 
     CompositionLocalProvider(
-        ArcaeaDifficultyExtendedColors provides
-            if (darkTheme) darkArcaeaDifficultyColors else lightArcaeaDifficultyColors,
-        ArcaeaPflExtendedColors provides
-            if (darkTheme) darkArcaeaPflColors else lightArcaeaPflColors,
-        ArcaeaGradeGradientExtendedColors provides
-            if (darkTheme) darkArcaeaGradeGradientColors else lightArcaeaGradeGradientColors
+        LocalArcaeaColors provides if (darkTheme) ArcaeaColors.Dark else ArcaeaColors.Light,
+        LocalArcaeaGradeGradientColors provides if (darkTheme) ArcaeaGradeGradientColors.Dark else ArcaeaGradeGradientColors.Light
     ) {
         MaterialTheme(
             colorScheme = colorScheme, typography = Typography, content = content
