@@ -82,20 +82,9 @@ private fun PlayResultDetailsDialog(
     val items = remember(playResult) {
         with(playResult) {
             buildMap {
-                put(key = "ID (UUID)", value = "$id ($uuid)")
+                put(key = "ID", value = id.toString())
+                put(key = "UUID", value = uuid.toString())
                 put(key = "songId.ratingClass", value = "${songId}.${ratingClass}")
-                clearType?.let {
-                    put(
-                        key = context.getString(R.string.arcaea_play_result_clear_type),
-                        value = it.toDisplayString(),
-                    )
-                }
-                modifier?.let {
-                    put(
-                        key = context.getString(R.string.arcaea_play_result_modifier),
-                        value = it.toDisplayString(),
-                    )
-                }
                 comment?.let {
                     put(
                         key = context.getString(R.string.arcaea_play_result_comment), value = it
@@ -131,15 +120,26 @@ fun ArcaeaPlayResultCard(
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
-    val cardColors = colors ?: CardDefaults.cardColors()
+    val context = LocalContext.current
 
-    var showDetails by rememberSaveable { mutableStateOf(false) }
+    val cardColors = colors ?: CardDefaults.cardColors()
 
     val scoreText = remember(playResult.score) {
         playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
             .reversed()
     }
-    val dateText = remember(playResult.date) { playResult.date?.formatAsLocalizedDateTime() }
+    val dateText = remember(playResult.date) {
+        playResult.date?.formatAsLocalizedDateTime()
+            ?: context.getString(R.string.play_result_no_date)
+    }
+    val clearTypeAndModifierText = remember(playResult.clearType, playResult.modifier) {
+        val clearTypeText = playResult.clearType?.toDisplayString()
+            ?: context.getString(R.string.play_result_no_clear_type)
+        val modifierText = playResult.modifier?.toDisplayString()
+            ?: context.getString(R.string.play_result_no_modifier)
+
+        "$clearTypeText · $modifierText"
+    }
 
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
@@ -151,6 +151,7 @@ fun ArcaeaPlayResultCard(
         density.run { textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp() }
     }
 
+    var showDetails by rememberSaveable { mutableStateOf(false) }
     if (showDetails) {
         PlayResultDetailsDialog(onDismissRequest = { showDetails = false }, playResult = playResult)
     }
@@ -207,8 +208,12 @@ fun ArcaeaPlayResultCard(
                     }
 
                     Text(
-                        dateText ?: stringResource(R.string.play_result_no_date),
-                        style = MaterialTheme.typography.labelMedium,
+                        dateText,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                    )
+                    Text(
+                        clearTypeAndModifierText,
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
                     )
                 }
             }
@@ -242,10 +247,13 @@ fun ArcaeaPlayResultCard(
         return
     }
 
-    val cornerSize = 8.dp
-
-    val upperCardShape = RoundedCornerShape(topStart = cornerSize, topEnd = cornerSize)
-    val lowerCardShape = RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize)
+    val cornerSize = remember { 8.dp }
+    val upperCardShape = remember {
+        RoundedCornerShape(topStart = cornerSize, topEnd = cornerSize)
+    }
+    val lowerCardShape = remember {
+        RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize)
+    }
 
     Column(modifier) {
         ArcaeaChartCard(chart = chart, shape = upperCardShape)
