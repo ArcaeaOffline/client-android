@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings.license
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
@@ -10,6 +11,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.material3.Material3RichText
@@ -17,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.apache.commons.io.IOUtils
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
@@ -43,9 +46,13 @@ internal fun SettingsLicenseScreen(
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.License.title)
+        title = stringResource(SettingsScreenDestination.License.title),
+        modifier = modifier,
     ) {
-        LazyColumn(modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
+        ) {
             item {
                 licenseText?.let {
                     Material3RichText { Markdown(it) }
