@@ -149,6 +149,7 @@
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
         <item quantity="other">删除 %d 个游玩记录？</item>
     </plurals>
+    <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
     <!-- Database b30 list pane -->
     <string name="database_b30_list_title">B30 列表</string>

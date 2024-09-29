@@ -170,6 +170,7 @@ CC BY-SA 3.0
         <item quantity="many">Are you sure to delete %d play results?</item>
         <item quantity="other">Are you sure to delete %d play result?</item>
     </plurals>
+    <string name="database_play_result_updated">Play result %s updated</string>
 
     <!-- Database b30 list pane -->
     <string name="database_b30_list_title">Best30 List</string>

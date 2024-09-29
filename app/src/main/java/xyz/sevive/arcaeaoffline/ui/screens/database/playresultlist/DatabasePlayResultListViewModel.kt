@@ -1,5 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
+import android.content.Context
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
@@ -85,9 +88,23 @@ class DatabasePlayResultListViewModel(
         selectedItemUuids.value = emptyList()
     }
 
-    fun updatePlayResult(playResult: PlayResult) {
+    fun updatePlayResult(
+        playResult: PlayResult,
+        context: Context? = null,
+        snackbarHostState: SnackbarHostState? = null,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             repositoryContainer.playResultRepo.upsert(playResult)
+
+            if (context != null && snackbarHostState != null) {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(
+                        R.string.database_play_result_updated,
+                        "(${playResult.songId}, ${playResult.uuid})"
+                    ),
+                    withDismissAction = true,
+                )
+            }
         }
     }
 }
