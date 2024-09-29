@@ -26,12 +26,14 @@ fun SubScreenContainer(
     topBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     floatingActionButton: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = topBar,
         floatingActionButton = floatingActionButton,
+        snackbarHost = snackbarHost,
     ) {
         Box(Modifier.padding(it)) {
             content()
@@ -75,11 +77,13 @@ fun SubScreenContainer(
     onNavigateUp: () -> Unit,
     title: String,
     modifier: Modifier = Modifier,
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     SubScreenContainer(
         modifier = modifier,
         topBar = { SubScreenTopAppBar(onNavigateUp = onNavigateUp, title = { Text(title) }) },
+        snackbarHost = snackbarHost,
         content = content,
     )
 }
@@ -91,6 +95,7 @@ fun SubScreenContainer(
     title: String,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     SubScreenContainer(
@@ -102,6 +107,7 @@ fun SubScreenContainer(
                 actions = actions,
             )
         },
+        snackbarHost = snackbarHost,
         content = content,
     )
 }
