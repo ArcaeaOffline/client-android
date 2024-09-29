@@ -30,6 +30,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,43 +60,40 @@ import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
 internal fun DatabasePlayResultListItem(
-    uiItem: DatabasePlayResultListViewModel.UiItem,
-    onScoreChange: (PlayResult) -> Unit,
+    item: DatabasePlayResultListViewModel.ListItem,
+    onPlayResultChange: (PlayResult) -> Unit,
     inSelectMode: Boolean,
+    isSelected: Boolean,
     onSelectedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var showScoreEditor by rememberSaveable { mutableStateOf(false) }
+    var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }
 
-    var lastSavedPlayResult by remember { mutableStateOf(uiItem.playResult) }
-    if (showScoreEditor) {
+    if (showPlayResultEditor) {
         PlayResultEditorDialog(
-            onDismiss = {
-                if (uiItem.playResult != lastSavedPlayResult) onScoreChange(lastSavedPlayResult)
-                showScoreEditor = false
-            },
-            playResult = lastSavedPlayResult,
-            onPlayResultChange = { lastSavedPlayResult = it },
+            onDismiss = { showPlayResultEditor = false },
+            playResult = item.playResult,
+            onPlayResultChange = onPlayResultChange,
         )
     }
 
     Row(
-        modifier.clickable(inSelectMode) { onSelectedChange(!uiItem.selected) },
+        modifier.clickable(inSelectMode) { onSelectedChange(!isSelected) },
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaPlayResultCard(
-            playResult = uiItem.playResult, modifier = Modifier.weight(1f), chart = uiItem.chart
+            playResult = item.playResult, modifier = Modifier.weight(1f), chart = item.chart
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("PTT", fontWeight = FontWeight.Thin, style = MaterialTheme.typography.labelSmall)
-            Text(uiItem.potentialText, style = MaterialTheme.typography.labelMedium)
+            Text(item.potentialText, style = MaterialTheme.typography.labelMedium)
 
             Crossfade(inSelectMode, label = "") {
                 if (it) {
-                    Checkbox(checked = uiItem.selected, onCheckedChange = onSelectedChange)
+                    Checkbox(checked = isSelected, onCheckedChange = onSelectedChange)
                 } else {
-                    IconButton(onClick = { showScoreEditor = true }) {
+                    IconButton(onClick = { showPlayResultEditor = true }) {
                         Icon(Icons.Default.Edit, null)
                     }
                 }
@@ -112,16 +111,18 @@ fun DatabasePlayResultListScreen(
     val context = LocalContext.current
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    @Suppress("UNUSED_VARIABLE") val databaseLastUpdated by viewModel.databaseListenFlow.collectAsStateWithLifecycle()
+    val selectedItemUuids by viewModel.selectedItemUuids.collectAsStateWithLifecycle()
 
-    val uiListItems = uiState.uiListItems
-    val isInSelectMode = uiState.isInSelectMode
+    val uiListItems = uiState.listItems
     val isLoading = uiState.isLoading
 
-    val selectedItemsCount = uiListItems.count { it.selected }
+    val selectedItemsCount by remember { derivedStateOf { selectedItemUuids.size } }
     var showDeleteConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
-    BackHandler(isInSelectMode) { viewModel.exitSelectMode() }
+    var isInSelectMode by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(isInSelectMode) { if (!isInSelectMode) viewModel.clearSelectedItems() }
+
+    BackHandler(isInSelectMode) { isInSelectMode = false }
 
     SubScreenContainer(topBar = {
         SubScreenTopAppBar(
@@ -148,7 +149,7 @@ fun DatabasePlayResultListScreen(
                             }
                         }
                     } else {
-                        IconButton(onClick = { viewModel.enterSelectMode() }) {
+                        IconButton(onClick = { isInSelectMode = true }) {
                             Icon(Icons.Default.Checklist, null)
                         }
                     }
@@ -164,19 +165,26 @@ fun DatabasePlayResultListScreen(
             EmptyScreen(Modifier.fillMaxSize())
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
-                items(uiListItems, key = { it.id }) {
+                items(uiListItems, key = { it.uuid }) {
+                    val isSelected by remember {
+                        derivedStateOf { selectedItemUuids.contains(it.uuid) }
+                    }
+
                     DatabasePlayResultListItem(
-                        uiItem = it,
-                        onScoreChange = { scoreEdited ->
-                            viewModel.updateScore(scoreEdited)
+                        item = it,
+                        onPlayResultChange = { newPlayResult ->
+                            viewModel.updatePlayResult(newPlayResult)
 
                             Toast.makeText(
-                                context, "Update playResult ${it.id}", Toast.LENGTH_SHORT
+                                context,
+                                "Update playResult ${newPlayResult.uuid}",
+                                Toast.LENGTH_SHORT,
                             ).show()
                         },
                         inSelectMode = isInSelectMode,
+                        isSelected = isSelected,
                         onSelectedChange = { selected -> viewModel.setItemSelected(it, selected) },
-                        modifier = Modifier.animateItem()
+                        modifier = Modifier.animateItem(),
                     )
                 }
             }
@@ -189,7 +197,7 @@ fun DatabasePlayResultListScreen(
             confirmButton = {
                 DialogConfirmButton(
                     onClick = {
-                        viewModel.deleteSelectedItems()
+                        viewModel.deleteSelectedItemsInDatabase()
                         showDeleteConfirmDialog = false
                     },
                     colors = DialogConfirmButtonDefaults.dangerColors,
