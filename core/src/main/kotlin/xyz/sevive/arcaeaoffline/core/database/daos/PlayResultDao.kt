@@ -28,6 +28,9 @@ interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
+    @Query("SELECT * FROM play_results WHERE uuid IN (:uuids)")
+    fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
+
     @Upsert
     suspend fun upsert(item: PlayResult): Long
 

@@ -14,6 +14,7 @@ interface PlayResultRepository {
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
     fun findAll(): Flow<List<PlayResult>>
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
+    fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
     suspend fun upsert(item: PlayResult): Long
     suspend fun upsertBatch(vararg items: PlayResult): List<Long>
     suspend fun delete(item: PlayResult): Int
@@ -32,6 +33,8 @@ class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {
 
     override fun findAllBySongId(songId: String): Flow<List<PlayResult>> =
         dao.findAllBySongId(songId)
+
+    override fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>> = dao.findAllByUUID(uuids)
 
     override suspend fun upsert(item: PlayResult) = dao.upsert(item)
 
