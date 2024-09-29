@@ -21,6 +21,9 @@ interface ChartInfoDao {
     @Query("SELECT * FROM charts_info WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
 
+    @Query("SELECT COUNT(*) FROM charts_info")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: ChartInfo)
 

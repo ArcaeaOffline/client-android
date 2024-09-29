@@ -16,6 +16,9 @@ interface PackLocalizedDao {
     @Query("SELECT * FROM packs_localized")
     fun findAll(): Flow<List<PackLocalized>>
 
+    @Query("SELECT COUNT(*) FROM packs_localized")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: PackLocalized): Long
 

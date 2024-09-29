@@ -10,6 +10,7 @@ interface PackRepository {
     fun find(id: String): Flow<Pack?>
     fun findAll(): Flow<List<Pack>>
     fun findBasePack(id: String): Flow<Pack?>
+    fun count(): Flow<Int>
     suspend fun upsert(item: Pack): Long
     suspend fun upsertBatch(vararg items: Pack): List<Long>
     suspend fun delete(item: Pack): Int
@@ -28,6 +29,8 @@ class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
             dao.find(baseId)
         } else MutableStateFlow(null).asStateFlow()
     }
+
+    override fun count() = dao.count()
 
     override suspend fun upsert(item: Pack) = dao.upsert(item)
 

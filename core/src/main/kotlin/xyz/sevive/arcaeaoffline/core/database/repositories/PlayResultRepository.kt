@@ -15,6 +15,7 @@ interface PlayResultRepository {
     fun findAll(): Flow<List<PlayResult>>
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
     fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
+    fun count(): Flow<Int>
     suspend fun upsert(item: PlayResult): Long
     suspend fun upsertBatch(vararg items: PlayResult): List<Long>
     suspend fun delete(item: PlayResult): Int
@@ -35,6 +36,8 @@ class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {
         dao.findAllBySongId(songId)
 
     override fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>> = dao.findAllByUUID(uuids)
+
+    override fun count(): Flow<Int> = dao.count()
 
     override suspend fun upsert(item: PlayResult) = dao.upsert(item)
 

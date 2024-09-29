@@ -31,6 +31,9 @@ interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE uuid IN (:uuids)")
     fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
 
+    @Query("SELECT COUNT(*) FROM play_results")
+    fun count(): Flow<Int>
+
     @Upsert
     suspend fun upsert(item: PlayResult): Long
 

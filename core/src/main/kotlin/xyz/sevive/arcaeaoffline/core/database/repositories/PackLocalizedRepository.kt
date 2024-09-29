@@ -7,6 +7,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 interface PackLocalizedRepository {
     fun find(id: String): Flow<PackLocalized?>
     fun findAll(): Flow<List<PackLocalized>>
+    fun count(): Flow<Int>
     suspend fun insert(item: PackLocalized): Long
     suspend fun insertBatch(vararg items: PackLocalized): List<Long>
     suspend fun insertBatch(items: List<PackLocalized>) = insertBatch(*items.toTypedArray())
@@ -18,6 +19,8 @@ class PackLocalizedRepositoryImpl(private val dao: PackLocalizedDao) : PackLocal
     override fun find(id: String): Flow<PackLocalized?> = dao.find(id)
 
     override fun findAll(): Flow<List<PackLocalized>> = dao.findAll()
+
+    override fun count(): Flow<Int> = dao.count()
 
     override suspend fun insert(item: PackLocalized) = dao.insert(item)
 

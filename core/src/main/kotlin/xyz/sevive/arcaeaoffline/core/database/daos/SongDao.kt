@@ -19,6 +19,9 @@ interface SongDao {
     @Query("SELECT * FROM songs")
     fun findAll(): Flow<List<Song>>
 
+    @Query("SELECT COUNT(*) FROM songs")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Song): Long
 

@@ -17,6 +17,9 @@ interface PackDao {
     @Query("SELECT * FROM packs")
     fun findAll(): Flow<List<Pack>>
 
+    @Query("SELECT COUNT(*) FROM packs")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Pack): Long
 

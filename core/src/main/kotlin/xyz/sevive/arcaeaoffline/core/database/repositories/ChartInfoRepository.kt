@@ -17,6 +17,7 @@ interface ChartInfoRepository {
 
     fun findAll(): Flow<List<ChartInfo>>
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
+    fun count(): Flow<Int>
     suspend fun insert(item: ChartInfo)
     suspend fun insertBatch(vararg items: ChartInfo): LongArray
     suspend fun delete(item: ChartInfo)
@@ -31,6 +32,8 @@ class ChartInfoRepositoryImpl(private val dao: ChartInfoDao) : ChartInfoReposito
 
     override fun findAllBySongId(songId: String): Flow<List<ChartInfo>> =
         dao.findAllBySongId(songId)
+
+    override fun count(): Flow<Int> = dao.count()
 
     override suspend fun insert(item: ChartInfo) = dao.insert(item)
 

@@ -16,6 +16,9 @@ interface SongLocalizedDao {
     @Query("SELECT * FROM songs_localized")
     fun findAll(): Flow<List<SongLocalized>>
 
+    @Query("SELECT COUNT(*) FROM songs_localized")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: SongLocalized): Long
 

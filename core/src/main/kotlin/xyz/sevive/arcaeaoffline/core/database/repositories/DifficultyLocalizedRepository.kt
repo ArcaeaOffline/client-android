@@ -9,6 +9,7 @@ interface DifficultyLocalizedRepository {
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<DifficultyLocalized?>
     fun findAll(): Flow<List<DifficultyLocalized>>
     fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>>
+    fun count(): Flow<Int>
     suspend fun insert(item: DifficultyLocalized): Long
     suspend fun insertBatch(vararg items: DifficultyLocalized): List<Long>
     suspend fun insertBatch(items: List<DifficultyLocalized>) = insertBatch(*items.toTypedArray())
@@ -28,6 +29,8 @@ class DifficultyLocalizedRepositoryImpl(private val dao: DifficultyLocalizedDao)
 
     override fun findAllBySongId(songId: String): Flow<List<DifficultyLocalized>> =
         dao.findAllBySongId(songId)
+
+    override fun count() = dao.count()
 
     override suspend fun insert(item: DifficultyLocalized) = dao.insert(item)
 

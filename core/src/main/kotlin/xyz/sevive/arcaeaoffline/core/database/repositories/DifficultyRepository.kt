@@ -13,6 +13,7 @@ interface DifficultyRepository {
     fun find(chartInfo: ChartInfo) = find(chartInfo.songId, chartInfo.ratingClass)
     fun findAll(): Flow<List<Difficulty>>
     fun findAllBySongId(songId: String): Flow<List<Difficulty>>
+    fun count(): Flow<Int>
     suspend fun upsert(item: Difficulty): Long
     suspend fun upsertBatch(vararg items: Difficulty): List<Long>
     suspend fun delete(item: Difficulty): Int
@@ -27,6 +28,8 @@ class DifficultyRepositoryImpl(private val dao: DifficultyDao) : DifficultyRepos
 
     override fun findAllBySongId(songId: String): Flow<List<Difficulty>> =
         dao.findAllBySongId(songId)
+
+    override fun count(): Flow<Int> = dao.count()
 
     override suspend fun upsert(item: Difficulty) = dao.upsert(item)
 

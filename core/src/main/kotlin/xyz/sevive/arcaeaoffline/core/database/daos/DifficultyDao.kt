@@ -20,6 +20,9 @@ interface DifficultyDao {
     @Query("SELECT * FROM difficulties WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<Difficulty>>
 
+    @Query("SELECT COUNT(*) FROM difficulties")
+    fun count(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Difficulty): Long
 
