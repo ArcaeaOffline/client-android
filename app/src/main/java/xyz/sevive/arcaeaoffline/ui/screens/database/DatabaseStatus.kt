@@ -3,19 +3,19 @@ package xyz.sevive.arcaeaoffline.ui.screens.database
 import androidx.annotation.PluralsRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
@@ -28,10 +28,28 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 
 @Composable
-private fun DatabaseStatusIconRow(icon: ImageVector, text: String) {
-    IconRow {
-        Icon(icon, contentDescription = null)
-        Text(text)
+private fun DatabaseStatusIconRow(
+    icon: ImageVector,
+    text: String,
+    localizedItemCount: Int? = null,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        IconRow {
+            Icon(icon, contentDescription = null)
+            Text(text)
+        }
+
+        localizedItemCount?.let {
+            Text("·")
+
+            IconRow {
+                Icon(Icons.Default.Translate, contentDescription = null)
+                Text(it.toString())
+            }
+        }
     }
 }
 
@@ -56,53 +74,36 @@ fun DatabaseStatus(
             R.plurals.database_difficulty_entries, difficultyCount, difficultyCount
         )
 
-        Row(
-            modifier.height(IntrinsicSize.Min),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-        ) {
-            Card(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
+        Card(modifier) {
+            Column(
+                Modifier.padding(dimensionResource(R.dimen.card_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
-                Column(
-                    Modifier.padding(dimensionResource(R.dimen.card_padding)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                ) {
-                    DatabaseStatusIconRow(
-                        icon = ImageVector.vectorResource(R.drawable.ic_database),
-                        text = databaseVersionText,
-                    )
+                DatabaseStatusIconRow(
+                    icon = ImageVector.vectorResource(R.drawable.ic_database),
+                    text = databaseVersionText,
+                )
 
-                    DatabaseStatusIconRow(
-                        icon = ImageVector.vectorResource(R.drawable.ic_pack),
-                        text = packCountText,
-                    )
+                DatabaseStatusIconRow(
+                    icon = ImageVector.vectorResource(R.drawable.ic_pack),
+                    text = packCountText,
+                    localizedItemCount = packLocalizedCount,
+                )
 
-                    DatabaseStatusIconRow(
-                        icon = Icons.Default.MusicNote,
-                        text = songCountText,
-                    )
+                DatabaseStatusIconRow(
+                    icon = Icons.Default.MusicNote,
+                    text = songCountText,
+                    localizedItemCount = songLocalizedCount,
+                )
 
-                    DatabaseStatusIconRow(
-                        icon = ImageVector.vectorResource(R.drawable.ic_rating_class),
-                        text = difficultyCountText,
-                    )
-                }
-            }
+                DatabaseStatusIconRow(
+                    icon = ImageVector.vectorResource(R.drawable.ic_rating_class),
+                    text = difficultyCountText,
+                    localizedItemCount = difficultyLocalizedCount,
+                )
 
-            Card(
-                Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Column(
-                    Modifier.padding(dimensionResource(R.dimen.card_padding)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                ) {
-                    DatabaseStatusLabel(R.plurals.database_chart_info_entries, chartInfoCount)
-                    DatabaseStatusLabel(R.plurals.database_play_result_entries, playResultCount)
-                }
+                DatabaseStatusLabel(R.plurals.database_chart_info_entries, chartInfoCount)
+                DatabaseStatusLabel(R.plurals.database_play_result_entries, playResultCount)
             }
         }
     }
@@ -122,7 +123,11 @@ private fun DatabaseStatusPreview() {
                     difficultyCount = 153,
                     chartInfoCount = 86,
                     playResultCount = 61,
-                )
+                    packLocalizedCount = 12,
+                    songLocalizedCount = 34,
+                    difficultyLocalizedCount = 0,
+                ),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
