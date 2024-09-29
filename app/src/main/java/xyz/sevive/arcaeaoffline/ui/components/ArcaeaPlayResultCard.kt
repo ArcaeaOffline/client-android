@@ -239,11 +239,17 @@ fun ArcaeaPlayResultCard(
 fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     chart: Chart?,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
     if (chart == null) {
-        ArcaeaPlayResultCard(playResult = playResult, modifier = modifier, colors = colors)
+        ArcaeaPlayResultCard(
+            playResult = playResult,
+            modifier = modifier,
+            onClick = onClick,
+            colors = colors,
+        )
         return
     }
 
@@ -261,7 +267,12 @@ fun ArcaeaPlayResultCard(
             thickness = 1.dp,
             color = CardDefaults.cardColors().containerColor.copy(alpha = 0.5f),
         )
-        ArcaeaPlayResultCard(playResult = playResult, shape = lowerCardShape, colors = colors)
+        ArcaeaPlayResultCard(
+            playResult = playResult,
+            onClick = onClick,
+            shape = lowerCardShape,
+            colors = colors,
+        )
     }
 }
 
