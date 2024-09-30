@@ -22,7 +22,6 @@ import org.apache.commons.io.FileUtils
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatusBuilder
@@ -30,6 +29,7 @@ import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
+import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState

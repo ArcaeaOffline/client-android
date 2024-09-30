@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
 import android.util.Log
@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 
