@@ -61,7 +61,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
 
 @Composable
-internal fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
+private fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
     return buildAnnotatedString {
         withStyle(SpanStyle(fontSize = MaterialTheme.typography.labelMedium.fontSize)) {
             append(label)

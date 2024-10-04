@@ -113,7 +113,7 @@ fun ArcaeaChartSelector(
         ) {
             Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 
-            RatingClassSelector(
+            ArcaeaRatingClassSelector(
                 selectedRatingClass = selectedRatingClass,
                 onRatingClassChange = { selectedRatingClass = it },
                 enabledRatingClasses = enabledRatingClasses,

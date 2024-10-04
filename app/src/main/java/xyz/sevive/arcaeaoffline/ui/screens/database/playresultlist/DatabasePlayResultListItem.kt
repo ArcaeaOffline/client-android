@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 
 
 @Composable
@@ -37,7 +37,7 @@ internal fun DatabasePlayResultListItem(
 ) {
     var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }
     if (showPlayResultEditor) {
-        PlayResultEditorDialog(
+        ArcaeaPlayResultEditorDialog(
             onDismiss = { showPlayResultEditor = false },
             playResult = item.playResult,
             onPlayResultChange = onPlayResultChange,

@@ -35,9 +35,9 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
@@ -49,7 +49,7 @@ private fun PlayResultWarningsCard(
 ) {
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog) {
-        PlayResultValidatorWarningDetailsDialog(
+        ArcaeaPlayResultValidatorWarningDetailsDialog(
             onDismissRequest = { showWarningsDialog = false },
             warnings = warnings,
         )
@@ -84,7 +84,7 @@ internal fun DatabaseAddPlayResultPlayResultAction(
     var showPlayResultEditorDialog by rememberSaveable { mutableStateOf(false) }
     if (showPlayResultEditorDialog) {
         playResult?.let {
-            PlayResultEditorDialog(
+            ArcaeaPlayResultEditorDialog(
                 onDismiss = { showPlayResultEditorDialog = false },
                 playResult = playResult,
                 onPlayResultChange = { onPlayResultChange(it) },

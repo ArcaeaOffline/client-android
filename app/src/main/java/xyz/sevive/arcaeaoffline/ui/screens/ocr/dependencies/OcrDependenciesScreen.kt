@@ -19,7 +19,7 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.components.arcaea.ArcaeaAppIcon
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer

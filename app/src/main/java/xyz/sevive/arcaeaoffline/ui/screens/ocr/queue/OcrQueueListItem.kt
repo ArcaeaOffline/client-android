@@ -46,8 +46,8 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultValidatorWarningDetailsDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 
 @Composable
 private fun OcrQueueListItemImagePreviewDialog(
@@ -159,7 +159,7 @@ private fun OcrQueueListItemPlayResult(
 
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog && warnings.isNotEmpty()) {
-        PlayResultValidatorWarningDetailsDialog(
+        ArcaeaPlayResultValidatorWarningDetailsDialog(
             onDismissRequest = { showWarningsDialog = false },
             warnings = warnings
         )
@@ -215,7 +215,7 @@ internal fun OcrQueueListItem(
 
     val playResult = uiItem.playResult
     if (showPlayResultEditor && playResult != null) {
-        PlayResultEditorDialog(
+        ArcaeaPlayResultEditorDialog(
             onDismiss = { showPlayResultEditor = false },
             playResult = playResult,
             onPlayResultChange = { onEditPlayResult(uiItem.id, it) },

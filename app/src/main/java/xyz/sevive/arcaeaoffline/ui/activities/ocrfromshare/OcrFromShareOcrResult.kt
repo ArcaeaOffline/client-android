@@ -19,7 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
-import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 
 
 @Composable
@@ -31,7 +31,7 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
     var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showScoreEditorDialog && score != null) {
-        PlayResultEditorDialog(
+        ArcaeaPlayResultEditorDialog(
             onDismiss = { showScoreEditorDialog = false },
             playResult = score!!,
             onPlayResultChange = { viewModel.setScore(it) },

@@ -49,7 +49,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
 
-class RatingClassShape(private val isFirst: Boolean = false) : Shape {
+private class RatingClassShape(private val isFirst: Boolean = false) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -236,7 +236,7 @@ internal fun RatingClassBox(
 
 
 @Composable
-fun RatingClassRowLayout(
+private fun RatingClassRowLayout(
     modifier: Modifier = Modifier, content: @Composable () -> Unit
 ) {
     Layout(
@@ -262,7 +262,7 @@ fun RatingClassRowLayout(
 }
 
 @Composable
-fun RatingClassSelector(
+fun ArcaeaRatingClassSelector(
     selectedRatingClass: ArcaeaRatingClass?,
     onRatingClassChange: (ArcaeaRatingClass) -> Unit,
     enabledRatingClasses: List<ArcaeaRatingClass> = listOf(),
@@ -347,14 +347,14 @@ private fun RatingClassSelectorDevicePreview() {
                 Text("selected $selectedRatingClass")
 
                 Text("Common case")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesCommon,
                 )
 
                 Text("With constant")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesCommon,
@@ -362,7 +362,7 @@ private fun RatingClassSelectorDevicePreview() {
                 )
 
                 Text("With beyond")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesWithBeyond,
@@ -370,7 +370,7 @@ private fun RatingClassSelectorDevicePreview() {
                 )
 
                 Text("With eternal")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClassesWithEternal,
@@ -378,7 +378,7 @@ private fun RatingClassSelectorDevicePreview() {
                 )
 
                 Text("Last | ???")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = listOf(ArcaeaRatingClass.BEYOND),
@@ -386,7 +386,7 @@ private fun RatingClassSelectorDevicePreview() {
                 )
 
                 Text("wtf")
-                RatingClassSelector(
+                ArcaeaRatingClassSelector(
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
                     enabledRatingClasses = ratingClasses,

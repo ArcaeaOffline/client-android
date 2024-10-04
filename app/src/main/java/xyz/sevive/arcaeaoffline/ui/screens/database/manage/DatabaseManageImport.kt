@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
-import xyz.sevive.arcaeaoffline.ui.components.arcaea.ArcaeaAppIcon
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
 

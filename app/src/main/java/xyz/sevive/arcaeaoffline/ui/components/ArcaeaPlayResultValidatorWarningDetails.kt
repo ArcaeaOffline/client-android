@@ -51,7 +51,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 @Composable
-internal fun PlayResultValidatorWarningDetailItem(
+private fun ArcaeaPlayResultValidatorWarningDetailItem(
     warning: ArcaeaPlayResultValidatorWarning,
     modifier: Modifier = Modifier,
 ) {
@@ -126,20 +126,20 @@ internal fun PlayResultValidatorWarningDetailItem(
 }
 
 @Composable
-fun PlayResultValidatorWarningDetails(
+fun ArcaeaPlayResultValidatorWarningDetails(
     warnings: List<ArcaeaPlayResultValidatorWarning>,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier) {
         warnings.forEachIndexed { i, it ->
-            PlayResultValidatorWarningDetailItem(warning = it)
+            ArcaeaPlayResultValidatorWarningDetailItem(warning = it)
             if (i != warnings.lastIndex) HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun PlayResultValidatorWarningDetailsDialog(
+fun ArcaeaPlayResultValidatorWarningDetailsDialog(
     onDismissRequest: () -> Unit,
     warnings: List<ArcaeaPlayResultValidatorWarning>,
     modifier: Modifier = Modifier,
@@ -163,7 +163,7 @@ fun PlayResultValidatorWarningDetailsDialog(
         },
         text = {
             LazyColumn {
-                item { PlayResultValidatorWarningDetails(warnings) }
+                item { ArcaeaPlayResultValidatorWarningDetails(warnings) }
             }
         },
         confirmButton = { /* Nothing */ },
@@ -172,20 +172,20 @@ fun PlayResultValidatorWarningDetailsDialog(
 
 @PreviewLightDark
 @Composable
-private fun PlayResultValidatorWarningDetailItemPreview() {
+private fun ArcaeaPlayResultValidatorWarningDetailItemPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            PlayResultValidatorWarningDetailItem(ArcaeaPlayResultValidatorPflOverflowWarning)
+            ArcaeaPlayResultValidatorWarningDetailItem(ArcaeaPlayResultValidatorPflOverflowWarning)
         }
     }
 }
 
 @PreviewLightDark
 @Composable
-private fun PlayResultValidatorWarningDetailsPreview() {
+private fun ArcaeaPlayResultValidatorWarningDetailsPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            PlayResultValidatorWarningDetails(
+            ArcaeaPlayResultValidatorWarningDetails(
                 warnings = listOf(
                     ArcaeaPlayResultValidatorPflOverflowWarning,
                     ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
@@ -198,15 +198,16 @@ private fun PlayResultValidatorWarningDetailsPreview() {
 
 @PreviewLightDark
 @Composable
-private fun PlayResultValidatorWarningDetailsDialogPreview() {
+private fun ArcaeaPlayResultValidatorWarningDetailsDialogPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            PlayResultValidatorWarningDetailsDialog(
-                onDismissRequest = {}, warnings = listOf(
+            ArcaeaPlayResultValidatorWarningDetailsDialog(
+                onDismissRequest = {},
+                warnings = listOf(
                     ArcaeaPlayResultValidatorPflOverflowWarning,
                     ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
                     ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-                )
+                ),
             )
         }
     }

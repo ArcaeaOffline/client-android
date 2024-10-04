@@ -30,7 +30,7 @@ private val playResultSaver: Saver<PlayResult, String> = Saver(
 )
 
 @Composable
-fun PlayResultEditorContent(
+fun ArcaeaPlayResultEditorContent(
     playResult: PlayResult,
     onPlayResultChange: (PlayResult) -> Unit,
     modifier: Modifier = Modifier,
@@ -106,7 +106,7 @@ fun PlayResultEditorContent(
 }
 
 @Composable
-fun PlayResultEditorDialog(
+fun ArcaeaPlayResultEditorDialog(
     onDismiss: () -> Unit,
     playResult: PlayResult,
     onPlayResultChange: (PlayResult) -> Unit,
@@ -120,7 +120,7 @@ fun PlayResultEditorDialog(
         onDismissRequest = {},
         modifier = modifier,
         text = {
-            PlayResultEditorContent(
+            ArcaeaPlayResultEditorContent(
                 playResult = playResultCache,
                 onPlayResultChange = { playResultCache = it },
             )

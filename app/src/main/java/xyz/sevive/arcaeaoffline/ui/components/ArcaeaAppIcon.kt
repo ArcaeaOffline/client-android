@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components.arcaea
+package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
