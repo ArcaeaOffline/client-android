@@ -159,7 +159,7 @@ fun DatabaseManageScreen(
 ) {
     val context = LocalContext.current
 
-    val importArcaeaApkFromInstalledButtonState by viewModel.importArcaeaApkFromInstalledButtonState.collectAsStateWithLifecycle()
+    val canImportLists by viewModel.canImportLists.collectAsStateWithLifecycle()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -201,7 +201,7 @@ fun DatabaseManageScreen(
                     onImportPacklist = { viewModel.importPacklist(it, context) },
                     onImportSonglist = { viewModel.importSonglist(it, context) },
                     onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it, context) },
-                    arcaeaButtonState = importArcaeaApkFromInstalledButtonState,
+                    canImportLists = canImportLists,
                     onImportFromInstalledArcaea = { viewModel.importArcaeaApkFromInstalled(context) },
                     onImportChartInfoDatabase = { viewModel.importChartsInfoDatabase(it, context) },
                     onImportSt3 = { viewModel.importSt3(it, context) },

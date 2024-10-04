@@ -14,8 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonDefaults
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaButtonState
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
 
@@ -29,7 +28,7 @@ fun DatabaseManageImport(
     onImportPacklist: (Uri) -> Unit,
     onImportSonglist: (Uri) -> Unit,
     onImportArcaeaApk: (Uri) -> Unit,
-    arcaeaButtonState: ArcaeaButtonState,
+    canImportLists: Boolean,
     onImportFromInstalledArcaea: () -> Unit,
     onImportChartInfoDatabase: (Uri) -> Unit,
     onImportSt3: (Uri) -> Unit,
@@ -96,17 +95,17 @@ fun DatabaseManageImport(
             leadingIcon = Icons.Default.Android,
         )
 
-        if (arcaeaButtonState == ArcaeaButtonState.NORMAL) {
+        if (canImportLists) {
             TextPreferencesWidget(
                 onClick = onImportFromInstalledArcaea,
                 title = stringResource(R.string.database_manage_import_from_arcaea_installed),
                 content = descArcaeaApk,
-                leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
+                leadingSlot = { ArcaeaAppIcon() },
             )
         } else {
             TextPreferencesWidget(
                 title = stringResource(R.string.arcaea_button_resource_unavailable),
-                leadingSlot = { ArcaeaButtonDefaults.Icon(state = arcaeaButtonState) },
+                leadingSlot = { ArcaeaAppIcon(forceDisabled = true) },
                 enabled = false,
             )
         }

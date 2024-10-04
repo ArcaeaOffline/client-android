@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
-import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
@@ -76,7 +76,7 @@ class ArcaeaOfflineApplication : Application() {
         appScope.launch {
             DeviceOcrOnnxHelper.loadModelInfo(this@ArcaeaOfflineApplication)
             Notifications.createChannels(this@ArcaeaOfflineApplication)
-            GlobalArcaeaButtonStateHelper.reload(this@ArcaeaOfflineApplication)
+            ArcaeaResourcesStateHelper.reloadStatus(this@ArcaeaOfflineApplication)
         }
     }
 }

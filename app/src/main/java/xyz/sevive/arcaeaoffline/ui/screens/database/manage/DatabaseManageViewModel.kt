@@ -29,7 +29,7 @@ import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSonglist
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSt3PlayResultImporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ChartInfoDatabaseImporter
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
-import xyz.sevive.arcaeaoffline.helpers.GlobalArcaeaButtonStateHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.InputStream
@@ -284,8 +284,7 @@ class DatabaseManageViewModel(
         }
     }
 
-    val importArcaeaApkFromInstalledButtonState =
-        GlobalArcaeaButtonStateHelper.importListsFromApkButtonState
+    val canImportLists = ArcaeaResourcesStateHelper.canImportLists
 
     fun importArcaeaApkFromInstalled(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
