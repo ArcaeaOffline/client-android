@@ -13,18 +13,18 @@ class SettingsViewModel(
     private val appPreferencesRepository: AppPreferencesRepository,
 ) : ViewModel() {
     data class AppPreferencesUiState(
-        val enableSentry: Boolean = false,
+        val autoSendCrashReports: Boolean = false,
     )
 
     val appPreferencesUiState = appPreferencesRepository.preferencesFlow.map {
         AppPreferencesUiState(
-            enableSentry = it.enableSentry
+            autoSendCrashReports = it.autoSendCrashReports
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), AppPreferencesUiState())
 
-    fun setEnableSentry(value: Boolean) {
+    fun setAutoSendCrashReports(value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            appPreferencesRepository.setEnableSentry(value)
+            appPreferencesRepository.setAutoSendCrashReports(value)
         }
     }
 }

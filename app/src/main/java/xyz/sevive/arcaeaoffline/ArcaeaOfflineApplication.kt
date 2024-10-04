@@ -37,9 +37,10 @@ class ArcaeaOfflineApplication : Application() {
     val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
-    private val enableSentry = dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
-        it.enableSentry
-    }.stateIn(appScope, SharingStarted.Eagerly, false)
+    private val autoSendCrashReports =
+        dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
+            it.autoSendCrashReports
+        }.stateIn(appScope, SharingStarted.Eagerly, false)
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
@@ -68,7 +69,7 @@ class ArcaeaOfflineApplication : Application() {
 
         SentryAndroid.init(this) {
             it.beforeSend = SentryOptions.BeforeSendCallback { event, hint ->
-                if (enableSentry.value) event else null
+                if (autoSendCrashReports.value) event else null
             }
         }
 

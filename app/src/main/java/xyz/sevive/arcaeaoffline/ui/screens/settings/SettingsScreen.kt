@@ -54,7 +54,7 @@ fun SettingsScreen(
                 SettingsGeneralScreen(
                     onNavigateUp = { onNavigateUp() },
                     uiState = generalUiState,
-                    onSetSentryEnabled = { vm.setEnableSentry(it) },
+                    onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
                 )
             }
 

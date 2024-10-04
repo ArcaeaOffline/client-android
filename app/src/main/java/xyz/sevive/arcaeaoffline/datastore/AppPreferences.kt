@@ -9,7 +9,16 @@ import java.io.OutputStream
 
 
 object AppPreferencesSerializer : Serializer<AppPreferences> {
-    override val defaultValue: AppPreferences = AppPreferences.getDefaultInstance()
+    private fun applyDefaultValues(preferences: AppPreferences): AppPreferences {
+        val builder = preferences.toBuilder()
+
+        if (!builder.hasAutoSendCrashReports()) builder.autoSendCrashReports = true
+
+        return builder.build()
+    }
+
+    override val defaultValue: AppPreferences =
+        this.applyDefaultValues(AppPreferences.getDefaultInstance())
 
     override suspend fun readFrom(input: InputStream): AppPreferences {
         try {
@@ -28,9 +37,9 @@ class AppPreferencesRepository(
 ) {
     val preferencesFlow = dataStore.data
 
-    suspend fun setEnableSentry(value: Boolean) {
+    suspend fun setAutoSendCrashReports(value: Boolean) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setEnableSentry(value).build()
+            preferences.toBuilder().setAutoSendCrashReports(value).build()
         }
     }
 }

@@ -4,5 +4,5 @@ option java_package = "xyz.sevive.arcaeaoffline.datastore";
 option java_multiple_files = true;
 
 message AppPreferences {
-    bool enable_sentry = 1;
+    optional bool auto_send_crash_reports = 2;
 }

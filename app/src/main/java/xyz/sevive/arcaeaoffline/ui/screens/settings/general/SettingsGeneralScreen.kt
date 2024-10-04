@@ -17,7 +17,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 internal fun SettingsGeneralScreen(
     onNavigateUp: () -> Unit,
     uiState: SettingsViewModel.AppPreferencesUiState,
-    onSetSentryEnabled: (Boolean) -> Unit,
+    onSetAutoSendCrashReports: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenContainer(
@@ -27,8 +27,8 @@ internal fun SettingsGeneralScreen(
         LazyColumn(modifier) {
             item {
                 SwitchPreferencesWidget(
-                    value = uiState.enableSentry,
-                    onValueChange = { onSetSentryEnabled(it) },
+                    value = uiState.autoSendCrashReports,
+                    onValueChange = { onSetAutoSendCrashReports(it) },
                     icon = Icons.Default.BugReport,
                     title = stringResource(R.string.settings_app_pref_enable_sentry),
                 )
