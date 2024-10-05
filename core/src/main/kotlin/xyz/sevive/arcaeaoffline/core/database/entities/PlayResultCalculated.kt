@@ -23,10 +23,12 @@ import java.util.UUID
             WHEN pr.score >= 9800000 THEN ci.constant / 10.0 + 1 + (pr.score - 9800000) / 200000.0
             ELSE MAX(ci.constant / 10.0 + (pr.score - 9500000) / 300000.0, 0)
         END AS potential,
-        pr.comment
+        pr.comment  
     FROM difficulties d
+    JOIN songs s ON d.song_id = s.id  
     JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class
     JOIN play_results pr ON d.song_id = pr.song_id AND d.rating_class = pr.rating_class
+    WHERE s.deleted_in_game IS NULL OR s.deleted_in_game == 0
 """, "play_results_calculated"
 )
 data class PlayResultCalculated(

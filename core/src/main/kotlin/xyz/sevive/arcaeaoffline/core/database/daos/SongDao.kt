@@ -19,8 +19,14 @@ interface SongDao {
     @Query("SELECT * FROM songs")
     fun findAll(): Flow<List<Song>>
 
+    @Query("SELECT * FROM songs WHERE deleted_in_game = 1")
+    fun findDeletedInGame(): Flow<List<Song>>
+
     @Query("SELECT COUNT(*) FROM songs")
     fun count(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM songs WHERE deleted_in_game = 1")
+    fun countDeletedInGame(): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Song): Long

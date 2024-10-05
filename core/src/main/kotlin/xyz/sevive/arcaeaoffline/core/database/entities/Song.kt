@@ -25,4 +25,5 @@ data class Song(
     @ColumnInfo(name = "bg_night") val bgNight: String? = null,
     val source: String? = null,
     @ColumnInfo(name = "source_copyright") val sourceCopyright: String? = null,
+    @ColumnInfo(name = "deleted_in_game") val deletedInGame: Boolean? = null,
 )

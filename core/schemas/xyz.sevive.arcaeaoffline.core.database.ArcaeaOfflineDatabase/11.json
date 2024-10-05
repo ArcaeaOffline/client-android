@@ -1,0 +1,729 @@
+{
+    "formatVersion": 1,
+    "database": {
+        "version": 11,
+        "identityHash": "37dee0dff1a914831991c2b15bcded47",
+        "entities": [
+            {
+                "tableName": "properties",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+                "fields": [
+                    {
+                        "fieldPath": "key",
+                        "columnName": "key",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "value",
+                        "columnName": "value",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "key"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "packs",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, PRIMARY KEY(`id`))",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "name",
+                        "columnName": "name",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "description",
+                        "columnName": "description",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "packs_localized",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `lang` TEXT NOT NULL, `name` TEXT, `description` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `packs`(`id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "lang",
+                        "columnName": "lang",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "name",
+                        "columnName": "name",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "description",
+                        "columnName": "description",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_packs_localized_id_lang",
+                        "unique": true,
+                        "columnNames": [
+                            "id",
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_packs_localized_id_lang` ON `${TABLE_NAME}` (`id`, `lang`)"
+                    },
+                    {
+                        "name": "index_packs_localized_lang",
+                        "unique": false,
+                        "columnNames": [
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE INDEX IF NOT EXISTS `index_packs_localized_lang` ON `${TABLE_NAME}` (`lang`)"
+                    }
+                ],
+                "foreignKeys": [
+                    {
+                        "table": "packs",
+                        "onDelete": "CASCADE",
+                        "onUpdate": "CASCADE",
+                        "columns": [
+                            "id"
+                        ],
+                        "referencedColumns": [
+                            "id"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tableName": "songs",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idx` INTEGER NOT NULL, `id` TEXT NOT NULL, `title` TEXT NOT NULL, `artist` TEXT NOT NULL, `set` TEXT NOT NULL, `bpm` TEXT, `bpm_base` REAL, `audio_preview` INTEGER, `audio_preview_end` INTEGER, `side` INTEGER NOT NULL, `version` TEXT, `date` INTEGER, `bg` TEXT, `bg_inverse` TEXT, `bg_day` TEXT, `bg_night` TEXT, `source` TEXT, `source_copyright` TEXT, `deleted_in_game` INTEGER, PRIMARY KEY(`id`))",
+                "fields": [
+                    {
+                        "fieldPath": "idx",
+                        "columnName": "idx",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "title",
+                        "columnName": "title",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "artist",
+                        "columnName": "artist",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "set",
+                        "columnName": "set",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "bpm",
+                        "columnName": "bpm",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bpmBase",
+                        "columnName": "bpm_base",
+                        "affinity": "REAL",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "audioPreview",
+                        "columnName": "audio_preview",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "audioPreviewEnd",
+                        "columnName": "audio_preview_end",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "side",
+                        "columnName": "side",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "version",
+                        "columnName": "version",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "date",
+                        "columnName": "date",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bg",
+                        "columnName": "bg",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bgInverse",
+                        "columnName": "bg_inverse",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bgDay",
+                        "columnName": "bg_day",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bgNight",
+                        "columnName": "bg_night",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "source",
+                        "columnName": "source",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "sourceCopyright",
+                        "columnName": "source_copyright",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "deletedInGame",
+                        "columnName": "deleted_in_game",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "songs_localized",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `lang` TEXT NOT NULL, `title` TEXT, `source` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `songs`(`id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "lang",
+                        "columnName": "lang",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "title",
+                        "columnName": "title",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "source",
+                        "columnName": "source",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_songs_localized_id_lang",
+                        "unique": true,
+                        "columnNames": [
+                            "id",
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_songs_localized_id_lang` ON `${TABLE_NAME}` (`id`, `lang`)"
+                    },
+                    {
+                        "name": "index_songs_localized_lang",
+                        "unique": false,
+                        "columnNames": [
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE INDEX IF NOT EXISTS `index_songs_localized_lang` ON `${TABLE_NAME}` (`lang`)"
+                    }
+                ],
+                "foreignKeys": [
+                    {
+                        "table": "songs",
+                        "onDelete": "CASCADE",
+                        "onUpdate": "CASCADE",
+                        "columns": [
+                            "id"
+                        ],
+                        "referencedColumns": [
+                            "id"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tableName": "difficulties",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_id` TEXT NOT NULL, `rating_class` INTEGER NOT NULL, `rating` INTEGER NOT NULL, `rating_plus` INTEGER NOT NULL, `chart_designer` TEXT, `jacket_designer` TEXT, `audio_override` INTEGER NOT NULL, `jacket_override` INTEGER NOT NULL, `jacket_night` TEXT, `title` TEXT, `artist` TEXT, `bg` TEXT, `bg_inverse` TEXT, `bpm` TEXT, `bpm_base` REAL, `version` TEXT, `date` INTEGER, PRIMARY KEY(`song_id`, `rating_class`))",
+                "fields": [
+                    {
+                        "fieldPath": "songId",
+                        "columnName": "song_id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "ratingClass",
+                        "columnName": "rating_class",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "rating",
+                        "columnName": "rating",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "ratingPlus",
+                        "columnName": "rating_plus",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "chartDesigner",
+                        "columnName": "chart_designer",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "jacketDesigner",
+                        "columnName": "jacket_designer",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "audioOverride",
+                        "columnName": "audio_override",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "jacketOverride",
+                        "columnName": "jacket_override",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "jacketNight",
+                        "columnName": "jacket_night",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "title",
+                        "columnName": "title",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "artist",
+                        "columnName": "artist",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bg",
+                        "columnName": "bg",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bgInverse",
+                        "columnName": "bg_inverse",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bpm",
+                        "columnName": "bpm",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "bpmBase",
+                        "columnName": "bpm_base",
+                        "affinity": "REAL",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "version",
+                        "columnName": "version",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "date",
+                        "columnName": "date",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "song_id",
+                        "rating_class"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "difficulties_localized",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_id` TEXT NOT NULL, `rating_class` INTEGER NOT NULL, `lang` TEXT NOT NULL, `title` TEXT, `artist` TEXT, PRIMARY KEY(`song_id`, `rating_class`), FOREIGN KEY(`song_id`, `rating_class`) REFERENCES `difficulties`(`song_id`, `rating_class`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+                "fields": [
+                    {
+                        "fieldPath": "songId",
+                        "columnName": "song_id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "ratingClass",
+                        "columnName": "rating_class",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "lang",
+                        "columnName": "lang",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "title",
+                        "columnName": "title",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "artist",
+                        "columnName": "artist",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "song_id",
+                        "rating_class"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_difficulties_localized_song_id_rating_class_lang",
+                        "unique": true,
+                        "columnNames": [
+                            "song_id",
+                            "rating_class",
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_difficulties_localized_song_id_rating_class_lang` ON `${TABLE_NAME}` (`song_id`, `rating_class`, `lang`)"
+                    },
+                    {
+                        "name": "index_difficulties_localized_lang",
+                        "unique": false,
+                        "columnNames": [
+                            "lang"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE INDEX IF NOT EXISTS `index_difficulties_localized_lang` ON `${TABLE_NAME}` (`lang`)"
+                    }
+                ],
+                "foreignKeys": [
+                    {
+                        "table": "difficulties",
+                        "onDelete": "CASCADE",
+                        "onUpdate": "CASCADE",
+                        "columns": [
+                            "song_id",
+                            "rating_class"
+                        ],
+                        "referencedColumns": [
+                            "song_id",
+                            "rating_class"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tableName": "charts_info",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`song_id` TEXT NOT NULL, `rating_class` INTEGER NOT NULL, `constant` INTEGER NOT NULL, `notes` INTEGER, PRIMARY KEY(`song_id`, `rating_class`))",
+                "fields": [
+                    {
+                        "fieldPath": "songId",
+                        "columnName": "song_id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "ratingClass",
+                        "columnName": "rating_class",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "constant",
+                        "columnName": "constant",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "notes",
+                        "columnName": "notes",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": false,
+                    "columnNames": [
+                        "song_id",
+                        "rating_class"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "play_results",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uuid` BLOB NOT NULL, `song_id` TEXT NOT NULL, `rating_class` INTEGER NOT NULL, `score` INTEGER NOT NULL, `pure` INTEGER, `far` INTEGER, `lost` INTEGER, `date` INTEGER, `max_recall` INTEGER, `modifier` INTEGER, `clear_type` INTEGER, `comment` TEXT)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "uuid",
+                        "columnName": "uuid",
+                        "affinity": "BLOB",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "songId",
+                        "columnName": "song_id",
+                        "affinity": "TEXT",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "ratingClass",
+                        "columnName": "rating_class",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "score",
+                        "columnName": "score",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "pure",
+                        "columnName": "pure",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "far",
+                        "columnName": "far",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "lost",
+                        "columnName": "lost",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "date",
+                        "columnName": "date",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "maxRecall",
+                        "columnName": "max_recall",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "modifier",
+                        "columnName": "modifier",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "clearType",
+                        "columnName": "clear_type",
+                        "affinity": "INTEGER",
+                        "notNull": false
+                    },
+                    {
+                        "fieldPath": "comment",
+                        "columnName": "comment",
+                        "affinity": "TEXT",
+                        "notNull": false
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": true,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [
+                    {
+                        "name": "index_play_results_uuid",
+                        "unique": true,
+                        "columnNames": [
+                            "uuid"
+                        ],
+                        "orders": [],
+                        "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_play_results_uuid` ON `${TABLE_NAME}` (`uuid`)"
+                    }
+                ],
+                "foreignKeys": []
+            },
+            {
+                "tableName": "r30_entries",
+                "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uuid` BLOB NOT NULL, FOREIGN KEY(`uuid`) REFERENCES `play_results`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+                "fields": [
+                    {
+                        "fieldPath": "id",
+                        "columnName": "id",
+                        "affinity": "INTEGER",
+                        "notNull": true
+                    },
+                    {
+                        "fieldPath": "uuid",
+                        "columnName": "uuid",
+                        "affinity": "BLOB",
+                        "notNull": true
+                    }
+                ],
+                "primaryKey": {
+                    "autoGenerate": true,
+                    "columnNames": [
+                        "id"
+                    ]
+                },
+                "indices": [],
+                "foreignKeys": [
+                    {
+                        "table": "play_results",
+                        "onDelete": "CASCADE",
+                        "onUpdate": "CASCADE",
+                        "columns": [
+                            "uuid"
+                        ],
+                        "referencedColumns": [
+                            "uuid"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "views": [
+            {
+                "viewName": "charts",
+                "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT\n            s.idx AS song_idx, d.song_id, d.rating_class, d.rating, d.rating_plus,\n            COALESCE(d.title, s.title) AS title, COALESCE(d.artist, s.artist) AS artist,\n            s.`set`, COALESCE(d.bpm, s.bpm) AS bpm, COALESCE(d.bpm_base, s.bpm_base) AS bpm_base,\n            s.audio_preview, s.audio_preview_end, s.side,\n            COALESCE(d.version, s.version) AS version, COALESCE(d.date, s.date) AS date,\n            COALESCE(d.bg, s.bg) AS bg, COALESCE(d.bg_inverse, s.bg_inverse) AS bg_inverse,\n            s.bg_day, s.bg_night, s.source, s.source_copyright,\n            d.chart_designer, d.jacket_designer, d.audio_override, d.jacket_override,\n            d.jacket_night, ci.constant, ci.notes\n        FROM difficulties d\n        INNER JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class\n        INNER JOIN songs s ON d.song_id = s.id"
+            },
+            {
+                "viewName": "play_results_calculated",
+                "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT\n        pr.id, pr.uuid, d.song_id, d.rating_class, pr.score, pr.pure,\n        CASE\n            WHEN ci.notes IS NOT NULL AND pr.pure IS NOT NULL AND pr.far IS NOT NULL AND ci.notes <> 0\n            THEN pr.score - FLOOR((pr.pure * 10000000.0 / ci.notes) + (pr.far * 0.5 * 100000000.0 / ci.notes))\n            ELSE NULL\n        END AS shiny_pure,\n        pr.far, pr.lost, pr.date, pr.max_recall, pr.modifier, pr.clear_type,\n        CASE\n            WHEN pr.score >= 100000000 THEN ci.constant / 10.0 + 2\n            WHEN pr.score >= 9800000 THEN ci.constant / 10.0 + 1 + (pr.score - 9800000) / 200000.0\n            ELSE MAX(ci.constant / 10.0 + (pr.score - 9500000) / 300000.0, 0)\n        END AS potential,\n        pr.comment  \n    FROM difficulties d\n    JOIN songs s ON d.song_id = s.id  \n    JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class\n    JOIN play_results pr ON d.song_id = pr.song_id AND d.rating_class = pr.rating_class\n    WHERE s.deleted_in_game IS NULL OR s.deleted_in_game == 0"
+            },
+            {
+                "viewName": "play_results_best",
+                "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT\n            prc.id, prc.uuid, prc.song_id, prc.rating_class, prc.score,\n            prc.pure, prc.shiny_pure, prc.far, prc.lost,\n            prc.date, prc.max_recall, prc.modifier, prc.clear_type,\n            MAX(prc.potential) AS potential,\n            prc.comment\n        FROM play_results_calculated prc\n        GROUP BY prc.song_id, prc.rating_class\n        ORDER BY prc.potential DESC"
+            }
+        ],
+        "setupQueries": [
+            "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+            "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '37dee0dff1a914831991c2b15bcded47')"
+        ]
+    }
+}
