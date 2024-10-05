@@ -2,6 +2,10 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
 import android.content.Context
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +32,20 @@ class DatabasePlayResultListViewModel(
         val playResult: PlayResult,
         val chart: Chart? = null,
         val potential: Double? = null,
-        val potentialText: String = ArcaeaFormatters.potentialToText(potential),
+        val isDeletedInGame: Boolean = false,
     ) {
         val uuid = playResult.uuid
+        val potentialText = buildAnnotatedString {
+            val baseText = ArcaeaFormatters.potentialToText(potential)
+
+            if (isDeletedInGame) pushStyle(
+                SpanStyle(
+                    textDecoration = TextDecoration.LineThrough,
+                    fontWeight = FontWeight.Light,
+                )
+            )
+            append(baseText)
+        }
     }
 
     data class UiState(
@@ -44,11 +59,15 @@ class DatabasePlayResultListViewModel(
         repositoryContainer.relationshipsRepo.playResultsWithCharts().transform { dbItems ->
             emit(UiState(isLoading = true))
 
+            val deletedSongIds =
+                repositoryContainer.songRepo.findDeletedInGame().firstOrNull()?.map { it.id }
+                    ?: emptyList()
             val listItems = dbItems?.map {
                 ListItem(
                     playResult = it.playResult,
                     chart = it.chart,
                     potential = it.chart?.let { chart -> it.playResult.potential(chart) },
+                    isDeletedInGame = it.playResult.songId in deletedSongIds,
                 )
             } ?: emptyList()
 

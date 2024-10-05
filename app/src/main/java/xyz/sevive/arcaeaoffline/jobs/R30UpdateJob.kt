@@ -68,6 +68,7 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
         (applicationContext as ArcaeaOfflineApplication).arcaeaOfflineDatabaseRepositoryContainer
     private val r30EntryRepo = repoContainer.r30EntryRepo
     private val propertyRepo = repoContainer.propertyRepo
+    private val songRepo = repoContainer.songRepo
     private val playResultRepo = repoContainer.playResultRepo
     private val chartInfoRepo = repoContainer.chartInfoRepo
 
@@ -98,7 +99,11 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
                 RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
                 else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
             } ?: emptyList()
-            val newPlayResults = playResults.filter { it.date != null }.sortedBy { it.date }
+            val deletedSongIds =
+                songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
+            val newPlayResults = playResults
+                .filter { it.date != null && it.songId !in deletedSongIds }
+                .sortedBy { it.date }
 
             progressTotal.value = newPlayResults.size
             Log.d(LOG_TAG, "Updating r30 list with ${newPlayResults.size} new play results")

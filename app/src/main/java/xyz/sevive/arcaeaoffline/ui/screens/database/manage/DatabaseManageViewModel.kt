@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import android.content.Context
+import android.content.res.AssetManager
 import android.content.res.Resources
 import android.net.Uri
 import android.util.Log
@@ -43,6 +44,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class DatabaseManageViewModel(
     private val res: Resources,
+    private val assets: AssetManager,
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
     companion object {
@@ -173,9 +175,16 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importSonglistTask(songlistContent: String) {
+        val supplementSonglistContent = assets.open("songlist.json").use { it.readText() }
+        val supplementImporter = ArcaeaSonglistImporter(supplementSonglistContent)
         val importer = ArcaeaSonglistImporter(songlistContent)
 
-        val songs = importer.songs().toTypedArray()
+        val deletedSongIds = importer.deletedSongIds()
+        val supplementSongs = supplementImporter.songs()
+            .filter { it.id in deletedSongIds }
+            .map { it.copy(deletedInGame = true) }
+
+        val songs = (importer.songs() + supplementSongs).toTypedArray()
         val songsAffectedRows = repositoryContainer.songRepo.upsertBatch(*songs).size
         Log.i(LOG_TAG, "$songsAffectedRows songs updated")
         appendUiLog(
@@ -187,7 +196,9 @@ class DatabaseManageViewModel(
             )
         )
 
-        val difficulties = importer.difficulties().toTypedArray()
+        val supplementDifficulties = supplementImporter.difficulties()
+            .filter { it.songId in deletedSongIds }
+        val difficulties = (importer.difficulties() + supplementDifficulties).toTypedArray()
         val difficultiesAffectedRows =
             repositoryContainer.difficultyRepo.upsertBatch(*difficulties).size
         Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
@@ -200,7 +211,9 @@ class DatabaseManageViewModel(
             )
         )
 
-        val songsLocalized = importer.songsLocalized()
+        val supplementSongsLocalized = supplementImporter.songsLocalized()
+            .filter { it.id in deletedSongIds }
+        val songsLocalized = importer.songsLocalized() + supplementSongsLocalized
         val songsLocalizedAffectedRows =
             repositoryContainer.songLocalizedRepo.insertBatch(songsLocalized).size
         Log.i(LOG_TAG, "$songsLocalizedAffectedRows songs localized updated")
@@ -213,7 +226,10 @@ class DatabaseManageViewModel(
             )
         )
 
-        val difficultiesLocalized = importer.difficultiesLocalized()
+        val supplementDifficultiesLocalized = supplementImporter.difficultiesLocalized()
+            .filter { it.songId in deletedSongIds }
+        val difficultiesLocalized =
+            importer.difficultiesLocalized() + supplementDifficultiesLocalized
         val difficultiesLocalizedAffectedRows =
             repositoryContainer.difficultyLocalizedRepo.insertBatch(difficultiesLocalized).size
         Log.i(LOG_TAG, "$difficultiesLocalizedAffectedRows difficulties localized updated")

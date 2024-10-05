@@ -1,0 +1,63 @@
+{
+    "songs": [
+        {
+            "idx": 127,
+            "id": "particlearts",
+            "title_localized": {
+                "en": "Particle Arts"
+            },
+            "artist": "Virtual Self",
+            "search_title": {
+                "ja": [
+                    "ぱーてぃくるあーつ"
+                ],
+                "ko": [
+                    "파티클 아츠"
+                ]
+            },
+            "search_artist": {
+                "ja": [
+                    "ゔぁーちゃるせるふ",
+                    "ばーちゃるせるふ"
+                ],
+                "ko": [
+                    "버추얼 셀프"
+                ]
+            },
+            "bpm": "162-175",
+            "bpm_base": 175,
+            "set": "prelude",
+            "purchase": "prelude",
+            "audioPreview": 0,
+            "audioPreviewEnd": 0,
+            "side": 1,
+            "bg": "prelude_conflict",
+            "bg_inverse": "prelude_light",
+            "remote_dl": true,
+            "world_unlock": false,
+            "date": 1563408001,
+            "version": "2.2",
+            "difficulties": [
+                {
+                    "ratingClass": 0,
+                    "chartDesigner": "小東星",
+                    "jacketDesigner": "",
+                    "rating": 3
+                },
+                {
+                    "ratingClass": 1,
+                    "chartDesigner": "小東星",
+                    "jacketDesigner": "",
+                    "rating": 6
+                },
+                {
+                    "ratingClass": 2,
+                    "chartDesigner": "小東星",
+                    "jacketDesigner": "",
+                    "rating": 8,
+                    "ratingPlus": true
+                }
+            ]
+        }
+    ]
+}

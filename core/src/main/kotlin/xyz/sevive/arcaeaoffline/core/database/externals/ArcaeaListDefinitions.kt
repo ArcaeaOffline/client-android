@@ -1,7 +1,13 @@
 package xyz.sevive.arcaeaoffline.core.database.externals
 
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
@@ -111,10 +117,16 @@ data class ArcaeaSonglistDifficultyItem(
     }
 }
 
+@Serializable(with = ArcaeaSonglistItemBaseSerializer::class)
+sealed class ArcaeaSonglistItemBase {
+    abstract val idx: Int
+    abstract val id: String
+}
+
 @Serializable
 data class ArcaeaSonglistItem(
-    val idx: Int,
-    val id: String,
+    override val idx: Int,
+    override val id: String,
     @SerialName("title_localized") val titleLocalized: ArcaeaListLocalizedObject,
     val artist: String,
     @SerialName("search_title") val searchTitle: ArcaeaListLocalizedArrayObject? = null,
@@ -133,7 +145,7 @@ data class ArcaeaSonglistItem(
     val date: Int,
     val version: String,
     val difficulties: List<ArcaeaSonglistDifficultyItem>
-) {
+) : ArcaeaSonglistItemBase() {
     fun getSongLocalized(lang: ArcaeaLanguage): SongLocalized? {
         val title = when (lang) {
             ArcaeaLanguage.JA -> titleLocalized.ja
@@ -158,6 +170,23 @@ data class ArcaeaSonglistItem(
 }
 
 @Serializable
+data class ArcaeaSonglistItemDeleted(
+    override val idx: Int,
+    override val id: String,
+    val deleted: Boolean,
+) : ArcaeaSonglistItemBase()
+
+object ArcaeaSonglistItemBaseSerializer :
+    JsonContentPolymorphicSerializer<ArcaeaSonglistItemBase>(ArcaeaSonglistItemBase::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<ArcaeaSonglistItemBase> {
+        return when (element.jsonObject["deleted"]?.jsonPrimitive?.booleanOrNull) {
+            true -> ArcaeaSonglistItemDeleted.serializer()
+            else -> ArcaeaSonglistItem.serializer()
+        }
+    }
+}
+
+@Serializable
 data class ArcaeaSonglistRoot(
-    val songs: List<ArcaeaSonglistItem>
+    val songs: List<ArcaeaSonglistItemBase>
 )

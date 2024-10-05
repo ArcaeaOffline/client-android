@@ -24,6 +24,8 @@ class DatabaseNavEntryViewModel(
         val packLocalizedCount: Int = 0,
         val songLocalizedCount: Int = 0,
         val difficultyLocalizedCount: Int = 0,
+
+        val songDeletedInGameCount: Int = 0,
     )
 
     val statusUiState = combine(
@@ -36,6 +38,7 @@ class DatabaseNavEntryViewModel(
         repositoryContainer.packLocalizedRepo.count(),
         repositoryContainer.songLocalizedRepo.count(),
         repositoryContainer.difficultyLocalizedRepo.count(),
+        repositoryContainer.songRepo.countDeletedInGame(),
     ) { flows ->
         StatusUiState(
             databaseVersion = flows[0] ?: 0,
@@ -48,6 +51,7 @@ class DatabaseNavEntryViewModel(
             packLocalizedCount = flows[6] ?: 0,
             songLocalizedCount = flows[7] ?: 0,
             difficultyLocalizedCount = flows[8] ?: 0,
+            songDeletedInGameCount = flows[9] ?: 0,
         )
     }.stateIn(
         viewModelScope, SharingStarted.WhileSubscribed(TIMEOUT_MILLIS), StatusUiState()

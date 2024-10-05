@@ -8,6 +8,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
+import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistItem
+import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistItemDeleted
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistRoot
 
 
@@ -23,9 +25,15 @@ class ArcaeaSonglistImporter(songlistContent: String) {
     private val json = Json { ignoreUnknownKeys = true }
     private val contentDecoded = json.decodeFromString<ArcaeaSonglistRoot>(songlistContent)
 
+    fun deletedSongIds(): List<String> {
+        return contentDecoded.songs.filterIsInstance<ArcaeaSonglistItemDeleted>().map { it.id }
+    }
+
     fun songs(): List<Song> {
         val items = mutableListOf<Song>()
         for (song in contentDecoded.songs) {
+            if (song !is ArcaeaSonglistItem) continue
+
             items.add(
                 Song(
                     idx = song.idx,
@@ -56,6 +64,8 @@ class ArcaeaSonglistImporter(songlistContent: String) {
         val items = mutableListOf<SongLocalized>()
 
         for (song in contentDecoded.songs) {
+            if (song !is ArcaeaSonglistItem) continue
+
             for (lang in LANGUAGES) {
                 song.getSongLocalized(lang)?.let { items.add(it) }
             }
@@ -68,6 +78,8 @@ class ArcaeaSonglistImporter(songlistContent: String) {
         val items = mutableListOf<Difficulty>()
 
         for (song in contentDecoded.songs) {
+            if (song !is ArcaeaSonglistItem) continue
+
             for (difficulty in song.difficulties) {
                 if (difficulty.rating == 0) {
                     Log.d(
@@ -107,6 +119,8 @@ class ArcaeaSonglistImporter(songlistContent: String) {
         val items = mutableListOf<DifficultyLocalized>()
 
         for (song in contentDecoded.songs) {
+            if (song !is ArcaeaSonglistItem) continue
+
             for (difficulty in song.difficulties) {
                 for (lang in LANGUAGES) {
                     if (difficulty.rating == 0) {

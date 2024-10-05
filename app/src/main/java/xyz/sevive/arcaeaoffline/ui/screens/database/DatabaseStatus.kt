@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Card
@@ -32,6 +33,7 @@ private fun DatabaseStatusIconRow(
     icon: ImageVector,
     text: String,
     localizedItemCount: Int? = null,
+    deletedItemCount: Int? = null,
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
@@ -47,6 +49,15 @@ private fun DatabaseStatusIconRow(
 
             IconRow {
                 Icon(Icons.Default.Translate, contentDescription = null)
+                Text(it.toString())
+            }
+        }
+
+        deletedItemCount?.let {
+            Text("·")
+
+            IconRow {
+                Icon(Icons.Default.DeleteForever, contentDescription = null)
                 Text(it.toString())
             }
         }
@@ -94,6 +105,7 @@ fun DatabaseStatus(
                     icon = Icons.Default.MusicNote,
                     text = songCountText,
                     localizedItemCount = songLocalizedCount,
+                    deletedItemCount = songDeletedInGameCount,
                 )
 
                 DatabaseStatusIconRow(
