@@ -42,6 +42,11 @@ class ArcaeaOfflineApplication : Application() {
             it.autoSendCrashReports
         }.stateIn(appScope, SharingStarted.Eagerly, false)
 
+    private val unstableAlertRead =
+        dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow.map {
+            it.unstableAlertRead
+        }.stateIn(appScope, SharingStarted.Eagerly, null)
+
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
 
@@ -68,7 +73,8 @@ class ArcaeaOfflineApplication : Application() {
         AndroidThreeTen.init(this)
 
         SentryAndroid.init(this) {
-            it.beforeSend = SentryOptions.BeforeSendCallback { event, hint ->
+            it.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
+                event.setExtra("unstable_alert_read", unstableAlertRead.value.toString())
                 if (autoSendCrashReports.value) event else null
             }
         }
