@@ -26,6 +26,7 @@ import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
+import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildAlertCard
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,11 +45,12 @@ internal fun SettingsNavEntry(
         LazyColumn(Modifier.padding(it)) {
             if (IS_UNSTABLE_VERSION) {
                 item {
-                    UnstableBuildAlert(
-                        Modifier
+                    UnstableBuildAlertCard(
+                        onClick = { onNavigateToSubRoute(SettingsScreenDestination.UnstableAlert.route) },
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = dimensionResource(R.dimen.page_padding)),
-                        showDetails = true
+                        showDetails = true,
                     )
                 }
             }

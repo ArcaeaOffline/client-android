@@ -55,7 +55,7 @@ object AppDataStoreProvider {
                 logCorrupt("UnstableFlavorPreferences")
                 UnstableFlavorPreferencesSerializer.defaultValue
             },
-            produceFile = { context.preferencesDataStoreFile("unstable_flavor_prefs.pb") },
+            produceFile = { context.preferencesDataStoreFile("unstable_flavor_prefs") },
         )
     }
 }

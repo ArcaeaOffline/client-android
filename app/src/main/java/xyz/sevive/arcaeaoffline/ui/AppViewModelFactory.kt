@@ -23,6 +23,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker.OcrQueueEnqu
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePreferencesViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
 
 /**
  * Provides Factory to create instance of ViewModel for the entire app
@@ -115,6 +116,12 @@ object AppViewModelProvider {
         initializer {
             SettingsViewModel(
                 application().dataStoreRepositoryContainer.appPreferences
+            )
+        }
+
+        initializer {
+            SettingsUnstableAlertScreenViewModel(
+                application().dataStoreRepositoryContainer.unstableFlavorPreferences
             )
         }
     }

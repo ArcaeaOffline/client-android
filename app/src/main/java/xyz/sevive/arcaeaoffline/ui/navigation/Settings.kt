@@ -11,4 +11,5 @@ enum class SettingsScreenDestination(val route: String, @StringRes val title: In
     About("$SettingsNavRouteRoot/about", R.string.settings_about_title),
     License("$SettingsNavRouteRoot/license", R.string.settings_license_title),
     Aboutlibraries("$SettingsNavRouteRoot/aboutlibraries", R.string.settings_aboutlibraries_title),
+    UnstableAlert("$SettingsNavRouteRoot/unstablealert", R.string.unstable_version_alert_title),
 }

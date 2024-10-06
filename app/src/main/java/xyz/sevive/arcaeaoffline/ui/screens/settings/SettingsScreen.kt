@@ -19,6 +19,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.aboutlibraries.SettingsAboutlibrariesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScreen
+import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreen
 
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -82,6 +83,10 @@ fun SettingsScreen(
 
             SettingsScreenDestination.Aboutlibraries.route -> {
                 SettingsAboutlibrariesScreen(onNavigateUp = { onNavigateUp() })
+            }
+
+            SettingsScreenDestination.UnstableAlert.route -> {
+                SettingsUnstableAlertScreen(onNavigateUp = { onNavigateUp() })
             }
         }
     }
