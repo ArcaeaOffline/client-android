@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -47,14 +48,18 @@ private fun rememberArcaeaCharts(
 ): State<List<Chart>> {
     return produceState(initialValue = emptyList(), song?.id, allowFakeChart) {
         song?.let {
-            if (allowFakeChart) {
-                difficultyRepo.findAllBySongId(song.id).collect { difficulties ->
-                    value = difficulties.map { ChartFactory.fakeChart(song, it) }
+            val availableRatingClasses =
+                difficultyRepo.findAllBySongId(song.id).firstOrNull()?.map { it.ratingClass }
+                    ?: emptyList()
+
+            value = availableRatingClasses.mapNotNull { ratingClass ->
+                var chart = chartRepo.find(song.id, ratingClass).firstOrNull()
+                if (chart == null && allowFakeChart) {
+                    difficultyRepo.find(song.id, ratingClass).firstOrNull()?.let { difficulty ->
+                        chart = ChartFactory.fakeChart(song, difficulty)
+                    }
                 }
-            } else {
-                chartRepo.findAllBySongId(song).collect {
-                    value = it
-                }
+                chart
             }
         }
     }
