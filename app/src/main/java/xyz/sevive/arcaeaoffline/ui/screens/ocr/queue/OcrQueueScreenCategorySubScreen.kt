@@ -128,8 +128,8 @@ private fun OcrQueueListWrapper(
 internal fun OcrQueueScreenCategorySubScreen(
     category: OcrQueueScreenCategory,
     onCategoryChange: (OcrQueueScreenCategory) -> Unit,
-    currentUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    currentUiItemsLoading: Boolean,
+    taskUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
+    taskUiItemsLoading: Boolean,
     taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
     onSavePlayResult: (Long) -> Unit,
     onSaveAllTasks: () -> Unit,
@@ -164,13 +164,13 @@ internal fun OcrQueueScreenCategorySubScreen(
             )
 
             else -> {
-                if (currentUiItemsLoading) {
+                if (taskUiItemsLoading) {
                     Box(modifier) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
                 } else {
                     OcrQueueListWrapper(
-                        uiItems = currentUiItems,
+                        uiItems = taskUiItems,
                         onSavePlayResult = onSavePlayResult,
                         onDeleteTask = onDeleteTask,
                         onEditPlayResult = onEditPlayResult,

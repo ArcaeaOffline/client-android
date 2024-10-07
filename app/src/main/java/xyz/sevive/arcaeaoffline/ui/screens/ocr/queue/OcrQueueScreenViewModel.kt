@@ -3,11 +3,11 @@ package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -144,16 +144,18 @@ class OcrQueueScreenViewModel(
     }
 
     fun clearTasks() {
+        if (queueRunning.value) return
+
         viewModelScope.launch(Dispatchers.IO) { ocrQueueTaskRepo.deleteAll() }
     }
 
-    fun modifyTaskScore(taskId: Long, playResult: PlayResult) {
+    fun modifyTaskPlayResult(taskId: Long, playResult: PlayResult) {
         viewModelScope.launch(Dispatchers.IO) {
             ocrQueueTaskRepo.updatePlayResult(taskId, playResult, repositoryContainer.chartInfoRepo)
         }
     }
 
-    fun saveTaskScore(taskId: Long) {
+    fun saveTaskPlayResult(taskId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             ocrQueueTaskRepo.save(taskId, repositoryContainer.playResultRepo)
         }
@@ -176,13 +178,10 @@ class OcrQueueScreenViewModel(
             val workRequest =
                 OneTimeWorkRequestBuilder<OcrQueueJob>().setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
                     .setInputData(
-                        Data.Builder().putInt(
-                            OcrQueueJob.DATA_RUN_MODE,
-                            runMode.value,
-                        ).putInt(
-                            OcrQueueJob.DATA_PARALLEL_COUNT,
-                            ocrQueuePreferences.value.parallelCount,
-                        ).build()
+                        workDataOf(
+                            OcrQueueJob.DATA_RUN_MODE to runMode.value,
+                            OcrQueueJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
+                        )
                     ).build()
 
             workManager.enqueueUniqueWork(
@@ -198,8 +197,8 @@ class OcrQueueScreenViewModel(
         _currentScreenCategory.value = category
     }
 
-    private val _currentUiItemsLoading = MutableStateFlow(true)
-    val currentUiItemsLoading = _currentUiItemsLoading.asStateFlow()
+    private val _isTaskUiItemsLoading = MutableStateFlow(true)
+    val isTaskUiItemsLoading = _isTaskUiItemsLoading.asStateFlow()
 
     private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
         val cMap = mutableMapOf<String, Chart>()
@@ -217,7 +216,7 @@ class OcrQueueScreenViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val currentUiItems = currentScreenCategory.transformLatest {
+    val taskUiItems = currentScreenCategory.transformLatest {
         // clear previous items when category changed
         emit(emptyList())
 
@@ -240,9 +239,9 @@ class OcrQueueScreenViewModel(
             }
         )
     }.transformLatest {
-        _currentUiItemsLoading.value = true
+        _isTaskUiItemsLoading.value = true
         emit(mapDbItemsToUiItems(it))
-        _currentUiItemsLoading.value = false
+        _isTaskUiItemsLoading.value = false
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),

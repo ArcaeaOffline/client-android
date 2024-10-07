@@ -40,8 +40,8 @@ fun OcrQueueScreen(
     val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
     val queueTaskCounts by viewModel.queueTaskCounts.collectAsStateWithLifecycle()
 
-    val currentUiItems by viewModel.currentUiItems.collectAsStateWithLifecycle()
-    val currentUiItemsLoading by viewModel.currentUiItemsLoading.collectAsStateWithLifecycle()
+    val taskUiItems by viewModel.taskUiItems.collectAsStateWithLifecycle()
+    val isTaskUiItemsLoading by viewModel.isTaskUiItemsLoading.collectAsStateWithLifecycle()
 
     val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()
     val categoryBackButtonEnabled by remember {
@@ -95,11 +95,11 @@ fun OcrQueueScreen(
                 category = category,
                 onCategoryChange = { viewModel.setCurrentScreenCategory(it) },
                 taskCounts = queueTaskCounts,
-                currentUiItems = currentUiItems,
-                currentUiItemsLoading = currentUiItemsLoading,
-                onSavePlayResult = { viewModel.saveTaskScore(it) },
+                taskUiItems = taskUiItems,
+                taskUiItemsLoading = isTaskUiItemsLoading,
+                onSavePlayResult = { viewModel.saveTaskPlayResult(it) },
                 onDeleteTask = { viewModel.deleteTask(it) },
-                onEditPlayResult = { id, pr -> viewModel.modifyTaskScore(id, pr) },
+                onEditPlayResult = { id, pr -> viewModel.modifyTaskPlayResult(id, pr) },
                 onSaveAllTasks = { viewModel.saveAllTaskPlayResults() },
                 onStartSmartFix = { viewModel.startQueue(OcrQueueJob.RunMode.SMART_FIX) },
                 modifier = Modifier.fillMaxSize(),
