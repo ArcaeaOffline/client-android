@@ -149,7 +149,7 @@ class OcrQueueScreenViewModel(
 
     fun modifyTaskScore(taskId: Long, playResult: PlayResult) {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.updatePlayResult(taskId, playResult)
+            ocrQueueTaskRepo.updatePlayResult(taskId, playResult, repositoryContainer.chartInfoRepo)
         }
     }
 

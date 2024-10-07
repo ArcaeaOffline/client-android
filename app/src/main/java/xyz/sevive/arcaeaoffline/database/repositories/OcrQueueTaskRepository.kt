@@ -5,10 +5,12 @@ import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 
 interface OcrQueueTaskRepository {
     fun findAll(): Flow<List<OcrQueueTask>>
@@ -27,7 +29,9 @@ interface OcrQueueTaskRepository {
     suspend fun insertBatch(uris: List<Uri>, context: Context? = null): List<Long>
 
     suspend fun update(item: OcrQueueTask): Int
-    suspend fun updatePlayResult(id: Long, playResult: PlayResult): Int?
+    suspend fun updatePlayResult(
+        id: Long, playResult: PlayResult, chartInfoRepository: ChartInfoRepository?
+    ): Int?
 
     suspend fun delete(item: OcrQueueTask): Int
     suspend fun delete(id: Long): Int
@@ -69,9 +73,20 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
     }
 
     override suspend fun update(item: OcrQueueTask): Int = dao.update(item)
-    override suspend fun updatePlayResult(id: Long, playResult: PlayResult): Int? {
-        val item = findById(id).firstOrNull() ?: return null
-        return update(item.copy(playResult = playResult))
+    override suspend fun updatePlayResult(
+        id: Long, playResult: PlayResult, chartInfoRepository: ChartInfoRepository?
+    ): Int? {
+        var item = findById(id).firstOrNull()?.copy(playResult = playResult) ?: return null
+
+        chartInfoRepository?.let {
+            chartInfoRepository.find(playResult).firstOrNull()?.let { chartInfo ->
+                item = item.copy(
+                    warnings = ArcaeaPlayResultValidator.validateScore(playResult, chartInfo)
+                )
+            }
+        }
+
+        return update(item)
     }
 
     override suspend fun delete(item: OcrQueueTask): Int = dao.delete(item)
