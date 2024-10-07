@@ -86,7 +86,7 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
         val newPlayResult =
             item.playResult?.copy(songId = chart.songId, ratingClass = chart.ratingClass)
                 ?: PlayResult(songId = chart.songId, ratingClass = chart.ratingClass, score = 0)
-        val warnings = ArcaeaPlayResultValidator.validateScore(newPlayResult, chart)
+        val warnings = ArcaeaPlayResultValidator.validate(newPlayResult, chart)
 
         return update(
             item.copy(playResult = newPlayResult, warnings = warnings)
@@ -101,7 +101,7 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
         chartInfoRepository?.let {
             chartInfoRepository.find(playResult).firstOrNull()?.let { chartInfo ->
                 item = item.copy(
-                    warnings = ArcaeaPlayResultValidator.validateScore(playResult, chartInfo)
+                    warnings = ArcaeaPlayResultValidator.validate(playResult, chartInfo)
                 )
             }
         }

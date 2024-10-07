@@ -231,7 +231,7 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
 
             val warnings = scope.async {
                 val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
-                ArcaeaPlayResultValidator.validateScore(playResult, chartInfo)
+                ArcaeaPlayResultValidator.validate(playResult, chartInfo)
             }.await()
 
             task = task.copy(
@@ -314,7 +314,7 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
             val chartInfo = chartInfoRepo.find(songId, ratingClass).firstOrNull() ?: continue
 
             val newPlayResult = task.playResult.copy(songId = songId)
-            if (ArcaeaPlayResultValidator.validateScore(newPlayResult, chartInfo).isEmpty()) {
+            if (ArcaeaPlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
                 repo.update(task.copy(playResult = newPlayResult, warnings = null))
                 return
             }

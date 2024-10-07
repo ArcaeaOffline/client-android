@@ -7,6 +7,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 object ArcaeaPlayResultValidator {
     val WARNINGS = listOf(
+        ArcaeaPlayResultValidatorScoreIsZeroWarning,
         ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
         ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
         ArcaeaPlayResultValidatorPflOverflowWarning,
@@ -17,7 +18,7 @@ object ArcaeaPlayResultValidator {
         ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
     )
 
-    fun validateScore(
+    fun validate(
         playResult: PlayResult,
         chartInfo: ChartInfo?
     ): List<ArcaeaPlayResultValidatorWarning> {
@@ -32,15 +33,15 @@ object ArcaeaPlayResultValidator {
         return warnings.toList()
     }
 
-    fun validateScore(
+    fun validate(
         playResult: PlayResult,
         chart: Chart?
     ): List<ArcaeaPlayResultValidatorWarning> {
         if (chart == null) {
-            return validateScore(playResult = playResult, chartInfo = null)
+            return validate(playResult = playResult, chartInfo = null)
         }
 
-        return validateScore(
+        return validate(
             playResult = playResult,
             chartInfo = ChartInfo(
                 songId = chart.songId,

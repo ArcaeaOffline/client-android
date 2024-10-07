@@ -37,7 +37,7 @@ class DatabaseAddPlayResultViewModel(
         if (playResult == null) return emptyList()
 
         val chartInfo = repositoryContainer.chartInfoRepo.find(playResult).firstOrNull()
-        return ArcaeaPlayResultValidator.validateScore(playResult, chartInfo)
+        return ArcaeaPlayResultValidator.validate(playResult, chartInfo)
     }
 
     val uiState = combine(chart, playResult) { chart, playResult ->

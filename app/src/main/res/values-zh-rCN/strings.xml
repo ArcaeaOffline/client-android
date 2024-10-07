@@ -238,6 +238,9 @@
         <item quantity="other">%d 条警告</item>
     </plurals>
 
+    <string name="play_result_validator_SCORE_IS_ZERO_title">分数为零</string>
+    <string name="play_result_validator_SCORE_IS_ZERO_message">分数为 0。</string>
+
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
 

@@ -269,8 +269,11 @@ CC BY-SA 3.0
         <item quantity="other">%d warning</item>
     </plurals>
 
+    <string name="play_result_validator_SCORE_IS_ZERO_title">Score is zero</string>
+    <string name="play_result_validator_SCORE_IS_ZERO_message">Score is zero.</string>
+
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
-    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The playResult calculation based on the pure/far value does not match the given playResult.</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
 
     <string name="play_result_validator_PFL_OVERFLOW_title">Notes overflow</string>
     <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>

@@ -39,6 +39,20 @@ sealed interface ArcaeaPlayResultValidatorWarning {
     fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo? = null): Boolean
 }
 
+data object ArcaeaPlayResultValidatorScoreIsZeroWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "SCORE_IS_ZERO"
+
+    override val title = "Score is zero"
+    override val titleId = R.string.play_result_validator_SCORE_IS_ZERO_title
+
+    override val message = "Score is zero"
+    override val messageId = R.string.play_result_validator_SCORE_IS_ZERO_message
+
+    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+        return playResult.score == 0
+    }
+}
+
 data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultValidatorWarning {
     override val id = "SCORE_OUT_OF_RANGE"
 
