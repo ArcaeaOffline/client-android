@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +48,7 @@ import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
 @Composable
 private fun OcrQueueListItemImagePreviewDialog(
@@ -200,11 +201,11 @@ private fun OcrQueueListItemPlayResult(
 }
 
 @Composable
-internal fun OcrQueueListItem(
+internal fun OcrQueueTaskListItem(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
-    onDeleteTask: (Long) -> Unit,
-    onEditPlayResult: (Long, PlayResult) -> Unit,
-    onSavePlayResult: (Long) -> Unit,
+    onDelete: () -> Unit,
+    onEditPlayResult: (PlayResult) -> Unit,
+    onSavePlayResult: () -> Unit,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }
@@ -218,7 +219,7 @@ internal fun OcrQueueListItem(
         ArcaeaPlayResultEditorDialog(
             onDismiss = { showPlayResultEditor = false },
             playResult = playResult,
-            onPlayResultChange = { onEditPlayResult(uiItem.id, it) },
+            onPlayResultChange = { onEditPlayResult(it) },
         )
     }
 
@@ -226,7 +227,7 @@ internal fun OcrQueueListItem(
         Card(onClick = { showImagePreview = true }) {
             OcrQueueListItemHeader(
                 uiItem = uiItem,
-                onDeleteTask = { onDeleteTask(uiItem.id) },
+                onDeleteTask = { onDelete() },
                 modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
             )
         }
@@ -238,7 +239,7 @@ internal fun OcrQueueListItem(
                 OcrQueueTaskStatus.DONE -> OcrQueueListItemPlayResult(
                     uiItem = uiItem,
                     onShowEditDialog = { showPlayResultEditor = true },
-                    onSaveScore = { onSavePlayResult(uiItem.id) },
+                    onSaveScore = { onSavePlayResult() },
                     modifier = contentModifier,
                 )
 

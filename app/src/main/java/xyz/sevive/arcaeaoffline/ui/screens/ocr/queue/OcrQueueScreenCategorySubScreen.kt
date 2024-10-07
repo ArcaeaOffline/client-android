@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
 
 internal enum class OcrQueueScreenCategory {
     NULL, IDLE, PROCESSING, DONE, DONE_WITH_WARNING, ERROR
@@ -114,9 +115,9 @@ private fun OcrQueueListWrapper(
     if (uiItems.isEmpty()) {
         EmptyScreen(modifier)
     } else {
-        OcrQueueList(
+        OcrQueueTaskList(
             uiItems = uiItems,
-            onSaveScore = onSavePlayResult,
+            onSavePlayResult = onSavePlayResult,
             onDeleteTask = onDeleteTask,
             onEditPlayResult = onEditPlayResult,
             modifier = modifier,
