@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
@@ -107,8 +108,9 @@ private fun NavigationSubScreen(
 @Composable
 private fun OcrQueueListWrapper(
     uiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
-    onSavePlayResult: (Long) -> Unit,
+    onSaveTask: (Long) -> Unit,
     onDeleteTask: (Long) -> Unit,
+    onEditChart: (Long, Chart) -> Unit,
     onEditPlayResult: (Long, PlayResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -117,8 +119,9 @@ private fun OcrQueueListWrapper(
     } else {
         OcrQueueTaskList(
             uiItems = uiItems,
-            onSavePlayResult = onSavePlayResult,
+            onSaveTask = onSaveTask,
             onDeleteTask = onDeleteTask,
+            onEditChart = onEditChart,
             onEditPlayResult = onEditPlayResult,
             modifier = modifier,
         )
@@ -132,10 +135,11 @@ internal fun OcrQueueScreenCategorySubScreen(
     taskUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
     taskUiItemsLoading: Boolean,
     taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
-    onSavePlayResult: (Long) -> Unit,
+    onSaveTask: (Long) -> Unit,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
     onDeleteTask: (Long) -> Unit,
+    onEditChart: (Long, Chart) -> Unit,
     onEditPlayResult: (Long, PlayResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -172,8 +176,9 @@ internal fun OcrQueueScreenCategorySubScreen(
                 } else {
                     OcrQueueListWrapper(
                         uiItems = taskUiItems,
-                        onSavePlayResult = onSavePlayResult,
+                        onSaveTask = onSaveTask,
                         onDeleteTask = onDeleteTask,
+                        onEditChart = onEditChart,
                         onEditPlayResult = onEditPlayResult,
                         modifier = modifier,
                     )

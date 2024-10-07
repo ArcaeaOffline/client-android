@@ -29,7 +29,6 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
@@ -57,18 +56,16 @@ class OcrQueueScreenViewModel(
 
     data class TaskUiItem(
         val id: Long,
-        var fileUri: Uri,
-        var status: OcrQueueTaskStatus,
-        var ocrResult: DeviceOcrResult? = null,
-        var playResult: PlayResult? = null,
-        var chart: Chart? = null,
-        var exception: Exception? = null,
+        val fileUri: Uri,
+        val status: OcrQueueTaskStatus,
+        val ocrResult: DeviceOcrResult? = null,
+        val playResult: PlayResult? = null,
+        val chart: Chart? = null,
+        val exception: Exception? = null,
+        val warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
     ) {
-        fun scoreValidatorWarnings(): List<ArcaeaPlayResultValidatorWarning> {
-            return playResult?.let {
-                ArcaeaPlayResultValidator.validateScore(it, chart)
-            } ?: emptyList()
-        }
+        val canEditChart = status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
+        val canEditPlayResult = status == OcrQueueTaskStatus.DONE
 
         constructor(
             dbItem: OcrQueueTask,
@@ -81,6 +78,7 @@ class OcrQueueScreenViewModel(
             playResult = dbItem.playResult,
             chart = chart,
             exception = dbItem.exception,
+            warnings = dbItem.warnings ?: emptyList(),
         )
     }
 
@@ -147,6 +145,12 @@ class OcrQueueScreenViewModel(
         if (queueRunning.value) return
 
         viewModelScope.launch(Dispatchers.IO) { ocrQueueTaskRepo.deleteAll() }
+    }
+
+    fun modifyTaskChart(taskId: Long, chart: Chart) {
+        viewModelScope.launch(Dispatchers.IO) {
+            ocrQueueTaskRepo.updateChart(taskId, chart)
+        }
     }
 
     fun modifyTaskPlayResult(taskId: Long, playResult: PlayResult) {
