@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.threeten.bp.Instant
@@ -35,4 +36,8 @@ data class OcrQueueTask(
         insertedAt = Instant.now(),
         fileName = context?.getFilename(uri),
     )
+
+    @Ignore
+    val canSaveSilently =
+        status == OcrQueueTaskStatus.DONE && playResult != null && warnings.isNullOrEmpty()
 }

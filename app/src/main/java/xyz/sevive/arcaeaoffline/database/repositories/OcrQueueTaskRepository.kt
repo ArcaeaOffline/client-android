@@ -94,12 +94,8 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
     override suspend fun deleteBatch(items: List<OcrQueueTask>): Int = dao.deleteBatch(items)
     override suspend fun deleteAll() = dao.deleteAll()
 
-    private fun taskCanSave(item: OcrQueueTask): Boolean {
-        return item.status == OcrQueueTaskStatus.DONE && item.playResult != null && item.warnings.isNullOrEmpty()
-    }
-
     override suspend fun save(item: OcrQueueTask, playResultRepository: PlayResultRepository) {
-        if (!taskCanSave(item)) return
+        if (!item.canSaveSilently) return
 
         playResultRepository.upsert(item.playResult!!)
         delete(item)
@@ -107,7 +103,7 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
 
     override suspend fun saveAll(playResultRepository: PlayResultRepository) {
         val tasks = findAll().firstOrNull() ?: return
-        val tasksToSave = tasks.filter(::taskCanSave)
+        val tasksToSave = tasks.filter { it.canSaveSilently }
 
         playResultRepository.upsertBatch(*tasks.map { it.playResult!! }.toTypedArray())
         deleteBatch(tasksToSave)
