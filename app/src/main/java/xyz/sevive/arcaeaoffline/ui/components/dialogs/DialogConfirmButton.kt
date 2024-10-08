@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 
 
@@ -43,7 +42,7 @@ fun DialogConfirmButton(
     ) {
         IconRow {
             customIcon?.invoke() ?: Icon(Icons.Default.Check, contentDescription = null)
-            customLabel?.invoke() ?: Text(stringResource(R.string.general_confirm))
+            customLabel?.invoke() ?: Text(stringResource(android.R.string.ok))
         }
     }
 }

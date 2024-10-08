@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 
 
@@ -36,7 +35,7 @@ fun DialogDismissTextButton(
     ) {
         IconRow {
             customIcon?.invoke() ?: Icon(Icons.Default.Close, contentDescription = null)
-            customLabel?.invoke() ?: Text(stringResource(R.string.general_cancel))
+            customLabel?.invoke() ?: Text(stringResource(android.R.string.cancel))
         }
     }
 }

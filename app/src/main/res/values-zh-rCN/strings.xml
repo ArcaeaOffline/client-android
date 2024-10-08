@@ -10,8 +10,6 @@
     <!-- General strings -->
     <string name="general_ok">OK</string>
     <string name="general_action_done">完成</string>
-    <string name="general_confirm">确认</string>
-    <string name="general_cancel">取消</string>
     <string name="general_save">保存</string>
     <string name="general_edit">编辑</string>
     <string name="general_delete">删除</string>

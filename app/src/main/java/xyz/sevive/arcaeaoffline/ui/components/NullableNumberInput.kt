@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButtonDefaults
 
 
@@ -80,7 +79,7 @@ private fun NullableNumberInputEditDialog(
             ) {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = stringResource(R.string.general_confirm),
+                    contentDescription = stringResource(android.R.string.ok),
                 )
             }
         },
@@ -94,7 +93,7 @@ private fun NullableNumberInputEditDialog(
             ) {
                 Icon(
                     Icons.Default.Close,
-                    contentDescription = stringResource(R.string.general_cancel),
+                    contentDescription = stringResource(android.R.string.cancel),
                 )
             }
         },
