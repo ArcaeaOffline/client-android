@@ -37,15 +37,17 @@ class ArcaeaOfflineApplication : Application() {
     val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
     val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
 
-    private val autoSendCrashReports =
+    private val autoSendCrashReports by lazy {
         dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
             it.autoSendCrashReports
         }.stateIn(appScope, SharingStarted.Eagerly, false)
+    }
 
-    private val unstableAlertRead =
+    private val unstableAlertRead by lazy {
         dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow.map {
             it.unstableAlertRead
         }.stateIn(appScope, SharingStarted.Eagerly, null)
+    }
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
