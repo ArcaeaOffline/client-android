@@ -32,6 +32,11 @@ CC BY-SA 3.0
     <string name="general_updated_at">Updated at %s</string>
     <string name="general_unknown_error">Unknown error.</string>
 
+    <string name="general_sort_ascending">Ascending</string>
+    <string name="general_sort_ascending_short">ASC</string>
+    <string name="general_sort_descending">Descending</string>
+    <string name="general_sort_descending_short">DESC</string>
+
     <string name="general_arcaea_not_installed">Arcaea not installed</string>
     <string name="general_import_from_arcaea">Import from Arcaea</string>
 
@@ -91,6 +96,7 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">Comment</string>
     <string name="arcaea_st3" translatable="false">st3</string>
+    <string name="arcaea_potential">Potential</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>

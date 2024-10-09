@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,22 +46,24 @@ import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 private fun DatabasePlayResultListAppBarActions(
     inSelectMode: Boolean,
     selectedItemsCount: Int,
-    onShowDeleteConfirmDialogChange: (Boolean) -> Unit,
+    onShowSortDialog: () -> Unit,
+    onShowDeleteConfirmDialog: () -> Unit,
     onSelectedModeChange: (Boolean) -> Unit,
     onClearSelectedItems: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     AnimatedContent(targetState = inSelectMode, modifier = modifier, label = "selectModeActions") {
-        if (it) {
-            Row {
+        Row {
+            if (it) {
                 IconButton(
                     onClick = onClearSelectedItems,
                     enabled = selectedItemsCount > 0,
                 ) {
                     Icon(Icons.Default.Deselect, null)
                 }
+
                 IconButton(
-                    onClick = { onShowDeleteConfirmDialogChange(true) },
+                    onClick = onShowDeleteConfirmDialog,
                     enabled = selectedItemsCount > 0,
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
@@ -68,10 +71,14 @@ private fun DatabasePlayResultListAppBarActions(
                 ) {
                     Icon(Icons.Default.Delete, null)
                 }
-            }
-        } else {
-            IconButton(onClick = { onSelectedModeChange(true) }) {
-                Icon(Icons.Default.Checklist, null)
+            } else {
+                IconButton(onClick = onShowSortDialog) {
+                    Icon(painterResource(R.drawable.ic_sort), null)
+                }
+
+                IconButton(onClick = { onSelectedModeChange(true) }) {
+                    Icon(Icons.Default.Checklist, null)
+                }
             }
         }
     }
@@ -109,6 +116,17 @@ fun DatabasePlayResultListScreen(
         )
     }
 
+    var showSortDialog by rememberSaveable { mutableStateOf(false) }
+    if (showSortDialog) {
+        DatabasePlayResultListSortDialog(
+            onDismissRequest = { showSortDialog = false },
+            sortOrder = uiState.sortOrder,
+            sortByValue = uiState.sortByValue,
+            onSortOrderChange = { viewModel.setSortOrder(it) },
+            onSortByValueChange = { viewModel.setSortByValue(it) },
+        )
+    }
+
     SubScreenContainer(
         onNavigateUp = { onNavigateUp() },
         title = stringResource(R.string.database_play_result_list_title),
@@ -116,7 +134,8 @@ fun DatabasePlayResultListScreen(
             DatabasePlayResultListAppBarActions(
                 inSelectMode = isInSelectMode,
                 selectedItemsCount = selectedItemsCount,
-                onShowDeleteConfirmDialogChange = { showDeleteConfirmDialog = it },
+                onShowSortDialog = { showSortDialog = true },
+                onShowDeleteConfirmDialog = { showDeleteConfirmDialog = true },
                 onSelectedModeChange = { isInSelectMode = it },
                 onClearSelectedItems = { viewModel.clearSelectedItems() },
             )

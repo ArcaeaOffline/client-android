@@ -21,6 +21,11 @@
     <string name="general_updated_at">更新于 %s</string>
     <string name="general_unknown_error">未知错误</string>
 
+    <string name="general_sort_ascending">升序</string>
+    <string name="general_sort_ascending_short">升序</string>
+    <string name="general_sort_descending">降序</string>
+    <string name="general_sort_descending_short">降序</string>
+
     <string name="general_arcaea_not_installed">未安装 Arcaea</string>
     <string name="general_import_from_arcaea">从 Arcaea 导入</string>
 
@@ -75,6 +80,7 @@
     <string name="arcaea_play_result_clear_type">通关状态</string>
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">备注</string>
+    <string name="arcaea_potential">潜力值</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>

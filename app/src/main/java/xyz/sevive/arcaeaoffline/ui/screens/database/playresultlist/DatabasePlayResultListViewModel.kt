@@ -9,11 +9,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
@@ -28,6 +30,14 @@ import kotlin.time.Duration.Companion.seconds
 class DatabasePlayResultListViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
 ) : ViewModel() {
+    enum class SortOrder {
+        ASC, DESC;
+
+        fun reverse() = if (this == ASC) DESC else ASC
+    }
+
+    enum class SortByValue { ID, SCORE, POTENTIAL, DATE }
+
     data class ListItem(
         val playResult: PlayResult,
         val chart: Chart? = null,
@@ -50,14 +60,22 @@ class DatabasePlayResultListViewModel(
 
     data class UiState(
         val isLoading: Boolean = true,
+        val sortOrder: SortOrder = SortOrder.ASC,
+        val sortByValue: SortByValue = SortByValue.ID,
         val listItems: List<ListItem> = emptyList(),
     )
 
+    private val isLoading = MutableStateFlow(false)
+    private val sortOrder = MutableStateFlow(SortOrder.ASC)
+    private val sortByValue = MutableStateFlow(SortByValue.ID)
     val selectedItemUuids = MutableStateFlow(emptyList<UUID>())
 
-    val uiState =
-        repositoryContainer.relationshipsRepo.playResultsWithCharts().transform { dbItems ->
-            emit(UiState(isLoading = true))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val rawListItems =
+        repositoryContainer.relationshipsRepo.playResultsWithCharts().transformLatest { dbItems ->
+            isLoading.value = true
+
+            kotlinx.coroutines.delay(2000L)
 
             val deletedSongIds =
                 repositoryContainer.songRepo.findDeletedInGame().firstOrNull()?.map { it.id }
@@ -71,12 +89,48 @@ class DatabasePlayResultListViewModel(
                 )
             } ?: emptyList()
 
-            emit(UiState(isLoading = false, listItems = listItems))
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            initialValue = UiState(),
+            emit(listItems)
+
+            isLoading.value = false
+        }
+
+    private val listItems = combine(rawListItems, sortOrder, sortByValue) { items, order, sortBy ->
+        val itemsSorted = when (sortBy) {
+            SortByValue.ID -> items.sortedBy { it.playResult.id }
+            SortByValue.SCORE -> items.sortedBy { it.playResult.score }
+            SortByValue.POTENTIAL -> items.sortedBy { it.potential }
+            SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilli() }
+        }
+
+        if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        emptyList(),
+    )
+
+    val uiState = combine(
+        isLoading, listItems, sortOrder, sortByValue
+    ) { isLoading, listItems, sortOrder, sortByValue ->
+        UiState(
+            isLoading = isLoading,
+            listItems = listItems,
+            sortOrder = sortOrder,
+            sortByValue = sortByValue,
         )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+        initialValue = UiState(),
+    )
+
+    fun setSortOrder(value: SortOrder) {
+        sortOrder.value = value
+    }
+
+    fun setSortByValue(value: SortByValue) {
+        sortByValue.value = value
+    }
 
     fun setItemSelected(listItem: ListItem, selected: Boolean) {
         if (selected) {
