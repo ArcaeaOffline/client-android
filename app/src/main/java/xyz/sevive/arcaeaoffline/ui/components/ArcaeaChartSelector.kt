@@ -95,7 +95,10 @@ fun ArcaeaChartSelector(
         charts.map { it.ratingClass }
     }
 
-    LaunchedEffect(selectedRatingClass) {
+    // Emit the change when either [selectedSongId] or [selectedRatingClass] changes.
+    // Since [selectedSongId] will eventually cause [charts] to change, and considering
+    // the produceState delay, we use [charts] as key instead.
+    LaunchedEffect(charts, selectedRatingClass) {
         // onChartChange handler
         selectedRatingClass?.let {
             charts.find { it.ratingClass == selectedRatingClass }?.let(onChartChange)
