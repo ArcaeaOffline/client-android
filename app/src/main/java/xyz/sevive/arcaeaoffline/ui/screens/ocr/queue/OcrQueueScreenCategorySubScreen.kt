@@ -29,6 +29,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 internal enum class OcrQueueScreenCategory {
     NULL, IDLE, PROCESSING, DONE, DONE_WITH_WARNING, ERROR
@@ -83,7 +84,7 @@ private fun NavigationSubScreen(
                 icon = Icons.Default.Warning,
                 title = stringResource(R.string.ocr_queue_status_done_with_warning),
                 count = taskCounts.doneWithWarning,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = MaterialTheme.extendedColorScheme.warning,
             ) {
                 IconButton(onClick = { onStartSmartFix() }) {
                     Icon(Icons.Filled.Build, contentDescription = null)
