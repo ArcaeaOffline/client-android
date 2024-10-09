@@ -2,6 +2,8 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -96,7 +98,6 @@ fun DatabasePlayResultListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val listItems = uiState.listItems
-    val isLoading = uiState.isLoading
 
     val selectedItemsCount by remember { derivedStateOf { selectedItemUuids.size } }
 
@@ -142,15 +143,11 @@ fun DatabasePlayResultListScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) {
-        when {
-            isLoading -> Box(Modifier.fillMaxSize()) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
-            }
+        Box(Modifier.fillMaxSize()) {
+            when {
+                listItems.isEmpty() -> EmptyScreen(Modifier.fillMaxSize())
 
-            listItems.isEmpty() -> EmptyScreen(Modifier.fillMaxSize())
-
-            else -> {
-                LazyColumn(
+                else -> LazyColumn(
                     contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
                 ) {
@@ -176,6 +173,24 @@ fun DatabasePlayResultListScreen(
                             modifier = Modifier.animateItem(),
                         )
                     }
+                }
+            }
+
+            val loadingOverlayAlpha by animateFloatAsState(
+                targetValue = if (uiState.isLoading) 0.9f else 0f,
+                label = "loadingOverlayAlpha",
+            )
+            val showLoadingOverlay by remember {
+                derivedStateOf { loadingOverlayAlpha > 0f }
+            }
+
+            if (showLoadingOverlay) {
+                Box(
+                    Modifier
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = loadingOverlayAlpha))
+                        .fillMaxSize()
+                ) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
             }
         }
