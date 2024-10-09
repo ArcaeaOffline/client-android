@@ -1,42 +1,37 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapLatest
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 
 interface PotentialRepository {
-    suspend fun b30(): Double
-    suspend fun r10(): Double
-    suspend fun potential(): Double
+    fun b30(): Flow<Double>
+    fun r10(): Flow<Double>
 }
 
 class PotentialRepositoryImpl(
     private val playResultBestRepo: PlayResultBestRepository,
     private val r30EntryRepo: R30EntryRepository
 ) : PotentialRepository {
-    private suspend fun b30Entries(): List<PlayResultBest> {
-        return playResultBestRepo.orderDescWithLimit(30).firstOrNull() ?: listOf()
+    private fun b30Entries(): Flow<List<PlayResultBest>> =
+        playResultBestRepo.orderDescWithLimit(30)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun r10Entries(): Flow<List<R30EntryCombined>> =
+        r30EntryRepo.findAllCombined().mapLatest {
+            it.sortedByDescending { it.potential() ?: -1.0 }.take(10)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun b30() = this.b30Entries().mapLatest { entries ->
+        if (entries.isEmpty()) 0.0
+        else entries.sumOf { it.potential } / entries.size
     }
 
-    private suspend fun r10Entries(): List<R30EntryCombined> {
-        val entries = r30EntryRepo.findAllCombined().firstOrNull() ?: return listOf()
-
-        return entries.sortedByDescending { it.potential() ?: -1.0 }.take(10)
-    }
-
-    override suspend fun b30(): Double {
-        val entries = this.b30Entries()
-        if (entries.isEmpty()) return 0.0
-        return entries.sumOf { it.potential } / entries.size
-    }
-
-    override suspend fun r10(): Double {
-        val entries = this.r10Entries()
-        if (entries.isEmpty()) return 0.0
-        val potentialSum = entries.sumOf { it.potential() ?: 0.0 }
-        return potentialSum / entries.size
-    }
-
-    override suspend fun potential(): Double {
-        return b30() * 0.75 + r10() * 0.25
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun r10() = this.r10Entries().mapLatest { entries ->
+        if (entries.isEmpty()) 0.0
+        else entries.sumOf { it.potential() ?: 0.0 } / entries.size
     }
 }

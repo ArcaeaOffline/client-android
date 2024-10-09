@@ -7,16 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,8 +48,6 @@ fun OverviewScreen(
         else -> SimpleGridCells.Fixed(1)
     }
 
-    LaunchedEffect(key1 = Unit) { viewModel.reload() }
-
     Column(
         modifier
             .fillMaxSize()
@@ -68,10 +61,6 @@ fun OverviewScreen(
             VerticalGrid(columns = gridColumns, Modifier.weight(1f)) {
                 B30R10Label(label = "B30", value = ArcaeaFormatters.potentialToText(uiState.b30))
                 B30R10Label(label = "R10", value = ArcaeaFormatters.potentialToText(uiState.r10))
-            }
-
-            FilledIconButton(onClick = { viewModel.reload() }) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
             }
         }
     }
