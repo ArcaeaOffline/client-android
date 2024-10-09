@@ -2,10 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Deselect
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -30,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -41,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 
@@ -143,7 +139,10 @@ fun DatabasePlayResultListScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) {
-        Box(Modifier.fillMaxSize()) {
+        LoadingOverlay(
+            loading = uiState.isLoading,
+            Modifier.fillMaxSize(),
+        ) {
             when {
                 listItems.isEmpty() -> EmptyScreen(Modifier.fillMaxSize())
 
@@ -173,24 +172,6 @@ fun DatabasePlayResultListScreen(
                             modifier = Modifier.animateItem(),
                         )
                     }
-                }
-            }
-
-            val loadingOverlayAlpha by animateFloatAsState(
-                targetValue = if (uiState.isLoading) 0.9f else 0f,
-                label = "loadingOverlayAlpha",
-            )
-            val showLoadingOverlay by remember {
-                derivedStateOf { loadingOverlayAlpha > 0f }
-            }
-
-            if (showLoadingOverlay) {
-                Box(
-                    Modifier
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = loadingOverlayAlpha))
-                        .fillMaxSize()
-                ) {
-                    CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
             }
         }
