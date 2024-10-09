@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -18,17 +17,16 @@ import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
 
@@ -169,11 +167,7 @@ internal fun OcrQueueScreenCategorySubScreen(
             )
 
             else -> {
-                if (taskUiItemsLoading) {
-                    Box(modifier) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
-                } else {
+                LoadingOverlay(loading = taskUiItemsLoading, modifier = modifier) {
                     OcrQueueListWrapper(
                         uiItems = taskUiItems,
                         onSaveTask = onSaveTask,
