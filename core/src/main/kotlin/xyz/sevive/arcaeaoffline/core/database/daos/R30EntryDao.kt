@@ -18,7 +18,9 @@ interface R30EntryDao {
     fun findAllWithPlayResult(): Flow<Map<R30Entry, PlayResult>>
 
     @Query(
-        "SELECT * FROM r30_entries re" +
+        "SELECT" +
+            " re.id, re.uuid, ci.song_id, ci.rating_class, ci.constant, ci.notes" +
+            " FROM r30_entries re" +
             " JOIN play_results pr ON re.uuid = pr.uuid" +
             " JOIN charts_info ci ON ci.song_id = pr.song_id AND ci.rating_class = pr.rating_class"
     )

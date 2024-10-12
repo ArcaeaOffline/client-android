@@ -70,8 +70,9 @@ import kotlin.math.floor
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10, spec = AutoMigration_9_10::class),
         AutoMigration(from = 10, to = 11),
+        AutoMigration(from = 11, to = 12),
     ],
-    version = 11,
+    version = 12,
     exportSchema = true,
 )
 @TypeConverters(
