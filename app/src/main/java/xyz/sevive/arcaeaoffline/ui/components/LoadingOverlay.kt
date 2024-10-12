@@ -13,12 +13,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 
+/* https://stackoverflow.com/a/69146178/16484891, CC BY-SA 4.0 */
+private fun Modifier.interceptChildrenInteractions(intercept: Boolean = true) =
+    if (intercept) {
+        pointerInput(Unit) {
+            awaitPointerEventScope {
+                // we should wait for all new pointer events
+                while (true) {
+                    awaitPointerEvent(pass = PointerEventPass.Initial)
+                        .changes
+                        .forEach(PointerInputChange::consume)
+                }
+            }
+        }
+    } else {
+        this
+    }
 
 @Composable
 fun LoadingOverlay(
     loading: Boolean,
     modifier: Modifier = Modifier,
+    interceptInteractionWhenLoading: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val overlayBackgroundAlpha by animateFloatAsState(
@@ -28,8 +48,13 @@ fun LoadingOverlay(
     val shouldShowOverlay by remember {
         derivedStateOf { overlayBackgroundAlpha > 0f }
     }
+    val shouldInterceptInteraction = loading && interceptInteractionWhenLoading
 
-    Box(modifier) {
+    Box(
+        Modifier
+            .interceptChildrenInteractions(intercept = shouldInterceptInteraction)
+            .then(modifier)
+    ) {
         content()
 
         if (shouldShowOverlay) {
