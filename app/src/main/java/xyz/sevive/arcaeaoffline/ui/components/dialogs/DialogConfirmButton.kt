@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 
 object DialogConfirmButtonDefaults {
@@ -24,6 +25,12 @@ object DialogConfirmButtonDefaults {
         @Composable get() = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.error,
+        )
+
+    val warningColors: ButtonColors
+        @Composable get() = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.extendedColorScheme.warningContainer,
+            contentColor = MaterialTheme.extendedColorScheme.warning,
         )
 }
 
