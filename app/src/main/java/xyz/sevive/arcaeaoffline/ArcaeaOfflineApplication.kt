@@ -6,6 +6,7 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.util.Log
 import com.jakewharton.threetenabp.AndroidThreeTen
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
@@ -17,8 +18,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
+import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
@@ -27,6 +30,10 @@ import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContaine
 
 
 class ArcaeaOfflineApplication : Application() {
+    companion object {
+        const val LOG_TAG = "Application"
+    }
+
     private val appScope =
         CoroutineScope(Dispatchers.Default) + CoroutineName("ArcaeaOfflineApplication")
 
@@ -67,6 +74,20 @@ class ArcaeaOfflineApplication : Application() {
         shortcutManager.addDynamicShortcuts(listOf(shortcut))
     }
 
+    private fun vacuumDatabases() {
+        try {
+            val databases = listOf(
+                ArcaeaOfflineDatabase.getDatabase(this).openHelper.writableDatabase,
+                OcrQueueDatabase.getDatabase(this).openHelper.writableDatabase,
+            )
+
+            databases.forEach { it.execSQL("VACUUM") }
+            Log.i(LOG_TAG, "${databases.size} databases vacuumed")
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "Error vacuuming databases", e)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -81,10 +102,11 @@ class ArcaeaOfflineApplication : Application() {
             }
         }
 
-        appScope.launch {
+        appScope.launch(Dispatchers.IO) {
             DeviceOcrOnnxHelper.loadModelInfo(this@ArcaeaOfflineApplication)
             Notifications.createChannels(this@ArcaeaOfflineApplication)
             ArcaeaResourcesStateHelper.reloadStatus(this@ArcaeaOfflineApplication)
+            vacuumDatabases()
         }
     }
 }
