@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -38,7 +38,7 @@ fun OcrDependenciesScreen(
     val imageHashesDatabaseUiState by viewModel.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
     val crnnModelUiState by viewModel.crnnModelUiState.collectAsStateWithLifecycle()
 
-    val canBuildHashesDatabase by ArcaeaResourcesStateHelper.canBuildHashesDatabase.collectAsStateWithLifecycle()
+    val canBuildHashesDatabase by ArcaeaResourcesStateHolder.canBuildHashesDatabase.collectAsStateWithLifecycle()
     val buildHashesDatabaseButtonEnabled by viewModel.buildHashesDatabaseButtonEnabled.collectAsStateWithLifecycle()
 
     val kNearestModelFileChooserLauncher = rememberFileChooserLauncher { uri ->

@@ -22,7 +22,7 @@ import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
@@ -105,7 +105,7 @@ class ArcaeaOfflineApplication : Application() {
         appScope.launch(Dispatchers.IO) {
             DeviceOcrOnnxHelper.loadModelInfo(this@ArcaeaOfflineApplication)
             Notifications.createChannels(this@ArcaeaOfflineApplication)
-            ArcaeaResourcesStateHelper.reloadStatus(this@ArcaeaOfflineApplication)
+            ArcaeaResourcesStateHolder.reloadStatus(this@ArcaeaOfflineApplication)
             vacuumDatabases()
         }
     }

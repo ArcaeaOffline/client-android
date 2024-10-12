@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-object ArcaeaResourcesStateHelper {
-    private const val LOG_TAG = "ArcaeaResStateHelper"
+object ArcaeaResourcesStateHolder {
+    private const val LOG_TAG = "ArcaeaResStateHolder"
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 

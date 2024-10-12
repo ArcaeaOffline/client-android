@@ -26,7 +26,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHelper
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
@@ -53,7 +53,7 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
             .stateIn(viewModelScope, sharingStarted, null)
 
     val buildHashesDatabaseButtonEnabled = combine(
-        ArcaeaResourcesStateHelper.canBuildHashesDatabase,
+        ArcaeaResourcesStateHolder.canBuildHashesDatabase,
         imageHashesDatabaseBuilderJobInfo,
     ) { canBuild, workInfo ->
         val enabledByWorkInfo = workInfo == null || workInfo.state.isFinished
