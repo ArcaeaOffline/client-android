@@ -10,6 +10,7 @@ import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListScreen
+import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListScreen
@@ -51,6 +52,10 @@ fun DatabaseEntryScreen() {
 
             DatabaseScreenDestinations.R30.route -> {
                 DatabaseR30ListScreen(onNavigateUp = onNavigateUp)
+            }
+
+            DatabaseScreenDestinations.Deduplicator.route -> {
+                DatabaseDeduplicatorScreen(onNavigateUp = onNavigateUp)
             }
         }
     }

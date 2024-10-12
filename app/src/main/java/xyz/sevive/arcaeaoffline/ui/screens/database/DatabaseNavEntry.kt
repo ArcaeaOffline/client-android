@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -96,6 +97,15 @@ fun DatabaseNavEntry(
                     icon = Icons.Default.History,
                 ) {
                     onNavigateToSubRoute(DatabaseScreenDestinations.R30.route)
+                }
+            }
+
+            item {
+                NavEntryNavigateButton(
+                    titleResId = DatabaseScreenDestinations.Deduplicator.title,
+                    icon = Icons.Default.CopyAll,
+                ) {
+                    onNavigateToSubRoute(DatabaseScreenDestinations.Deduplicator.route)
                 }
             }
         }

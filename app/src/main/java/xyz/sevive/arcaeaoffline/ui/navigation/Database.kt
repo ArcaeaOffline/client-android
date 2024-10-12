@@ -11,4 +11,5 @@ enum class DatabaseScreenDestinations(val route: String, @StringRes val title: I
     ScoreList("$DatabaseNavRouteRoot/score_list", R.string.database_play_result_list_title),
     B30("$DatabaseNavRouteRoot/b30_list", R.string.database_b30_list_title),
     R30("$DatabaseNavRouteRoot/r30_list", R.string.database_r30_list_title),
+    Deduplicator("$DatabaseNavRouteRoot/deduplicator", R.string.database_deduplicator_title),
 }

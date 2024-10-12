@@ -14,6 +14,7 @@ import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListViewModel
@@ -78,6 +79,12 @@ object AppViewModelProvider {
             DatabaseR30ListViewModel(
                 WorkManager.getInstance(application()),
                 application().arcaeaOfflineDatabaseRepositoryContainer,
+            )
+        }
+
+        initializer {
+            DatabaseDeduplicatorViewModel(
+                application().arcaeaOfflineDatabaseRepositoryContainer
             )
         }
 

@@ -147,7 +147,6 @@
     <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
     <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
 
-
     <!-- Database play result list pane -->
     <string name="database_play_result_list_title">游玩记录列表</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
@@ -162,6 +161,17 @@
     <string name="database_r30_list_title">R30 列表</string>
     <string name="database_r30_rebuild_dialog_title">重建 R30 列表</string>
     <string name="database_r30_rebuild_dialog_content">将清除目前 R30 列表内的所有记录，然后再从头计算 R30。确定吗？</string>
+
+    <!-- Database deduplicator pane -->
+    <string name="database_deduplicator_title">去重器</string>
+    <string name="database_deduplicator_auto_select_identical">自动选择（完全相同）</string>
+    <string name="database_deduplicator_description_auto_select_identical">对每组完全相同的游玩记录，仅保留其中 ID 最小的项</string>
+    <string name="database_deduplicator_auto_select_properties_priority">自动选择（属性优先）</string>
+    <string name="database_deduplicator_description_auto_select_properties_priority">对每一重复组，仅保留属性最多的一项</string>
+    <string name="database_deduplicator_auto_select_r30_priority">自动选择（R30 优先）</string>
+    <string name="database_deduplicator_description_auto_select_r30_priority">对每一重复组，仅保留有日期的一项</string>
+    <string name="database_deduplicator_auto_merge">自动合并所有重复组</string>
+    <string name="database_deduplicator_auto_merge_warning">自动合并在一般情况下没有问题，但也有可能合并出不太对劲的结果，并且在处理过程中不能手动介入或更改。</string>
 
     <!-- Database toasts -->
     <plurals name="database_packs_imported">

@@ -184,6 +184,17 @@ CC BY-SA 3.0
     <string name="database_r30_rebuild_dialog_title">Rebuild Recent30 List</string>
     <string name="database_r30_rebuild_dialog_content">This will remove all the records in the current Recent30 list, and then re-calculate the list from scratch. Continue?</string>
 
+    <!-- Database deduplicator pane -->
+    <string name="database_deduplicator_title">Deduplicator</string>
+    <string name="database_deduplicator_auto_select_identical">Auto select (identical)</string>
+    <string name="database_deduplicator_description_auto_select_identical">Only keep the one with smallest ID in an identical play results group</string>
+    <string name="database_deduplicator_auto_select_properties_priority">Auto select (properties priority)</string>
+    <string name="database_deduplicator_description_auto_select_properties_priority">Only keep the one with most properties in a duplicate group</string>
+    <string name="database_deduplicator_auto_select_r30_priority">Auto select (R30 priority)</string>
+    <string name="database_deduplicator_description_auto_select_r30_priority">Only keep the one has date property in a duplicate group</string>
+    <string name="database_deduplicator_auto_merge">Auto merge all groups</string>
+    <string name="database_deduplicator_auto_merge_warning">Auto merge works fine in general situations. However, it may produce undesired results, and you cannot manually edit them during the process.</string>
+
     <!-- Database toasts -->
     <plurals name="database_packs_imported">
         <item quantity="many">%d packs imported</item>
