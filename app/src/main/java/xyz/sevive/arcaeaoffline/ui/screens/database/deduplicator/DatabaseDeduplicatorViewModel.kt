@@ -16,11 +16,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.Song
-import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -187,28 +185,16 @@ class DatabaseDeduplicatorViewModel(
     private val groupListUiItems = groups.transformLatest { groups ->
         groupListUiItemLoading.value = true
 
-        val chartCacheMap = mutableMapOf<String, Pair<Song, Difficulty>?>()
+        val chartCacheHolder = UiDisplayChartCacheHolder()
+        chartCacheHolder.updateCache(groups.values.flatten(), repositoryContainer)
 
         emit(groups.entries.mapIndexed { i, entry ->
             val playResult = entry.value.getOrNull(0)
-            val chartKey = playResult?.let { "${it.songId}.${it.ratingClass}" }
-
-            if (chartKey != null && chartCacheMap[chartKey] == null) {
-                val song = repositoryContainer.songRepo.find(playResult).firstOrNull()
-                val difficulty = repositoryContainer.difficultyRepo.find(playResult).firstOrNull()
-
-                chartCacheMap[chartKey] = if (song != null && difficulty != null) song to difficulty
-                else null
-            }
-
-            val chart = chartCacheMap[chartKey]?.let {
-                ChartFactory.fakeChart(it.first, it.second)
-            }
 
             GroupListUiItem(
                 index = i,
                 key = entry.key,
-                chart = chart,
+                chart = playResult?.let { chartCacheHolder.get(it) },
                 playResults = entry.value,
             )
         })

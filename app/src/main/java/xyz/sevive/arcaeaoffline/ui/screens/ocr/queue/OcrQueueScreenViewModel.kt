@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -33,6 +32,7 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -205,17 +205,12 @@ class OcrQueueScreenViewModel(
     val isTaskUiItemsLoading = _isTaskUiItemsLoading.asStateFlow()
 
     private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
-        val cMap = mutableMapOf<String, Chart>()
-        val songIds = dbItems.mapNotNull { it.playResult?.songId }.distinct()
-        val charts = repositoryContainer.chartRepo.findAllBySongIds(songIds).firstOrNull()
-            ?: return emptyList()
-        charts.forEach { cMap["${it.songId}|${it.ratingClass}"] = it }
+        val chartCacheHolder = UiDisplayChartCacheHolder()
+        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, repositoryContainer)
 
         return dbItems.map {
             if (it.playResult == null) TaskUiItem(dbItem = it)
-            else TaskUiItem(
-                dbItem = it, chart = cMap["${it.playResult.songId}|${it.playResult.ratingClass}"]
-            )
+            else TaskUiItem(dbItem = it, chart = chartCacheHolder.get(it.playResult))
         }
     }
 
