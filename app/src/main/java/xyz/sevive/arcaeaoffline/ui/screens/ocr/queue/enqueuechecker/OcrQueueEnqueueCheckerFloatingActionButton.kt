@@ -1,6 +1,9 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -36,11 +39,33 @@ import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.sentry.Sentry
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.roundToInt
 
+
+private fun persistUrisPermission(
+    context: Context,
+    uris: List<Uri>,
+    permissionFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION,
+) {
+    var exceptionCaptured = false
+
+    uris.forEach {
+        try {
+            context.contentResolver.takePersistableUriPermission(it, permissionFlags)
+        } catch (e: Throwable) {
+            Log.w("Application", "Error persisting permissions for uri $it", e)
+
+            if (!exceptionCaptured) {
+                Sentry.captureException(e)
+                exceptionCaptured = true
+            }
+        }
+    }
+}
 
 @Composable
 internal fun OcrQueueEnqueueCheckerFloatingActionButton(
@@ -56,9 +81,7 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     ) { uris ->
         // persist access permission to these images, ensuring the image preview function
         // will work even if the application restarted
-        val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        uris.forEach { context.contentResolver.takePersistableUriPermission(it, permissionFlags) }
-
+        persistUrisPermission(context, uris)
         vm.addImageFiles(uris)
     }
 
@@ -67,8 +90,7 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     ) { uri ->
         uri?.let {
             // persistent access permission to this folder
-            val permissionFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            context.contentResolver.takePersistableUriPermission(uri, permissionFlags)
+            persistUrisPermission(context, listOf(uri))
 
             val folder = DocumentFile.fromTreeUri(context, uri)
             folder?.let { vm.addFolder(it) }
