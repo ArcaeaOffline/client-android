@@ -1,27 +1,20 @@
 [versions]
-androidGradlePlugin = "8.2.0"
+androidGradlePlugin = "8.7.0"
 
-kotlin = "1.9.20"
-ksp = "1.9.20-1.0.14"
+kotlin = "2.0.21"
+ksp = "2.0.21-1.0.25"
 
-opencv = "4.9.0"
-
-# guava is the dependency for ListenableFuture, used in WorkManager
-# consider remove this if the flow functions work well
-google-guava = "33.2.1-android"
-kotlinx-coroutines-guava = "1.8.1"
+opencv = "4.10.0"
 
 io-sentry-sentryAndroid = "7.14.0"
 
 apache-commons-io = "2.4"
 github-requery-sqlite-android = "3.43.0"
-acra = "5.11.3"
 threetenabp = "1.4.6"
 compose-richtext = "0.17.0"
 github-jvziyaoyao-scale = "1.1.0-alpha.4"
 github-cheonjaeung-gridlayout = "2.0.0"
-compose-settings = "2.3.0"
-aboutlibraries = "11.1.0"
+aboutlibraries = "11.2.3"
 
 junit = "4.13.2"
 
@@ -29,12 +22,10 @@ dependencyAnalysis = "1.32.0"
 
 
 [libraries]
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "3.21.12" }
-google-guava = { module = "com.google.guava:guava", version.ref = "google-guava" }
-kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinx-coroutines-guava" }
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
@@ -42,8 +33,6 @@ onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android"
 
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 github-requery-sqlite-android = { module = "com.github.requery:sqlite-android", version.ref = "github-requery-sqlite-android" }
-acra-http = { module = "ch.acra:acra-http", version.ref = "acra" }
-acra-dialog = { module = "ch.acra:acra-dialog", version.ref = "acra" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 compose-richtext-commonmark = { module = "com.halilibo.compose-richtext:richtext-commonmark", version.ref = "compose-richtext" }
 compose-richtext-ui-material3 = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "compose-richtext" }
@@ -60,6 +49,8 @@ android-application = { id = "com.android.application", version.ref = "androidGr
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 protobuf = { id = "com.google.protobuf", version = "0.9.4" }

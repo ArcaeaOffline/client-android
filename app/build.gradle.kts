@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.androidGitVersion)
     alias(libs.plugins.aboutlibraries)
-
+    alias(libs.plugins.compose.compiler)
     alias(androidx.plugins.room)
 }
 

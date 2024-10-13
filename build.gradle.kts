@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.android.library) apply false
 
+    alias(libs.plugins.compose.compiler) apply false
+
     alias(androidx.plugins.room) apply false
 
     alias(libs.plugins.aboutlibraries) apply false
