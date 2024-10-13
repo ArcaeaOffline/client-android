@@ -42,19 +42,17 @@ class ArcaeaOfflineApplication : Application() {
     }
     val appDatabaseRepositoryContainer by lazy { AppDatabaseRepositoryContainer(this) }
     val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
-    val dataStoreRepositoryContainer by lazy { DataStoreRepositoryContainerImpl(this) }
+    val dataStoreRepositoryContainer = DataStoreRepositoryContainerImpl(this)
 
-    private val autoSendCrashReports by lazy {
+    private val autoSendCrashReports =
         dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
             it.autoSendCrashReports
         }.stateIn(appScope, SharingStarted.Eagerly, false)
-    }
 
-    private val unstableAlertRead by lazy {
+    private val unstableAlertRead =
         dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow.map {
             it.unstableAlertRead
         }.stateIn(appScope, SharingStarted.Eagerly, null)
-    }
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
@@ -98,8 +96,12 @@ class ArcaeaOfflineApplication : Application() {
         SentryAndroid.init(this) {
             it.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
                 event.setExtra("unstable_alert_read", unstableAlertRead.value.toString())
-                if (autoSendCrashReports.value) event else null
+                val shouldSend = autoSendCrashReports.value
+                Log.d(LOG_TAG, "Sentry beforeSend: autoSend is $shouldSend")
+                if (shouldSend) event else null
             }
+
+            it.isDebug = BuildConfig.DEBUG
         }
 
         appScope.launch(Dispatchers.IO) {
