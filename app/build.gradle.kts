@@ -1,4 +1,3 @@
-import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -44,35 +43,6 @@ protobuf {
     }
 }
 
-
-// automatic version generating from https://stackoverflow.com/a/24121734/16484891
-// CC BY-SA 3.0
-fun getVersionCode(): Int {
-    return try {
-        val stdout = ByteArrayOutputStream()
-        exec {
-            commandLine("git", "rev-list", "--first-parent", "--count", "master")
-            standardOutput = stdout
-        }
-        Integer.parseInt(stdout.toString().trim())
-    } catch (ignored: Exception) {
-        -1
-    }
-}
-
-fun getVersionName(): String? {
-    return try {
-        val stdoutStream = ByteArrayOutputStream()
-        exec {
-            commandLine("git", "describe", "--tags", "--dirty")
-            standardOutput = stdoutStream
-        }
-        val stdout = stdoutStream.toString().trim()
-        stdout
-    } catch (ignored: Exception) {
-        null
-    }
-}
 
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
 val localProperties = Properties().apply {
