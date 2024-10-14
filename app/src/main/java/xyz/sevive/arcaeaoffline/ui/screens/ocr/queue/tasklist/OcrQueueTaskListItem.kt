@@ -22,7 +22,6 @@ import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.common.imagepreview.ImagePreviewDialog
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
 @Composable
@@ -88,19 +87,10 @@ internal fun OcrQueueTaskListItem(
         )
     }
 
-    var showPlayResultWarningsDialog by rememberSaveable { mutableStateOf(false) }
-    if (showPlayResultWarningsDialog && uiItem.warnings.isNotEmpty()) {
-        ArcaeaPlayResultValidatorWarningDetailsDialog(
-            onDismissRequest = { showPlayResultWarningsDialog = false },
-            warnings = uiItem.warnings,
-        )
-    }
-
     OutlinedCard {
         OcrQueueTaskListItemHeader(
             uiItem = uiItem,
             onShowImagePreview = { showImagePreview = true },
-            onShowPlayResultWarnings = { showPlayResultWarningsDialog = true },
             onDeleteTask = { onDelete() },
             onEditChart = { showChartEditor = true },
             onEditPlayResult = { showPlayResultEditor = true },

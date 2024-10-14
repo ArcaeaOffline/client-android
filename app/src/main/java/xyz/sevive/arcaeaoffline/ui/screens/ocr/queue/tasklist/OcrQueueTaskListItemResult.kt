@@ -22,6 +22,7 @@ internal fun OcrQueueTaskListItemResult(
             OcrQueueTaskStatus.DONE -> uiItem.playResult?.let {
                 ArcaeaPlayResultCard(
                     playResult = uiItem.playResult,
+                    warnings = uiItem.warnings,
                     chart = uiItem.chart,
                     modifier = modifier,
                 )

@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,12 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -27,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
@@ -36,43 +31,9 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
-
-@Composable
-private fun PlayResultWarningsCard(
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
-    modifier: Modifier = Modifier,
-) {
-    var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
-    if (showWarningsDialog) {
-        ArcaeaPlayResultValidatorWarningDetailsDialog(
-            onDismissRequest = { showWarningsDialog = false },
-            warnings = warnings,
-        )
-    }
-
-    Card(
-        onClick = { showWarningsDialog = true },
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            contentColor = MaterialTheme.extendedColorScheme.warning,
-            containerColor = MaterialTheme.extendedColorScheme.warningContainer,
-        ),
-    ) {
-        IconRow(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
-            Icon(Icons.Default.Warning, null)
-            Text(
-                pluralStringResource(
-                    R.plurals.play_result_validator_warning_count, warnings.size, warnings.size
-                )
-            )
-        }
-    }
-}
 
 @Composable
 internal fun DatabaseAddPlayResultPlayResultAction(
@@ -96,13 +57,10 @@ internal fun DatabaseAddPlayResultPlayResultAction(
         Box(Modifier.weight(1f)) {
             if (playResult != null) {
                 Column(Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(warnings.isNotEmpty()) {
-                        PlayResultWarningsCard(warnings = warnings, Modifier.fillMaxWidth())
-                    }
-
                     ArcaeaPlayResultCard(
                         playResult = playResult,
                         onClick = { showPlayResultEditorDialog = true },
+                        warnings = warnings,
                     )
                 }
             } else {

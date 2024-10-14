@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,11 +14,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -85,7 +81,6 @@ private fun TaskDetailsDialog(
 internal fun OcrQueueTaskListItemHeader(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
     onShowImagePreview: () -> Unit,
-    onShowPlayResultWarnings: () -> Unit,
     onDeleteTask: () -> Unit,
     onEditChart: () -> Unit,
     onEditPlayResult: () -> Unit,
@@ -150,20 +145,6 @@ internal fun OcrQueueTaskListItemHeader(
                 Icon(Icons.Default.Info, contentDescription = null)
             }
 
-            AnimatedVisibility(
-                visible = uiItem.warnings.isNotEmpty()
-            ) {
-                IconButton(onClick = onShowPlayResultWarnings) {
-                    BadgedBox(
-                        badge = {
-                            Badge { Text(uiItem.warnings.size.toString()) }
-                        },
-                    ) {
-                        Icon(Icons.Default.Warning, contentDescription = null)
-                    }
-                }
-            }
-
             Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
                 IconButton(onClick = { showEditPopup = true }) {
                     Icon(Icons.Default.Edit, contentDescription = null)
@@ -222,7 +203,6 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                         exception = null,
                     ),
                     onShowImagePreview = {},
-                    onShowPlayResultWarnings = {},
                     onSaveTask = {},
                     onEditChart = {},
                     onEditPlayResult = {},

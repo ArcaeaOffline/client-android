@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,14 +8,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -24,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,13 +41,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -53,11 +59,13 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
+import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
 
 @Composable
@@ -114,6 +122,7 @@ fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
@@ -153,6 +162,15 @@ fun ArcaeaPlayResultCard(
         PlayResultDetailsDialog(onDismissRequest = { showDetails = false }, playResult = playResult)
     }
 
+    var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
+    if (showWarningsDialog && warnings.isNotEmpty()) {
+        ArcaeaPlayResultValidatorWarningDetailsDialog(
+            onDismissRequest = { showWarningsDialog = false },
+            warnings = warnings,
+        )
+    }
+    LaunchedEffect(warnings) { if (warnings.isEmpty()) showWarningsDialog = false }
+
     Card(
         modifier = Modifier
             .clickable(onClick != null) { onClick?.invoke() }
@@ -161,73 +179,106 @@ fun ArcaeaPlayResultCard(
         shape = shape,
         colors = cardColors,
     ) {
-        Row {
-            Row(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(
                 Modifier
-                    .weight(1f)
-                    .padding(dimensionResource(R.dimen.card_padding)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                verticalAlignment = Alignment.CenterVertically,
+                    .width(exPlusWidthDp + dimensionResource(R.dimen.card_padding))
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    ArcaeaFormatters.scoreToLevelText(playResult.score),
-                    Modifier.width(exPlusWidthDp),
-                    style = levelTextTextStyle,
-                    textAlign = TextAlign.Right,
-                    maxLines = 1,
-                )
-
-                Column(Modifier.weight(1f)) {
-                    Text(scoreText, style = MaterialTheme.typography.titleLarge)
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            pflAnnotatedString("P", playResult.pure),
-                            color = MaterialTheme.arcaeaColors.pure,
-                        )
-
-                        Text(
-                            pflAnnotatedString("F", playResult.far),
-                            color = MaterialTheme.arcaeaColors.far,
-                        )
-
-                        Text(
-                            pflAnnotatedString("L", playResult.lost),
-                            color = MaterialTheme.arcaeaColors.lost,
-                        )
+                AnimatedVisibility(visible = warnings.isNotEmpty()) {
+                    Box(
+                        Modifier
+                            .clickable { showWarningsDialog = true }
+                            .minimumInteractiveComponentSize()
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                Badge(
+                                    contentColor = MaterialTheme.extendedColorScheme.warning,
+                                    containerColor = MaterialTheme.extendedColorScheme.warningContainer,
+                                ) {
+                                    Text(warnings.size.toString())
+                                }
+                            },
+                        ) {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = pluralStringResource(
+                                    R.plurals.play_result_validator_warning_count,
+                                    warnings.size,
+                                    warnings.size,
+                                ),
+                            )
+                        }
                     }
+                }
 
+                Box(
+                    Modifier.weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        pflAnnotatedString(
-                            stringResource(R.string.arcaea_play_result_max_recall),
-                            playResult.maxRecall
-                        )
+                        ArcaeaFormatters.scoreToLevelText(playResult.score),
+                        style = levelTextTextStyle,
+                        maxLines = 1,
                     )
+                }
 
-                    Text(
-                        dateText,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
-                    )
-
-                    Text(
-                        clearTypeAndModifierText,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
-                    )
+                Box(
+                    Modifier
+                        .clickable { showDetails = true }
+                        .minimumInteractiveComponentSize()
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Outlined.Info, contentDescription = null)
                 }
             }
 
-            Box(
+            Column(
                 Modifier
-                    .clickable { showDetails = !showDetails }
-                    .minimumInteractiveComponentSize()
-                    .fillMaxHeight(),
+                    .weight(1f)
+                    .padding(dimensionResource(R.dimen.card_padding))
             ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = null,
-                    Modifier.align(Alignment.Center),
+                Text(scoreText, style = MaterialTheme.typography.titleLarge)
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        pflAnnotatedString("P", playResult.pure),
+                        color = MaterialTheme.arcaeaColors.pure,
+                    )
+
+                    Text(
+                        pflAnnotatedString("F", playResult.far),
+                        color = MaterialTheme.arcaeaColors.far,
+                    )
+
+                    Text(
+                        pflAnnotatedString("L", playResult.lost),
+                        color = MaterialTheme.arcaeaColors.lost,
+                    )
+                }
+
+                Text(
+                    pflAnnotatedString(
+                        stringResource(R.string.arcaea_play_result_max_recall),
+                        playResult.maxRecall
+                    )
+                )
+
+                Text(
+                    dateText,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
+                )
+
+                Text(
+                    clearTypeAndModifierText,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
                 )
             }
         }
@@ -240,6 +291,7 @@ fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
     chart: Chart?,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
@@ -248,6 +300,7 @@ fun ArcaeaPlayResultCard(
             playResult = playResult,
             modifier = modifier,
             onClick = onClick,
+            warnings = warnings,
             colors = colors,
         )
         return
@@ -270,6 +323,7 @@ fun ArcaeaPlayResultCard(
         ArcaeaPlayResultCard(
             playResult = playResult,
             onClick = onClick,
+            warnings = warnings,
             shape = lowerCardShape,
             colors = colors,
         )
