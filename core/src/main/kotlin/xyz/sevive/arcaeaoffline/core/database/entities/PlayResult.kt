@@ -35,6 +35,8 @@ data class PlayResult(
 )
 
 fun PlayResult.potential(constant: Int): Double {
+    if (constant < 0) return 0.0
+
     return if (score >= 100000000) {
         constant / 10.0 + 2
     } else if (score >= 9800000) {

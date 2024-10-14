@@ -98,7 +98,7 @@ object ArcaeaFormatters {
         var text = ratingClass.toString()
         text += ' '
 
-        if (constant != 0) {
+        if (constant > 0) {
             val decimalFormat = DecimalFormat("0.0")
             text += decimalFormat.format(constant / 10.0)
         } else {

@@ -33,7 +33,7 @@ object ChartFactory {
             audioOverride = difficulty.audioOverride,
             jacketOverride = difficulty.jacketOverride,
             jacketNight = difficulty.jacketNight,
-            constant = 0,
+            constant = -1,
             notes = null,
         )
     }
