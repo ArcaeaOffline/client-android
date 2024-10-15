@@ -50,6 +50,7 @@ internal fun DatabasePlayResultListItem(
     ) {
         ArcaeaPlayResultCard(
             playResult = item.playResult,
+            warnings = item.warnings,
             modifier = Modifier.weight(1f),
             onClick = { onSelectedChange(!selected) },
             chart = item.chart,

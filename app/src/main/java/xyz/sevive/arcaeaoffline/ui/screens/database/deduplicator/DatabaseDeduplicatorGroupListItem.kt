@@ -26,6 +26,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
@@ -89,12 +90,20 @@ internal fun DatabaseDeduplicatorGroupListItem(
         item.playResults.forEach {
             val selected = selectedUuids.contains(it.uuid)
             val onSelect = { onPlayResultSelectedChange(it.uuid, !selected) }
+            val warnings = remember(it, item.chart) {
+                ArcaeaPlayResultValidator.validate(it, item.chart)
+            }
 
             Row(
                 Modifier.clickable(onClick = onSelect),
                 verticalAlignment = Alignment.Bottom,
             ) {
-                ArcaeaPlayResultCard(it, Modifier.weight(1f), onClick = onSelect)
+                ArcaeaPlayResultCard(
+                    it,
+                    Modifier.weight(1f),
+                    warnings = warnings,
+                    onClick = onSelect,
+                )
 
                 Checkbox(
                     checked = selected,

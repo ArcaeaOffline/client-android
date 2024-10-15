@@ -21,8 +21,10 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
@@ -41,10 +43,10 @@ class DatabasePlayResultListViewModel(
     data class ListItem(
         val playResult: PlayResult,
         val chart: Chart? = null,
-        val potential: Double? = null,
         val isDeletedInGame: Boolean = false,
     ) {
         val uuid = playResult.uuid
+        val potential = chart?.let { playResult.potential(it) }
         val potentialText = buildAnnotatedString {
             val baseText = ArcaeaFormatters.potentialToText(potential)
 
@@ -56,6 +58,7 @@ class DatabasePlayResultListViewModel(
             )
             append(baseText)
         }
+        val warnings = ArcaeaPlayResultValidator.validate(playResult, chart)
     }
 
     data class UiState(
@@ -72,22 +75,24 @@ class DatabasePlayResultListViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rawListItems =
-        repositoryContainer.relationshipsRepo.playResultsWithCharts().transformLatest { dbItems ->
+        repositoryContainer.playResultRepo.findAll().transformLatest { dbItems ->
             isLoading.value = true
 
-            kotlinx.coroutines.delay(2000L)
+            val chartCache = UiDisplayChartCacheHolder()
+            chartCache.updateCache(dbItems, repositoryContainer)
 
             val deletedSongIds =
                 repositoryContainer.songRepo.findDeletedInGame().firstOrNull()?.map { it.id }
                     ?: emptyList()
-            val listItems = dbItems?.map {
+            val listItems = dbItems.map { playResult ->
+                val chart = chartCache.get(playResult)
+
                 ListItem(
-                    playResult = it.playResult,
-                    chart = it.chart,
-                    potential = it.chart?.let { chart -> it.playResult.potential(chart) },
-                    isDeletedInGame = it.playResult.songId in deletedSongIds,
+                    playResult = playResult,
+                    chart = chart,
+                    isDeletedInGame = playResult.songId in deletedSongIds,
                 )
-            } ?: emptyList()
+            }
 
             emit(listItems)
 
