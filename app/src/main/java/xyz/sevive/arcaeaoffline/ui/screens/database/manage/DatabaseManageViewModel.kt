@@ -307,9 +307,11 @@ class DatabaseManageViewModel(
             sendTask {
                 val packageHelper = ArcaeaPackageHelper(context)
 
-                packageHelper.getApkZipFile().use {
-                    val packlistEntry = packageHelper.getPacklistEntry()
-                    val songlistEntry = packageHelper.getSonglistEntry()
+                packageHelper.getApkZipFile()?.use {
+                    val packlistEntry =
+                        it.getEntry(ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME)
+                    val songlistEntry =
+                        it.getEntry(ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME)
 
                     if (packlistEntry != null) {
                         val inputStream = it.getInputStream(packlistEntry)
@@ -324,7 +326,7 @@ class DatabaseManageViewModel(
                     } else {
                         appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "songlist not found!")
                     }
-                }
+                } ?: appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "apk zip file invalid!")
             }
         }
     }

@@ -20,13 +20,6 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
-class ArcaeaNotInstalledException : Exception() {
-    override val message = "Arcaea not installed!"
-}
-
-class ArcaeaAssetAbsenceException : Exception() {
-    override val message = "Cannot find the requested asset in Arcaea!"
-}
 
 class ArcaeaPackageHelper(context: Context) {
     private val packageManager = context.packageManager
@@ -39,48 +32,39 @@ class ArcaeaPackageHelper(context: Context) {
     // val jacketsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/jackets")
     // val partnerIconsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/partner_icons")
 
-    private fun getPackageInfo(): PackageInfo? {
+    fun getPackageInfo(): PackageInfo? {
         return try {
             packageManager.getPackageInfo(ARCAEA_PACKAGE_NAME, 0)
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             null
         }
     }
 
-    /**
-     * @throws ArcaeaNotInstalledException if Arcaea isn't installed
-     */
-    private fun getPackageInfoOrFail(): PackageInfo {
-        return getPackageInfo() ?: throw ArcaeaNotInstalledException()
-    }
-
-    fun isInstalled(): Boolean {
-        return getPackageInfo() != null
-    }
-
     fun getIcon(): Drawable? {
-        if (!isInstalled()) return null
-        return packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
+        return try {
+            packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
     }
 
-    fun getApkZipFile(): ZipFile {
-        getPackageInfoOrFail()
-
-        val appInfo = packageManager.getApplicationInfo(ARCAEA_PACKAGE_NAME, 0)
-
-        return ZipFile(appInfo.publicSourceDir)
+    fun getApkZipFile(): ZipFile? {
+        try {
+            val appInfo = packageManager.getApplicationInfo(ARCAEA_PACKAGE_NAME, 0)
+            return ZipFile(appInfo.publicSourceDir)
+        } catch (_: PackageManager.NameNotFoundException) {
+            return null
+        }
     }
 
     fun getPacklistEntry(): ZipEntry? {
-        if (!isInstalled()) return null
-        return getApkZipFile().use {
+        return getApkZipFile()?.use {
             it.getEntry(APK_PACKLIST_FILE_ENTRY_NAME)
         }
     }
 
     fun getSonglistEntry(): ZipEntry? {
-        if (!isInstalled()) return null
-        return getApkZipFile().use {
+        return getApkZipFile()?.use {
             it.getEntry(APK_SONGLIST_FILE_ENTRY_NAME)
         }
     }
@@ -154,7 +138,7 @@ class ArcaeaPackageHelper(context: Context) {
 
         withContext(Dispatchers.IO) {
             Log.d(LOG_TAG, "extractAssetBase: extracting ${outputMapping.size} entries")
-            getApkZipFile().use { zipFile ->
+            getApkZipFile()?.use { zipFile ->
                 outputMapping.entries.forEach { mapEntry ->
                     val zipEntry = mapEntry.key
                     val outputFile = mapEntry.value
@@ -168,7 +152,7 @@ class ArcaeaPackageHelper(context: Context) {
     }
 
     private fun filterApkEntries(filterBlock: (ZipEntry) -> Boolean): List<ZipEntry> {
-        val apkZipFile = getApkZipFile()
+        val apkZipFile = getApkZipFile() ?: return emptyList()
         val entries = mutableListOf<ZipEntry>()
         apkZipFile.use {
             val zipEntries = apkZipFile.entries()

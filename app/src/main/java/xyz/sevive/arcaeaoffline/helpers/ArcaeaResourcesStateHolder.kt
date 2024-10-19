@@ -42,7 +42,7 @@ object ArcaeaResourcesStateHolder {
             val packageHelper = ArcaeaPackageHelper(context)
 
             status.value = Status(
-                isArcaeaInstalled = packageHelper.isInstalled(),
+                isArcaeaInstalled = packageHelper.getPackageInfo() != null,
                 hasPacklist = packageHelper.getPacklistEntry() != null,
                 hasSonglist = packageHelper.getSonglistEntry() != null,
                 hasJackets = packageHelper.apkJacketZipEntries().isNotEmpty(),
