@@ -125,7 +125,7 @@ class OcrQueueTaskRepositoryImpl(private val dao: OcrQueueTaskDao) : OcrQueueTas
         val tasks = findAll().firstOrNull() ?: return
         val tasksToSave = tasks.filter { it.canSaveSilently }
 
-        playResultRepository.upsertBatch(*tasks.map { it.playResult!! }.toTypedArray())
+        playResultRepository.upsertBatch(*tasksToSave.map { it.playResult!! }.toTypedArray())
         deleteBatch(tasksToSave)
     }
 }
