@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.ocr.CrnnModelStatusDetail
+import xyz.sevive.arcaeaoffline.helpers.CrnnModelStatusDetail
 
 data class OcrDependencyCrnnModelStatusUiState(
     val statusDetail: CrnnModelStatusDetail = CrnnModelStatusDetail(),

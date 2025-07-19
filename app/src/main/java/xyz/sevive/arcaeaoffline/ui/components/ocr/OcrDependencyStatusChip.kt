@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatus
+import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 

@@ -22,7 +22,6 @@
 
 -dontobfuscate
 
--keep public class org.opencv.core.CvException
 # generated protobuf messages
 -keep public class * extends com.google.protobuf.GeneratedMessageLite { *; }
 # onnx runtime

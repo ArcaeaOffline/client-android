@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
 import io.requery.android.database.sqlite.SQLiteDatabase
