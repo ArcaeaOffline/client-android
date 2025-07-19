@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.core.ocr.OcrDependencyStatus
+import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget

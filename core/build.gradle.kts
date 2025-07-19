@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.github.requery.sqlite.android)
     implementation(libs.threetenabp)
 
+    implementation(libs.opencv)
+    implementation(libs.onnxruntime.android)
+
     // test & debug
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)

@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseStatusDetail
+import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 
 

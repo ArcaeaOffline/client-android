@@ -4,6 +4,7 @@ import ai.onnxruntime.OnnxJavaType
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import kotlinx.serialization.SerialName
@@ -30,6 +31,7 @@ object DeviceOcrOnnxHelper {
 
     private val jsonSerializer = Json { ignoreUnknownKeys = true }
 
+    @SuppressLint("UnsafeOptInUsageError")
     @Serializable
     private data class ModelInfo(
         @SerialName("image_height") val imageHeight: Long,

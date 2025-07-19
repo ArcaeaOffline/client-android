@@ -1,9 +1,8 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.helpers
 
 import ai.onnxruntime.OnnxModelMetadata
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
-import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
 

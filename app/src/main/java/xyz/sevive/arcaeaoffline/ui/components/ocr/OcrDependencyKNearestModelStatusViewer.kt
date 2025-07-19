@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.ocr.KNearestModelStatusDetail
+import xyz.sevive.arcaeaoffline.helpers.KNearestModelStatusDetail
 
 
 data class OcrDependencyKNearestModelStatusUiState(

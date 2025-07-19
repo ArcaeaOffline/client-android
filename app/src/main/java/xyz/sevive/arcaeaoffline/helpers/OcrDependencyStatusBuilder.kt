@@ -1,8 +1,10 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
+import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import kotlin.use
 
 object OcrDependencyStatusBuilder {
     fun kNearest(context: Context): KNearestModelStatusDetail {
