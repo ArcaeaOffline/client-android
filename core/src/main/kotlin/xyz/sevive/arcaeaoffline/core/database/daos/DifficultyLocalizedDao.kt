@@ -12,7 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 @Dao
 interface DifficultyLocalizedDao {
     @Query("SELECT * FROM difficulties_localized WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<DifficultyLocalized>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<DifficultyLocalized?>
 
     @Query("SELECT * FROM difficulties_localized")
     fun findAll(): Flow<List<DifficultyLocalized>>

@@ -11,7 +11,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 @Dao
 interface SongDao {
     @Query("SELECT * FROM songs WHERE id = :id")
-    fun find(id: String): Flow<Song>
+    fun find(id: String): Flow<Song?>
 
     @Query("SELECT * FROM songs WHERE `set` = :set")
     fun findBySet(set: String): Flow<List<Song>>

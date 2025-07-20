@@ -12,7 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Property
 @Dao
 interface PropertyDao {
     @Query("SELECT * FROM properties WHERE `key` = :key")
-    fun find(key: String): Flow<Property>
+    fun find(key: String): Flow<Property?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(item: Property)

@@ -11,7 +11,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 @Dao
 interface SongLocalizedDao {
     @Query("SELECT * FROM songs_localized WHERE id = :id")
-    fun find(id: String): Flow<SongLocalized>
+    fun find(id: String): Flow<SongLocalized?>
 
     @Query("SELECT * FROM songs_localized")
     fun findAll(): Flow<List<SongLocalized>>

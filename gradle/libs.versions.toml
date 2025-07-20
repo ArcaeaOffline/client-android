@@ -1,35 +1,35 @@
 [versions]
-androidGradlePlugin = "8.7.0"
+androidGradlePlugin = "8.11.1"
 
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.25"
+kotlin = "2.2.0"
+ksp = "2.2.0-2.0.2"
 
-opencv = "4.10.0"
+opencv = "4.12.0"
 
-io-sentry-sentryAndroid = "7.14.0"
+io-sentry-sentryAndroid = "8.17.0"
 
 apache-commons-io = "2.4"
-github-requery-sqlite-android = "3.43.0"
-threetenabp = "1.4.6"
-compose-richtext = "0.17.0"
-github-jvziyaoyao-scale = "1.1.0-alpha.4"
-github-cheonjaeung-gridlayout = "2.0.0"
-aboutlibraries = "11.2.3"
+github-requery-sqlite-android = "3.49.0"
+threetenabp = "1.4.9"
+compose-richtext = "0.20.0"
+github-jvziyaoyao-scale = "1.1.0-alpha.7"
+github-cheonjaeung-gridlayout = "2.3.2"
+aboutlibraries = "12.2.4"
 
 junit = "4.13.2"
 
-dependencyAnalysis = "1.32.0"
+dependencyAnalysis = "2.19.0"
 
 
 [libraries]
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "3.21.12" }
+protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "4.31.1" }
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
-onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.18.0" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.20.0" }
 
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 github-requery-sqlite-android = { module = "com.github.requery:sqlite-android", version.ref = "github-requery-sqlite-android" }

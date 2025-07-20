@@ -12,7 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 @Dao
 interface DifficultyDao {
     @Query("SELECT * FROM difficulties WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Difficulty>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Difficulty?>
 
     @Query("SELECT * FROM difficulties")
     fun findAll(): Flow<List<Difficulty>>

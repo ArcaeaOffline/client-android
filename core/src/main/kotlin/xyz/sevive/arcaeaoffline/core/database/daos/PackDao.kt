@@ -12,7 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 @Dao
 interface PackDao {
     @Query("SELECT * FROM packs WHERE id = :id")
-    fun find(id: String): Flow<Pack>
+    fun find(id: String): Flow<Pack?>
 
     @Query("SELECT * FROM packs")
     fun findAll(): Flow<List<Pack>>

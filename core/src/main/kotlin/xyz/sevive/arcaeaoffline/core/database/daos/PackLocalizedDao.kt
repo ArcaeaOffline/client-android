@@ -11,7 +11,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 @Dao
 interface PackLocalizedDao {
     @Query("SELECT * FROM packs_localized WHERE id = :id")
-    fun find(id: String): Flow<PackLocalized>
+    fun find(id: String): Flow<PackLocalized?>
 
     @Query("SELECT * FROM packs_localized")
     fun findAll(): Flow<List<PackLocalized>>

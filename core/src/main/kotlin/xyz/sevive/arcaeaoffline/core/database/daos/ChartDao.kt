@@ -9,7 +9,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 @Dao
 interface ChartDao {
     @Query("SELECT * FROM charts WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Chart>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Chart?>
 
     @Query("SELECT * FROM charts")
     fun findAll(): Flow<List<Chart>>

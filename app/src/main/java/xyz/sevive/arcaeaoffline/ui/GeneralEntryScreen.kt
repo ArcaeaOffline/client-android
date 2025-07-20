@@ -22,9 +22,11 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import kotlin.math.round
 
 /**
@@ -37,9 +39,11 @@ fun <T> GeneralEntryScreen(
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     detailPane: @Composable ThreePaneScaffoldScope.(T) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     Box(Modifier.fillMaxSize()) {
         BackHandler(navigator.canNavigateBack()) {
-            navigator.navigateBack()
+            coroutineScope.launch { navigator.navigateBack() }
         }
 
         ListDetailPaneScaffold(
@@ -53,7 +57,7 @@ fun <T> GeneralEntryScreen(
             detailPane = {
                 AnimatedPane(Modifier.fillMaxSize()) {
                     AnimatedContent(
-                        targetState = navigator.currentDestination?.content,
+                        targetState = navigator.currentDestination?.contentKey,
                         transitionSpec = {
                             (slideInVertically {
                                 round(EaseOutCubic.transform(it * 0.025f)).toInt()

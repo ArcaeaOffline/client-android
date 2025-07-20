@@ -14,10 +14,10 @@ import java.util.UUID
 @Dao
 interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult?>
 
     @Query("SELECT * FROM play_results WHERE uuid = :uuid")
-    fun findByUUID(uuid: UUID): Flow<PlayResult>
+    fun findByUUID(uuid: UUID): Flow<PlayResult?>
 
     @Query("SELECT * FROM play_results WHERE date > :date")
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>

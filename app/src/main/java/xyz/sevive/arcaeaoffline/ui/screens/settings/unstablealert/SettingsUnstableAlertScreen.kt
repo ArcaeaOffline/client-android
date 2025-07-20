@@ -13,7 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.HorizontalRule
-import com.halilibo.richtext.ui.material3.Material3RichText
+import com.halilibo.richtext.ui.material3.RichText
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -39,7 +39,7 @@ internal fun SettingsUnstableAlertScreen(
             contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding))
         ) {
             item {
-                Material3RichText {
+                RichText {
                     Markdown(stringResource(R.string.unstable_version_alert_screen_confirm_prompt_markdown))
 
                     HorizontalRule()

@@ -9,7 +9,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 @Dao
 interface PlayResultBestDao {
     @Query("SELECT * FROM play_results_best WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResultBest>
+    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResultBest?>
 
     @Query("SELECT * FROM play_results_best")
     fun findAll(): Flow<List<PlayResultBest>>

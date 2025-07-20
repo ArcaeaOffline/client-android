@@ -10,7 +10,7 @@ import java.util.UUID
 
 interface PlayResultRepository {
     fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult?>
-    fun findByUUID(uuid: UUID): Flow<PlayResult>
+    fun findByUUID(uuid: UUID): Flow<PlayResult?>
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
     fun findAll(): Flow<List<PlayResult>>
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
@@ -26,7 +26,7 @@ class PlayResultRepositoryImpl(val dao: PlayResultDao) : PlayResultRepository {
     override fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult?> =
         dao.find(songId, ratingClass)
 
-    override fun findByUUID(uuid: UUID): Flow<PlayResult> = dao.findByUUID(uuid)
+    override fun findByUUID(uuid: UUID): Flow<PlayResult?> = dao.findByUUID(uuid)
 
     override fun findLaterThan(date: Instant): Flow<List<PlayResult>> = dao.findLaterThan(date)
 

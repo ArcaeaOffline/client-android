@@ -7,19 +7,19 @@ plugins {
     alias(androidx.plugins.room)
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 android {
     namespace = "xyz.sevive.arcaeaoffline.core"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-
-        room {
-            schemaDirectory("$projectDir/schemas")
-        }
     }
 
     buildTypes {

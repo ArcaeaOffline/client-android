@@ -49,9 +49,13 @@ val localProperties = Properties().apply {
     load(FileInputStream(File(rootDir, "local.properties")))
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 android {
     namespace = "xyz.sevive.arcaeaoffline"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "xyz.sevive.arcaeaoffline"
@@ -66,10 +70,6 @@ android {
         }
 
         manifestPlaceholders["sentryDsn"] = localProperties.getProperty("SENTRY_DSN")
-
-        room {
-            schemaDirectory("$projectDir/schemas")
-        }
     }
 
     signingConfigs {

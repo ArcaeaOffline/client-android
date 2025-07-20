@@ -6,6 +6,8 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
@@ -19,6 +21,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListScree
 @Composable
 fun DatabaseEntryScreen() {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
+    val coroutineScope = rememberCoroutineScope()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val onNavigateUp = remember {
@@ -29,7 +32,9 @@ fun DatabaseEntryScreen() {
         navigator = navigator,
         listPane = {
             DatabaseNavEntry(onNavigateToSubRoute = {
-                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                coroutineScope.launch {
+                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                }
             })
         },
     ) {

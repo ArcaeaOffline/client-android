@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.material3.Material3RichText
+import com.halilibo.richtext.ui.material3.RichText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,7 +34,7 @@ internal fun SettingsLicenseScreen(
     val context = LocalContext.current
     val licenseText by produceState<String?>(initialValue = null) {
         launch(Dispatchers.IO) {
-            // the [Material3RichText] below will block the UI thread for a moment,
+            // the [RichText] below will block the UI thread for a moment,
             // so we're adding a explicit delay to ensure the loading indicator is visible,
             // informing user that there is some loading in the background.
             delay(500L)
@@ -55,7 +55,7 @@ internal fun SettingsLicenseScreen(
         ) {
             item {
                 licenseText?.let {
-                    Material3RichText { Markdown(it) }
+                    RichText { Markdown(it) }
                 } ?: Box(Modifier.fillMaxSize()) {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }

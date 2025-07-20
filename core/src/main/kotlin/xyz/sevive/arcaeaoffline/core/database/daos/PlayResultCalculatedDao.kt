@@ -8,7 +8,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 @Dao
 interface PlayResultCalculatedDao {
     @Query("SELECT * FROM play_results_calculated WHERE id = :id")
-    fun find(id: Int): Flow<PlayResultCalculated>
+    fun find(id: Int): Flow<PlayResultCalculated?>
 
     @Query("SELECT * FROM play_results_calculated")
     fun findAll(): Flow<List<PlayResultCalculated>>

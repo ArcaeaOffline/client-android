@@ -8,9 +8,11 @@ import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.EmergencyModeActivity
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
@@ -29,6 +31,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
+    val coroutineScope = rememberCoroutineScope()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val onNavigateUp = remember {
@@ -42,7 +45,9 @@ fun SettingsScreen(
         listPane = {
             SettingsNavEntry(
                 onNavigateToSubRoute = {
-                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                    coroutineScope.launch {
+                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+                    }
                 },
                 onNavigateToEmergencyModeActivity = {
                     context.startActivity(Intent(context, EmergencyModeActivity::class.java))
@@ -63,16 +68,20 @@ fun SettingsScreen(
                 SettingsAboutScreen(
                     onNavigateUp = { onNavigateUp() },
                     onNavigateToLicenseScreen = {
-                        navigator.navigateTo(
-                            ListDetailPaneScaffoldRole.Detail,
-                            SettingsScreenDestination.License.route
-                        )
+                        coroutineScope.launch {
+                            navigator.navigateTo(
+                                ListDetailPaneScaffoldRole.Detail,
+                                SettingsScreenDestination.License.route
+                            )
+                        }
                     },
                     onNavigateToAboutlibrariesScreen = {
-                        navigator.navigateTo(
-                            ListDetailPaneScaffoldRole.Detail,
-                            SettingsScreenDestination.Aboutlibraries.route
-                        )
+                        coroutineScope.launch {
+                            navigator.navigateTo(
+                                ListDetailPaneScaffoldRole.Detail,
+                                SettingsScreenDestination.Aboutlibraries.route
+                            )
+                        }
                     },
                 )
             }
