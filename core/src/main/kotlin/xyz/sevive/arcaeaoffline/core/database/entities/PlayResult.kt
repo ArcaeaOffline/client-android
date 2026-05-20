@@ -16,7 +16,10 @@ import kotlin.math.max
 @Serializable(with = PlayResultSerializer::class)
 @Entity(
     tableName = "play_results",
-    indices = [Index(value = ["uuid"], unique = true)],
+    indices = [
+        Index(value = ["uuid"], unique = true),
+        Index(value = ["song_id", "rating_class"]),
+    ],
 )
 data class PlayResult(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

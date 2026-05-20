@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -9,6 +10,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
 
 @Dao
 interface RelationshipsDao {
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         "SELECT * FROM play_results LEFT JOIN charts" +
             " ON play_results.song_id = charts.song_id" +
