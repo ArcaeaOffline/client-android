@@ -1,5 +1,5 @@
 [versions]
-room = "2.7.2"
+room = "2.8.4"
 datastore = "1.1.7"
 core-ktx = "1.16.0"
 activity-compose = "1.10.1"
