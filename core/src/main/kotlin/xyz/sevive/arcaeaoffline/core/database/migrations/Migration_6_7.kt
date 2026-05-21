@@ -1,14 +1,15 @@
 package xyz.sevive.arcaeaoffline.core.database.migrations
 
-import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteDatabase
-import xyz.sevive.arcaeaoffline.core.database.converters.UUIDByteArrayConverters
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import xyz.sevive.arcaeaoffline.core.database.extensions.bindIntOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.bindLongOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.bindTextOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.getIntOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.getLongOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.getTextOrNull
+import java.nio.ByteBuffer
 import java.util.UUID
 
 
@@ -21,63 +22,104 @@ private const val CREATE_VIEW_PLAY_RESULTS_CALCULATED_7 =
 private const val CREATE_VIEW_PLAY_RESULTS_BEST_7 =
     "CREATE VIEW `play_results_best` AS SELECT\n            prc.id, prc.uuid, prc.song_id, prc.rating_class, prc.score,\n            prc.pure, prc.shiny_pure, prc.far, prc.lost,\n            prc.date, prc.max_recall, prc.modifier, prc.clear_type,\n            MAX(prc.potential) AS potential,\n            prc.comment\n        FROM play_results_calculated prc\n        GROUP BY prc.song_id, prc.rating_class\n        ORDER BY prc.potential DESC"
 
+private data class PlayResultIntermediate(
+    val uuid: UUID,
+    val id: Int,
+    val songId: String,
+    val ratingClass: String,
+    val score: Int,
+    val pure: Int?,
+    val far: Int?,
+    val lost: Int?,
+    val date: Long?,
+    val maxRecall: Int?,
+    val modifier: String?,
+    val clearType: String?,
+    val comment: String?,
+) {
+    val uuidByteArray = uuid.let {
+        val bb = ByteBuffer.wrap(ByteArray(16))
+        bb.putLong(it.mostSignificantBits)
+        bb.putLong(it.leastSignificantBits)
+        bb.array()
+    }
+}
+
 object Migration_6_7 : Migration(6, 7) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        val playResultsContentValues = mutableListOf<ContentValues>()
+    // TODO: we really need a migration test... why not add it now?
+    override fun migrate(connection: SQLiteConnection) {
+        val playResults = mutableListOf<PlayResultIntermediate>()
 
-        val query = SimpleSQLiteQuery(
+        connection.prepare(
             "SELECT id, song_id, rating_class, score, pure, far, lost, date, max_recall, modifier, clear_type, comment FROM play_results"
-        )
+        ).use {
+            while (it.step()) {
+                val id = it.getInt(0)
+                val songId = it.getText(1)
+                val ratingClass = it.getText(2)
+                val score = it.getInt(3)
+                val pure = it.getIntOrNull(4)
+                val far = it.getIntOrNull(5)
+                val lost = it.getIntOrNull(6)
+                val date = it.getLongOrNull(7)
+                val maxRecall = it.getIntOrNull(8)
+                val modifier = it.getTextOrNull(9)
+                val clearType = it.getTextOrNull(10)
+                val comment = it.getTextOrNull(11)
 
-        db.query(query).use {
-            while (it.moveToNext()) {
-                val id = it.getInt(it.getColumnIndexOrThrow("id"))
-                val songId = it.getString(it.getColumnIndexOrThrow("song_id"))
-                val ratingClass = it.getString(it.getColumnIndexOrThrow("rating_class"))
-                val score = it.getInt(it.getColumnIndexOrThrow("score"))
-                val pure = it.getIntOrNull(it.getColumnIndex("pure"))
-                val far = it.getIntOrNull(it.getColumnIndex("far"))
-                val lost = it.getIntOrNull(it.getColumnIndex("lost"))
-                val date = it.getLongOrNull(it.getColumnIndex("date"))
-                val maxRecall = it.getIntOrNull(it.getColumnIndex("max_recall"))
-                val modifier = it.getStringOrNull(it.getColumnIndex("modifier"))
-                val clearType = it.getStringOrNull(it.getColumnIndex("clear_type"))
-                val comment = it.getStringOrNull(it.getColumnIndex("comment"))
-
-                ContentValues().apply {
-                    put("id", id)
-
-                    // the only real logic bro
-                    put("uuid", UUIDByteArrayConverters.toDatabaseValue(UUID.randomUUID()))
-
-                    put("song_id", songId)
-                    put("rating_class", ratingClass)
-                    put("score", score)
-                    if (pure != null) put("pure", pure)
-                    if (far != null) put("far", far)
-                    if (lost != null) put("lost", lost)
-                    if (date != null) put("date", date)
-                    if (maxRecall != null) put("max_recall", maxRecall)
-                    if (modifier != null) put("modifier", modifier)
-                    if (clearType != null) put("clear_type", clearType)
-                    if (comment != null) put("comment", comment)
-
-                    playResultsContentValues.add(this)
-                }
+                playResults.add(
+                    PlayResultIntermediate(
+                        uuid = UUID.randomUUID(),
+                        id = id,
+                        songId = songId,
+                        ratingClass = ratingClass,
+                        score = score,
+                        pure = pure,
+                        far = far,
+                        lost = lost,
+                        date = date,
+                        maxRecall = maxRecall,
+                        modifier = modifier,
+                        clearType = clearType,
+                        comment = comment,
+                    )
+                )
             }
         }
 
-        db.execSQL("DROP TABLE play_results")
-        db.execSQL("DROP VIEW play_results_calculated")
-        db.execSQL("DROP VIEW play_results_best")
+        connection.execSQL("DROP TABLE play_results")
+        connection.execSQL("DROP VIEW play_results_calculated")
+        connection.execSQL("DROP VIEW play_results_best")
 
-        db.execSQL(CREATE_TABLE_PLAY_RESULTS_7)
-        db.execSQL(CREATE_UNIQUE_INDEX_PLAY_RESULTS_UUID_7)
-        db.execSQL(CREATE_VIEW_PLAY_RESULTS_CALCULATED_7)
-        db.execSQL(CREATE_VIEW_PLAY_RESULTS_BEST_7)
+        connection.execSQL(CREATE_TABLE_PLAY_RESULTS_7)
+        connection.execSQL(CREATE_UNIQUE_INDEX_PLAY_RESULTS_UUID_7)
+        connection.execSQL(CREATE_VIEW_PLAY_RESULTS_CALCULATED_7)
+        connection.execSQL(CREATE_VIEW_PLAY_RESULTS_BEST_7)
 
-        playResultsContentValues.forEach {
-            db.insert("play_results", SQLiteDatabase.CONFLICT_FAIL, it)
+        connection.prepare(
+            "INSERT INTO play_results " +
+                "(`id`, `uuid`, `song_id`, `rating_class`, `score`, `pure`, `far`, `lost`, `date`, `max_recall`, `modifier`, `clear_type`, `comment`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        ).use { stmt ->
+            playResults.forEach {
+                stmt.bindInt(1, it.id)
+                stmt.bindBlob(2, it.uuidByteArray)
+                stmt.bindText(3, it.songId)
+                stmt.bindText(4, it.ratingClass)
+                stmt.bindInt(5, it.score)
+                stmt.bindIntOrNull(6, it.pure)
+                stmt.bindIntOrNull(7, it.far)
+                stmt.bindIntOrNull(8, it.lost)
+                stmt.bindLongOrNull(9, it.date)
+                stmt.bindIntOrNull(10, it.maxRecall)
+                stmt.bindTextOrNull(11, it.modifier)
+                stmt.bindTextOrNull(12, it.clearType)
+                stmt.bindTextOrNull(13, it.comment)
+
+                stmt.step()
+                stmt.clearBindings()
+                stmt.reset()
+            }
         }
     }
 }

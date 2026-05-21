@@ -49,10 +49,11 @@ dependencies {
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
+    implementation(androidx.sqlite.bundled)
+    implementation(androidx.room.sqlite.wrapper)
 
     // 3rd party
     implementation(libs.apache.commons.io)
-    implementation(libs.github.requery.sqlite.android)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)

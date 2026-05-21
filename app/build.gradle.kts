@@ -145,6 +145,8 @@ dependencies {
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
+    implementation(androidx.sqlite.bundled)
+    implementation(androidx.room.sqlite.wrapper)
 
     implementation(androidx.datastore.core)
     implementation(androidx.datastore.preferences)
@@ -193,8 +195,6 @@ dependencies {
     implementation(libs.apache.commons.io)
 
     implementation(libs.protobuf.protobufJavalite)
-
-    implementation(libs.github.requery.sqlite.android)
 
     implementation(libs.threetenabp)
 

@@ -7,6 +7,8 @@ import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
+import androidx.room.execSQL
+import androidx.room.useWriterConnection
 import com.jakewharton.threetenabp.AndroidThreeTen
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
@@ -72,14 +74,18 @@ class ArcaeaOfflineApplication : Application() {
         shortcutManager.addDynamicShortcuts(listOf(shortcut))
     }
 
-    private fun vacuumDatabases() {
+    private suspend fun vacuumDatabases() {
         try {
             val databases = listOf(
-                ArcaeaOfflineDatabase.getDatabase(this).openHelper.writableDatabase,
-                OcrQueueDatabase.getDatabase(this).openHelper.writableDatabase,
+                ArcaeaOfflineDatabase.getDatabase(this),
+                OcrQueueDatabase.getDatabase(this),
             )
 
-            databases.forEach { it.execSQL("VACUUM") }
+            databases.forEach { db ->
+                db.useWriterConnection {
+                    it.execSQL("VACUUM")
+                }
+            }
             Log.i(LOG_TAG, "${databases.size} databases vacuumed")
         } catch (e: Exception) {
             Log.w(LOG_TAG, "Error vacuuming databases", e)

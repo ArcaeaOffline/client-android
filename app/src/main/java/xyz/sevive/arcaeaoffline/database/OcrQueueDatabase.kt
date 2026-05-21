@@ -5,7 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.database.converters.ArcaeaPlayResultValidatorWarningsConverters
 import xyz.sevive.arcaeaoffline.database.converters.DeviceOcrResultConverters
@@ -43,11 +44,22 @@ abstract class OcrQueueDatabase : RoomDatabase() {
         @Volatile
         private var instance: OcrQueueDatabase? = null
 
+        private fun getDatabaseBuilder(context: Context): Builder<OcrQueueDatabase> {
+            val appContext = context.applicationContext
+            val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
+            return Room.databaseBuilder<OcrQueueDatabase>(
+                context = appContext,
+                name = dbFile.absolutePath,
+            )
+        }
+
+
         fun getDatabase(context: Context): OcrQueueDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return instance ?: synchronized(this) {
-                Room.databaseBuilder(context, OcrQueueDatabase::class.java, DATABASE_FILENAME)
-                    .openHelperFactory(RequerySQLiteOpenHelperFactory()).build()
+                getDatabaseBuilder(context).setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO)
+                    .fallbackToDestructiveMigration(dropAllTables = true).build()
                     .also { instance = it }
             }
         }

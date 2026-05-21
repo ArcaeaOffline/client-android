@@ -6,10 +6,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
-import io.requery.android.database.sqlite.SQLiteDatabase
-import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
-import io.requery.android.database.sqlite.SQLiteFunction
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaLanguageConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultClearTypeConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifierConverters
@@ -47,7 +45,6 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
-import kotlin.math.floor
 
 
 @Database(
@@ -107,32 +104,23 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
         @Volatile
         private var Instance: ArcaeaOfflineDatabase? = null
 
+        private fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
+            val appContext = context.applicationContext
+            val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
+            return Room.databaseBuilder<ArcaeaOfflineDatabase>(
+                context = appContext,
+                name = dbFile.absolutePath,
+            )
+        }
+
         fun getDatabase(context: Context): ArcaeaOfflineDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(
-                    context, ArcaeaOfflineDatabase::class.java, DATABASE_FILENAME
-                ).openHelperFactory { configuration ->
-                    // Custom Functions on Android SQLite with Room
-                    // https://medium.com/@adarshsharma1904/custom-functions-on-android-sqlite-with-room-e79b53c4c924
-                    val config = SQLiteDatabaseConfiguration(
-                        context.getDatabasePath(DATABASE_FILENAME).path,
-                        SQLiteDatabase.OPEN_CREATE or SQLiteDatabase.OPEN_READWRITE
-                    )
-
-                    config.functions.add(SQLiteFunction("FLOOR", 1) { args, result ->
-                        if (args != null && result != null) {
-                            val number = args.getDouble(0)
-                            result.set(floor(number).toLong())
-                        }
-                    })
-
-                    val options = RequerySQLiteOpenHelperFactory.ConfigurationOptions { config }
-                    RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
-                }.addMigrations(
-                    Migration_6_7,
-                    Migration_7_8,
-                ).build().also { Instance = it }
+                getDatabaseBuilder(context).setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO).addMigrations(
+                        Migration_6_7,
+                        Migration_7_8,
+                    ).build().also { Instance = it }
             }
         }
     }
