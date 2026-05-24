@@ -46,7 +46,6 @@ private data class PlayResultIntermediate(
 }
 
 object Migration_6_7 : Migration(6, 7) {
-    // TODO: we really need a migration test... why not add it now?
     override fun migrate(connection: SQLiteConnection) {
         val playResults = mutableListOf<PlayResultIntermediate>()
 

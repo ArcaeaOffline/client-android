@@ -38,6 +38,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -62,4 +66,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
+    testImplementation(androidx.room.testing)
+    androidTestImplementation(androidx.test.runner)
+    androidTestImplementation(androidx.room.testing)
 }
