@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
@@ -40,7 +42,11 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
-                getDatabaseBuilder(context).build().also { Instance = it }
+                getDatabaseBuilder(context)
+                    .setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO)
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build().also { Instance = it }
             }
         }
     }
