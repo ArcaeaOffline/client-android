@@ -16,7 +16,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultBestRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultBestRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepositoryImpl
@@ -47,7 +46,6 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val difficultyLocalizedRepo: DifficultyLocalizedRepository
 
     val playResultRepo: PlayResultRepository
-    val playResultCalculatedRepo: PlayResultCalculatedRepository
     val playResultBestRepo: PlayResultBestRepository
 
     val r30EntryRepo: R30EntryRepository
@@ -101,12 +99,15 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
         PlayResultRepositoryImpl(db.playResultDao())
     }
 
-    override val playResultCalculatedRepo: PlayResultCalculatedRepository by lazy {
-        PlayResultCalculatedRepositoryImpl(db.playResultCalculatedDao())
-    }
-
     override val playResultBestRepo: PlayResultBestRepository by lazy {
-        PlayResultBestRepositoryImpl(db.playResultBestDao())
+        PlayResultBestRepositoryImpl(
+            relationshipsDao = db.relationshipsDao(),
+            playResultCalculatedRepo = PlayResultCalculatedRepositoryImpl(
+                playResultDao = db.playResultDao(),
+                chartInfoDao = db.chartInfoDao(),
+                songDao = db.songDao(),
+            ),
+        )
     }
 
     override val r30EntryRepo: R30EntryRepository by lazy {
@@ -114,7 +115,11 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
     }
 
     override val relationshipsRepo: RelationshipsRepository by lazy {
-        RelationshipsRepositoryImpl(db.relationshipsDao())
+        RelationshipsRepositoryImpl(
+            relationshipsDao = db.relationshipsDao(),
+            chartDao = db.chartDao(),
+            playResultBestRepository = playResultBestRepo,
+        )
     }
 
     override val potentialRepo: PotentialRepository by lazy {

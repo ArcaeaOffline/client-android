@@ -28,6 +28,12 @@ interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
+    @Query("SELECT * FROM play_results WHERE song_id = :songId AND rating_class = :ratingClass")
+    fun findAllBySongIdAndRatingClass(
+        songId: String,
+        ratingClass: ArcaeaRatingClass
+    ): Flow<List<PlayResult>>
+
     @Query("SELECT * FROM play_results WHERE uuid IN (:uuids)")
     fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
 

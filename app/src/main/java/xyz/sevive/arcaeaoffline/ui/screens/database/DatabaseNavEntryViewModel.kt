@@ -10,7 +10,7 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 
 class DatabaseNavEntryViewModel(
     repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    private val databaseSchemaVersion: Int,
+    databaseSchemaVersionGetter: suspend () -> Int?,
 ) : ViewModel() {
     class StatusUiState(
         val databaseVersion: Int = 0,
@@ -42,7 +42,7 @@ class DatabaseNavEntryViewModel(
     ) { flows ->
         StatusUiState(
             databaseVersion = flows[0] ?: 0,
-            databaseSchemaVersion = databaseSchemaVersion,
+            databaseSchemaVersion = databaseSchemaVersionGetter() ?: -1,
             packCount = flows[1] ?: 0,
             songCount = flows[2] ?: 0,
             difficultyCount = flows[3] ?: 0,

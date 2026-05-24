@@ -16,7 +16,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -38,6 +38,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -49,10 +53,10 @@ dependencies {
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
+    implementation(androidx.sqlite.bundled)
 
     // 3rd party
     implementation(libs.apache.commons.io)
-    implementation(libs.github.requery.sqlite.android)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)
@@ -62,4 +66,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
+    testImplementation(androidx.room.testing)
+    androidTestImplementation(androidx.test.runner)
+    androidTestImplementation(androidx.room.testing)
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.room.useReaderConnection
 import androidx.work.WorkManager
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
@@ -45,7 +46,14 @@ object AppViewModelProvider {
         initializer {
             DatabaseNavEntryViewModel(
                 application().arcaeaOfflineDatabaseRepositoryContainer,
-                ArcaeaOfflineDatabase.getDatabase(application()).openHelper.readableDatabase.version,
+                databaseSchemaVersionGetter = {
+                    ArcaeaOfflineDatabase.getDatabase(application()).useReaderConnection { conn ->
+                        conn.usePrepared("PRAGMA user_version;") { stmt ->
+                            stmt.step()
+                            stmt.getText(0).toIntOrNull()
+                        }
+                    }
+                },
             )
         }
 

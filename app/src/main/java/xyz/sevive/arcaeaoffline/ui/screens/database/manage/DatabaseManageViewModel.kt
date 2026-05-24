@@ -7,7 +7,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -331,8 +333,8 @@ class DatabaseManageViewModel(
         }
     }
 
-    private suspend fun importChartsInfoDatabase(db: SQLiteDatabase) {
-        val chartInfo = ChartInfoDatabaseImporter.chartInfo(db)
+    private suspend fun importChartsInfoDatabase(conn: SQLiteConnection) {
+        val chartInfo = ChartInfoDatabaseImporter.chartInfo(conn)
         val affectedRows =
             repositoryContainer.chartInfoRepo.insertBatch(*chartInfo.toTypedArray()).size
         Log.i(LOG_TAG, "$affectedRows chart info imported")
@@ -352,17 +354,16 @@ class DatabaseManageViewModel(
                 val databaseCopied =
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
-                SQLiteDatabase.openDatabase(
-                    databaseCopied.path, null, SQLiteDatabase.OPEN_READONLY
-                ).use { importChartsInfoDatabase(it) }
+                BundledSQLiteDriver().open(databaseCopied.absolutePath, SQLITE_OPEN_READONLY)
+                    .use { conn -> importChartsInfoDatabase(conn) }
 
                 databaseCopied.delete()
             }
         }
     }
 
-    private suspend fun importSt3(db: SQLiteDatabase) {
-        val playResults = ArcaeaSt3PlayResultImporter.playResults(db)
+    private suspend fun importSt3(conn: SQLiteConnection) {
+        val playResults = ArcaeaSt3PlayResultImporter.playResults(conn)
         val affectedRows =
             repositoryContainer.playResultRepo.upsertBatch(*playResults.toTypedArray()).size
 
@@ -381,9 +382,8 @@ class DatabaseManageViewModel(
             sendTask {
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
-                SQLiteDatabase.openDatabase(
-                    dbCacheFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY
-                ).use { importSt3(it) }
+                BundledSQLiteDriver().open(dbCacheFile.absolutePath, SQLITE_OPEN_READONLY)
+                    .use { conn -> importSt3(conn) }
 
                 dbCacheFile.delete()
             }

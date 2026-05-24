@@ -2,8 +2,10 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transform
+import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBestWithChart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultWithChart
@@ -15,6 +17,8 @@ interface RelationshipsRepository {
 
 class RelationshipsRepositoryImpl(
     private val relationshipsDao: RelationshipsDao,
+    private val playResultBestRepository: PlayResultBestRepository,
+    private val chartDao: ChartDao,
 ) : RelationshipsRepository {
     companion object {
         const val LOG_TAG = "RelationshipsRepoImpl"
@@ -40,8 +44,11 @@ class RelationshipsRepositoryImpl(
 
     @Transaction
     override fun playResultsBestWithCharts(limit: Int): Flow<List<PlayResultBestWithChart>> {
-        return relationshipsDao.playResultsBestWithCharts(limit).map { list ->
-            list.map { PlayResultBestWithChart(playResultBest = it.key, chart = it.value) }
+        return playResultBestRepository.orderDescWithLimit(limit).map { list ->
+            list.map {
+                val chart = chartDao.find(it.songId, it.ratingClass).firstOrNull()
+                PlayResultBestWithChart(playResultBest = it, chart = chart)
+            }
         }
     }
 }

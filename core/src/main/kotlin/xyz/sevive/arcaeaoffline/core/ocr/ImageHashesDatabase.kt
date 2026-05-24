@@ -1,12 +1,17 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
 import org.opencv.core.Mat
 import org.threeten.bp.Instant
 import kotlin.math.pow
 import kotlin.properties.Delegates
 
-class ImageHashesDatabase(private val db: SQLiteDatabase) {
+private fun hammingDistance(byteArray1: ByteArray, byteArray2: ByteArray): Int {
+    assert(byteArray1.size == byteArray2.size) { "hash size does not match!" }
+    return byteArray1.zip(byteArray2).count { (b1, b2) -> b1 != b2 }
+}
+
+class ImageHashesDatabase(private val conn: SQLiteConnection) {
     companion object {
         const val PROP_HASH_SIZE_KEY = "hash_size"
         const val PROP_HIGH_FREQ_FACTOR_KEY = "high_freq_factor"
@@ -23,65 +28,82 @@ class ImageHashesDatabase(private val db: SQLiteDatabase) {
         private set
     val hashesCount: Int get() = jacketHashesCount + partnerIconHashesCount
 
+    private class HashEntry(
+        val type: ImageHashItemType,
+        val hashType: ImageHashItemHashType,
+        val label: String,
+        val hash: ByteArray,
+    ) {
+        fun distance(otherHash: ByteArray) = hammingDistance(this.hash, otherHash)
+    }
+
+    private lateinit var allHashes: List<HashEntry>
+
+
     private fun initialize() {
-        db.rawQuery("SELECT key, value FROM properties", null).use { cur ->
-            cur.moveToFirst()
-            do {
-                val key = cur.getString(0)
-                val value = cur.getString(1)
+        conn.prepare("SELECT `key`, `value` FROM `properties`").use { stmt ->
+            while (stmt.step()) {
+                val key = stmt.getText(0)
+                val value = stmt.getText(1)
+
                 when (key) {
                     PROP_HASH_SIZE_KEY -> hashSize = value.toInt()
                     PROP_HIGH_FREQ_FACTOR_KEY -> highFreqFactor = value.toInt()
                     PROP_BUILT_TIMESTAMP_KEY -> builtTime = Instant.ofEpochMilli(value.toLong())
                 }
-            } while (cur.moveToNext())
+            }
         }
 
-        db.query(
-            "SELECT COUNT(DISTINCT label) FROM hashes WHERE type = ?",
-            arrayOf(ImageHashItemType.JACKET.value)
-        ).use { cur ->
-            cur.moveToFirst()
-            jacketHashesCount = cur.getInt(0)
+        val hashes = mutableListOf<HashEntry>()
+        conn.prepare("SELECT `hash_type`, `type`, `label`, `hash` FROM `hashes`").use { stmt ->
+            while (stmt.step()) {
+                hashes.add(
+                    HashEntry(
+                        type = ImageHashItemType.entries[stmt.getInt(1)],
+                        hashType = ImageHashItemHashType.entries[stmt.getInt(0)],
+                        label = stmt.getText(2),
+                        hash = stmt.getBlob(3),
+                    )
+                )
+            }
         }
+        allHashes = hashes
 
-        db.query(
-            "SELECT COUNT(DISTINCT label) FROM hashes WHERE type = ?",
-            arrayOf(ImageHashItemType.PARTNER_ICON.value)
-        ).use { cur ->
-            cur.moveToFirst()
-            partnerIconHashesCount = cur.getInt(0)
-        }
-
-        db.addFunction("HAMMING_DISTANCE", 2) { args, result ->
-            val byteArray1 = args.getBlob(0)
-            val byteArray2 = args.getBlob(1)
-            assert(byteArray1.size == byteArray2.size) { "hash size does not match!" }
-            val count = byteArray1.zip(byteArray2).count { (b1, b2) -> b1 != b2 }
-            result.set(count)
-        }
+        jacketHashesCount =
+            hashes.filter { it.type == ImageHashItemType.JACKET }.distinctBy { it.label }.count()
+        partnerIconHashesCount =
+            hashes.filter { it.type == ImageHashItemType.PARTNER_ICON }.distinctBy { it.label }
+                .count()
     }
 
     init {
         initialize()
     }
 
-    private fun lookupHash(
+    @Suppress("Unused")
+    private fun lookupHashWithSqlFunc(
         type: ImageHashItemType, hashType: ImageHashItemHashType, hash: ByteArray
     ): List<ImageHashItem> {
-        val cursor = db.rawQuery(
-            """SELECT label, HAMMING_DISTANCE(hash, ?) AS distance FROM hashes
-                WHERE type = ? AND hash_type = ?
-                ORDER BY distance ASC LIMIT 10""".trimIndent(),
-            arrayOf(hash, type.value, hashType.value)
-        )
+//        conn.addFunction("HAMMING_DISTANCE", 2) { args, result ->
+//            val byteArray1 = args.getBlob(0)
+//            val byteArray2 = args.getBlob(1)
+//            result.set(hammingDistance(byteArray1, byteArray2))
+//        }
 
         val result = mutableListOf<ImageHashItem>()
-        cursor.use {
-            it.moveToFirst()
-            do {
-                val label = it.getString(0)
-                val distance = it.getInt(1)
+
+        conn.prepare(
+            """SELECT label, HAMMING_DISTANCE(hash, ?) AS distance FROM hashes
+                WHERE type = ? AND hash_type = ?
+                ORDER BY distance ASC LIMIT 10""".trimIndent()
+        ).use { stmt ->
+            stmt.bindBlob(1, hash)
+            stmt.bindInt(2, type.value)
+            stmt.bindInt(3, hashType.value)
+
+            while (stmt.step()) {
+                val label = stmt.getText(0)
+                val distance = stmt.getInt(1)
 
                 val hashLength = hashSize.toDouble().pow(2)
                 result.add(
@@ -92,9 +114,29 @@ class ImageHashesDatabase(private val db: SQLiteDatabase) {
                         confidence = (hashLength - distance) / hashLength
                     )
                 )
-            } while (it.moveToNext())
+            }
         }
+
         return result
+    }
+
+    private fun lookupHash(
+        type: ImageHashItemType, hashType: ImageHashItemHashType, hash: ByteArray
+    ): List<ImageHashItem> {
+        val hashLength = hashSize.toDouble().pow(2)
+        return allHashes.filter { it.type == type && it.hashType == hashType }
+            .sortedBy { it.distance(hash) }
+            .take(10)
+            .map { entry ->
+                val distance = entry.distance(hash)
+
+                ImageHashItem(
+                    hashType = hashType,
+                    type = type,
+                    label = entry.label,
+                    confidence = (hashLength - distance) / hashLength
+                )
+            }
     }
 
     private fun lookupAHash(type: ImageHashItemType, hash: ByteArray) =

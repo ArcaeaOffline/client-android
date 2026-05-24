@@ -6,10 +6,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
-import io.requery.android.database.sqlite.SQLiteDatabase
-import io.requery.android.database.sqlite.SQLiteDatabaseConfiguration
-import io.requery.android.database.sqlite.SQLiteFunction
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaLanguageConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultClearTypeConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifierConverters
@@ -22,8 +20,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
-import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultCalculatedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
@@ -37,8 +33,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -47,7 +41,6 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
-import kotlin.math.floor
 
 
 @Database(
@@ -63,7 +56,7 @@ import kotlin.math.floor
         PlayResult::class,
         R30Entry::class,
     ],
-    views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class],
+    views = [Chart::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
@@ -71,8 +64,10 @@ import kotlin.math.floor
         AutoMigration(from = 9, to = 10, spec = AutoMigration_9_10::class),
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
+        AutoMigration(from = 12, to = 13),
+        AutoMigration(from = 13, to = 14),
     ],
-    version = 12,
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(
@@ -97,8 +92,6 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun r30EntryDao(): R30EntryDao
 
     abstract fun chartDao(): ChartDao
-    abstract fun playResultCalculatedDao(): PlayResultCalculatedDao
-    abstract fun playResultBestDao(): PlayResultBestDao
 
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"
@@ -106,32 +99,23 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
         @Volatile
         private var Instance: ArcaeaOfflineDatabase? = null
 
+        private fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
+            val appContext = context.applicationContext
+            val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
+            return Room.databaseBuilder<ArcaeaOfflineDatabase>(
+                context = appContext,
+                name = dbFile.absolutePath,
+            )
+        }
+
         fun getDatabase(context: Context): ArcaeaOfflineDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(
-                    context, ArcaeaOfflineDatabase::class.java, DATABASE_FILENAME
-                ).openHelperFactory { configuration ->
-                    // Custom Functions on Android SQLite with Room
-                    // https://medium.com/@adarshsharma1904/custom-functions-on-android-sqlite-with-room-e79b53c4c924
-                    val config = SQLiteDatabaseConfiguration(
-                        context.getDatabasePath(DATABASE_FILENAME).path,
-                        SQLiteDatabase.OPEN_CREATE or SQLiteDatabase.OPEN_READWRITE
-                    )
-
-                    config.functions.add(SQLiteFunction("FLOOR", 1) { args, result ->
-                        if (args != null && result != null) {
-                            val number = args.getDouble(0)
-                            result.set(floor(number).toLong())
-                        }
-                    })
-
-                    val options = RequerySQLiteOpenHelperFactory.ConfigurationOptions { config }
-                    RequerySQLiteOpenHelperFactory(listOf(options)).create(configuration)
-                }.addMigrations(
-                    Migration_6_7,
-                    Migration_7_8,
-                ).build().also { Instance = it }
+                getDatabaseBuilder(context).setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO).addMigrations(
+                        Migration_6_7,
+                        Migration_7_8,
+                    ).build().also { Instance = it }
             }
         }
     }

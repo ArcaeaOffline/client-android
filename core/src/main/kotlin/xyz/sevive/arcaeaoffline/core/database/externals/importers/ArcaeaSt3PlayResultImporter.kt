@@ -1,9 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
-import android.database.Cursor
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -11,6 +8,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.extensions.getIntOrNull
+import xyz.sevive.arcaeaoffline.core.database.extensions.getLongOrNull
 
 /**
  * Some of the `date` column in st3 are unexpectedly truncated. For example,
@@ -49,19 +48,7 @@ private data class St3PlayResult(
     val modifier: Int?,
     val clearType: Int?,
 ) {
-    constructor(cursor: Cursor) : this(
-        songId = cursor.getString(cursor.getColumnIndexOrThrow("songId")),
-        ratingClass = cursor.getInt(cursor.getColumnIndexOrThrow("ratingClass")),
-        score = cursor.getInt(cursor.getColumnIndexOrThrow("score")),
-        pure = cursor.getIntOrNull(cursor.getColumnIndex("pure")),
-        far = cursor.getIntOrNull(cursor.getColumnIndex("far")),
-        lost = cursor.getIntOrNull(cursor.getColumnIndex("lost")),
-        date = fixTimestamp(cursor.getLongOrNull(cursor.getColumnIndex("date"))),
-        modifier = cursor.getIntOrNull(cursor.getColumnIndex("modifier")),
-        clearType = cursor.getIntOrNull(cursor.getColumnIndex("clearType")),
-    )
-
-    val clearTypeReliable: Boolean
+    val isClearTypeReliable: Boolean
         get() {
             if (clearType == ArcaeaPlayResultClearType.FULL_RECALL.value && lost != 0) {
                 return false
@@ -85,35 +72,49 @@ private data class St3PlayResult(
             lost = lost,
             date = date?.let { Instant.ofEpochSecond(date) },
             modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
-            clearType = if (clearTypeReliable) clearType?.let {
+            clearType = if (!isClearTypeReliable) null else clearType?.let {
                 ArcaeaPlayResultClearType.fromInt(it)
-            } else null,
+            },
             comment = "Imported from st3 at $commentDateString",
         )
     }
 }
 
 object ArcaeaSt3PlayResultImporter {
-    fun playResults(db: SQLiteDatabase): List<PlayResult> {
+    fun playResults(conn: SQLiteConnection): List<PlayResult> {
         val items = mutableListOf<PlayResult>()
-
-        val cursor = db.rawQuery(
-            """
-                SELECT s.songId, s.songDifficulty AS ratingClass, s.score,
-                       s.perfectCount AS pure, s.nearCount AS far, s.missCount AS lost,
-                       s.`date`, s.modifier, ct.clearType  
-                FROM scores s JOIN cleartypes ct
-                ON s.songId = ct.songId AND s.songDifficulty = ct.songDifficulty
-            """, emptyArray()
-        )
-
-        if (!cursor.moveToFirst()) return emptyList()
-
         val importDate = LocalDate.now()
-        cursor.use {
-            do {
-                val st3Item = St3PlayResult(it)
-                var playResult = st3Item.toPlayResult(importDate)
+
+        conn.prepare(
+            """SELECT
+  s.songId,
+  s.songDifficulty AS ratingClass,
+  s.score,
+  s.perfectCount AS pure,
+  s.nearCount AS far,
+  s.missCount AS lost,
+  s.`date`,
+  s.modifier,
+  ct.clearType
+FROM
+  scores s
+  JOIN cleartypes ct ON s.songId = ct.songId
+  AND s.songDifficulty = ct.songDifficulty"""
+        ).use { stmt ->
+            while (stmt.step()) {
+                val st3PlayResult = St3PlayResult(
+                    songId = stmt.getText(0),
+                    ratingClass = stmt.getInt(1),
+                    score = stmt.getInt(2),
+                    pure = stmt.getIntOrNull(3),
+                    far = stmt.getIntOrNull(4),
+                    lost = stmt.getIntOrNull(5),
+                    date = fixTimestamp(stmt.getLongOrNull(6)),
+                    modifier = stmt.getIntOrNull(7),
+                    clearType = stmt.getIntOrNull(8),
+                )
+
+                var playResult = st3PlayResult.toPlayResult(importDate)
 
                 if (playResult.clearType == ArcaeaPlayResultClearType.FULL_RECALL) {
                     playResult = playResult.copy(
@@ -126,7 +127,7 @@ object ArcaeaSt3PlayResultImporter {
                 }
 
                 items.add(playResult)
-            } while (it.moveToNext())
+            }
         }
 
         return items

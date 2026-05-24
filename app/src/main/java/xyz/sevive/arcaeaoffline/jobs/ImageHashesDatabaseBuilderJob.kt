@@ -2,14 +2,17 @@ package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
 import android.util.Log
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_CREATE
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
@@ -32,10 +35,16 @@ class ImageHashesDatabaseBuilderJob(context: Context, params: WorkerParameters) 
         val collectScope = CoroutineScope(Dispatchers.Default)
 
         try {
-            if (file.exists()) file.delete()
+            withContext(Dispatchers.IO) {
+                if (file.exists()) file.delete()
+                file.absoluteFile.parentFile?.mkdirs()
+            }
 
-            SQLiteDatabase.openOrCreateDatabase(file, null).use { sqliteDb ->
-                val builder = ImageHashesDatabaseBuilder(sqliteDb)
+            BundledSQLiteDriver().open(
+                file.absolutePath,
+                SQLITE_OPEN_READWRITE.or(SQLITE_OPEN_CREATE),
+            ).use { conn ->
+                val builder = ImageHashesDatabaseBuilder(conn)
 
                 collectScope.launch {
                     builder.buildProgress.collectLatest {
