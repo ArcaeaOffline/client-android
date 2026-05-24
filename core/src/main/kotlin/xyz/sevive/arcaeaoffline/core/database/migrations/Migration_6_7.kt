@@ -37,7 +37,7 @@ private data class PlayResultIntermediate(
     val clearType: String?,
     val comment: String?,
 ) {
-    val uuidByteArray = uuid.let {
+    val uuidByteArray: ByteArray = uuid.let {
         val bb = ByteBuffer.wrap(ByteArray(16))
         bb.putLong(it.mostSignificantBits)
         bb.putLong(it.leastSignificantBits)
@@ -53,34 +53,21 @@ object Migration_6_7 : Migration(6, 7) {
             "SELECT id, song_id, rating_class, score, pure, far, lost, date, max_recall, modifier, clear_type, comment FROM play_results"
         ).use {
             while (it.step()) {
-                val id = it.getInt(0)
-                val songId = it.getText(1)
-                val ratingClass = it.getText(2)
-                val score = it.getInt(3)
-                val pure = it.getIntOrNull(4)
-                val far = it.getIntOrNull(5)
-                val lost = it.getIntOrNull(6)
-                val date = it.getLongOrNull(7)
-                val maxRecall = it.getIntOrNull(8)
-                val modifier = it.getTextOrNull(9)
-                val clearType = it.getTextOrNull(10)
-                val comment = it.getTextOrNull(11)
-
                 playResults.add(
                     PlayResultIntermediate(
-                        uuid = UUID.randomUUID(),
-                        id = id,
-                        songId = songId,
-                        ratingClass = ratingClass,
-                        score = score,
-                        pure = pure,
-                        far = far,
-                        lost = lost,
-                        date = date,
-                        maxRecall = maxRecall,
-                        modifier = modifier,
-                        clearType = clearType,
-                        comment = comment,
+                        uuid = UUID.randomUUID(),  // the only real logic bro
+                        id = it.getInt(0),
+                        songId = it.getText(1),
+                        ratingClass = it.getText(2),
+                        score = it.getInt(3),
+                        pure = it.getIntOrNull(4),
+                        far = it.getIntOrNull(5),
+                        lost = it.getIntOrNull(6),
+                        date = it.getLongOrNull(7),
+                        maxRecall = it.getIntOrNull(8),
+                        modifier = it.getTextOrNull(9),
+                        clearType = it.getTextOrNull(10),
+                        comment = it.getTextOrNull(11),
                     )
                 )
             }
@@ -96,9 +83,7 @@ object Migration_6_7 : Migration(6, 7) {
         connection.execSQL(CREATE_VIEW_PLAY_RESULTS_BEST_7)
 
         connection.prepare(
-            "INSERT INTO play_results " +
-                "(`id`, `uuid`, `song_id`, `rating_class`, `score`, `pure`, `far`, `lost`, `date`, `max_recall`, `modifier`, `clear_type`, `comment`) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO play_results " + "(`id`, `uuid`, `song_id`, `rating_class`, `score`, `pure`, `far`, `lost`, `date`, `max_recall`, `modifier`, `clear_type`, `comment`) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         ).use { stmt ->
             playResults.forEach {
                 stmt.bindInt(1, it.id)
