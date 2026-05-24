@@ -1,14 +1,15 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
 import android.util.Log
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.opencv.core.Mat
 import org.threeten.bp.Instant
 import java.io.File
 
-class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
+class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
     companion object {
         const val LOG_TAG = "ImageHashesDbBuilder"
     }
@@ -22,13 +23,6 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
 
     private val _buildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val buildProgress = _buildProgress.asStateFlow()
-
-    private val stmtInsertProperty by lazy {
-        db.compileStatement("INSERT INTO properties (`key`, `value`) VALUES (?, ?)")
-    }
-    private val stmtInsertHash by lazy {
-        db.compileStatement("INSERT INTO hashes (`hash_type`, `type`, `label`, `hash`) VALUES (?, ?, ?, ?)")
-    }
 
     private val tasks = mutableListOf<Task<File>>()
 
@@ -50,61 +44,67 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
         tasks.add(Task(type, label, input, inputToGrayscaleImage))
     }
 
-    private fun insertProperty(key: String, value: String) {
-        stmtInsertProperty.clearBindings()
-        stmtInsertProperty.bindString(1, key)
-        stmtInsertProperty.bindString(2, value)
-        stmtInsertProperty.execute()
-    }
-
-    private fun insertHash(
-        hashType: ImageHashItemHashType, type: ImageHashItemType, label: String, hash: Mat
-    ) {
-        stmtInsertHash.clearBindings()
-        stmtInsertHash.bindLong(1, hashType.value.toLong())
-        stmtInsertHash.bindLong(2, type.value.toLong())
-        stmtInsertHash.bindString(3, label)
-        stmtInsertHash.bindBlob(4, hash.toHashByteArray())
-        stmtInsertHash.execute()
-    }
-
     private fun insertProperties(hashSize: Int, highFreqFactor: Int, builtTimestamp: Instant) {
-        insertProperty(ImageHashesDatabase.PROP_HASH_SIZE_KEY, hashSize.toString())
-        insertProperty(ImageHashesDatabase.PROP_HIGH_FREQ_FACTOR_KEY, highFreqFactor.toString())
-        insertProperty(
-            ImageHashesDatabase.PROP_BUILT_TIMESTAMP_KEY, builtTimestamp.toEpochMilli().toString()
-        )
+        conn.prepare("INSERT INTO `properties` (`key`, `value`) VALUES (?, ?)").use { stmt ->
+            mapOf(
+                ImageHashesDatabase.PROP_HASH_SIZE_KEY to hashSize.toString(),
+                ImageHashesDatabase.PROP_HIGH_FREQ_FACTOR_KEY to highFreqFactor.toString(),
+                ImageHashesDatabase.PROP_BUILT_TIMESTAMP_KEY to builtTimestamp.toEpochMilli()
+                    .toString(),
+            ).forEach { (key, value) ->
+                stmt.bindText(1, key)
+                stmt.bindText(2, value)
+
+                stmt.step()
+                stmt.clearBindings()
+                stmt.reset()
+            }
+        }
     }
 
     private fun createTables() {
-        db.execSQL("CREATE TABLE properties (`key` VARCHAR, `value` VARCHAR)")
-        db.execSQL("CREATE TABLE hashes (`hash_type` INTEGER, `type` INTEGER, `label` VARCHAR, `hash` BLOB)")
+        conn.execSQL("CREATE TABLE properties (`key` VARCHAR, `value` VARCHAR)")
+        conn.execSQL("CREATE TABLE hashes (`hash_type` INTEGER, `type` INTEGER, `label` VARCHAR, `hash` BLOB)")
     }
 
     fun build(hashSize: Int, highFreqFactor: Int) {
         Log.d(LOG_TAG, "build() called, ${tasks.size} items in task list")
-        db.beginTransaction()
+        conn.execSQL("BEGIN IMMEDIATE TRANSACTION")
 
         try {
             initBuildProgress()
 
             createTables()
 
-            tasks.forEach { task ->
-                val img = task.inputToGrayscaleImage(task.input)
+            conn.prepare("INSERT INTO `hashes` (`hash_type`, `type`, `label`, `hash`) VALUES (?, ?, ?, ?)")
+                .use { stmtInsertHash ->
+                    tasks.forEach { task ->
+                        val img = task.inputToGrayscaleImage(task.input)
 
-                mapOf(
-                    ImageHashItemHashType.AVERAGE to ImageHashers.average(img, hashSize),
-                    ImageHashItemHashType.DIFFERENCE to ImageHashers.difference(img, hashSize),
-                    ImageHashItemHashType.DCT to ImageHashers.dct(img, hashSize, highFreqFactor)
-                ).forEach {
-                    insertHash(
-                        hashType = it.key, type = task.type, label = task.label, hash = it.value
-                    )
+                        mapOf(
+                            ImageHashItemHashType.AVERAGE to ImageHashers.average(img, hashSize),
+                            ImageHashItemHashType.DIFFERENCE to ImageHashers.difference(
+                                img,
+                                hashSize
+                            ),
+                            ImageHashItemHashType.DCT to ImageHashers.dct(
+                                img,
+                                hashSize,
+                                highFreqFactor
+                            )
+                        ).forEach { (hashType, hash) ->
+                            stmtInsertHash.bindInt(1, hashType.value)
+                            stmtInsertHash.bindInt(2, task.type.value)
+                            stmtInsertHash.bindText(3, task.label)
+                            stmtInsertHash.bindBlob(4, hash.toHashByteArray())
+                            stmtInsertHash.step()
+                            stmtInsertHash.clearBindings()
+                            stmtInsertHash.reset()
+                        }
+
+                        increaseBuildProgress()
+                    }
                 }
-
-                increaseBuildProgress()
-            }
 
             insertProperties(
                 hashSize = hashSize,
@@ -112,9 +112,11 @@ class ImageHashesDatabaseBuilder(private val db: SQLiteDatabase) {
                 builtTimestamp = Instant.now(),
             )
 
-            db.setTransactionSuccessful()
+            conn.execSQL("COMMIT")
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Error building ihdb", e)
+            conn.execSQL("ROLLBACK")
         } finally {
-            db.endTransaction()
             resetBuildProgress()
         }
     }

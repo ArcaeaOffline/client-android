@@ -1,42 +1,27 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
-import androidx.core.database.getIntOrNull
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.extensions.getIntOrNull
 
 
 object ChartInfoDatabaseImporter {
-    fun chartInfo(db: SQLiteDatabase): List<ChartInfo> {
+    fun chartInfo(conn: SQLiteConnection): List<ChartInfo> {
         val items = mutableListOf<ChartInfo>()
 
-        val cursor = db.query(
-            "charts_info",
-            arrayOf("song_id", "rating_class", "constant", "notes"),
-            null,
-            null,
-            null,
-            null,
-            null,
-        )
-
-        if (!cursor.moveToFirst()) return emptyList()
-        cursor.use {
-            do {
-                val songId = it.getString(it.getColumnIndexOrThrow("song_id"))
-                val ratingClass = it.getInt(it.getColumnIndexOrThrow("rating_class"))
-                val constant = it.getInt(it.getColumnIndexOrThrow("constant"))
-                val notes = it.getIntOrNull(it.getColumnIndex("notes"))
-
-                val chartInfo = ChartInfo(
-                    songId = songId,
-                    ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
-                    constant = constant,
-                    notes = notes,
-                )
-                items.add(chartInfo)
-            } while (it.moveToNext())
-        }
+        conn.prepare("SELECT `song_id`, `rating_class`, `constant`, `notes` FROM `charts_info`")
+            .use { stmt ->
+                while (stmt.step()) {
+                    val chartInfo = ChartInfo(
+                        songId = stmt.getText(0),
+                        ratingClass = ArcaeaRatingClass.fromInt(stmt.getInt(1)),
+                        constant = stmt.getInt(2),
+                        notes = stmt.getIntOrNull(3),
+                    )
+                    items.add(chartInfo)
+                }
+            }
 
         return items
     }

@@ -1,7 +1,9 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
-import io.requery.android.database.sqlite.SQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import java.io.File
@@ -16,8 +18,8 @@ object OcrDependencyLoader {
 
     fun kNearestModel(context: Context) = kNearestModel(OcrDependencyPaths(context))
 
-    fun imageHashesSQLiteDatabase(file: File): SQLiteDatabase {
-        return SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+    fun imageHashesSQLiteDatabase(file: File): SQLiteConnection {
+        return BundledSQLiteDriver().open(file.absolutePath, SQLITE_OPEN_READONLY)
     }
 
     fun imageHashesSQLiteDatabase(ocrDependencyPaths: OcrDependencyPaths) =
