@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import kotlin.time.Duration.Companion.seconds
@@ -20,7 +20,7 @@ class DatabaseB30ListViewModel(
 ) : ViewModel() {
     data class ListItem(
         val index: Int,
-        val playResultBest: PlayResultBest,
+        val playResultBest: PlayResultCalculated,
         val chart: Chart?,
         val potentialText: String = ArcaeaFormatters.potentialToText(playResultBest.potential),
     )

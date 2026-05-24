@@ -20,8 +20,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
-import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultCalculatedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
@@ -35,8 +33,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -60,7 +56,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         PlayResult::class,
         R30Entry::class,
     ],
-    views = [Chart::class, PlayResultCalculated::class, PlayResultBest::class],
+    views = [Chart::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
@@ -69,8 +65,9 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
+        AutoMigration(from = 13, to = 14),
     ],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(
@@ -95,8 +92,6 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun r30EntryDao(): R30EntryDao
 
     abstract fun chartDao(): ChartDao
-    abstract fun playResultCalculatedDao(): PlayResultCalculatedDao
-    abstract fun playResultBestDao(): PlayResultBestDao
 
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"

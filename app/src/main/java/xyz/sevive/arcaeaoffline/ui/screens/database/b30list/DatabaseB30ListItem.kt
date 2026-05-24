@@ -27,8 +27,9 @@ import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
-import xyz.sevive.arcaeaoffline.core.database.entities.toPlayResult
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import java.util.UUID
@@ -58,7 +59,7 @@ internal fun DatabaseB30ListItem(
         verticalAlignment = Alignment.Bottom
     ) {
         ArcaeaPlayResultCard(
-            playResult = item.playResultBest.toPlayResult(),
+            playResult = item.playResultBest.playResult,
             Modifier.weight(1f),
             chart = item.chart,
         )
@@ -87,35 +88,41 @@ private fun DatabaseB30ListItemPreview() {
     fun fakeListItem(index: Int, withChart: Boolean = true): DatabaseB30ListViewModel.ListItem {
         return DatabaseB30ListViewModel.ListItem(
             index = index,
-            playResultBest = PlayResultBest(
-                id = 1,
-                uuid = UUID.randomUUID(),
-                songId = "test",
-                ratingClass = ArcaeaRatingClass.FUTURE,
-                score = 99500000,
-                pure = null,
-                shinyPure = null,
-                far = null,
-                lost = null,
-                date = Instant.ofEpochMilli(0),
-                maxRecall = null,
-                modifier = null,
-                clearType = null,
-                potential = 12.00,
-                comment = null,
+            playResultBest = PlayResultCalculated(
+                playResult = PlayResult(
+                    id = 1,
+                    uuid = UUID.randomUUID(),
+                    songId = "test",
+                    ratingClass = ArcaeaRatingClass.FUTURE,
+                    score = 9950000,
+                    pure = null,
+                    far = null,
+                    lost = null,
+                    date = Instant.ofEpochMilli(0),
+                    maxRecall = null,
+                    modifier = null,
+                    clearType = null,
+                    comment = null,
+                ),
+                chartInfo = ChartInfo(
+                    songId = "test",
+                    ratingClass = ArcaeaRatingClass.FUTURE,
+                    constant = 115,
+                    notes = null,
+                ),
             ),
             chart = if (withChart) Chart(
                 songIdx = 0,
                 songId = "test",
                 ratingClass = ArcaeaRatingClass.FUTURE,
-                rating = 9,
+                rating = 11,
                 ratingPlus = true,
                 title = "Preview",
                 artist = "Preview",
                 set = "preview",
                 audioOverride = false,
                 jacketOverride = false,
-                constant = 90,
+                constant = 115,
                 side = 0,
             ) else null,
         )

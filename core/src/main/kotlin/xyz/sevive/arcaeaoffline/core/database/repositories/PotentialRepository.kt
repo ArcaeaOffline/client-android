@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultBest
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 
 interface PotentialRepository {
     fun b30(): Flow<Double>
@@ -14,7 +14,7 @@ class PotentialRepositoryImpl(
     private val playResultBestRepo: PlayResultBestRepository,
     private val r30EntryRepo: R30EntryRepository
 ) : PotentialRepository {
-    private fun b30Entries(): Flow<List<PlayResultBest>> =
+    private fun b30Entries(): Flow<List<PlayResultCalculated>> =
         playResultBestRepo.orderDescWithLimit(30)
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -11,7 +11,6 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.extensions.PlayResultSerializer
 import java.util.UUID
-import kotlin.math.max
 
 @Serializable(with = PlayResultSerializer::class)
 @Entity(
@@ -37,17 +36,6 @@ data class PlayResult(
     val comment: String? = null,
 )
 
-fun PlayResult.potential(constant: Int): Double {
-    if (constant < 0) return 0.0
-
-    return if (score >= 100000000) {
-        constant / 10.0 + 2
-    } else if (score >= 9800000) {
-        constant / 10.0 + 1 + (score - 9800000) / 200000.0
-    } else {
-        max(0.0, constant / 10.0 + (score - 9500000) / 300000.0)
-    }
-}
-
+fun PlayResult.potential(constant: Int): Double = calculatePotential(this.score, constant)
 fun PlayResult.potential(chartInfo: ChartInfo) = potential(chartInfo.constant)
 fun PlayResult.potential(chart: Chart) = potential(chart.constant)
