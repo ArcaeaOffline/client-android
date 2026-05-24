@@ -50,7 +50,6 @@ dependencies {
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
     implementation(androidx.sqlite.bundled)
-    implementation(androidx.room.sqlite.wrapper)
 
     // 3rd party
     implementation(libs.apache.commons.io)

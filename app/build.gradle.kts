@@ -146,7 +146,6 @@ dependencies {
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
     implementation(androidx.sqlite.bundled)
-    implementation(androidx.room.sqlite.wrapper)
 
     implementation(androidx.datastore.core)
     implementation(androidx.datastore.preferences)
