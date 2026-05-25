@@ -140,9 +140,6 @@ android {
 }
 
 dependencies {
-    // ktlint rulesets
-    ktlint(ktlintRules.compose)
-
     // android & androidx
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
