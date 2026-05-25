@@ -25,6 +25,10 @@ dependencyResolutionManagement {
         create("androidx") {
             from(files("gradle/androidx.versions.toml"))
         }
+
+        create("ktlintRules") {
+            from(files("gradle/ktlint-rules.versions.toml"))
+        }
     }
 }
 

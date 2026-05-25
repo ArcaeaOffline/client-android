@@ -17,4 +17,10 @@ plugins {
     alias(libs.plugins.aboutlibraries) apply false
 
     alias(libs.plugins.dependencyAnalysis)
+
+    id("org.jmailen.kotlinter") version "5.5.0" apply false
+}
+
+subprojects {
+    apply(plugin = "org.jmailen.kotlinter")
 }

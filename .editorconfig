@@ -12,3 +12,14 @@ tab_width = 4
 [*.yml]
 indent_size = 2
 tab_width = 2
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# For Migration and AutoMigration classes
+[core/src/main/kotlin/xyz/sevive/arcaeaoffline/core/database/migrations/*Migration*.kt]
+# The class name were directly copied from Google's documentation
+ktlint_standard_class-naming = disabled
+# Auto generated SQL lines can be very long
+ktlint_standard_max-line-length = disabled

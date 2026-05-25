@@ -43,7 +43,6 @@ protobuf {
     }
 }
 
-
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
 val localProperties = Properties().apply {
     load(FileInputStream(File(rootDir, "local.properties")))
@@ -141,6 +140,9 @@ android {
 }
 
 dependencies {
+    // ktlint rulesets
+    ktlint(ktlintRules.compose)
+
     // android & androidx
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
