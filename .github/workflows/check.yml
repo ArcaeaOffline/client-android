@@ -1,4 +1,4 @@
-name: Code Quality Check
+name: Checks
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  general-checks:
-    name: Run General Checks
+  general:
+    name: General Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,13 @@ jobs:
 
       - name: Grant Execute Permission to Gradlew
         run: chmod +x ./gradlew
+
+      - name: Release local.properties file
+        uses: timheuer/base64-to-file@v1.2.4
+        with:
+          fileName: 'local.properties'
+          fileDir: ${{ github.workspace }}
+          encodedString: ${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}
 
       - name: Run ktlint
         run: ./gradlew lintKotlin --no-daemon
