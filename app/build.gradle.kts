@@ -182,6 +182,8 @@ dependencies {
     implementation(androidx.work.workRuntimeKtx)
 
     // 3rd party
+    implementation(libs.kermit)
+
     implementation(libs.kotlinx.serialization)
 
     implementation(libs.io.sentry.sentryAndroid)

@@ -56,6 +56,8 @@ dependencies {
     implementation(androidx.sqlite.bundled)
 
     // 3rd party
+    implementation(libs.kermit)
+
     implementation(libs.apache.commons.io)
     implementation(libs.threetenabp)
 

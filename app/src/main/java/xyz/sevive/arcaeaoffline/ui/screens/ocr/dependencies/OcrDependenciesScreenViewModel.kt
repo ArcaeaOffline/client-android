@@ -4,12 +4,12 @@ import android.content.Context
 import android.database.sqlite.SQLiteException
 import android.net.Uri
 import android.text.format.Formatter
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,6 +42,8 @@ class OcrDependenciesScreenViewModel(
         val sharingStarted = SharingStarted.WhileSubscribed(STOP_TIME_MILLIS)
         private const val LOG_TAG = "OcrDependenciesScreenVM"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private val workManager = WorkManager.getInstance(application)
 
@@ -94,7 +96,7 @@ class OcrDependenciesScreenViewModel(
         if (ocrDependencyPaths.parentDir.exists()) return true
 
         val result = ocrDependencyPaths.parentDir.mkdirs()
-        if (!result) Log.w(LOG_TAG, "Create dependencies parent directory failed!")
+        if (!result) logger.w { "Create dependencies parent directory failed!" }
         return result
     }
 
@@ -107,15 +109,14 @@ class OcrDependenciesScreenViewModel(
         val fileSize = context.getFileSize(uri) ?: return false
         if (fileSize <= limit) return false
 
-        Log.w(
-            LOG_TAG,
+        logger.w {
             buildString {
                 logName?.let { append("[$logName] ") }
                 append("Input file too large, ")
                 append("limit is ${Formatter.formatFileSize(context, limit)} ")
                 append("while input is ${Formatter.formatFileSize(context, fileSize)}!")
-            },
-        )
+            }
+        }
         return true
     }
 
@@ -134,7 +135,7 @@ class OcrDependenciesScreenViewModel(
                 KNearest.load(cacheFile.absolutePath)
                 FileUtils.copyFile(cacheFile, paths.knnModelFile)
             } catch (e: Exception) {
-                Log.e(LOG_TAG, "Error importing KNearest model", e)
+                logger.e(e) { "Error importing KNearest model" }
             } finally {
                 cacheFile.delete()
             }
@@ -163,9 +164,9 @@ class OcrDependenciesScreenViewModel(
                 FileUtils.copyFile(cacheFile, paths.imageHashesDatabaseFile)
             } catch (e: Exception) {
                 if (e is SQLiteException) {
-                    Log.w(LOG_TAG, "Input file doesn't seem like to be a SQLite database", e)
+                    logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
                 } else {
-                    Log.e(LOG_TAG, "Error importing image hashes database", e)
+                    logger.e(e) { "Error importing image hashes database" }
                 }
             } finally {
                 cacheFile.delete()

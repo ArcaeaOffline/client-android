@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
@@ -26,6 +26,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
 private const val LOG_TAG = "PackAndSongSelector"
+private val logger = Logger.withTag(LOG_TAG)
 
 @Composable
 private fun rememberArcaeaPacks(packRepo: PackRepository): State<List<Pack>> =
@@ -85,21 +86,21 @@ fun ArcaeaPackAndSongSelector(
 
     LaunchedEffect(song, packs, songs) {
         if (song == null || packs.isEmpty()) return@LaunchedEffect
-        Log.v(LOG_TAG, "LaunchedEffect launched with song ${song.id}")
+        logger.v { "LaunchedEffect launched with song ${song.id}" }
 
         if (selectedPackIndex == -1) {
-            // song is a directly passed in parameter, so pack isn't selected
+            // song is a directly passed in parameter, so pack isn't selected.
             // select it to trigger a recompose
             val packIndex = packs.indexOfFirst { it.id == song.set }
             if (packIndex == -1) {
-                Log.v(LOG_TAG, "LaunchedEffect rejected because pack not found")
+                logger.v { "LaunchedEffect rejected because pack not found" }
                 return@LaunchedEffect
             }
             selectedPackIndex = packIndex
         }
 
         if (songs.isEmpty()) {
-            Log.v(LOG_TAG, "LaunchedEffect rejected because songs empty")
+            logger.v { "LaunchedEffect rejected because songs empty" }
             return@LaunchedEffect
         }
 

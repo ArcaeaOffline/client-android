@@ -1,13 +1,13 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import android.util.Log
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_CREATE
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -21,6 +21,8 @@ class ImageHashesDatabaseBuilderJob(
     context: Context,
     params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
+    private val logger = Logger.withTag(LOG_TAG)
+
     companion object {
         const val NAME = "ImageHashesDatabaseBuilderJob"
         private const val LOG_TAG = "ImageHashesDbBuilderJob"
@@ -63,7 +65,7 @@ class ImageHashesDatabaseBuilderJob(
 
             return Result.success()
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Error building image hashes database", e)
+            logger.e(e) { "Error building image hashes database" }
             return Result.failure()
         }
     }

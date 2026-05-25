@@ -4,12 +4,12 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -77,6 +77,8 @@ class DatabaseManageViewModel(
         val action: suspend CoroutineScope.() -> Unit,
     )
 
+    private val logger = Logger.withTag(LOG_TAG)
+
     private val taskChannelActive = MutableStateFlow(false)
     private val taskScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -86,13 +88,13 @@ class DatabaseManageViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             taskChannel.consumeEach {
                 taskChannelActive.value = true
-                Log.d(LOG_TAG, "Processing task ${it.uuid}")
+                logger.d { "Processing task ${it.uuid}" }
                 taskScope
                     .launch {
                         try {
                             it.action(this)
                         } catch (e: Throwable) {
-                            Log.e(LOG_TAG, "Error processing task ${it.uuid}", e)
+                            logger.e(e) { "Error processing task ${it.uuid}" }
                             appendUiLog(tag = null, message = e.toString())
                         }
                     }.join()
@@ -127,7 +129,7 @@ class DatabaseManageViewModel(
     private suspend fun sendTask(action: suspend CoroutineScope.() -> Unit) {
         Task(action = action).let {
             taskChannel.send(it)
-            Log.d(LOG_TAG, "Task ${it.uuid} sent")
+            logger.d { "Task ${it.uuid} sent" }
         }
     }
 
@@ -136,7 +138,7 @@ class DatabaseManageViewModel(
 
         val packs = importer.packs().toTypedArray()
         val packsAffectedRows = repositoryContainer.packRepo.upsertBatch(*packs).size
-        Log.i(LOG_TAG, "$packsAffectedRows packs updated")
+        logger.i { "$packsAffectedRows packs updated" }
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
             res.getQuantityString(
@@ -149,7 +151,7 @@ class DatabaseManageViewModel(
         val packsLocalized = importer.packsLocalized()
         val packsLocalizedAffectedRows =
             repositoryContainer.packLocalizedRepo.insertBatch(packsLocalized).size
-        Log.i(LOG_TAG, "$packsLocalizedAffectedRows packs localized updated")
+        logger.i { "$packsLocalizedAffectedRows packs localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
             res.getQuantityString(
@@ -195,7 +197,7 @@ class DatabaseManageViewModel(
 
         val songs = (importer.songs() + supplementSongs).toTypedArray()
         val songsAffectedRows = repositoryContainer.songRepo.upsertBatch(*songs).size
-        Log.i(LOG_TAG, "$songsAffectedRows songs updated")
+        logger.i { "$songsAffectedRows songs updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
@@ -212,7 +214,7 @@ class DatabaseManageViewModel(
         val difficulties = (importer.difficulties() + supplementDifficulties).toTypedArray()
         val difficultiesAffectedRows =
             repositoryContainer.difficultyRepo.upsertBatch(*difficulties).size
-        Log.i(LOG_TAG, "$difficultiesAffectedRows difficulties updated")
+        logger.i { "$difficultiesAffectedRows difficulties updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
@@ -229,7 +231,7 @@ class DatabaseManageViewModel(
         val songsLocalized = importer.songsLocalized() + supplementSongsLocalized
         val songsLocalizedAffectedRows =
             repositoryContainer.songLocalizedRepo.insertBatch(songsLocalized).size
-        Log.i(LOG_TAG, "$songsLocalizedAffectedRows songs localized updated")
+        logger.i { "$songsLocalizedAffectedRows songs localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
@@ -247,7 +249,7 @@ class DatabaseManageViewModel(
             importer.difficultiesLocalized() + supplementDifficultiesLocalized
         val difficultiesLocalizedAffectedRows =
             repositoryContainer.difficultyLocalizedRepo.insertBatch(difficultiesLocalized).size
-        Log.i(LOG_TAG, "$difficultiesLocalizedAffectedRows difficulties localized updated")
+        logger.i { "$difficultiesLocalizedAffectedRows difficulties localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
             res.getQuantityString(
@@ -356,7 +358,7 @@ class DatabaseManageViewModel(
         val chartInfo = ChartInfoDatabaseImporter.chartInfo(conn)
         val affectedRows =
             repositoryContainer.chartInfoRepo.insertBatch(*chartInfo.toTypedArray()).size
-        Log.i(LOG_TAG, "$affectedRows chart info imported")
+        logger.i { "$affectedRows chart info imported" }
         appendUiLog(
             LOG_TAG_IMPORT_CHART_INFO_DATABASE,
             res.getQuantityString(

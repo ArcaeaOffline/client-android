@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.core.ocr
 
-import android.util.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.opencv.core.Mat
@@ -15,6 +15,8 @@ class ImageHashesDatabaseBuilder(
     companion object {
         const val LOG_TAG = "ImageHashesDbBuilder"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     data class Task<T>(
         val type: ImageHashItemType,
@@ -82,7 +84,7 @@ class ImageHashesDatabaseBuilder(
         hashSize: Int,
         highFreqFactor: Int,
     ) {
-        Log.d(LOG_TAG, "build() called, ${tasks.size} items in task list")
+        logger.d { "build() called, ${tasks.size} items in task list" }
         conn.execSQL("BEGIN IMMEDIATE TRANSACTION")
 
         try {
@@ -131,7 +133,7 @@ class ImageHashesDatabaseBuilder(
 
             conn.execSQL("COMMIT")
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Error building ihdb", e)
+            logger.e(e) { "Error building ihdb" }
             conn.execSQL("ROLLBACK")
         } finally {
             resetBuildProgress()

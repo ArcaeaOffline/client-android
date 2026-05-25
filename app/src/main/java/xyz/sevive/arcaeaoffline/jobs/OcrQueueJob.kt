@@ -5,12 +5,12 @@ import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -61,6 +61,8 @@ class OcrQueueJob(
         const val DATA_RUN_MODE = "run_mode"
         const val DATA_PARALLEL_COUNT = "parallel_count"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private data class WorkOptions(
         val runMode: RunMode,
@@ -180,7 +182,7 @@ class OcrQueueJob(
 
             return Result.success()
         } catch (e: CancellationException) {
-            Log.i(LOG_TAG, "CancellationException caught")
+            logger.i { "CancellationException caught" }
             channelScope.coroutineContext.cancelChildren()
 
             withContext(NonCancellable + Dispatchers.IO) {
@@ -194,7 +196,7 @@ class OcrQueueJob(
 
             return Result.failure()
         } catch (e: Throwable) {
-            Log.e(LOG_TAG, "Uncaught error during doWork()", e)
+            logger.e(e) { "Uncaught error during doWork()" }
             Sentry.configureScope {
                 it.setContexts(WORK_NAME, workOptions)
                 Sentry.captureException(e)
@@ -221,7 +223,7 @@ class OcrQueueJob(
         var task = task.copy()
         task = task.copy(status = OcrQueueTaskStatus.PROCESSING)
         taskRepo.update(task)
-        Log.v(LOG_TAG, "Processing task ${task.id}")
+        logger.v { "Processing task ${task.id}" }
         var shouldUpdateTask = true
 
         try {
@@ -266,7 +268,7 @@ class OcrQueueJob(
                     exception = null,
                 )
         } catch (e: CancellationException) {
-            Log.i(LOG_TAG, "Job (${task.id}) CancellationException caught")
+            logger.i { "Job (${task.id}) CancellationException caught" }
             shouldUpdateTask = false
         } catch (e: Exception) {
             task =
@@ -275,7 +277,7 @@ class OcrQueueJob(
                     exception = e,
                 )
 
-            Log.e(LOG_TAG, "Error occurred at task ${task.id} ${task.fileUri}", e)
+            logger.e(e) { "Error occurred at task ${task.id} ${task.fileUri}" }
             Sentry.captureException(e)
         }
 

@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 object ArcaeaResourcesStateHolder {
     private const val LOG_TAG = "ArcaeaResStateHolder"
+    private val logger = Logger.withTag(LOG_TAG)
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -56,7 +57,7 @@ object ArcaeaResourcesStateHolder {
                         hasJackets = packageHelper.apkJacketZipEntries().isNotEmpty(),
                         hasPartnerIcons = packageHelper.apkPartnerIconZipEntries().isNotEmpty(),
                     )
-                Log.d(LOG_TAG, "reloaded, ${status.value}")
+                logger.d { "reloaded, ${status.value}" }
 
                 statusReloadJob = null
             }

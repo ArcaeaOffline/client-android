@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.ocr.device.rois
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Rect
@@ -178,6 +178,7 @@ private object T2Detector : DeviceRoisAutoSelectorDetector {
 
 object DeviceRoisAutoSelector {
     private const val LOG_TAG = "DeviceRoisAutoSelector"
+    private val logger = Logger.withTag(LOG_TAG)
 
     @Suppress("MemberVisibilityCanBePrivate")
     val selectors = mutableListOf(T1Detector, T2Detector)
@@ -188,7 +189,7 @@ object DeviceRoisAutoSelector {
                 .map {
                     "\t${it.key.javaClass.simpleName} -> ${it.key.result}: ${it.value}"
                 }.joinToString("\n")
-        Log.d(LOG_TAG, "Detector results:\n$resultsSeparated")
+        logger.d { "Detector results:\n$resultsSeparated" }
     }
 
     fun select(

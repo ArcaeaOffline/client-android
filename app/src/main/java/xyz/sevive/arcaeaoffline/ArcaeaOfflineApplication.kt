@@ -6,9 +6,9 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.util.Log
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
+import co.touchlab.kermit.Logger
 import com.jakewharton.threetenabp.AndroidThreeTen
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
@@ -34,6 +34,8 @@ class ArcaeaOfflineApplication : Application() {
     companion object {
         const val LOG_TAG = "Application"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private val appScope =
         CoroutineScope(Dispatchers.Default) + CoroutineName("ArcaeaOfflineApplication")
@@ -90,9 +92,9 @@ class ArcaeaOfflineApplication : Application() {
                     it.execSQL("VACUUM")
                 }
             }
-            Log.i(LOG_TAG, "${databases.size} databases vacuumed")
+            logger.i { "${databases.size} databases vacuumed" }
         } catch (e: Exception) {
-            Log.w(LOG_TAG, "Error vacuuming databases", e)
+            logger.w(e) { "Error vacuuming databases" }
         }
     }
 
@@ -108,7 +110,7 @@ class ArcaeaOfflineApplication : Application() {
                 SentryOptions.BeforeSendCallback { event, _ ->
                     event.setExtra("unstable_alert_read", unstableAlertRead.value.toString())
                     val shouldSend = autoSendCrashReports.value
-                    Log.d(LOG_TAG, "Sentry beforeSend: autoSend is $shouldSend")
+                    logger.d { "Sentry beforeSend: autoSend is $shouldSend" }
                     if (shouldSend) event else null
                 }
 
