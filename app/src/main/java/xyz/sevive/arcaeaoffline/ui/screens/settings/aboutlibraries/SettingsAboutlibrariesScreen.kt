@@ -8,14 +8,11 @@ import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
-
 @Composable
-internal fun SettingsAboutlibrariesScreen(
-    onNavigateUp: () -> Unit,
-) {
+internal fun SettingsAboutlibrariesScreen(onNavigateUp: () -> Unit) {
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.Aboutlibraries.title)
+        title = stringResource(SettingsScreenDestination.Aboutlibraries.title),
     ) {
         LibrariesContainer(Modifier.fillMaxSize())
     }

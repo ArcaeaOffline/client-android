@@ -32,7 +32,6 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 
-
 @Composable
 internal fun BottomActionsBar(
     onReset: () -> Unit,
@@ -82,9 +81,10 @@ internal fun DatabaseAddPlayResultScreen(
                     onReset = { viewModel.reset() },
                     onSave = { viewModel.savePlayResult() },
                     saveEnabled = playResultEditEnabled,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.page_padding)),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.page_padding)),
                 )
             },
         ) { contentPadding ->

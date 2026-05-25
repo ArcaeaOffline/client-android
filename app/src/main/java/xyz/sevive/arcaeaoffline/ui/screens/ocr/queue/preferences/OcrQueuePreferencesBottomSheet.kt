@@ -26,7 +26,6 @@ import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidge
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.round
 
-
 @Composable
 private fun Content(
     uiState: OcrQueuePreferencesViewModel.PreferencesUiState,
@@ -102,7 +101,7 @@ private fun ContentPreview() {
                 checkIsArcaeaImage = true,
                 parallelCount = 4,
                 parallelCountMax = 16,
-            )
+            ),
         )
     }
 

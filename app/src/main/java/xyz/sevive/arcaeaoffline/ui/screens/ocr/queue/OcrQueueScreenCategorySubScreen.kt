@@ -32,7 +32,12 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 internal enum class OcrQueueScreenCategory {
-    NULL, IDLE, PROCESSING, DONE, DONE_WITH_WARNING, ERROR
+    NULL,
+    IDLE,
+    PROCESSING,
+    DONE,
+    DONE_WITH_WARNING,
+    ERROR,
 }
 
 @Composable
@@ -41,7 +46,7 @@ private fun NavigationSubScreen(
     taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier) {
         item {
@@ -159,13 +164,15 @@ internal fun OcrQueueScreenCategorySubScreen(
         label = "subScreenSwitch",
     ) {
         when (it) {
-            OcrQueueScreenCategory.NULL -> NavigationSubScreen(
-                onSwitchScreen = { newCategory -> onCategoryChange(newCategory) },
-                taskCounts = taskCounts,
-                onSaveAllTasks = onSaveAllTasks,
-                onStartSmartFix = onStartSmartFix,
-                modifier = modifier,
-            )
+            OcrQueueScreenCategory.NULL -> {
+                NavigationSubScreen(
+                    onSwitchScreen = { newCategory -> onCategoryChange(newCategory) },
+                    taskCounts = taskCounts,
+                    onSaveAllTasks = onSaveAllTasks,
+                    onStartSmartFix = onStartSmartFix,
+                    modifier = modifier,
+                )
+            }
 
             else -> {
                 LoadingOverlay(loading = taskUiItemsLoading, modifier = modifier) {

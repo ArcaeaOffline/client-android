@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 
-
 @Composable
 internal fun OcrFromShareReturnToShareAppButton(
     onReturnToShareApp: () -> Unit,
@@ -55,16 +54,18 @@ internal fun OcrFromShareReturnToShareAppButton(
         },
         actionText = { Text(stringResource(R.string.ocr_from_share_return_to_share_source)) },
         modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.primary,
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
+            ),
     )
 }
 
 @Composable
 internal fun OcrFromShareStayInAppButton(
-    onStayInApp: () -> Unit, modifier: Modifier = Modifier
+    onStayInApp: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AppIconLabelButton(
         onClick = { onStayInApp() },
@@ -76,13 +77,14 @@ internal fun OcrFromShareStayInAppButton(
                 String.format(
                     stringResource(R.string.ocr_from_share_stay_in_app),
                     stringResource(R.string.app_name),
-                )
+                ),
             )
         },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ),
         modifier = modifier,
     )
 }
@@ -105,7 +107,7 @@ internal fun OcrFromShareScreenContentMedium(
             Modifier
                 .padding(it)
                 .padding(dimensionResource(R.dimen.page_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding))
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding)),
         ) {
             Column(
                 Modifier.weight(1f),
@@ -157,9 +159,10 @@ fun OcrFromShareScreenCompact(
 
     Scaffold(topBar = { OcrFromShareTopBar() }) {
         LazyColumn(
-            modifier = Modifier
-                .padding(it)
-                .padding(dimensionResource(R.dimen.page_padding)),
+            modifier =
+                Modifier
+                    .padding(it)
+                    .padding(dimensionResource(R.dimen.page_padding)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {

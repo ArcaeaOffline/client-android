@@ -17,11 +17,8 @@ import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
-
 @Composable
-private fun joinImportEntries(entries: List<String>): String {
-    return remember(entries) { entries.joinToString(" · ") }
-}
+private fun joinImportEntries(entries: List<String>): String = remember(entries) { entries.joinToString(" · ") }
 
 @Composable
 fun DatabaseManageImport(
@@ -54,24 +51,26 @@ fun DatabaseManageImport(
     val descPlayResultEntries = stringResource(R.string.database_manage_import_play_result_entries)
 
     val descPacklist = joinImportEntries(listOf(descPackEntries, descPackLocalizedEntries))
-    val descSonglist = joinImportEntries(
-        listOf(
-            descSongEntries,
-            descSongLocalizedEntries,
-            descDifficultyEntries,
-            descDifficultyLocalizedEntries,
+    val descSonglist =
+        joinImportEntries(
+            listOf(
+                descSongEntries,
+                descSongLocalizedEntries,
+                descDifficultyEntries,
+                descDifficultyLocalizedEntries,
+            ),
         )
-    )
-    val descArcaeaApk = joinImportEntries(
-        listOf(
-            descPackEntries,
-            descPackLocalizedEntries,
-            descSongEntries,
-            descSongLocalizedEntries,
-            descDifficultyEntries,
-            descDifficultyLocalizedEntries,
+    val descArcaeaApk =
+        joinImportEntries(
+            listOf(
+                descPackEntries,
+                descPackLocalizedEntries,
+                descSongEntries,
+                descSongLocalizedEntries,
+                descDifficultyEntries,
+                descDifficultyLocalizedEntries,
+            ),
         )
-    )
 
     Column(modifier) {
         TextPreferencesWidget(

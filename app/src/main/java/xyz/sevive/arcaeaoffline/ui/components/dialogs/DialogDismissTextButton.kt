@@ -12,12 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 
-
 object DialogDismissTextButtonDefaults {
     val defaultColors: ButtonColors
-        @Composable get() = ButtonDefaults.textButtonColors(
-            contentColor = MaterialTheme.colorScheme.secondary,
-        )
+        @Composable get() =
+            ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.secondary,
+            )
 }
 
 @Composable

@@ -3,9 +3,12 @@ package xyz.sevive.arcaeaoffline.ui.navigation
 import androidx.annotation.StringRes
 import xyz.sevive.arcaeaoffline.R
 
-const val OcrNavRouteRoot = "ocr"
+const val OCR_NAV_ROUTE_ROOT = "ocr"
 
-enum class OcrScreenDestinations(val route: String, @StringRes val title: Int) {
-    Dependencies("$OcrNavRouteRoot/dependencies", R.string.ocr_dependencies_title),
-    Queue("$OcrNavRouteRoot/queue", R.string.ocr_queue_title),
+enum class OcrScreenDestinations(
+    val route: String,
+    @StringRes val title: Int,
+) {
+    Dependencies("$OCR_NAV_ROUTE_ROOT/dependencies", R.string.ocr_dependencies_title),
+    Queue("$OCR_NAV_ROUTE_ROOT/queue", R.string.ocr_queue_title),
 }

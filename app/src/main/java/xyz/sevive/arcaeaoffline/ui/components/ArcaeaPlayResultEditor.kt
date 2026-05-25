@@ -23,11 +23,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 
-
-private val playResultSaver: Saver<PlayResult, String> = Saver(
-    save = { Json.encodeToString(it) },
-    restore = { Json.decodeFromString(it) },
-)
+private val playResultSaver: Saver<PlayResult, String> =
+    Saver(
+        save = { Json.encodeToString(it) },
+        restore = { Json.decodeFromString(it) },
+    )
 
 @Composable
 fun ArcaeaPlayResultEditorContent(
@@ -37,10 +37,11 @@ fun ArcaeaPlayResultEditorContent(
 ) {
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    val tabs = listOf(
-        R.string.play_result_editor_main_fields,
-        R.string.play_result_editor_other_fields,
-    )
+    val tabs =
+        listOf(
+            R.string.play_result_editor_main_fields,
+            R.string.play_result_editor_other_fields,
+        )
 
     Column(modifier = modifier) {
         TabRow(selectedTabIndex = tabIndex, containerColor = Color.Transparent) {
@@ -58,7 +59,7 @@ fun ArcaeaPlayResultEditorContent(
                 PlayResultEditorScoreField(
                     score = playResult.score,
                     onScoreChange = { onPlayResultChange(playResult.copy(score = it)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 PlayResultEditorPureField(

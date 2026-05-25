@@ -9,15 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun OcrFromShareTopBar() {
     TopAppBar(
         title = { Text(text = stringResource(R.string.title_activity_ocr_from_share)) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
     )
 }

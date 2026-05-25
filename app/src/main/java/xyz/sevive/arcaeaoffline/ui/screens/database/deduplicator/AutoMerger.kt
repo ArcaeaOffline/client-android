@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator
 
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
-
 internal fun List<PlayResult>.mergePlayResults(): PlayResult? {
     if (this.isEmpty()) return null
     if (this.size == 1) return this[0]
@@ -29,15 +28,15 @@ internal fun List<PlayResult>.mergePlayResults(): PlayResult? {
         maxRecall = maxRecallList.getOrNull(0),
         clearType = clearTypeList.getOrNull(0),
         modifier = modifierList.getOrNull(0),
-        comment = commentList.joinToString(" | ")
+        comment = commentList.joinToString(" | "),
     )
 }
 
 internal object AutoMerger {
-    fun merge(groups: Map<String, List<PlayResult>>): Map<String, PlayResult> {
-        return groups.mapNotNull { (key, playResults) ->
-            val mergedPlayResult = playResults.mergePlayResults()
-            mergedPlayResult?.let { key to it }
-        }.toMap()
-    }
+    fun merge(groups: Map<String, List<PlayResult>>): Map<String, PlayResult> =
+        groups
+            .mapNotNull { (key, playResults) ->
+                val mergedPlayResult = playResults.mergePlayResults()
+                mergedPlayResult?.let { key to it }
+            }.toMap()
 }

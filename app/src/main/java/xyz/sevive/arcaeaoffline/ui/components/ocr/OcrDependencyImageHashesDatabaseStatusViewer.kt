@@ -10,7 +10,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 
-
 data class OcrDependencyImageHashesDatabaseStatusUiState(
     val progress: Pair<Int, Int>? = null,
     val statusDetail: ImageHashesDatabaseStatusDetail = ImageHashesDatabaseStatusDetail(),
@@ -18,7 +17,8 @@ data class OcrDependencyImageHashesDatabaseStatusUiState(
 
 @Composable
 fun OcrDependencyImageHashesDatabaseStatusViewer(
-    uiState: OcrDependencyImageHashesDatabaseStatusUiState, modifier: Modifier = Modifier
+    uiState: OcrDependencyImageHashesDatabaseStatusUiState,
+    modifier: Modifier = Modifier,
 ) {
     val statusDetail = remember(uiState) { uiState.statusDetail }
 
@@ -44,7 +44,7 @@ fun OcrDependencyImageHashesDatabaseStatusViewer(
             status = status,
             summary = summary,
             details = details,
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }

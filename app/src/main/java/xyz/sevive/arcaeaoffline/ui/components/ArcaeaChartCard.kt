@@ -40,7 +40,6 @@ import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
-
 @Composable
 fun ArcaeaChartCard(
     chart: Chart,
@@ -98,7 +97,6 @@ fun ArcaeaChartCard(
                 }
             }
 
-
             AnimatedContent(targetState = expanded, label = "unfoldIcon") {
                 Icon(
                     if (it) Icons.Default.UnfoldLess else Icons.Default.UnfoldMore,
@@ -112,35 +110,37 @@ fun ArcaeaChartCard(
 @Preview
 @Composable
 private fun ArcaeaChartCardPreview() {
-    val chart = Chart(
-        songIdx = 1,
-        songId = "example",
-        ratingClass = ArcaeaRatingClass.FUTURE,
-        rating = 10,
-        ratingPlus = true,
-        title = "Example",
-        artist = "Artist",
-        set = "example",
-        side = 1,
-        audioOverride = false,
-        jacketOverride = false,
-        constant = 109,
-    )
+    val chart =
+        Chart(
+            songIdx = 1,
+            songId = "example",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            rating = 10,
+            ratingPlus = true,
+            title = "Example",
+            artist = "Artist",
+            set = "example",
+            side = 1,
+            audioOverride = false,
+            jacketOverride = false,
+            constant = 109,
+        )
 
-    val chartLongTitle = Chart(
-        songIdx = 2,
-        songId = "verylong",
-        ratingClass = ArcaeaRatingClass.FUTURE,
-        rating = 10,
-        ratingPlus = true,
-        title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",
-        artist = "Example VS Case VS Lorem VS Ipsum VS dolor VS sit VS amet feat. Preview",
-        set = "example",
-        side = 1,
-        audioOverride = false,
-        jacketOverride = false,
-        constant = 109,
-    )
+    val chartLongTitle =
+        Chart(
+            songIdx = 2,
+            songId = "verylong",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            rating = 10,
+            ratingPlus = true,
+            title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",
+            artist = "Example VS Case VS Lorem VS Ipsum VS dolor VS sit VS amet feat. Preview",
+            set = "example",
+            side = 1,
+            audioOverride = false,
+            jacketOverride = false,
+            constant = 109,
+        )
 
     ArcaeaOfflineTheme {
         Column {

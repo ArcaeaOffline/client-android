@@ -25,17 +25,15 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
-
 private const val LOG_TAG = "PackAndSongSelector"
 
 @Composable
-private fun rememberArcaeaPacks(packRepo: PackRepository): State<List<Pack>> {
-    return produceState(initialValue = emptyList()) {
+private fun rememberArcaeaPacks(packRepo: PackRepository): State<List<Pack>> =
+    produceState(initialValue = emptyList()) {
         packRepo.findAll().collect {
             value = it
         }
     }
-}
 
 @Composable
 private fun rememberArcaeaSongs(
@@ -43,17 +41,23 @@ private fun rememberArcaeaSongs(
     chartInfoRepo: ChartInfoRepository,
     packId: String?,
     chartOnly: Boolean = false,
-): State<List<Song>> {
-    return produceState(initialValue = emptyList(), packId, chartOnly) {
+): State<List<Song>> =
+    produceState(initialValue = emptyList(), packId, chartOnly) {
         if (packId != null) {
             songRepo.findBySet(packId).collect { songs ->
-                value = if (!chartOnly) songs else songs.filter { song ->
-                    !chartInfoRepo.findAllBySongId(song.id).firstOrNull().isNullOrEmpty()
-                }
+                value =
+                    if (!chartOnly) {
+                        songs
+                    } else {
+                        songs.filter { song ->
+                            !chartInfoRepo.findAllBySongId(song.id).firstOrNull().isNullOrEmpty()
+                        }
+                    }
             }
-        } else emptyList<Song>()
+        } else {
+            emptyList<Song>()
+        }
     }
-}
 
 @Composable
 fun ArcaeaPackAndSongSelector(
@@ -63,9 +67,10 @@ fun ArcaeaPackAndSongSelector(
     chartOnly: Boolean = false,
 ) {
     val context = LocalContext.current
-    val repositoryContainer = remember {
-        ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
-    }
+    val repositoryContainer =
+        remember {
+            ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
+        }
 
     val packs by rememberArcaeaPacks(packRepo = repositoryContainer.packRepo)
     var selectedPackIndex by rememberSaveable { mutableIntStateOf(-1) }
@@ -103,7 +108,7 @@ fun ArcaeaPackAndSongSelector(
 
     Column(
         modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
         ArcaeaPackSelector(
             packs = packs,

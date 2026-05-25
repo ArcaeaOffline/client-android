@@ -17,7 +17,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 
-
 @Composable
 internal fun AppIconLabelButton(
     onClick: () -> Unit,

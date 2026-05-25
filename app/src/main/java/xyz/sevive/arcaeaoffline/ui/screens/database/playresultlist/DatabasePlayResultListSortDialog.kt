@@ -29,7 +29,6 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 private fun DatabasePlayResultListSortDialogOrderSwitch(
     sortOrder: DatabasePlayResultListViewModel.SortOrder,
@@ -42,8 +41,7 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
             .padding(
                 horizontal = dimensionResource(R.dimen.pref_widget_horizontal_padding),
                 vertical = dimensionResource(R.dimen.pref_widget_vertical_padding),
-            )
-            .then(modifier),
+            ).then(modifier),
         contentAlignment = Alignment.Center,
     ) {
         Row(

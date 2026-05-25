@@ -38,53 +38,53 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
 import kotlin.math.max
 
-
 // TODO: make this work
 internal class ArcaeaPlayResultScoreVisualTransformation(
     private val score: Int,
     private val fontColor: Color,
 ) : VisualTransformation {
-    class ScoreOffsetMapping(score: Int) : OffsetMapping {
+    class ScoreOffsetMapping(
+        score: Int,
+    ) : OffsetMapping {
         private val size = score.toString().length
 
-        private fun splits(): Int {
-            return max(0, (size - 1) / 3)
-        }
+        private fun splits(): Int = max(0, (size - 1) / 3)
 
         override fun originalToTransformed(offset: Int): Int {
             if (offset <= 10) return 10
             return offset + splits()
         }
 
-        override fun transformedToOriginal(offset: Int): Int {
-            return 0
-        }
+        override fun transformedToOriginal(offset: Int): Int = 0
     }
 
     override fun filter(text: AnnotatedString): TransformedText {
         val scoreString = score.toString().padStart(8, '0')
 
         var nonZeroMet = false
-        val transformedAnnotatedString = buildAnnotatedString {
-            for (i in scoreString.indices) {
-                val char = scoreString[i]
+        val transformedAnnotatedString =
+            buildAnnotatedString {
+                for (i in scoreString.indices) {
+                    val char = scoreString[i]
 
-                if (i != 0 && (scoreString.length - i) % 3 == 0) {
-                    append('\'')
-                }
-
-                if (i == scoreString.length - 1) nonZeroMet = true
-
-                if (char == '0' && !nonZeroMet) {
-                    withStyle(SpanStyle(color = fontColor.copy(alpha = 0.38f))) {
-                        append(char)
+                    if (i != 0 && (scoreString.length - i) % 3 == 0) {
+                        append('\'')
                     }
-                    continue
-                } else nonZeroMet = true
 
-                append(char)
+                    if (i == scoreString.length - 1) nonZeroMet = true
+
+                    if (char == '0' && !nonZeroMet) {
+                        withStyle(SpanStyle(color = fontColor.copy(alpha = 0.38f))) {
+                            append(char)
+                        }
+                        continue
+                    } else {
+                        nonZeroMet = true
+                    }
+
+                    append(char)
+                }
             }
-        }
 
         return TransformedText(transformedAnnotatedString, ScoreOffsetMapping(score))
     }
@@ -92,7 +92,9 @@ internal class ArcaeaPlayResultScoreVisualTransformation(
 
 @Composable
 internal fun PlayResultEditorScoreField(
-    score: Int?, onScoreChange: (Int) -> Unit, modifier: Modifier = Modifier
+    score: Int?,
+    onScoreChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
 //    val fontColor = LocalContentColor.current
 //    val visualTransformation = score?.let {
@@ -109,7 +111,10 @@ internal fun PlayResultEditorScoreField(
 }
 
 @Composable
-internal fun <T : Any> rememberLastNotNullValue(value: T?, defaultValueConstructor: () -> T): T {
+internal fun <T : Any> rememberLastNotNullValue(
+    value: T?,
+    defaultValueConstructor: () -> T,
+): T {
     var lastNotNullValue by rememberSaveable { mutableStateOf(defaultValueConstructor()) }
 
     LaunchedEffect(value) {
@@ -142,10 +147,11 @@ internal fun <T : Any> GeneralNullableFieldWrapper(
     modifier: Modifier = Modifier,
     valueComponent: @Composable RowScope.() -> Unit,
 ) {
-    val lastNotNullValue = rememberLastNotNullValue(
-        value = value,
-        defaultValueConstructor = defaultValueConstructor,
-    )
+    val lastNotNullValue =
+        rememberLastNotNullValue(
+            value = value,
+            defaultValueConstructor = defaultValueConstructor,
+        )
 
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         valueComponent()
@@ -181,7 +187,9 @@ internal fun NullableNumberInputWithCheckboxWrapper(
 
 @Composable
 internal fun PlayResultEditorPureField(
-    pure: Int?, onPureChange: (Int?) -> Unit, modifier: Modifier = Modifier
+    pure: Int?,
+    onPureChange: (Int?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = pure,
@@ -193,7 +201,9 @@ internal fun PlayResultEditorPureField(
 
 @Composable
 internal fun PlayResultEditorFarField(
-    far: Int?, onFarChange: (Int?) -> Unit, modifier: Modifier = Modifier
+    far: Int?,
+    onFarChange: (Int?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = far,
@@ -205,7 +215,9 @@ internal fun PlayResultEditorFarField(
 
 @Composable
 internal fun PlayResultEditorLostField(
-    lost: Int?, onLostChange: (Int?) -> Unit, modifier: Modifier = Modifier
+    lost: Int?,
+    onLostChange: (Int?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = lost,
@@ -217,7 +229,9 @@ internal fun PlayResultEditorLostField(
 
 @Composable
 internal fun PlayResultEditorMaxRecallField(
-    maxRecall: Int?, onMaxRecallChange: (Int?) -> Unit, modifier: Modifier = Modifier
+    maxRecall: Int?,
+    onMaxRecallChange: (Int?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     NullableNumberInputWithCheckboxWrapper(
         value = maxRecall,
@@ -229,9 +243,11 @@ internal fun PlayResultEditorMaxRecallField(
 
 @Composable
 internal fun PlayResultEditorDateTimeField(
-    instant: Instant?, onInstantChange: (Instant?) -> Unit, modifier: Modifier = Modifier
+    instant: Instant?,
+    onInstantChange: (Instant?) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    /* The initial release date of Arcaea */
+    // The initial release date of Arcaea
     val minDate = remember { LocalDate.of(2017, 3, 7) }
 
     GeneralNullableFieldWrapper(
@@ -272,9 +288,10 @@ internal fun PlayResultEditorClearTypeField(
     }
 
     val editable = remember(clearType) { clearType != null }
-    val tryShowSelectDialog = remember(editable) {
-        { if (editable) showSelectDialog = true }
-    }
+    val tryShowSelectDialog =
+        remember(editable) {
+            { if (editable) showSelectDialog = true }
+        }
 
     GeneralNullableFieldWrapper(
         value = clearType,
@@ -285,9 +302,10 @@ internal fun PlayResultEditorClearTypeField(
         TextField(
             value = textFieldValue,
             onValueChange = {},
-            modifier = Modifier
-                .clickable(editable) { tryShowSelectDialog() }
-                .weight(1f),
+            modifier =
+                Modifier
+                    .clickable(editable) { tryShowSelectDialog() }
+                    .weight(1f),
             readOnly = true,
             enabled = editable,
             label = { Text(stringResource(R.string.arcaea_play_result_clear_type)) },
@@ -321,9 +339,10 @@ internal fun PlayResultEditorModifierField(
     }
 
     val editable = remember(arcaeaModifier) { arcaeaModifier != null }
-    val tryShowSelectDialog = remember(editable) {
-        { if (editable) showSelectDialog = true }
-    }
+    val tryShowSelectDialog =
+        remember(editable) {
+            { if (editable) showSelectDialog = true }
+        }
 
     GeneralNullableFieldWrapper(
         value = arcaeaModifier,
@@ -334,9 +353,10 @@ internal fun PlayResultEditorModifierField(
         TextField(
             value = textFieldValue,
             onValueChange = {},
-            modifier = Modifier
-                .clickable(editable) { tryShowSelectDialog() }
-                .weight(1f),
+            modifier =
+                Modifier
+                    .clickable(editable) { tryShowSelectDialog() }
+                    .weight(1f),
             readOnly = true,
             enabled = editable,
             label = { Text(stringResource(R.string.arcaea_play_result_modifier)) },

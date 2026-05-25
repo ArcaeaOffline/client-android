@@ -37,7 +37,6 @@ import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import java.io.File
 
-
 class OcrFromShareViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
     private val appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer,
@@ -57,26 +56,28 @@ class OcrFromShareViewModel(
             val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase(context)
             val crnnModel = OcrDependencyStatusBuilder.crnnModel(context)
 
-            _ocrDependencyViewersUiState.value = OcrDependencyViewersUiState(
-                kNearestModel = OcrDependencyKNearestModelStatusUiState(kNearest),
-                imageHashesDatabase = OcrDependencyImageHashesDatabaseStatusUiState(statusDetail = imageHashesDatabase),
-                crnnModel = OcrDependencyCrnnModelStatusUiState(crnnModel),
-            )
+            _ocrDependencyViewersUiState.value =
+                OcrDependencyViewersUiState(
+                    kNearestModel = OcrDependencyKNearestModelStatusUiState(kNearest),
+                    imageHashesDatabase = OcrDependencyImageHashesDatabaseStatusUiState(statusDetail = imageHashesDatabase),
+                    crnnModel = OcrDependencyCrnnModelStatusUiState(crnnModel),
+                )
         }
     }
 
-    private val _bitmap = MutableStateFlow<Bitmap?>(null)
-    private val bitmap = _bitmap.asStateFlow()
-    val imageBitmap = bitmap.map { it?.asImageBitmap() }.stateIn(
-        viewModelScope, SharingStarted.Lazily, null
-    )
+    private val bitmap = MutableStateFlow<Bitmap?>(null)
+    val imageBitmap =
+        bitmap.map { it?.asImageBitmap() }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            null,
+        )
 
-    fun setBitmap(bitmap: Bitmap) {
-        _bitmap.value = bitmap
+    fun setBitmap(newBitmap: Bitmap) {
+        bitmap.value = newBitmap
     }
 
-    private val _shareSourceAppPackageName = MutableStateFlow<String?>(null)
-    private val shareSourceAppPackageName = _shareSourceAppPackageName.asStateFlow()
+    private val shareSourceAppPackageName = MutableStateFlow<String?>(null)
 
     private val _shareSourceAppName = MutableStateFlow<String?>(null)
     val shareSourceAppName = _shareSourceAppName.asStateFlow()
@@ -84,37 +85,42 @@ class OcrFromShareViewModel(
     private val _shareSourceAppIcon = MutableStateFlow<ImageBitmap?>(null)
     val shareSourceAppIcon = _shareSourceAppIcon.asStateFlow()
 
-    fun setShareSourceApp(packageName: String?, packageManager: PackageManager) {
+    fun setShareSourceApp(
+        packageName: String?,
+        packageManager: PackageManager,
+    ) {
         if (packageName == null) {
-            _shareSourceAppPackageName.value = null
+            shareSourceAppPackageName.value = null
             _shareSourceAppName.value = null
             _shareSourceAppIcon.value = null
             return
         }
 
-        _shareSourceAppPackageName.value = packageName
-        _shareSourceAppName.value = packageName.let {
-            try {
-                val info = packageManager.getApplicationInfo(it, 0)
-                packageManager.getApplicationLabel(info).toString()
-            } catch (e: PackageManager.NameNotFoundException) {
-                it
+        shareSourceAppPackageName.value = packageName
+        _shareSourceAppName.value =
+            packageName.let {
+                try {
+                    val info = packageManager.getApplicationInfo(it, 0)
+                    packageManager.getApplicationLabel(info).toString()
+                } catch (e: PackageManager.NameNotFoundException) {
+                    it
+                }
             }
-        }
-        _shareSourceAppIcon.value = packageName.let {
-            try {
-                packageManager.getApplicationIcon(it).toBitmap().asImageBitmap()
-            } catch (e: PackageManager.NameNotFoundException) {
-                null
+        _shareSourceAppIcon.value =
+            packageName.let {
+                try {
+                    packageManager.getApplicationIcon(it).toBitmap().asImageBitmap()
+                } catch (e: PackageManager.NameNotFoundException) {
+                    null
+                }
             }
-        }
     }
 
     private val _chart = MutableStateFlow<Chart?>(null)
     val chart = _chart.asStateFlow()
 
     private val _playResult = MutableStateFlow<PlayResult?>(null)
-    val score = _playResult.asStateFlow()
+    val playResult = _playResult.asStateFlow()
 
     private val _exception = MutableStateFlow<Exception?>(null)
     val exception = _exception.asStateFlow()
@@ -131,8 +137,8 @@ class OcrFromShareViewModel(
     val scoreSaved = _scoreSaved.asStateFlow()
 
     suspend fun saveScore() {
-        if (score.value != null) {
-            repositoryContainer.playResultRepo.upsert(score.value!!)
+        if (playResult.value != null) {
+            repositoryContainer.playResultRepo.upsert(playResult.value!!)
             _scoreSaved.value = true
         }
     }
@@ -143,9 +149,11 @@ class OcrFromShareViewModel(
     fun saveImage(context: Context) {
         val bitmap = bitmap.value
         if (bitmap != null && !imageSaved.value) {
-            _imageSaved.value = SaveBitmapToGallery(bitmap).saveJpg(
-                context, "ocr-from-share-${Instant.now().toEpochMilli()}"
-            )
+            _imageSaved.value =
+                SaveBitmapToGallery(bitmap).saveJpg(
+                    context,
+                    "ocr-from-share-${Instant.now().toEpochMilli()}",
+                )
         }
     }
 
@@ -153,7 +161,7 @@ class OcrFromShareViewModel(
     val scoreCached = _scoreCached.asStateFlow()
 
     suspend fun cacheScore(context: Context) {
-        val score = score.value
+        val score = playResult.value
         if (score != null) {
             val ocrHistory = OcrHistory.fromArcaeaScore(score, shareSourceAppPackageName.value)
             val id = appDatabaseRepositoryContainer.ocrHistoryRepo.insert(ocrHistory)
@@ -173,7 +181,10 @@ class OcrFromShareViewModel(
         }
     }
 
-    suspend fun startOcr(imageUri: Uri, context: Context) {
+    suspend fun startOcr(
+        imageUri: Uri,
+        context: Context,
+    ) {
         Log.i(TAG, "OCR from share request: $imageUri")
 
         val ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
@@ -184,22 +195,24 @@ class OcrFromShareViewModel(
                 val imageHashesSQLiteDatabase =
                     OcrDependencyLoader.imageHashesSQLiteDatabase(context)
 
-                val ocrResult = imageHashesSQLiteDatabase.use { sqliteDb ->
-                    val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
-                    DeviceOcrHelper.ocrImage(
+                val ocrResult =
+                    imageHashesSQLiteDatabase.use { sqliteDb ->
+                        val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
+                        DeviceOcrHelper.ocrImage(
+                            imageUri,
+                            context,
+                            kNearestModel,
+                            imageHashesDatabase,
+                            ortSession = ortSession,
+                        )
+                    }
+                val playResult =
+                    DeviceOcrHelper.ocrResultToPlayResult(
                         imageUri,
                         context,
-                        kNearestModel,
-                        imageHashesDatabase,
-                        ortSession = ortSession
+                        ocrResult,
+                        fallbackDate = Instant.now(),
                     )
-                }
-                val playResult = DeviceOcrHelper.ocrResultToPlayResult(
-                    imageUri,
-                    context,
-                    ocrResult,
-                    fallbackDate = Instant.now(),
-                )
 
                 _playResult.value = playResult
                 _exception.value = null

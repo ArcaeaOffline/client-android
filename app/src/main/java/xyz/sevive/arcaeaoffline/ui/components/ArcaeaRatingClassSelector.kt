@@ -49,7 +49,9 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import kotlin.math.min
 
-private class RatingClassShape(private val isFirst: Boolean = false) : Shape {
+private class RatingClassShape(
+    private val isFirst: Boolean = false,
+) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -58,27 +60,30 @@ private class RatingClassShape(private val isFirst: Boolean = false) : Shape {
         val width = size.width
         val height = size.height
 
-        val ratingClassPath = Path().apply {
-            this.moveTo(0f, 0f)
-            this.lineTo(width * 0.8f, 0f)
-            this.lineTo(width, height * 0.6f)
-            this.lineTo(width * 0.9f, height)
+        val ratingClassPath =
+            Path().apply {
+                this.moveTo(0f, 0f)
+                this.lineTo(width * 0.8f, 0f)
+                this.lineTo(width, height * 0.6f)
+                this.lineTo(width * 0.9f, height)
 
-            if (isFirst) {
-                this.lineTo(0f, height)
-            } else {
-                this.lineTo(width * 0.1f, height)
-                this.lineTo(width * 0.2f, height * 0.6f)
+                if (isFirst) {
+                    this.lineTo(0f, height)
+                } else {
+                    this.lineTo(width * 0.1f, height)
+                    this.lineTo(width * 0.2f, height * 0.6f)
+                }
+
+                this.close()
             }
-
-            this.close()
-        }
 
         return Outline.Generic(ratingClassPath)
     }
 }
 
-internal data class RatingClassBoxColors(val baseColor: Color) {
+internal data class RatingClassBoxColors(
+    val baseColor: Color,
+) {
 //    val bgColor = baseColor.copy(alpha = 0.3f)
 //    val textColor = baseColor.copy()
 
@@ -141,31 +146,42 @@ internal fun RatingClassBox(
     val colors = RatingClassBoxColors(baseColor)
 
     val bgColor by animateColorAsState(
-        targetValue = if (disabled) colors.disabledBgColor
-        else if (selected) colors.selectedBgColor
-        else colors.notSelectedBgColor,
-        label = "bgColor"
+        targetValue =
+            if (disabled) {
+                colors.disabledBgColor
+            } else if (selected) {
+                colors.selectedBgColor
+            } else {
+                colors.notSelectedBgColor
+            },
+        label = "bgColor",
     )
 
     val textColor by animateColorAsState(
-        targetValue = if (disabled) colors.disabledTextColor
-        else if (selected) colors.selectedTextColor
-        else colors.notSelectedTextColor,
+        targetValue =
+            if (disabled) {
+                colors.disabledTextColor
+            } else if (selected) {
+                colors.selectedTextColor
+            } else {
+                colors.notSelectedTextColor
+            },
         label = "textColor",
     )
 
-    val constantText = buildAnnotatedString {
-        if (rating == null) {
-            append("?")
-        } else {
-            append(rating.toString())
-            if (ratingPlus) {
-                withStyle(SpanStyle(fontSize = 0.7.em)) {
-                    append('+')
+    val constantText =
+        buildAnnotatedString {
+            if (rating == null) {
+                append("?")
+            } else {
+                append(rating.toString())
+                if (ratingPlus) {
+                    withStyle(SpanStyle(fontSize = 0.7.em)) {
+                        append('+')
+                    }
                 }
             }
         }
-    }
     val label = ratingClass.toString()
 
 //    val constantMaxHeight = height * 0.9f
@@ -183,7 +199,8 @@ internal fun RatingClassBox(
         label = "selectedTextShadowOffset",
     )
     val selectedTextShadowBlur by animateFloatAsState(
-        targetValue = if (selected) 5f else 0f, label = "selectedTextShadowOffset"
+        targetValue = if (selected) 5f else 0f,
+        label = "selectedTextShadowOffset",
     )
 
     Box(
@@ -206,13 +223,19 @@ internal fun RatingClassBox(
                         IntOffset(0, -yOffset.toInt())
                     },
                 fontSize = constantTextSize,
-                style = LocalTextStyle.current.copy(
-                    shadow = if (selected) Shadow(
-                        color = selectedTextShadowColor,
-                        offset = selectedTextShadowOffset,
-                        blurRadius = selectedTextShadowBlur,
-                    ) else null,
-                ),
+                style =
+                    LocalTextStyle.current.copy(
+                        shadow =
+                            if (selected) {
+                                Shadow(
+                                    color = selectedTextShadowColor,
+                                    offset = selectedTextShadowOffset,
+                                    blurRadius = selectedTextShadowBlur,
+                                )
+                            } else {
+                                null
+                            },
+                    ),
             )
 
             Text(
@@ -224,8 +247,11 @@ internal fun RatingClassBox(
                         // a (width * 0.04f).dp right offset
                         val xOffset = width.value * 0.04f * this.density
 
-                        if (isFirst) IntOffset(0, 0)
-                        else IntOffset(xOffset.toInt(), 0)
+                        if (isFirst) {
+                            IntOffset(0, 0)
+                        } else {
+                            IntOffset(xOffset.toInt(), 0)
+                        }
                     },
                 fontSize = labelTextSize,
                 textAlign = TextAlign.Center,
@@ -234,18 +260,20 @@ internal fun RatingClassBox(
     }
 }
 
-
 @Composable
 private fun RatingClassRowLayout(
-    modifier: Modifier = Modifier, content: @Composable () -> Unit
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
     Layout(
-        modifier = modifier, content = content
+        modifier = modifier,
+        content = content,
     ) { measurables, constraints ->
         // Don't constrain child views further, measure them with given constraints
-        val placeables = measurables.map { measurable ->
-            measurable.measure(constraints)
-        }
+        val placeables =
+            measurables.map { measurable ->
+                measurable.measure(constraints)
+            }
         val layoutWidth = (placeables.sumOf { it.width } * 0.9f).toInt()
 
         layout(layoutWidth, placeables[0].height) {
@@ -312,19 +340,21 @@ fun ArcaeaRatingClassSelector(
 private fun RatingClassSelectorDevicePreview() {
     var selectedRatingClass by remember { mutableStateOf(ArcaeaRatingClass.PRESENT) }
 
-    val ratingClasses = mutableListOf(
-        ArcaeaRatingClass.PAST,
-        ArcaeaRatingClass.PRESENT,
-        ArcaeaRatingClass.FUTURE,
-        ArcaeaRatingClass.BEYOND,
-        ArcaeaRatingClass.ETERNAL,
-    )
+    val ratingClasses =
+        mutableListOf(
+            ArcaeaRatingClass.PAST,
+            ArcaeaRatingClass.PRESENT,
+            ArcaeaRatingClass.FUTURE,
+            ArcaeaRatingClass.BEYOND,
+            ArcaeaRatingClass.ETERNAL,
+        )
 
     val ratingClassesCommon = ratingClasses.toMutableList()
     ratingClassesCommon.removeAll(
         arrayOf(
-            ArcaeaRatingClass.BEYOND, ArcaeaRatingClass.ETERNAL
-        )
+            ArcaeaRatingClass.BEYOND,
+            ArcaeaRatingClass.ETERNAL,
+        ),
     )
 
     val ratingClassesWithBeyond = ratingClasses.toMutableList()
@@ -333,13 +363,14 @@ private fun RatingClassSelectorDevicePreview() {
     val ratingClassesWithEternal = ratingClasses.toMutableList()
     ratingClassesWithEternal.remove(ArcaeaRatingClass.BEYOND)
 
-    val ratingDetails = mapOf(
-        ArcaeaRatingClass.PAST to Pair(3, false),
-        ArcaeaRatingClass.PRESENT to Pair(7, true),
-        ArcaeaRatingClass.FUTURE to Pair(10, true),
-        ArcaeaRatingClass.BEYOND to Pair(12, false),
-        ArcaeaRatingClass.ETERNAL to Pair(10, true),
-    )
+    val ratingDetails =
+        mapOf(
+            ArcaeaRatingClass.PAST to Pair(3, false),
+            ArcaeaRatingClass.PRESENT to Pair(7, true),
+            ArcaeaRatingClass.FUTURE to Pair(10, true),
+            ArcaeaRatingClass.BEYOND to Pair(12, false),
+            ArcaeaRatingClass.ETERNAL to Pair(10, true),
+        )
 
     ArcaeaOfflineTheme {
         Surface {

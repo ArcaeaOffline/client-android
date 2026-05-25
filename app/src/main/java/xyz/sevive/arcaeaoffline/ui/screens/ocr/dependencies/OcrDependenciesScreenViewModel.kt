@@ -34,7 +34,9 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUi
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 
-class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : ViewModel() {
+class OcrDependenciesScreenViewModel(
+    application: ArcaeaOfflineApplication,
+) : ViewModel() {
     companion object {
         private const val STOP_TIME_MILLIS = 5000L
         val sharingStarted = SharingStarted.WhileSubscribed(STOP_TIME_MILLIS)
@@ -43,38 +45,43 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
 
     private val workManager = WorkManager.getInstance(application)
 
-    private val _kNearestModelStatusUiState =
+    private val _kNearestModelUiState =
         MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
-    val kNearestModelUiState = _kNearestModelStatusUiState.asStateFlow()
+    val kNearestModelUiState = _kNearestModelUiState.asStateFlow()
 
     private val imageHashesDatabaseBuilderJobInfo =
-        workManager.getWorkInfosForUniqueWorkFlow(ImageHashesDatabaseBuilderJob.NAME)
+        workManager
+            .getWorkInfosForUniqueWorkFlow(ImageHashesDatabaseBuilderJob.NAME)
             .map { it.firstOrNull() }
             .stateIn(viewModelScope, sharingStarted, null)
 
-    val buildHashesDatabaseButtonEnabled = combine(
-        ArcaeaResourcesStateHolder.canBuildHashesDatabase,
-        imageHashesDatabaseBuilderJobInfo,
-    ) { canBuild, workInfo ->
-        val enabledByWorkInfo = workInfo == null || workInfo.state.isFinished
-        canBuild && enabledByWorkInfo
-    }.stateIn(viewModelScope, sharingStarted, true)
+    val buildHashesDatabaseButtonEnabled =
+        combine(
+            ArcaeaResourcesStateHolder.canBuildHashesDatabase,
+            imageHashesDatabaseBuilderJobInfo,
+        ) { canBuild, workInfo ->
+            val enabledByWorkInfo = workInfo == null || workInfo.state.isFinished
+            canBuild && enabledByWorkInfo
+        }.stateIn(viewModelScope, sharingStarted, true)
 
-    private val _imagesHashesDatabaseBuildProgress = imageHashesDatabaseBuilderJobInfo.map {
-        if (it == null) return@map null
+    private val imagesHashesDatabaseBuildProgress =
+        imageHashesDatabaseBuilderJobInfo
+            .map {
+                if (it == null) return@map null
 
-        val progress = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS, -1)
-        val total = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS_TOTAL, -1)
+                val progress = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS, -1)
+                val total = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS_TOTAL, -1)
 
-        if (progress == -1) null else progress to total
-    }.stateIn(viewModelScope, sharingStarted, null)
+                if (progress == -1) null else progress to total
+            }.stateIn(viewModelScope, sharingStarted, null)
 
-    private val _imagesHashesDatabaseStatusDetail =
+    private val imagesHashesDatabaseStatusDetail =
         MutableStateFlow(ImageHashesDatabaseStatusDetail())
     val imageHashesDatabaseUiState =
-        _imagesHashesDatabaseBuildProgress.combine(_imagesHashesDatabaseStatusDetail) { p, s ->
-            OcrDependencyImageHashesDatabaseStatusUiState(progress = p, statusDetail = s)
-        }.stateIn(viewModelScope, sharingStarted, OcrDependencyImageHashesDatabaseStatusUiState())
+        imagesHashesDatabaseBuildProgress
+            .combine(imagesHashesDatabaseStatusDetail) { p, s ->
+                OcrDependencyImageHashesDatabaseStatusUiState(progress = p, statusDetail = s)
+            }.stateIn(viewModelScope, sharingStarted, OcrDependencyImageHashesDatabaseStatusUiState())
 
     private val _crnnModelUiState = MutableStateFlow(OcrDependencyCrnnModelStatusUiState())
     val crnnModelUiState = _crnnModelUiState.asStateFlow()
@@ -92,21 +99,30 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
     }
 
     private fun isFileTooLarge(
-        uri: Uri, context: Context, limit: Long = 20 * 1024 * 1024, logName: String? = null
+        uri: Uri,
+        context: Context,
+        limit: Long = 20 * 1024 * 1024,
+        logName: String? = null,
     ): Boolean {
         val fileSize = context.getFileSize(uri) ?: return false
         if (fileSize <= limit) return false
 
-        Log.w(LOG_TAG, buildString {
-            logName?.let { append("[$logName] ") }
-            append("Input file too large, ")
-            append("limit is ${Formatter.formatFileSize(context, limit)} ")
-            append("while input is ${Formatter.formatFileSize(context, fileSize)}!")
-        })
+        Log.w(
+            LOG_TAG,
+            buildString {
+                logName?.let { append("[$logName] ") }
+                append("Input file too large, ")
+                append("limit is ${Formatter.formatFileSize(context, limit)} ")
+                append("while input is ${Formatter.formatFileSize(context, fileSize)}!")
+            },
+        )
         return true
     }
 
-    fun importKNearestModel(uri: Uri, context: Context) {
+    fun importKNearestModel(
+        uri: Uri,
+        context: Context,
+    ) {
         val paths = OcrDependencyPaths(context)
         if (!mkOcrDependencyParentDirs(paths)) return
 
@@ -127,7 +143,10 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
         }
     }
 
-    fun importImageHashesDatabase(uri: Uri, context: Context) {
+    fun importImageHashesDatabase(
+        uri: Uri,
+        context: Context,
+    ) {
         val paths = OcrDependencyPaths(context)
         if (!mkOcrDependencyParentDirs(paths)) return
 
@@ -158,14 +177,14 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
 
     private fun reloadKNearestModelStatusDetailUiState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            _kNearestModelStatusUiState.value =
+            _kNearestModelUiState.value =
                 OcrDependencyKNearestModelStatusUiState(OcrDependencyStatusBuilder.kNearest(context))
         }
     }
 
     private fun reloadImageHashesDatabaseStatusDetailUiState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            _imagesHashesDatabaseStatusDetail.value =
+            imagesHashesDatabaseStatusDetail.value =
                 OcrDependencyStatusBuilder.imageHashesDatabase(context)
         }
     }
@@ -175,16 +194,19 @@ class OcrDependenciesScreenViewModel(application: ArcaeaOfflineApplication) : Vi
             val workRequest = OneTimeWorkRequestBuilder<ImageHashesDatabaseBuilderJob>().build()
 
             workManager.enqueueUniqueWork(
-                ImageHashesDatabaseBuilderJob.NAME, ExistingWorkPolicy.REPLACE, workRequest
+                ImageHashesDatabaseBuilderJob.NAME,
+                ExistingWorkPolicy.REPLACE,
+                workRequest,
             )
         }
     }
 
     private fun reloadCrnnModelStatusDetailUiState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            _crnnModelUiState.value = OcrDependencyCrnnModelStatusUiState(
-                statusDetail = OcrDependencyStatusBuilder.crnnModel(context)
-            )
+            _crnnModelUiState.value =
+                OcrDependencyCrnnModelStatusUiState(
+                    statusDetail = OcrDependencyStatusBuilder.crnnModel(context),
+                )
         }
     }
 

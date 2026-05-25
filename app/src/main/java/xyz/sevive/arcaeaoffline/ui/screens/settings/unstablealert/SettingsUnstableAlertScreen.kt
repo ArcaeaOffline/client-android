@@ -19,7 +19,6 @@ import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
-
 @Composable
 internal fun SettingsUnstableAlertScreen(
     onNavigateUp: () -> Unit,
@@ -36,7 +35,7 @@ internal fun SettingsUnstableAlertScreen(
         Modifier.fillMaxSize(),
     ) {
         LazyColumn(
-            contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding))
+            contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
         ) {
             item {
                 RichText {

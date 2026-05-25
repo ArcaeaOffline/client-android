@@ -23,22 +23,23 @@ object ArcaeaFormatters {
     fun potentialToText(
         potential: Double?,
         pattern: String = "0.00",
-        roundingMode: RoundingMode = RoundingMode.DOWN
-    ): String {
-        return if (potential != null) {
+        roundingMode: RoundingMode = RoundingMode.DOWN,
+    ): String =
+        if (potential != null) {
             val decimalFormat = DecimalFormat(pattern)
             decimalFormat.roundingMode = roundingMode
             decimalFormat.format(potential)
-        } else "-.--"
-    }
+        } else {
+            "-.--"
+        }
 
     /**
      * Format the given playResult to a level text.
      *
      * For example, 9900000 > "EX+"
      */
-    fun scoreToLevelText(score: Int): String {
-        return when {
+    fun scoreToLevelText(score: Int): String =
+        when {
             score >= 9900000 -> "EX+"
             score >= 9800000 -> "EX"
             score >= 9500000 -> "AA"
@@ -47,7 +48,6 @@ object ArcaeaFormatters {
             score >= 8600000 -> "C"
             else -> "D"
         }
-    }
 
     /**
      * Format the given constant to a "rating class text".
@@ -118,13 +118,12 @@ object ArcaeaFormatters {
      * * `Difficulty(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
      * * `Difficulty(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
      */
-    fun ratingText(difficulty: Difficulty): String {
-        return ratingText(
+    fun ratingText(difficulty: Difficulty): String =
+        ratingText(
             ratingClass = difficulty.ratingClass,
             rating = difficulty.rating,
-            ratingPlus = difficulty.ratingPlus
+            ratingPlus = difficulty.ratingPlus,
         )
-    }
 
     /**
      * Returns the readable rating text for the given chart.
@@ -138,12 +137,11 @@ object ArcaeaFormatters {
      * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
      * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=0)` > "FUTURE 10+"
      */
-    fun ratingText(chart: Chart): String {
-        return ratingText(
+    fun ratingText(chart: Chart): String =
+        ratingText(
             ratingClass = chart.ratingClass,
             rating = chart.rating,
             ratingPlus = chart.ratingPlus,
             constant = chart.constant,
         )
-    }
 }

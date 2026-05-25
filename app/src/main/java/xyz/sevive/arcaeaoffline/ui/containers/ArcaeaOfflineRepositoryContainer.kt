@@ -54,9 +54,9 @@ interface ArcaeaOfflineDatabaseRepositoryContainer {
     val potentialRepo: PotentialRepository
 }
 
-class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
-    ArcaeaOfflineDatabaseRepositoryContainer {
-
+class ArcaeaOfflineDatabaseRepositoryContainerImpl(
+    context: Context,
+) : ArcaeaOfflineDatabaseRepositoryContainer {
     private val db = ArcaeaOfflineDatabase.getDatabase(context)
 
     override val propertyRepo: PropertyRepository by lazy {
@@ -102,11 +102,12 @@ class ArcaeaOfflineDatabaseRepositoryContainerImpl(context: Context) :
     override val playResultBestRepo: PlayResultBestRepository by lazy {
         PlayResultBestRepositoryImpl(
             relationshipsDao = db.relationshipsDao(),
-            playResultCalculatedRepo = PlayResultCalculatedRepositoryImpl(
-                playResultDao = db.playResultDao(),
-                chartInfoDao = db.chartInfoDao(),
-                songDao = db.songDao(),
-            ),
+            playResultCalculatedRepo =
+                PlayResultCalculatedRepositoryImpl(
+                    playResultDao = db.playResultDao(),
+                    chartInfoDao = db.chartInfoDao(),
+                    songDao = db.songDao(),
+                ),
         )
     }
 

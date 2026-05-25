@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui
 
-
 import android.app.Application
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -31,120 +30,120 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstab
  * Provides Factory to create instance of ViewModel for the entire app
  */
 object AppViewModelProvider {
-    val Factory = viewModelFactory {
-        // Initializer for ViewModels
-        initializer {
-            EmergencyModeActivityViewModel(application().dataStoreRepositoryContainer.emergencyModePreferences)
-        }
+    val Factory =
+        viewModelFactory {
+            // Initializer for ViewModels
+            initializer {
+                EmergencyModeActivityViewModel(application().dataStoreRepositoryContainer.emergencyModePreferences)
+            }
 
-        initializer {
-            OverviewViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer.potentialRepo
-            )
-        }
+            initializer {
+                OverviewViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer.potentialRepo,
+                )
+            }
 
-        initializer {
-            DatabaseNavEntryViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer,
-                databaseSchemaVersionGetter = {
-                    ArcaeaOfflineDatabase.getDatabase(application()).useReaderConnection { conn ->
-                        conn.usePrepared("PRAGMA user_version;") { stmt ->
-                            stmt.step()
-                            stmt.getText(0).toIntOrNull()
+            initializer {
+                DatabaseNavEntryViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                    databaseSchemaVersionGetter = {
+                        ArcaeaOfflineDatabase.getDatabase(application()).useReaderConnection { conn ->
+                            conn.usePrepared("PRAGMA user_version;") { stmt ->
+                                stmt.step()
+                                stmt.getText(0).toIntOrNull()
+                            }
                         }
-                    }
-                },
-            )
-        }
+                    },
+                )
+            }
 
-        initializer {
-            DatabaseManageViewModel(
-                application().resources,
-                application().assets,
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                DatabaseManageViewModel(
+                    application().resources,
+                    application().assets,
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            DatabaseAddPlayResultViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                DatabaseAddPlayResultViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            DatabasePlayResultListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                DatabasePlayResultListViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            DatabaseB30ListViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                DatabaseB30ListViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            DatabaseR30ListViewModel(
-                WorkManager.getInstance(application()),
-                application().arcaeaOfflineDatabaseRepositoryContainer,
-            )
-        }
+            initializer {
+                DatabaseR30ListViewModel(
+                    WorkManager.getInstance(application()),
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            DatabaseDeduplicatorViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                DatabaseDeduplicatorViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            OcrDependenciesScreenViewModel(application())
-        }
+            initializer {
+                OcrDependenciesScreenViewModel(application())
+            }
 
-        initializer {
-            OcrQueueScreenViewModel(
-                WorkManager.getInstance(application()),
-                application().arcaeaOfflineDatabaseRepositoryContainer,
-                application().ocrQueueDatabaseRepositoryContainer,
-                application().dataStoreRepositoryContainer.ocrQueuePreferences,
-            )
-        }
+            initializer {
+                OcrQueueScreenViewModel(
+                    WorkManager.getInstance(application()),
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                    application().ocrQueueDatabaseRepositoryContainer,
+                    application().dataStoreRepositoryContainer.ocrQueuePreferences,
+                )
+            }
 
-        initializer {
-            OcrQueueEnqueueCheckerViewModel(
-                WorkManager.getInstance(application()),
-                application().ocrQueueDatabaseRepositoryContainer,
-                application().dataStoreRepositoryContainer.ocrQueuePreferences,
-            )
-        }
+            initializer {
+                OcrQueueEnqueueCheckerViewModel(
+                    WorkManager.getInstance(application()),
+                    application().ocrQueueDatabaseRepositoryContainer,
+                    application().dataStoreRepositoryContainer.ocrQueuePreferences,
+                )
+            }
 
-        initializer {
-            OcrQueuePreferencesViewModel(application().dataStoreRepositoryContainer.ocrQueuePreferences)
-        }
+            initializer {
+                OcrQueuePreferencesViewModel(application().dataStoreRepositoryContainer.ocrQueuePreferences)
+            }
 
-        initializer {
-            OcrFromShareViewModel(
-                application().arcaeaOfflineDatabaseRepositoryContainer,
-                application().appDatabaseRepositoryContainer
-            )
-        }
+            initializer {
+                OcrFromShareViewModel(
+                    application().arcaeaOfflineDatabaseRepositoryContainer,
+                    application().appDatabaseRepositoryContainer,
+                )
+            }
 
-        initializer {
-            SettingsViewModel(
-                application().dataStoreRepositoryContainer.appPreferences
-            )
-        }
+            initializer {
+                SettingsViewModel(
+                    application().dataStoreRepositoryContainer.appPreferences,
+                )
+            }
 
-        initializer {
-            SettingsUnstableAlertScreenViewModel(
-                application().dataStoreRepositoryContainer.unstableFlavorPreferences
-            )
+            initializer {
+                SettingsUnstableAlertScreenViewModel(
+                    application().dataStoreRepositoryContainer.unstableFlavorPreferences,
+                )
+            }
         }
-    }
 }
 
 /**
  * Extension function to queries for [Application] object and returns an instance of
  * [ArcaeaOfflineApplication].
  */
-fun CreationExtras.application(): ArcaeaOfflineApplication =
-    (this[AndroidViewModelFactory.APPLICATION_KEY] as ArcaeaOfflineApplication)
+fun CreationExtras.application(): ArcaeaOfflineApplication = (this[AndroidViewModelFactory.APPLICATION_KEY] as ArcaeaOfflineApplication)

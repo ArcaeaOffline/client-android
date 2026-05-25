@@ -54,11 +54,14 @@ fun SelectDialog(
                                 Modifier
                                     .clickable { onSelect(i) }
                                     .background(
-                                        if (optionSelected) MaterialTheme.colorScheme.primary.copy(
-                                            0.1f
-                                        ) else Color.Unspecified
-                                    )
-                                    .padding(16.dp, 8.dp)
+                                        if (optionSelected) {
+                                            MaterialTheme.colorScheme.primary.copy(
+                                                0.1f,
+                                            )
+                                        } else {
+                                            Color.Unspecified
+                                        },
+                                    ).padding(16.dp, 8.dp)
                                     .fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding) * 2),
                                 verticalAlignment = Alignment.CenterVertically,

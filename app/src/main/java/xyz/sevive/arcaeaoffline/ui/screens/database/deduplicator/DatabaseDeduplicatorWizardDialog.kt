@@ -23,7 +23,6 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
-
 @Composable
 private fun AutoMergeConfirmDialog(
     onDismissRequest: () -> Unit,
@@ -95,7 +94,7 @@ internal fun DatabaseDeduplicatorWizardDialog(
 
                 item {
                     CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.extendedColorScheme.warning
+                        LocalContentColor provides MaterialTheme.extendedColorScheme.warning,
                     ) {
                         TextPreferencesWidget(
                             onClick = { showAutoMergeConfirmDialog = true },

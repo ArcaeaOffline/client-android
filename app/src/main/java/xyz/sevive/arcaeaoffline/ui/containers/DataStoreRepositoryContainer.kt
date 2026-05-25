@@ -15,7 +15,7 @@ interface DataStoreRepositoryContainer {
 }
 
 class DataStoreRepositoryContainerImpl(
-    private val context: Context
+    private val context: Context,
 ) : DataStoreRepositoryContainer {
     override val appPreferences: AppPreferencesRepository by lazy {
         AppPreferencesRepository(AppDataStoreProvider.appPreferences(context))

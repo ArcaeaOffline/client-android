@@ -5,7 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
 val MaterialTheme.extendedColorScheme
-    @Composable @ReadOnlyComposable get() = LocalExtendedColorScheme.current
+    @Composable @ReadOnlyComposable
+    get() = LocalExtendedColorScheme.current
 
 val MaterialTheme.arcaeaColors
-    @Composable @ReadOnlyComposable get() = LocalArcaeaColors.current
+    @Composable @ReadOnlyComposable
+    get() = LocalArcaeaColors.current

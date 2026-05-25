@@ -24,10 +24,11 @@ fun ImagePreviewDialogImage(
         state = zoomableState,
         model = imageBitmap,
         modifier = modifier,
-        detectGesture = ZoomableGestureScope(
-            onTap = { onDismiss() },
-            onDoubleTap = { coroutineScope.launch { zoomableState.toggleScale(it) } },
-        ),
+        detectGesture =
+            ZoomableGestureScope(
+                onTap = { onDismiss() },
+                onDoubleTap = { coroutineScope.launch { zoomableState.toggleScale(it) } },
+            ),
     )
 }
 

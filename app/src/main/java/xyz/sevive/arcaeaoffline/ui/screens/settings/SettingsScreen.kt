@@ -23,20 +23,18 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScree
 import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreen
 
-
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun SettingsScreen(
-    vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
-) {
+fun SettingsScreen(vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val context = LocalContext.current
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val onNavigateUp = remember {
-        { backPressedDispatcher?.onBackPressed() }
-    }
+    val onNavigateUp =
+        remember {
+            { backPressedDispatcher?.onBackPressed() }
+        }
 
     val generalUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
 
@@ -71,7 +69,7 @@ fun SettingsScreen(
                         coroutineScope.launch {
                             navigator.navigateTo(
                                 ListDetailPaneScaffoldRole.Detail,
-                                SettingsScreenDestination.License.route
+                                SettingsScreenDestination.License.route,
                             )
                         }
                     },
@@ -79,7 +77,7 @@ fun SettingsScreen(
                         coroutineScope.launch {
                             navigator.navigateTo(
                                 ListDetailPaneScaffoldRole.Detail,
-                                SettingsScreenDestination.Aboutlibraries.route
+                                SettingsScreenDestination.Aboutlibraries.route,
                             )
                         }
                     },

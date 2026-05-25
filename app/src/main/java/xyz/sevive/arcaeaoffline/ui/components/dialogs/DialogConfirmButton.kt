@@ -13,25 +13,27 @@ import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
-
 object DialogConfirmButtonDefaults {
     val defaultColors: ButtonColors
-        @Composable get() = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.primary,
-        )
+        @Composable get() =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
+            )
 
     val dangerColors: ButtonColors
-        @Composable get() = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.error,
-        )
+        @Composable get() =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.error,
+            )
 
     val warningColors: ButtonColors
-        @Composable get() = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.extendedColorScheme.warningContainer,
-            contentColor = MaterialTheme.extendedColorScheme.warning,
-        )
+        @Composable get() =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.extendedColorScheme.warningContainer,
+                contentColor = MaterialTheme.extendedColorScheme.warning,
+            )
 }
 
 @Composable

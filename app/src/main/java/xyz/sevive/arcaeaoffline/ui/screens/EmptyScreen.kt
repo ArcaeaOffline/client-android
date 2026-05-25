@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 
-
 @Composable
 fun EmptyScreen(
     modifier: Modifier = Modifier,
@@ -35,7 +34,7 @@ fun EmptyScreen(
                 contentDescription = null,
                 Modifier
                     .size(90.dp)
-                    .alpha(0.5f)
+                    .alpha(0.5f),
             )
             Text(text, style = MaterialTheme.typography.titleLarge)
         }

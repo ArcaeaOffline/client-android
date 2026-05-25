@@ -34,7 +34,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 internal fun DatabaseAddPlayResultPlayResultAction(
     playResult: PlayResult?,
@@ -69,7 +68,7 @@ internal fun DatabaseAddPlayResultPlayResultAction(
                         IconRow(
                             Modifier
                                 .minimumInteractiveComponentSize()
-                                .padding(dimensionResource(R.dimen.card_padding))
+                                .padding(dimensionResource(R.dimen.card_padding)),
                         ) {
                             Icon(Icons.Default.Block, null)
                             Text(stringResource(R.string.database_add_play_result_select_chart_first))
@@ -91,9 +90,12 @@ internal fun DatabaseAddPlayResultPlayResultAction(
 @PreviewLightDark
 @Composable
 private fun PlayResultActionPreview() {
-    val playResult = PlayResult(
-        songId = "test", ratingClass = ArcaeaRatingClass.FUTURE, score = 12345678
-    )
+    val playResult =
+        PlayResult(
+            songId = "test",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            score = 12345678,
+        )
 
     ArcaeaOfflineTheme {
         Surface {

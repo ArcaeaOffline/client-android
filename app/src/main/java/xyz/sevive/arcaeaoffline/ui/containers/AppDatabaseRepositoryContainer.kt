@@ -4,7 +4,9 @@ import android.content.Context
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
 
-class AppDatabaseRepositoryContainer(private val context: Context) {
+class AppDatabaseRepositoryContainer(
+    private val context: Context,
+) {
     val ocrHistoryRepo by lazy {
         OcrHistoryRepository(AppDatabase.getDatabase(context).ocrHistoryDao())
     }

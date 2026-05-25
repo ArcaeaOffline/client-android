@@ -24,9 +24,10 @@ fun DatabaseEntryScreen() {
     val coroutineScope = rememberCoroutineScope()
 
     val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val onNavigateUp = remember {
-        { backPressedDispatcher?.onBackPressed() ?: Unit }
-    }
+    val onNavigateUp =
+        remember {
+            { backPressedDispatcher?.onBackPressed() ?: Unit }
+        }
 
     GeneralEntryScreen(
         navigator = navigator,

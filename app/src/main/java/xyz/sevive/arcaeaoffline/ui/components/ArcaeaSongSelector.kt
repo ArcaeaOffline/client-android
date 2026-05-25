@@ -18,7 +18,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
-
 @Composable
 fun ArcaeaSongSelector(
     songs: List<Song>,

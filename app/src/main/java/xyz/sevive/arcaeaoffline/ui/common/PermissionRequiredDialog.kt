@@ -29,30 +29,32 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
-fun rememberPermissionIcon(permission: String): ImageVector? {
-    return remember(permission) {
+fun rememberPermissionIcon(permission: String): ImageVector? =
+    remember(permission) {
         when (permission) {
             Manifest.permission.WRITE_EXTERNAL_STORAGE -> Icons.Default.Storage
             Manifest.permission.POST_NOTIFICATIONS -> Icons.Default.NotificationsActive
-
             else -> null
         }
     }
-}
 
 @Composable
 fun rememberPermissionDescription(permission: String): String {
     val context = LocalContext.current
     return remember(permission) {
-        context.packageManager.getPermissionInfo(permission, 0).loadLabel(context.packageManager)
+        context.packageManager
+            .getPermissionInfo(permission, 0)
+            .loadLabel(context.packageManager)
             .toString()
     }
 }
 
 @Composable
-private fun PermissionTitle(permission: String, modifier: Modifier = Modifier) {
+private fun PermissionTitle(
+    permission: String,
+    modifier: Modifier = Modifier,
+) {
     val upperText = remember(permission) { permission.substringBeforeLast('.') }
     val lowerText = remember(permission) { permission.substringAfterLast('.') }
 
@@ -69,7 +71,10 @@ private fun PermissionTitle(permission: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PermissionWidget(permission: String, modifier: Modifier = Modifier) {
+private fun PermissionWidget(
+    permission: String,
+    modifier: Modifier = Modifier,
+) {
     val content = rememberPermissionDescription(permission)
     val icon = rememberPermissionIcon(permission)
 
@@ -110,8 +115,8 @@ fun PermissionRequiredDialog(
                     pluralStringResource(
                         R.plurals.permission_required_dialog_content,
                         count = permissions.size,
-                        functionName.toString()
-                    )
+                        functionName.toString(),
+                    ),
                 )
 
                 Column {
@@ -130,14 +135,15 @@ private fun PermissionRequiredDialogRealDevicePreview() {
             onDismiss = {},
             onConfirm = {},
             functionName = "Preview",
-            permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                listOf(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                )
-            } else {
-                listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            },
+            permissions =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    listOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    )
+                } else {
+                    listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                },
         )
     }
 }

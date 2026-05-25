@@ -42,7 +42,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import kotlin.math.round
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseB30ListScreen(

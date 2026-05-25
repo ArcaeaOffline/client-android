@@ -33,14 +33,15 @@ fun ReadonlyClickableTextField(
         modifier = modifier,
         // detect click in a readonly textfield
         // https://stackoverflow.com/a/75826824/16484891, CC BY-SA 4.0
-        interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
-            LaunchedEffect(interactionSource) {
-                interactionSource.interactions.collect {
-                    if (it is PressInteraction.Release) {
-                        onClick()
+        interactionSource =
+            remember { MutableInteractionSource() }.also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            onClick()
+                        }
                     }
                 }
-            }
-        },
+            },
     )
 }

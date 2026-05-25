@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 
-
 @Composable
 private fun ArcaeaAppIconDisabledContent(modifier: Modifier) {
     Icon(Icons.Default.Cancel, contentDescription = null, modifier = modifier)
@@ -30,9 +29,10 @@ fun ArcaeaAppIcon(
     val context = LocalContext.current
     val density = LocalDensity.current
     val iconSizePx = remember(iconRenderSize) { with(density) { iconRenderSize.roundToPx() } }
-    val bitmap = remember(iconSizePx) {
-        ArcaeaPackageHelper(context).getIcon()?.toBitmap(width = iconSizePx, height = iconSizePx)
-    }
+    val bitmap =
+        remember(iconSizePx) {
+            ArcaeaPackageHelper(context).getIcon()?.toBitmap(width = iconSizePx, height = iconSizePx)
+        }
 
     if (forceDisabled) {
         ArcaeaAppIconDisabledContent(modifier)

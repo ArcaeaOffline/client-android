@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OcrNavEntry(

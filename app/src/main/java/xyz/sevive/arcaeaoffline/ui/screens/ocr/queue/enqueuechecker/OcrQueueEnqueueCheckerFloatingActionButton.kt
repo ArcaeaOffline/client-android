@@ -45,7 +45,6 @@ import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.roundToInt
 
-
 private fun persistUrisPermission(
     context: Context,
     uris: List<Uri>,
@@ -76,26 +75,28 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
 
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
-    val pickImagesLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        // persist access permission to these images, ensuring the image preview function
-        // will work even if the application restarted
-        persistUrisPermission(context, uris)
-        vm.addImageFiles(uris)
-    }
-
-    val pickFolderLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-        uri?.let {
-            // persistent access permission to this folder
-            persistUrisPermission(context, listOf(uri))
-
-            val folder = DocumentFile.fromTreeUri(context, uri)
-            folder?.let { vm.addFolder(it) }
+    val pickImagesLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetMultipleContents(),
+        ) { uris ->
+            // persist access permission to these images, ensuring the image preview function
+            // will work even if the application restarted
+            persistUrisPermission(context, uris)
+            vm.addImageFiles(uris)
         }
-    }
+
+    val pickFolderLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocumentTree(),
+        ) { uri ->
+            uri?.let {
+                // persistent access permission to this folder
+                persistUrisPermission(context, listOf(uri))
+
+                val folder = DocumentFile.fromTreeUri(context, uri)
+                folder?.let { vm.addFolder(it) }
+            }
+        }
 
     OcrQueueEnqueueCheckerFloatingActionButton(
         uiState = uiState,
@@ -132,18 +133,22 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
                 onPickFolder()
                 showBottomSheet = false
             },
-            onStopJobRequest = if (uiState.isRunning) {
-                {
-                    onStopJob()
-                    showBottomSheet = false
-                }
-            } else null,
+            onStopJobRequest =
+                if (uiState.isRunning) {
+                    {
+                        onStopJob()
+                        showBottomSheet = false
+                    }
+                } else {
+                    null
+                },
         )
     }
 
-    val progress = remember(uiState.progress) {
-        uiState.progress?.let { it.first.toFloat() / it.second }
-    }
+    val progress =
+        remember(uiState.progress) {
+            uiState.progress?.let { it.first.toFloat() / it.second }
+        }
     val progressText = remember(progress) { progress?.let { "${(it * 100).roundToInt()}%" } }
     val imagePlusIconAlpha by animateFloatAsState(
         targetValue = if (uiState.isPreparing || progress != null) 0.05f else 1f,
@@ -163,7 +168,7 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
                     contentDescription = null,
                     Modifier
                         .align(Alignment.Center)
-                        .alpha(imagePlusIconAlpha)
+                        .alpha(imagePlusIconAlpha),
                 )
 
                 if (uiState.isPreparing) {
@@ -177,9 +182,10 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
                 progress?.let {
                     CircularProgressIndicator(
                         progress = { it },
-                        modifier = Modifier
-                            .size(48.dp)
-                            .align(Alignment.Center),
+                        modifier =
+                            Modifier
+                                .size(48.dp)
+                                .align(Alignment.Center),
                     )
 
                     Text(
@@ -204,30 +210,33 @@ private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
-                        ocrQueueRunning = false,
-                    ),
+                    uiState =
+                        OcrQueueEnqueueCheckerViewModel.UiState(
+                            ocrQueueRunning = false,
+                        ),
                 )
 
                 OcrQueueEnqueueCheckerFloatingActionButton(
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
-                        isPreparing = true,
-                        ocrQueueRunning = false,
-                    ),
+                    uiState =
+                        OcrQueueEnqueueCheckerViewModel.UiState(
+                            isPreparing = true,
+                            ocrQueueRunning = false,
+                        ),
                 )
 
                 OcrQueueEnqueueCheckerFloatingActionButton(
                     onPickImages = {},
                     onPickFolder = {},
                     onStopJob = {},
-                    uiState = OcrQueueEnqueueCheckerViewModel.UiState(
-                        isRunning = true,
-                        progress = 33 to 100,
-                        ocrQueueRunning = false,
-                    ),
+                    uiState =
+                        OcrQueueEnqueueCheckerViewModel.UiState(
+                            isRunning = true,
+                            progress = 33 to 100,
+                            ocrQueueRunning = false,
+                        ),
                 )
             }
         }

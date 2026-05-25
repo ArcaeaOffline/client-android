@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 private val HorizontalPadding
     @Composable
     get() = dimensionResource(R.dimen.pref_widget_horizontal_padding)
@@ -60,7 +59,7 @@ fun BasePreferencesWidget(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             CompositionLocalProvider(
-                LocalTextStyle provides MaterialTheme.typography.bodyLarge
+                LocalTextStyle provides MaterialTheme.typography.bodyLarge,
             ) {
                 title(this@Column)
             }
@@ -72,7 +71,6 @@ fun BasePreferencesWidget(
         }
     }
 }
-
 
 @PreviewLightDark
 @Composable

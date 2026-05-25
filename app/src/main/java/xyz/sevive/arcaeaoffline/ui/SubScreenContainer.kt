@@ -50,7 +50,7 @@ fun SubScreenTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
-    scrollBehavior: TopAppBarScrollBehavior? = null
+    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     TopAppBar(
         title = { title() },
@@ -59,7 +59,7 @@ fun SubScreenTopAppBar(
             IconButton(onClick = onNavigateUp) {
                 Icon(
                     Icons.AutoMirrored.Default.ArrowBack,
-                    stringResource(R.string.icon_desc_navigate_back)
+                    stringResource(R.string.icon_desc_navigate_back),
                 )
             }
         },
@@ -69,7 +69,6 @@ fun SubScreenTopAppBar(
         scrollBehavior = scrollBehavior,
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -12,7 +12,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
-
 @Composable
 internal fun OcrQueueTaskList(
     uiItems: List<OcrQueueScreenViewModel.TaskUiItem>,

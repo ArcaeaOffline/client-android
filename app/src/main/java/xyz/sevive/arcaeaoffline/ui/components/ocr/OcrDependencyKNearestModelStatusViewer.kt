@@ -9,14 +9,14 @@ import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.KNearestModelStatusDetail
 
-
 data class OcrDependencyKNearestModelStatusUiState(
     val statusDetail: KNearestModelStatusDetail = KNearestModelStatusDetail(),
 )
 
 @Composable
 fun OcrDependencyKNearestModelStatusViewer(
-    uiState: OcrDependencyKNearestModelStatusUiState, modifier: Modifier = Modifier
+    uiState: OcrDependencyKNearestModelStatusUiState,
+    modifier: Modifier = Modifier,
 ) {
     val status = remember(uiState) { uiState.statusDetail.status() }
     val summary = remember(uiState) { uiState.statusDetail.summary() }

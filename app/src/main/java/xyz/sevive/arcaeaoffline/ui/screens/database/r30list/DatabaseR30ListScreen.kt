@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.r30list
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +45,11 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
-private fun DatabaseR30UpdateProgress(current: Int, total: Int, modifier: Modifier = Modifier) {
+private fun DatabaseR30UpdateProgress(
+    current: Int,
+    total: Int,
+    modifier: Modifier = Modifier,
+) {
     LinearProgressIndicatorWrapper(current = current, total = total, modifier)
 }
 
@@ -89,9 +92,10 @@ internal fun DatabaseR30ListScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val uiItems = uiState.listItems
 
-    val lastUpdatedAtText = remember(uiState.lastUpdatedAt) {
-        uiState.lastUpdatedAt?.formatAsLocalizedDateTime() ?: "-"
-    }
+    val lastUpdatedAtText =
+        remember(uiState.lastUpdatedAt) {
+            uiState.lastUpdatedAt?.formatAsLocalizedDateTime() ?: "-"
+        }
 
     var showRebuildConfirmDialog by rememberSaveable { mutableStateOf(false) }
     if (showRebuildConfirmDialog) {
@@ -113,7 +117,7 @@ internal fun DatabaseR30ListScreen(
                         Text(stringResource(DatabaseScreenDestinations.R30.title))
                         Text(
                             stringResource(R.string.general_updated_at, lastUpdatedAtText),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
                         )
                     }
                 },

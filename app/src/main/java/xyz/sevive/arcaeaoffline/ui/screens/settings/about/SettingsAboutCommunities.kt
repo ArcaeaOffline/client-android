@@ -19,7 +19,6 @@ import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 
-
 @Composable
 internal fun SettingsAboutCommunities(modifier: Modifier = Modifier) {
     val showRepo =
@@ -36,7 +35,7 @@ internal fun SettingsAboutCommunities(modifier: Modifier = Modifier) {
     Column(modifier) {
         Row {
             CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.primary
+                LocalContentColor provides MaterialTheme.colorScheme.primary,
             ) {
                 if (showRepo) {
                     IconButton(onClick = { uriHandler.openUri(BuildConfig.COMMUNITY_REPO_URL) }) {
@@ -52,7 +51,7 @@ internal fun SettingsAboutCommunities(modifier: Modifier = Modifier) {
             }
 
             CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.secondary
+                LocalContentColor provides MaterialTheme.colorScheme.secondary,
             ) {
                 if (showDiscord) {
                     IconButton(onClick = { uriHandler.openUri(BuildConfig.COMMUNITY_DISCORD_URL) }) {

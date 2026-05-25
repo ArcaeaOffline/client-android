@@ -19,12 +19,16 @@ import androidx.compose.ui.unit.em
 import java.text.NumberFormat
 
 @Composable
-private fun rememberIsIndeterminate(current: Int, total: Int): Boolean {
-    return remember(current, total) { total < 1 || current == -1 }
-}
+private fun rememberIsIndeterminate(
+    current: Int,
+    total: Int,
+): Boolean = remember(current, total) { total < 1 || current == -1 }
 
 @Composable
-private fun rememberPercentage(current: Int, total: Int): Double {
+private fun rememberPercentage(
+    current: Int,
+    total: Int,
+): Double {
     val isIndeterminate = rememberIsIndeterminate(current, total)
     return remember(current, total) { if (isIndeterminate) 0.0 else current.toDouble() / total }
 }
@@ -33,24 +37,28 @@ private fun rememberPercentage(current: Int, total: Int): Double {
 private fun rememberProgressLabel(
     current: Int,
     total: Int,
-    formatter: NumberFormat
+    formatter: NumberFormat,
 ): AnnotatedString {
     val isIndeterminate = rememberIsIndeterminate(current, total)
     val percentage = rememberPercentage(current, total)
 
-    val indeterminateText = remember {
-        buildAnnotatedString {
-            append("-")
-            withStyle(SpanStyle(fontSize = 0.9.em)) { append("/-") }
-            append(" (--%)")
+    val indeterminateText =
+        remember {
+            buildAnnotatedString {
+                append("-")
+                withStyle(SpanStyle(fontSize = 0.9.em)) { append("/-") }
+                append(" (--%)")
+            }
         }
-    }
     return remember(current, total, formatter) {
-        if (isIndeterminate) indeterminateText
-        else buildAnnotatedString {
-            append(current.toString())
-            withStyle(SpanStyle(fontSize = 0.9.em)) { append("/$total") }
-            append(" (${formatter.format(percentage)})")
+        if (isIndeterminate) {
+            indeterminateText
+        } else {
+            buildAnnotatedString {
+                append(current.toString())
+                withStyle(SpanStyle(fontSize = 0.9.em)) { append("/$total") }
+                append(" (${formatter.format(percentage)})")
+            }
         }
     }
 }
@@ -74,9 +82,10 @@ fun LinearProgressIndicatorWrapper(
     val percentage = rememberPercentage(current, total)
     val progressLabel = rememberProgressLabel(current, total, formatter)
 
-    val label = remember(isIndeterminate, indeterminateLabel, determinateLabel) {
-        if (isIndeterminate) indeterminateLabel else determinateLabel
-    }
+    val label =
+        remember(isIndeterminate, indeterminateLabel, determinateLabel) {
+            if (isIndeterminate) indeterminateLabel else determinateLabel
+        }
 
     Column(modifier.width(IntrinsicSize.Min)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

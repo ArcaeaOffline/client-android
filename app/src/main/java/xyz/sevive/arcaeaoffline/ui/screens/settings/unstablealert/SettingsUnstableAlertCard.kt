@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 
-
 @Composable
 private fun UnstableBuildAlertCardContent(showDetails: Boolean = true) {
     Column(Modifier.padding(dimensionResource(R.dimen.action_button_padding))) {
@@ -47,16 +46,18 @@ fun UnstableBuildAlertCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     showDetails: Boolean = true,
-    shape: Shape = CutCornerShape(
-        topStart = 0.dp,
-        topEnd = dimensionResource(R.dimen.action_button_padding),
-        bottomEnd = 0.dp,
-        bottomStart = dimensionResource(R.dimen.action_button_padding),
-    ),
-    colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.error,
-    ),
+    shape: Shape =
+        CutCornerShape(
+            topStart = 0.dp,
+            topEnd = dimensionResource(R.dimen.action_button_padding),
+            bottomEnd = 0.dp,
+            bottomStart = dimensionResource(R.dimen.action_button_padding),
+        ),
+    colors: CardColors =
+        CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.error,
+        ),
 ) {
     if (onClick != null) {
         Card(onClick, modifier, shape = shape, colors = colors) {

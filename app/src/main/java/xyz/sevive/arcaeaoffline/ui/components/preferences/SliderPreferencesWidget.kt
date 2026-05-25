@@ -16,7 +16,6 @@ import androidx.compose.ui.res.dimensionResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 
-
 @Composable
 fun SliderPreferencesWidget(
     value: Float,
@@ -34,7 +33,7 @@ fun SliderPreferencesWidget(
         trailingSlot = trailingSlot,
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             content?.invoke(this@Column)
             Slider(

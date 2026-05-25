@@ -19,7 +19,7 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseAddPlayResultViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
 ) : ViewModel() {
     data class UiState(
         val chart: Chart? = null,
@@ -40,17 +40,18 @@ class DatabaseAddPlayResultViewModel(
         return ArcaeaPlayResultValidator.validate(playResult, chartInfo)
     }
 
-    val uiState = combine(chart, playResult) { chart, playResult ->
-        UiState(
-            chart = chart,
-            playResult = playResult,
-            warnings = getPlayResultWarnings(playResult),
+    val uiState =
+        combine(chart, playResult) { chart, playResult ->
+            UiState(
+                chart = chart,
+                playResult = playResult,
+                warnings = getPlayResultWarnings(playResult),
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            UiState(),
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        UiState(),
-    )
 
     fun setChart(chart: Chart?) {
         _chart.value = chart
@@ -62,7 +63,7 @@ class DatabaseAddPlayResultViewModel(
             _chart.value?.let {
                 _playResult.value?.copy(songId = it.songId, ratingClass = it.ratingClass)
                     ?: PlayResult(songId = it.songId, ratingClass = it.ratingClass, score = 0)
-            }
+            },
         )
     }
 
@@ -76,15 +77,17 @@ class DatabaseAddPlayResultViewModel(
     }
 
     private var savePlayResultJob: Job? = null
+
     fun savePlayResult() {
         savePlayResultJob?.cancel()
         if (playResult.value == null) return
 
-        savePlayResultJob = viewModelScope.launch(Dispatchers.IO) {
-            playResult.value?.let {
-                repositoryContainer.playResultRepo.upsert(it)
-                reset()
+        savePlayResultJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                playResult.value?.let {
+                    repositoryContainer.playResultRepo.upsert(it)
+                    reset()
+                }
             }
-        }
     }
 }

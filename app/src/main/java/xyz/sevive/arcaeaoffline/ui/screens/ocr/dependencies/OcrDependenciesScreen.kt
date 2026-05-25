@@ -30,7 +30,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 fun OcrDependenciesScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: OcrDependenciesScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: OcrDependenciesScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val context = LocalContext.current
 
@@ -41,12 +41,14 @@ fun OcrDependenciesScreen(
     val canBuildHashesDatabase by ArcaeaResourcesStateHolder.canBuildHashesDatabase.collectAsStateWithLifecycle()
     val buildHashesDatabaseButtonEnabled by viewModel.buildHashesDatabaseButtonEnabled.collectAsStateWithLifecycle()
 
-    val kNearestModelFileChooserLauncher = rememberFileChooserLauncher { uri ->
-        uri?.let { viewModel.importKNearestModel(it, context) }
-    }
-    val imageHashesDatabaseFileChooserLauncher = rememberFileChooserLauncher { uri ->
-        uri?.let { viewModel.importImageHashesDatabase(it, context) }
-    }
+    val kNearestModelFileChooserLauncher =
+        rememberFileChooserLauncher { uri ->
+            uri?.let { viewModel.importKNearestModel(it, context) }
+        }
+    val imageHashesDatabaseFileChooserLauncher =
+        rememberFileChooserLauncher { uri ->
+            uri?.let { viewModel.importImageHashesDatabase(it, context) }
+        }
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
@@ -85,8 +87,12 @@ fun OcrDependenciesScreen(
             }
 
             item {
-                val stringId = if (canBuildHashesDatabase) R.string.general_import_from_arcaea
-                else R.string.arcaea_button_resource_unavailable
+                val stringId =
+                    if (canBuildHashesDatabase) {
+                        R.string.general_import_from_arcaea
+                    } else {
+                        R.string.arcaea_button_resource_unavailable
+                    }
 
                 TextPreferencesWidget(
                     enabled = buildHashesDatabaseButtonEnabled,

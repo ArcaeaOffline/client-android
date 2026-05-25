@@ -25,7 +25,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 
-
 @Composable
 internal fun DatabasePlayResultListItem(
     item: DatabasePlayResultListViewModel.ListItem,

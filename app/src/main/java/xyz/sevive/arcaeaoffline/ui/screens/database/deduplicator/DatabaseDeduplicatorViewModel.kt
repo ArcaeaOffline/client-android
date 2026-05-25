@@ -22,26 +22,30 @@ import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-
 class DatabaseDeduplicatorViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
 ) : ViewModel() {
-    //#region Raw grouped play results
-    private val _groupByValues = MutableStateFlow(setOf(GroupByValue.SCORE))
-    internal val groupByValues = _groupByValues.asStateFlow()
+    // #region Raw grouped play results
+    internal val groupByValues = MutableStateFlow(setOf(GroupByValue.SCORE))
 
     internal fun setGroupByValues(values: Set<GroupByValue>) {
-        _groupByValues.value = values
+        groupByValues.value = values
     }
 
     private fun PlayResult.groupByKey(groupByValues: Set<GroupByValue>): String {
         val keys = mutableSetOf(songId, ratingClass.toString())
 
-        fun addKey(base: String, desiredKey: String?) {
-            keys.add(desiredKey?.let { "${base}${desiredKey}" } ?: "${base}null")
+        fun addKey(
+            base: String,
+            desiredKey: String?,
+        ) {
+            keys.add(desiredKey?.let { "${base}$desiredKey" } ?: "${base}null")
         }
 
-        fun addKey(base: String, value: Int?) = addKey(base, value?.toString())
+        fun addKey(
+            base: String,
+            value: Int?,
+        ) = addKey(base, value?.toString())
 
         if (GroupByValue.SCORE in groupByValues) addKey("s", score)
         if (GroupByValue.PURE in groupByValues) addKey("p", pure)
@@ -62,29 +66,36 @@ class DatabaseDeduplicatorViewModel(
         val playResults =
             repositoryContainer.playResultRepo.findAll().firstOrNull() ?: return emptyMap()
 
-        return playResults.sortedBy { it.id }.groupBy { it.groupByKey(values) }
+        return playResults
+            .sortedBy { it.id }
+            .groupBy { it.groupByKey(values) }
             .filter { it.value.size >= 2 }
     }
 
     private var buildDuplicateGroupsJob: Job? = null
+
     internal fun buildDuplicateGroups(values: Set<GroupByValue>) {
         buildDuplicateGroupsJob?.cancel()
-        buildDuplicateGroupsJob = viewModelScope.launch(Dispatchers.IO) {
-            groupsBuilding.value = true
-            groups.value = buildDuplicateGroupsTask(values)
-            groupsBuilding.value = false
-        }
+        buildDuplicateGroupsJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                groupsBuilding.value = true
+                groups.value = buildDuplicateGroupsTask(values)
+                groupsBuilding.value = false
+            }
     }
-    //#endregion
+    // #endregion
 
-    //#region Selections
+    // #region Selections
     private val _selectedUuids = MutableStateFlow(setOf<UUID>())
     val selectedUuids = _selectedUuids.asStateFlow()
 
     private val autoSelectSemaphore = Semaphore(1)
     private val autoSelectRunning = MutableStateFlow(false)
 
-    fun setPlayResultSelected(uuid: UUID, selected: Boolean) {
+    fun setPlayResultSelected(
+        uuid: UUID,
+        selected: Boolean,
+    ) {
         if (selected) _selectedUuids.value += uuid else _selectedUuids.value -= uuid
     }
 
@@ -96,11 +107,12 @@ class DatabaseDeduplicatorViewModel(
         autoSelectSemaphore.withPermit {
             autoSelectRunning.value = true
 
-            val playResultUuidsToSelect = when (mode) {
-                AutoSelectMode.IDENTICAL -> AutoSelector.identical(groups.value.values)
-                AutoSelectMode.PROPERTIES_PRIORITY -> AutoSelector.propertiesPriority(groups.value.values)
-                AutoSelectMode.R30_PRIORITY -> AutoSelector.r30Priority(groups.value.values)
-            }.map { it.uuid }
+            val playResultUuidsToSelect =
+                when (mode) {
+                    AutoSelectMode.IDENTICAL -> AutoSelector.identical(groups.value.values)
+                    AutoSelectMode.PROPERTIES_PRIORITY -> AutoSelector.propertiesPriority(groups.value.values)
+                    AutoSelectMode.R30_PRIORITY -> AutoSelector.r30Priority(groups.value.values)
+                }.map { it.uuid }
 
             groups.value.values.forEach { playResults ->
                 playResults.forEach {
@@ -129,16 +141,22 @@ class DatabaseDeduplicatorViewModel(
             buildDuplicateGroups(groupByValues.value)
         }
     }
-    //#endregion
+    // #endregion
 
-    //#region Merging
-    private suspend fun mergeGroupTask(groupKey: String, newPlayResult: PlayResult) {
+    // #region Merging
+    private suspend fun mergeGroupTask(
+        groupKey: String,
+        newPlayResult: PlayResult,
+    ) {
         val oldPlayResults = groups.value[groupKey] ?: emptyList()
         repositoryContainer.playResultRepo.upsert(newPlayResult)
         repositoryContainer.playResultRepo.deleteBatch(*oldPlayResults.toTypedArray())
     }
 
-    fun mergeGroup(groupKey: String, newPlayResult: PlayResult) {
+    fun mergeGroup(
+        groupKey: String,
+        newPlayResult: PlayResult,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             mergeGroupTask(groupKey, newPlayResult)
             buildDuplicateGroups(groupByValues.value)
@@ -164,9 +182,9 @@ class DatabaseDeduplicatorViewModel(
             }
         }
     }
-    //#endregion
+    // #endregion
 
-    //#region UI states
+    // #region UI states
     data class GroupListUiItem(
         val index: Int,
         val key: String,
@@ -182,39 +200,44 @@ class DatabaseDeduplicatorViewModel(
     private val groupListUiItemLoading = MutableStateFlow(false)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val groupListUiItems = groups.transformLatest { groups ->
-        groupListUiItemLoading.value = true
+    private val groupListUiItems =
+        groups.transformLatest { groups ->
+            groupListUiItemLoading.value = true
 
-        val chartCacheHolder = UiDisplayChartCacheHolder()
-        chartCacheHolder.updateCache(groups.values.flatten(), repositoryContainer)
+            val chartCacheHolder = UiDisplayChartCacheHolder()
+            chartCacheHolder.updateCache(groups.values.flatten(), repositoryContainer)
 
-        emit(groups.entries.mapIndexed { i, entry ->
-            val playResult = entry.value.getOrNull(0)
+            emit(
+                groups.entries.mapIndexed { i, entry ->
+                    val playResult = entry.value.getOrNull(0)
 
-            GroupListUiItem(
-                index = i,
-                key = entry.key,
-                chart = playResult?.let { chartCacheHolder.get(it) },
-                playResults = entry.value,
+                    GroupListUiItem(
+                        index = i,
+                        key = entry.key,
+                        chart = playResult?.let { chartCacheHolder.get(it) },
+                        playResults = entry.value,
+                    )
+                },
             )
-        })
 
-        groupListUiItemLoading.value = false
-    }
+            groupListUiItemLoading.value = false
+        }
 
-    private val isLoading = combine(
-        groupsBuilding,
-        groupListUiItemLoading,
-        autoSelectRunning,
-        autoMergeRunning,
-    ) { b1, b2, b3, b4 -> b1 || b2 || b3 || b4 }
+    private val isLoading =
+        combine(
+            groupsBuilding,
+            groupListUiItemLoading,
+            autoSelectRunning,
+            autoMergeRunning,
+        ) { b1, b2, b3, b4 -> b1 || b2 || b3 || b4 }
 
-    val uiState = combine(isLoading, groupListUiItems) { isLoading, groupListUiItems ->
-        UiState(isLoading = isLoading, listItems = groupListUiItems)
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        UiState(),
-    )
-    //#endregion
+    val uiState =
+        combine(isLoading, groupListUiItems) { isLoading, groupListUiItems ->
+            UiState(isLoading = isLoading, listItems = groupListUiItems)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            UiState(),
+        )
+    // #endregion
 }

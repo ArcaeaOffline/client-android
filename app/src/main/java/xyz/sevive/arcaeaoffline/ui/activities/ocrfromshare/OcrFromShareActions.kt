@@ -32,7 +32,6 @@ import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 
-
 @Composable
 internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
     val coroutineScope = rememberCoroutineScope()
@@ -40,9 +39,10 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
     val context = LocalContext.current
 
     val handleSavePicture = { ocrFromShareViewModel.saveImage(context) }
-    val requestWriteStoragePermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { if (it) handleSavePicture() }
+    val requestWriteStoragePermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { if (it) handleSavePicture() }
 
     var showSavePicturePermissionRequiredDialog by rememberSaveable { mutableStateOf(false) }
     if (showSavePicturePermissionRequiredDialog) {
@@ -53,11 +53,11 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 showSavePicturePermissionRequiredDialog = false
             },
             functionName = stringResource(R.string.permission_function_save_image),
-            permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
         )
     }
 
-    val score by ocrFromShareViewModel.score.collectAsStateWithLifecycle()
+    val score by ocrFromShareViewModel.playResult.collectAsStateWithLifecycle()
     val scoreSaved by ocrFromShareViewModel.scoreSaved.collectAsStateWithLifecycle()
     val imageSaved by ocrFromShareViewModel.imageSaved.collectAsStateWithLifecycle()
     val scoreCached by ocrFromShareViewModel.scoreCached.collectAsStateWithLifecycle()
@@ -87,13 +87,17 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
 
         OutlinedButton(
             onClick = {
-                if (SaveBitmapToGallery.checkPermission(context)) handleSavePicture()
-                else showSavePicturePermissionRequiredDialog = true
+                if (SaveBitmapToGallery.checkPermission(context)) {
+                    handleSavePicture()
+                } else {
+                    showSavePicturePermissionRequiredDialog = true
+                }
             },
             enabled = !imageSaved,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.secondary
-            ),
+            colors =
+                ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.secondary,
+                ),
         ) {
             IconRow {
                 Icon(Icons.Default.FileDownload, null)

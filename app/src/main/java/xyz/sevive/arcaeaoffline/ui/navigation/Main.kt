@@ -17,9 +17,10 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
 
-
 enum class MainScreenDestinations(
-    val route: String, val icon: @Composable () -> ImageVector, @StringRes val title: Int
+    val route: String,
+    val icon: @Composable () -> ImageVector,
+    @StringRes val title: Int,
 ) {
     Overview(
         "overview",
@@ -27,12 +28,12 @@ enum class MainScreenDestinations(
         R.string.nav_overview,
     ),
     Database(
-        DatabaseNavRouteRoot,
+        DATABASE_NAV_ROUTE_ROOT,
         { ImageVector.vectorResource(R.drawable.ic_database) },
         R.string.nav_database,
     ),
     Ocr(
-        OcrNavRouteRoot,
+        OCR_NAV_ROUTE_ROOT,
         { ImageVector.vectorResource(R.drawable.ic_ocr) },
         R.string.nav_ocr,
     ),
@@ -43,13 +44,15 @@ enum class MainScreenDestinations(
     ),
 }
 
-
 @Composable
-fun MainNavigationGraph(mainNavController: NavHostController, modifier: Modifier = Modifier) {
+fun MainNavigationGraph(
+    mainNavController: NavHostController,
+    modifier: Modifier = Modifier,
+) {
     NavHost(
         mainNavController,
         startDestination = MainScreenDestinations.Overview.route,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable(MainScreenDestinations.Overview.route) {
             OverviewScreen()

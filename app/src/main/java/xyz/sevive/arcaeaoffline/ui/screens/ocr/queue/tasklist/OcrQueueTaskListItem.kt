@@ -27,7 +27,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 @Composable
 private fun OcrQueueTaskListItemImagePreviewDialog(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -61,7 +61,8 @@ internal fun OcrQueueTaskListItem(
     if (showImagePreview) {
         OcrQueueTaskListItemImagePreviewDialog(
             uiItem,
-            onDismissRequest = { showImagePreview = false })
+            onDismissRequest = { showImagePreview = false },
+        )
     }
 
     val chart = uiItem.chart

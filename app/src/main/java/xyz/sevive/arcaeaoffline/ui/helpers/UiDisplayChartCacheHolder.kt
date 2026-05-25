@@ -19,7 +19,9 @@ class UiDisplayChartCacheHolder {
     }
 
     private fun PlayResult.siRcKey() = songId to ratingClass
+
     private fun Difficulty.siRcKey() = songId to ratingClass
+
     private fun Chart.siRcKey() = songId to ratingClass
 
     private val cache = mutableMapOf<Pair<String, ArcaeaRatingClass>, Chart>()
@@ -33,9 +35,15 @@ class UiDisplayChartCacheHolder {
         cache.clear()
 
         measureTime {
-            val itemsToQuery = playResults.map { it.siRcKey() }.groupBy { it.first }.map {
-                it.key to it.value.map { it.second }.distinct()
-            }.toMap().toMutableMap()
+            val itemsToQuery =
+                playResults
+                    .map { it.siRcKey() }
+                    .groupBy { it.first }
+                    .map {
+                        it.key to it.value.map { it.second }.distinct()
+                    }
+                    .toMap()
+                    .toMutableMap()
 
             Log.d(LOG_TAG, "${itemsToQuery.size} before chart")
             // Consider normal charts first, then other screens may use these chart
@@ -74,7 +82,5 @@ class UiDisplayChartCacheHolder {
         repositoryContainer.chartRepo,
     )
 
-    fun get(playResult: PlayResult): Chart? {
-        return cache[playResult.siRcKey()]
-    }
+    fun get(playResult: PlayResult): Chart? = cache[playResult.siRcKey()]
 }
