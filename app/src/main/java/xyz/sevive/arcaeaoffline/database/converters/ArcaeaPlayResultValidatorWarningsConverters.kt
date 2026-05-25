@@ -6,17 +6,16 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 
 object ArcaeaPlayResultValidatorWarningsConverters {
     @TypeConverter
-    fun fromDatabaseValue(value: String?): List<ArcaeaPlayResultValidatorWarning>? {
-        return value?.split(",")
+    fun fromDatabaseValue(value: String?): List<ArcaeaPlayResultValidatorWarning>? =
+        value
+            ?.split(",")
             ?.mapNotNull { ArcaeaPlayResultValidator.WARNINGS.find { w -> w.id == it } }
-    }
 
     @TypeConverter
-    fun toDatabaseValue(value: List<ArcaeaPlayResultValidatorWarning>?): String? {
-        return when {
+    fun toDatabaseValue(value: List<ArcaeaPlayResultValidatorWarning>?): String? =
+        when {
             value == null -> null
             value.isEmpty() -> null
             else -> value.joinToString(",") { it.id }
         }
-    }
 }

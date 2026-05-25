@@ -19,7 +19,6 @@ import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 
-
 @Database(
     entities = [OcrQueueTask::class, OcrQueueEnqueueBuffer::class],
     version = 1,
@@ -36,6 +35,7 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 )
 abstract class OcrQueueDatabase : RoomDatabase() {
     abstract fun ocrQueueTaskDao(): OcrQueueTaskDao
+
     abstract fun ocrQueueEnqueueBufferDao(): OcrQueueEnqueueBufferDao
 
     companion object {
@@ -53,16 +53,16 @@ abstract class OcrQueueDatabase : RoomDatabase() {
             )
         }
 
-
         fun getDatabase(context: Context): OcrQueueDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return instance ?: synchronized(this) {
-                getDatabaseBuilder(context).setDriver(BundledSQLiteDriver())
+                getDatabaseBuilder(context)
+                    .setDriver(BundledSQLiteDriver())
                     .setQueryCoroutineContext(Dispatchers.IO)
-                    .fallbackToDestructiveMigration(dropAllTables = true).build()
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                     .also { instance = it }
             }
         }
     }
 }
-

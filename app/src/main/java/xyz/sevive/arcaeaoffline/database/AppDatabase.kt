@@ -11,7 +11,6 @@ import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 
-
 @Database(
     entities = [OcrHistory::class],
     version = 1,
@@ -27,7 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
         const val DATABASE_FILENAME = "app_data.db"
 
         @Volatile
-        private var Instance: AppDatabase? = null
+        private var instance: AppDatabase? = null
 
         private fun getDatabaseBuilder(context: Context): Builder<AppDatabase> {
             val appContext = context.applicationContext
@@ -38,15 +37,15 @@ abstract class AppDatabase : RoomDatabase() {
             )
         }
 
-
         fun getDatabase(context: Context): AppDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
-            return Instance ?: synchronized(this) {
+            return instance ?: synchronized(this) {
                 getDatabaseBuilder(context)
                     .setDriver(BundledSQLiteDriver())
                     .setQueryCoroutineContext(Dispatchers.IO)
                     .fallbackToDestructiveMigration(dropAllTables = true)
-                    .build().also { Instance = it }
+                    .build()
+                    .also { instance = it }
             }
         }
     }

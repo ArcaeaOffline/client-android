@@ -22,9 +22,11 @@ object OcrDependencyStatusBuilder {
     fun imageHashesDatabase(context: Context): ImageHashesDatabaseStatusDetail {
         try {
             val paths = OcrDependencyPaths(context)
-            if (!paths.imageHashesDatabaseFile.exists()) return ImageHashesDatabaseStatusDetail(
-                absence = true
-            )
+            if (!paths.imageHashesDatabaseFile.exists()) {
+                return ImageHashesDatabaseStatusDetail(
+                    absence = true,
+                )
+            }
 
             OcrDependencyLoader.imageHashesSQLiteDatabase(context).use { sqliteDb ->
                 val db = ImageHashesDatabase(sqliteDb)
@@ -40,17 +42,16 @@ object OcrDependencyStatusBuilder {
         }
     }
 
-    fun crnnModel(context: Context): CrnnModelStatusDetail {
-        return DeviceOcrOnnxHelper.createOrtSession(context).use {
+    fun crnnModel(context: Context): CrnnModelStatusDetail =
+        DeviceOcrOnnxHelper.createOrtSession(context).use {
             try {
                 CrnnModelStatusDetail(
                     modelMetadata = it.metadata,
-                    inputNames = it.inputNames.toSet(),  // make a copy, same for below
+                    inputNames = it.inputNames.toSet(), // make a copy, same for below
                     outputNames = it.outputNames.toSet(),
                 )
             } catch (e: Exception) {
                 CrnnModelStatusDetail(exception = e)
             }
         }
-    }
 }

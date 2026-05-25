@@ -9,7 +9,6 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
 
-
 @Dao
 interface OcrQueueEnqueueBufferDao {
     @Query("SELECT * FROM ocr_queue_enqueue_buffer WHERE checked = 0")

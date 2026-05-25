@@ -30,7 +30,6 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 
-
 class ArcaeaOfflineApplication : Application() {
     companion object {
         const val LOG_TAG = "Application"
@@ -47,14 +46,16 @@ class ArcaeaOfflineApplication : Application() {
     val dataStoreRepositoryContainer = DataStoreRepositoryContainerImpl(this)
 
     private val autoSendCrashReports =
-        dataStoreRepositoryContainer.appPreferences.preferencesFlow.map {
-            it.autoSendCrashReports
-        }.stateIn(appScope, SharingStarted.Eagerly, false)
+        dataStoreRepositoryContainer.appPreferences.preferencesFlow
+            .map {
+                it.autoSendCrashReports
+            }.stateIn(appScope, SharingStarted.Eagerly, false)
 
     private val unstableAlertRead =
-        dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow.map {
-            it.unstableAlertRead
-        }.stateIn(appScope, SharingStarted.Eagerly, null)
+        dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow
+            .map {
+                it.unstableAlertRead
+            }.stateIn(appScope, SharingStarted.Eagerly, null)
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
@@ -64,22 +65,25 @@ class ArcaeaOfflineApplication : Application() {
         val intent = Intent(this, EmergencyModeActivity::class.java)
         intent.setAction(Intent.ACTION_VIEW)
 
-        val shortcut = ShortcutInfo.Builder(this, "emergency_mode_activity")
-            .setShortLabel(getString(R.string.shortcut_emergency_short_label))
-            .setLongLabel(getString(R.string.shortcut_emergency_long_label))
-            .setIcon(Icon.createWithResource(this, R.drawable.ic_activity_emergency_mode))
-            .setIntent(intent)
-            .build()
+        val shortcut =
+            ShortcutInfo
+                .Builder(this, "emergency_mode_activity")
+                .setShortLabel(getString(R.string.shortcut_emergency_short_label))
+                .setLongLabel(getString(R.string.shortcut_emergency_long_label))
+                .setIcon(Icon.createWithResource(this, R.drawable.ic_activity_emergency_mode))
+                .setIntent(intent)
+                .build()
 
         shortcutManager.addDynamicShortcuts(listOf(shortcut))
     }
 
     private suspend fun vacuumDatabases() {
         try {
-            val databases = listOf(
-                ArcaeaOfflineDatabase.getDatabase(this),
-                OcrQueueDatabase.getDatabase(this),
-            )
+            val databases =
+                listOf(
+                    ArcaeaOfflineDatabase.getDatabase(this),
+                    OcrQueueDatabase.getDatabase(this),
+                )
 
             databases.forEach { db ->
                 db.useWriterConnection {
@@ -100,12 +104,13 @@ class ArcaeaOfflineApplication : Application() {
         AndroidThreeTen.init(this)
 
         SentryAndroid.init(this) {
-            it.beforeSend = SentryOptions.BeforeSendCallback { event, _ ->
-                event.setExtra("unstable_alert_read", unstableAlertRead.value.toString())
-                val shouldSend = autoSendCrashReports.value
-                Log.d(LOG_TAG, "Sentry beforeSend: autoSend is $shouldSend")
-                if (shouldSend) event else null
-            }
+            it.beforeSend =
+                SentryOptions.BeforeSendCallback { event, _ ->
+                    event.setExtra("unstable_alert_read", unstableAlertRead.value.toString())
+                    val shouldSend = autoSendCrashReports.value
+                    Log.d(LOG_TAG, "Sentry beforeSend: autoSend is $shouldSend")
+                    if (shouldSend) event else null
+                }
 
             it.isDebug = BuildConfig.DEBUG
         }

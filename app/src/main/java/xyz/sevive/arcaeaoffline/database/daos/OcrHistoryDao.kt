@@ -7,7 +7,6 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 
-
 @Dao
 interface OcrHistoryDao {
     @Query("SELECT * FROM ocr_history")

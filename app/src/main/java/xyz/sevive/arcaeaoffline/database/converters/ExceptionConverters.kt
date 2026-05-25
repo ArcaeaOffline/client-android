@@ -6,22 +6,20 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-
 object ExceptionConverters {
     @TypeConverter
-    fun fromDatabaseValue(value: ByteArray?): Exception? {
-        return value?.let {
+    fun fromDatabaseValue(value: ByteArray?): Exception? =
+        value?.let {
             runCatching {
                 val objectInputStream = ObjectInputStream(ByteArrayInputStream(it))
 
                 objectInputStream.readObject() as Exception
             }.getOrNull()
         }
-    }
 
     @TypeConverter
-    fun toDatabaseValue(value: Exception?): ByteArray? {
-        return value?.let {
+    fun toDatabaseValue(value: Exception?): ByteArray? =
+        value?.let {
             runCatching {
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 val objectOutputStream = ObjectOutputStream(byteArrayOutputStream)
@@ -31,5 +29,4 @@ object ExceptionConverters {
                 byteArrayOutputStream.toByteArray()
             }.getOrNull()
         }
-    }
 }

@@ -13,16 +13,22 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 
-enum class OcrQueueTaskStatus(val value: Int) { IDLE(0), ERROR(1), PROCESSING(2), DONE(3) }
+enum class OcrQueueTaskStatus(
+    val value: Int,
+) {
+    IDLE(0),
+    ERROR(1),
+    PROCESSING(2),
+    DONE(3),
+}
 
 @Entity(
     tableName = "ocr_queue_tasks",
-    indices = [Index("file_uri", unique = true)]
+    indices = [Index("file_uri", unique = true)],
 )
 data class OcrQueueTask(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "inserted_at") val insertedAt: Instant,
-
     @ColumnInfo(name = "file_uri") val fileUri: Uri,
     @ColumnInfo(name = "file_name") val fileName: String? = null,
     @ColumnInfo(name = "status") val status: OcrQueueTaskStatus = OcrQueueTaskStatus.IDLE,

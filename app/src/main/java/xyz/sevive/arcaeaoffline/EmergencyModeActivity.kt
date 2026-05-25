@@ -15,7 +15,6 @@ import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityUi
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 class EmergencyModeActivity : ComponentActivity() {
     private val viewModel by viewModels<EmergencyModeActivityViewModel> { AppViewModelProvider.Factory }
 

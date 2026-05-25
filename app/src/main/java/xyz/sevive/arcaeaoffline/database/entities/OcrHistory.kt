@@ -11,13 +11,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import java.util.UUID
 
-
 @Entity(tableName = "ocr_history")
 data class OcrHistory(
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "source_package_name") val sourcePackageName: String?,
     @ColumnInfo(name = "store_date") val storeDate: Long,
-
     @ColumnInfo(name = "song_id") val songId: String?,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     @ColumnInfo(name = "playResult") val score: Int,
@@ -45,18 +43,24 @@ data class OcrHistory(
             maxRecall = maxRecall,
             modifier = modifier,
             clearType = clearType,
-            comment = when (comment) {
-                null -> null
-                "" -> {
-                    val stringArr = mutableListOf("From OCR cache")
-                    if (sourcePackageName != null) stringArr.add("source `$sourcePackageName`")
-                    stringArr.add(Instant.ofEpochSecond(storeDate).formatAsLocalizedDateTime())
+            comment =
+                when (comment) {
+                    null -> {
+                        null
+                    }
 
-                    stringArr.joinToString(", ")
-                }
+                    "" -> {
+                        val stringArr = mutableListOf("From OCR cache")
+                        if (sourcePackageName != null) stringArr.add("source `$sourcePackageName`")
+                        stringArr.add(Instant.ofEpochSecond(storeDate).formatAsLocalizedDateTime())
 
-                else -> comment
-            },
+                        stringArr.joinToString(", ")
+                    }
+
+                    else -> {
+                        comment
+                    }
+                },
         )
     }
 
@@ -65,8 +69,8 @@ data class OcrHistory(
             playResult: PlayResult,
             sourcePackageName: String? = null,
             storeDate: Long = Instant.now().epochSecond,
-        ): OcrHistory {
-            return OcrHistory(
+        ): OcrHistory =
+            OcrHistory(
                 id = 0,
                 sourcePackageName = sourcePackageName,
                 storeDate = storeDate,
@@ -79,8 +83,7 @@ data class OcrHistory(
                 date = playResult.date,
                 maxRecall = playResult.maxRecall,
                 modifier = playResult.modifier,
-                clearType = playResult.clearType
+                clearType = playResult.clearType,
             )
-        }
     }
 }

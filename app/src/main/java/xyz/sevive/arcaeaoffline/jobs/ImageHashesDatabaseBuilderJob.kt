@@ -17,9 +17,10 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 
-
-class ImageHashesDatabaseBuilderJob(context: Context, params: WorkerParameters) :
-    CoroutineWorker(context, params) {
+class ImageHashesDatabaseBuilderJob(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     companion object {
         const val NAME = "ImageHashesDatabaseBuilderJob"
         private const val LOG_TAG = "ImageHashesDbBuilderJob"
@@ -40,24 +41,25 @@ class ImageHashesDatabaseBuilderJob(context: Context, params: WorkerParameters) 
                 file.absoluteFile.parentFile?.mkdirs()
             }
 
-            BundledSQLiteDriver().open(
-                file.absolutePath,
-                SQLITE_OPEN_READWRITE.or(SQLITE_OPEN_CREATE),
-            ).use { conn ->
-                val builder = ImageHashesDatabaseBuilder(conn)
+            BundledSQLiteDriver()
+                .open(
+                    file.absolutePath,
+                    SQLITE_OPEN_READWRITE.or(SQLITE_OPEN_CREATE),
+                ).use { conn ->
+                    val builder = ImageHashesDatabaseBuilder(conn)
 
-                collectScope.launch {
-                    builder.buildProgress.collectLatest {
-                        setProgress(
-                            workDataOf(KEY_PROGRESS to it?.first, KEY_PROGRESS_TOTAL to it?.second)
-                        )
+                    collectScope.launch {
+                        builder.buildProgress.collectLatest {
+                            setProgress(
+                                workDataOf(KEY_PROGRESS to it?.first, KEY_PROGRESS_TOTAL to it?.second),
+                            )
+                        }
                     }
-                }
 
-                arcaeaPackageHelper.fillHashesDatabaseBuilderTasks(builder)
-                builder.build(hashSize = 16, highFreqFactor = 4)
-                arcaeaPackageHelper.buildHashesDatabaseCleanUp()
-            }
+                    arcaeaPackageHelper.fillHashesDatabaseBuilderTasks(builder)
+                    builder.build(hashSize = 16, highFreqFactor = 4)
+                    arcaeaPackageHelper.buildHashesDatabaseCleanUp()
+                }
 
             return Result.success()
         } catch (e: Exception) {

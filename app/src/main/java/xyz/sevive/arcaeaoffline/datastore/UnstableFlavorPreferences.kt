@@ -7,7 +7,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-
 object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreferences> {
     override val defaultValue: UnstableFlavorPreferences =
         UnstableFlavorPreferences.getDefaultInstance()
@@ -20,11 +19,15 @@ object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreference
         }
     }
 
-    override suspend fun writeTo(t: UnstableFlavorPreferences, output: OutputStream) =
-        t.writeTo(output)
+    override suspend fun writeTo(
+        t: UnstableFlavorPreferences,
+        output: OutputStream,
+    ) = t.writeTo(output)
 }
 
-class UnstableFlavorPreferencesRepository(private val dataStore: DataStore<UnstableFlavorPreferences>) {
+class UnstableFlavorPreferencesRepository(
+    private val dataStore: DataStore<UnstableFlavorPreferences>,
+) {
     val preferencesFlow = dataStore.data
 
     suspend fun setAlertRead(value: Boolean) {
