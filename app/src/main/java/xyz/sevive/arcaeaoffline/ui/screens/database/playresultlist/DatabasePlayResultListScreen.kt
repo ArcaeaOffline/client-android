@@ -39,7 +39,6 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
-
 @Composable
 private fun DatabasePlayResultListAppBarActions(
     inSelectMode: Boolean,
@@ -63,9 +62,10 @@ private fun DatabasePlayResultListAppBarActions(
                 IconButton(
                     onClick = onShowDeleteConfirmDialog,
                     enabled = selectedItemsCount > 0,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
+                    colors =
+                        IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
                 ) {
                     Icon(Icons.Default.Delete, null)
                 }
@@ -144,33 +144,37 @@ fun DatabasePlayResultListScreen(
             Modifier.fillMaxSize(),
         ) {
             when {
-                listItems.isEmpty() -> EmptyScreen(Modifier.fillMaxSize())
+                listItems.isEmpty() -> {
+                    EmptyScreen(Modifier.fillMaxSize())
+                }
 
-                else -> LazyColumn(
-                    contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-                ) {
-                    items(listItems, key = { it.uuid }) {
-                        val isSelected by remember {
-                            derivedStateOf { selectedItemUuids.contains(it.uuid) }
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                    ) {
+                        items(listItems, key = { it.uuid }) {
+                            val isSelected by remember {
+                                derivedStateOf { selectedItemUuids.contains(it.uuid) }
+                            }
+
+                            DatabasePlayResultListItem(
+                                item = it,
+                                onPlayResultChange = { newPlayResult ->
+                                    viewModel.updatePlayResult(
+                                        playResult = newPlayResult,
+                                        context = context,
+                                        snackbarHostState = snackbarHostState,
+                                    )
+                                },
+                                inSelectMode = isInSelectMode,
+                                selected = isSelected,
+                                onSelectedChange = { selected ->
+                                    viewModel.setItemSelected(it, selected)
+                                },
+                                modifier = Modifier.animateItem(),
+                            )
                         }
-
-                        DatabasePlayResultListItem(
-                            item = it,
-                            onPlayResultChange = { newPlayResult ->
-                                viewModel.updatePlayResult(
-                                    playResult = newPlayResult,
-                                    context = context,
-                                    snackbarHostState = snackbarHostState,
-                                )
-                            },
-                            inSelectMode = isInSelectMode,
-                            selected = isSelected,
-                            onSelectedChange = { selected ->
-                                viewModel.setItemSelected(it, selected)
-                            },
-                            modifier = Modifier.animateItem(),
-                        )
                     }
                 }
             }

@@ -15,8 +15,10 @@ import androidx.navigation.compose.rememberNavController
 import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationGraph
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 
-
-internal fun mainNavControllerNavigateToRoute(navController: NavController, route: String) {
+internal fun mainNavControllerNavigateToRoute(
+    navController: NavController,
+    route: String,
+) {
     navController.navigate(route) {
         navController.graph.startDestinationRoute?.let { screenRoute ->
             popUpTo(screenRoute) {
@@ -36,10 +38,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
 
-    val navigationSuiteColors = NavigationSuiteDefaults.colors(
-        navigationBarContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
-        navigationRailContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
-    )
+    val navigationSuiteColors =
+        NavigationSuiteDefaults.colors(
+            navigationBarContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+            navigationRailContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+        )
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {

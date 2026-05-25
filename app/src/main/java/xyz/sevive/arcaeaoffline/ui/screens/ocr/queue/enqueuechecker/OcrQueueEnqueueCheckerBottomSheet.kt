@@ -35,7 +35,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun OcrQueueEnqueueCheckerBottomSheet(
@@ -73,7 +72,10 @@ private object UiVariables {
 
 @Composable
 private fun RowScope.ExpandedContentBigButton(
-    onClick: () -> Unit, icon: ImageVector, label: String, modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    icon: ImageVector,
+    label: String,
+    modifier: Modifier = Modifier,
 ) {
     Box(
         Modifier
@@ -107,7 +109,7 @@ private fun ExpandedContent(
     Column {
         onStopJobRequest?.let {
             CompositionLocalProvider(
-                LocalContentColor provides UiVariables.stopJobContentColor
+                LocalContentColor provides UiVariables.stopJobContentColor,
             ) {
                 TextPreferencesWidget(
                     onClick = it,
@@ -145,7 +147,7 @@ private fun DefaultContent(
     Column {
         onStopJobRequest?.let {
             CompositionLocalProvider(
-                LocalContentColor provides UiVariables.stopJobContentColor
+                LocalContentColor provides UiVariables.stopJobContentColor,
             ) {
                 TextPreferencesWidget(
                     onClick = it,

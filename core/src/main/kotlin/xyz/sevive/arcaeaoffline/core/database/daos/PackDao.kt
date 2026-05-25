@@ -8,7 +8,6 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 
-
 @Dao
 interface PackDao {
     @Query("SELECT * FROM packs WHERE id = :id")

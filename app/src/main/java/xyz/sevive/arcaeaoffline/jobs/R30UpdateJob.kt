@@ -25,7 +25,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 
-
 private fun PlayResult.matchesR30Condition(): Boolean {
     // score >= EX
     if (score >= 9800000) return true
@@ -35,13 +34,15 @@ private fun PlayResult.matchesR30Condition(): Boolean {
     return false
 }
 
-private fun List<R30EntryCombined>.minPotentialItem(): R30EntryCombined? {
-    return this.minByOrNull { entry ->
+private fun List<R30EntryCombined>.minPotentialItem(): R30EntryCombined? =
+    this.minByOrNull { entry ->
         entry.chartInfo?.let { entry.playResult.potential(it) } ?: Double.MAX_VALUE
     }
-}
 
-class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+class R30UpdateJob(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "R30UpdateJob"
         const val WORK_NAME = "R30UpdateJob"
@@ -52,17 +53,24 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
         const val KEY_PROGRESS_TOTAL = "progress_total"
     }
 
-    enum class RunMode(val value: Int) { NORMAL(0), REBUILD(1) }
-
-    private data class WorkOptions(val runMode: RunMode)
-
-    private fun getWorkOptions(): WorkOptions {
-        return WorkOptions(
-            runMode = RunMode.entries.firstOrNull {
-                it.value == inputData.getInt(DATA_RUN_MODE, 0)
-            } ?: RunMode.NORMAL,
-        )
+    enum class RunMode(
+        val value: Int,
+    ) {
+        NORMAL(0),
+        REBUILD(1),
     }
+
+    private data class WorkOptions(
+        val runMode: RunMode,
+    )
+
+    private fun getWorkOptions(): WorkOptions =
+        WorkOptions(
+            runMode =
+                RunMode.entries.firstOrNull {
+                    it.value == inputData.getInt(DATA_RUN_MODE, 0)
+                } ?: RunMode.NORMAL,
+        )
 
     private val repoContainer =
         (applicationContext as ArcaeaOfflineApplication).arcaeaOfflineDatabaseRepositoryContainer
@@ -80,7 +88,7 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
         progressListenScope.launch {
             combine(progress, progressTotal) { p, t -> p to t }.collectLatest {
                 setProgress(
-                    workDataOf(KEY_PROGRESS to it.first, KEY_PROGRESS_TOTAL to it.second)
+                    workDataOf(KEY_PROGRESS to it.first, KEY_PROGRESS_TOTAL to it.second),
                 )
             }
         }
@@ -90,20 +98,23 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
         try {
             val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
 
-            var r30EntryCombinedList = when (workOptions.runMode) {
-                RunMode.REBUILD -> emptyList()
-                else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
-            }
+            var r30EntryCombinedList =
+                when (workOptions.runMode) {
+                    RunMode.REBUILD -> emptyList()
+                    else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                }
 
-            val playResults = when (workOptions.runMode) {
-                RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
-                else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
-            } ?: emptyList()
+            val playResults =
+                when (workOptions.runMode) {
+                    RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
+                    else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
+                } ?: emptyList()
             val deletedSongIds =
                 songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-            val newPlayResults = playResults
-                .filter { it.date != null && it.songId !in deletedSongIds }
-                .sortedBy { it.date }
+            val newPlayResults =
+                playResults
+                    .filter { it.date != null && it.songId !in deletedSongIds }
+                    .sortedBy { it.date }
 
             progressTotal.value = newPlayResults.size
             Log.d(LOG_TAG, "Updating r30 list with ${newPlayResults.size} new play results")
@@ -132,7 +143,8 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
      * choose one of them depending on the [playResult]'s state.
      */
     private suspend fun updateR30List(
-        playResult: PlayResult, oldR30List: List<R30EntryCombined>
+        playResult: PlayResult,
+        oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {
         if (oldR30List.size < 30) {
             val mutableR30List = oldR30List.toMutableList()
@@ -140,23 +152,28 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
             return mutableR30List
         }
 
-        val newR30Entries = if (playResult.matchesR30Condition()) {
-            // now check if the play result potential is higher than the lowest potential r30 entry
-            // if any chart info is missing, return the old r30 entries directly
-            val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30List
-            updateR30ListByPotential(playResult, chartInfo, oldR30List)
-        } else {
-            // otherwise, just update the entries by date
-            updateR30ListByDate(playResult, oldR30List)
-        }
+        val newR30Entries =
+            if (playResult.matchesR30Condition()) {
+                // now check if the play result potential is higher than the lowest potential r30 entry
+                // if any chart info is missing, return the old r30 entries directly
+                val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30List
+                updateR30ListByPotential(playResult, chartInfo, oldR30List)
+            } else {
+                // otherwise, just update the entries by date
+                updateR30ListByDate(playResult, oldR30List)
+            }
 
         // ensure the new r30 should have at least 10 unique charts
         // otherwise keep the entries unmodified
         val uniqueChartsCount =
-            newR30Entries.distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }
+            newR30Entries
+                .distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }
                 .count()
-        return if (uniqueChartsCount < 10) oldR30List
-        else newR30Entries
+        return if (uniqueChartsCount < 10) {
+            oldR30List
+        } else {
+            newR30Entries
+        }
     }
 
     /**
@@ -170,7 +187,9 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
      * @return The new R30 entries
      */
     private fun updateR30ListByPotential(
-        playResult: PlayResult, chartInfo: ChartInfo, oldR30List: List<R30EntryCombined>
+        playResult: PlayResult,
+        chartInfo: ChartInfo,
+        oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {
         // try getting the min potential item in old list
         // otherwise leave the old list untouched
@@ -195,11 +214,13 @@ class R30UpdateJob(context: Context, params: WorkerParameters) : CoroutineWorker
      * @return The new R30 entries
      */
     private suspend fun updateR30ListByDate(
-        playResult: PlayResult, oldR30List: List<R30EntryCombined>
+        playResult: PlayResult,
+        oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {
-        val oldestR30Entry = oldR30List.minByOrNull {
-            it.playResult.date?.toEpochMilli() ?: Long.MAX_VALUE
-        } ?: return oldR30List
+        val oldestR30Entry =
+            oldR30List.minByOrNull {
+                it.playResult.date?.toEpochMilli() ?: Long.MAX_VALUE
+            } ?: return oldR30List
 
         val newR30Entries = oldR30List.toMutableList()
         newR30Entries.remove(oldestR30Entry)

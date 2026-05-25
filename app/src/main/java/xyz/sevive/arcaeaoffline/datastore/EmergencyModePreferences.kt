@@ -8,7 +8,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-
 object EmergencyModePreferencesSerializer : Serializer<EmergencyModePreferences> {
     override val defaultValue: EmergencyModePreferences =
         EmergencyModePreferences.getDefaultInstance()
@@ -21,12 +20,14 @@ object EmergencyModePreferencesSerializer : Serializer<EmergencyModePreferences>
         }
     }
 
-    override suspend fun writeTo(t: EmergencyModePreferences, output: OutputStream) =
-        t.writeTo(output)
+    override suspend fun writeTo(
+        t: EmergencyModePreferences,
+        output: OutputStream,
+    ) = t.writeTo(output)
 }
 
 class EmergencyModePreferencesRepository(
-    private val dataStore: DataStore<EmergencyModePreferences>
+    private val dataStore: DataStore<EmergencyModePreferences>,
 ) {
     val preferencesFlow = dataStore.data
 

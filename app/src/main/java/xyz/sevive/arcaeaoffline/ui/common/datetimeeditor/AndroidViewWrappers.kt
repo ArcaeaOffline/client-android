@@ -13,7 +13,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
 import org.threeten.bp.ZoneOffset
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 internal fun AndroidViewDatePickerDialog(
@@ -40,10 +39,10 @@ internal fun AndroidViewDatePickerDialog(
                         .now()
                         .withMonth(monthOfYear + 1)
                         .withYear(year)
-                        .withDayOfMonth(dayOfMonth)
+                        .withDayOfMonth(dayOfMonth),
                 )
             }
-        }
+        },
     )
 }
 
@@ -72,15 +71,18 @@ internal fun AndroidViewCalendar(
                         .now()
                         .withMonth(month + 1)
                         .withYear(year)
-                        .withDayOfMonth(dayOfMonth)
+                        .withDayOfMonth(dayOfMonth),
                 )
             }
-        }
+        },
     )
 }
 
 @Composable
-internal fun AndroidViewTimePicker(time: LocalTime, onTimeSelect: (LocalTime) -> Unit) {
+internal fun AndroidViewTimePicker(
+    time: LocalTime,
+    onTimeSelect: (LocalTime) -> Unit,
+) {
     AndroidView(
         modifier = Modifier.wrapContentSize(),
         factory = { context -> TimePicker(context) },
@@ -98,6 +100,6 @@ internal fun AndroidViewTimePicker(time: LocalTime, onTimeSelect: (LocalTime) ->
             view.setOnTimeChangedListener { _, hourOfDay, minute ->
                 onTimeSelect(LocalTime.of(hourOfDay, minute))
             }
-        }
+        },
     )
 }

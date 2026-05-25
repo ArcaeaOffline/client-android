@@ -40,7 +40,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UiTopAppBar(modifier: Modifier = Modifier) {
@@ -49,7 +48,8 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
         title = {
             Column {
                 Text(
-                    stringResource(R.string.app_name), style = MaterialTheme.typography.labelLarge
+                    stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.labelLarge,
                 )
                 Text(stringResource(R.string.emergency_mode_title))
             }
@@ -60,11 +60,12 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
                 contentDescription = null,
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.error,
-            titleContentColor = MaterialTheme.colorScheme.onError,
-            navigationIconContentColor = MaterialTheme.colorScheme.onError,
-        ),
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                titleContentColor = MaterialTheme.colorScheme.onError,
+                navigationIconContentColor = MaterialTheme.colorScheme.onError,
+            ),
     )
 }
 
@@ -99,7 +100,7 @@ fun EmergencyModeActivityUi(
                         Text(
                             outputDirectory?.uri?.path.toString(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     IconRow {
@@ -115,13 +116,21 @@ fun EmergencyModeActivityUi(
                         Spacer(Modifier.width(dimensionResource(R.dimen.list_padding)))
 
                         CompositionLocalProvider(
-                            LocalContentColor provides if (outputDirectoryValid) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.error
+                            LocalContentColor provides
+                                if (outputDirectoryValid) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                },
                         ) {
                             Text(stringResource(R.string.emergency_mode_output_directory_valid_label))
                             Icon(
-                                if (outputDirectoryValid) Icons.Default.Check
-                                else Icons.Default.Close, contentDescription = null
+                                if (outputDirectoryValid) {
+                                    Icons.Default.Check
+                                } else {
+                                    Icons.Default.Close
+                                },
+                                contentDescription = null,
                             )
                         }
                     }

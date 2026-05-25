@@ -14,24 +14,25 @@ import org.threeten.bp.Instant
 import java.io.File
 import java.io.FileOutputStream
 
-
 private fun checkSaveToGalleryPermission(context: Context): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
 
-    val checkPermission = ContextCompat.checkSelfPermission(
-        context, Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
+    val checkPermission =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        )
     return checkPermission == PackageManager.PERMISSION_GRANTED
 }
 
-class SaveBitmapToGallery(private val bitmap: Bitmap) {
+class SaveBitmapToGallery(
+    private val bitmap: Bitmap,
+) {
     companion object {
         const val DIRECTORY = "Arcaea Offline"
         const val TAG = "SaveBitmapToGallery"
 
-        fun checkPermission(context: Context): Boolean {
-            return checkSaveToGalleryPermission(context)
-        }
+        fun checkPermission(context: Context): Boolean = checkSaveToGalleryPermission(context)
     }
 
     /**
@@ -51,10 +52,11 @@ class SaveBitmapToGallery(private val bitmap: Bitmap) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (!checkPermission(context)) return false
 
-            val parentDir = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                DIRECTORY
-            )
+            val parentDir =
+                File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    DIRECTORY,
+                )
 
             if (!parentDir.exists()) {
                 Log.i(TAG, "Creating parent dir, success: ${parentDir.mkdirs()}")
@@ -63,19 +65,21 @@ class SaveBitmapToGallery(private val bitmap: Bitmap) {
                 bitmap.compress(compressFormat, quality, it)
             }
         } else {
-            val values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-                // put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(
-                    MediaStore.MediaColumns.RELATIVE_PATH,
-                    "${Environment.DIRECTORY_PICTURES}/$DIRECTORY"
-                )
-                put(MediaStore.MediaColumns.IS_PENDING, 1)
-            }
+            val values =
+                ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    // put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        "${Environment.DIRECTORY_PICTURES}/$DIRECTORY",
+                    )
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
 
             val resolver = context.contentResolver
             val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-            uri?.let { resolver.openOutputStream(it) }
+            uri
+                ?.let { resolver.openOutputStream(it) }
                 ?.use { bitmap.compress(compressFormat, quality, it) }
 
             values.clear()
@@ -86,9 +90,7 @@ class SaveBitmapToGallery(private val bitmap: Bitmap) {
         return true
     }
 
-    private fun getDefaultFileBaseName(): String {
-        return "arcaea-offline-${Instant.now().toEpochMilli()}"
-    }
+    private fun getDefaultFileBaseName(): String = "arcaea-offline-${Instant.now().toEpochMilli()}"
 
     fun saveJpg(
         context: Context,
@@ -102,4 +104,3 @@ class SaveBitmapToGallery(private val bitmap: Bitmap) {
         quality: Int = 100,
     ) = saveBitmap(context, "$fileBaseName.png", Bitmap.CompressFormat.PNG, quality)
 }
-

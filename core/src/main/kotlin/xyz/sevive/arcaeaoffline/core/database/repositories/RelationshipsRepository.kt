@@ -12,6 +12,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultWithChart
 
 interface RelationshipsRepository {
     fun playResultsWithCharts(): Flow<List<PlayResultWithChart>?>
+
     fun playResultsBestWithCharts(limit: Int = 40): Flow<List<PlayResultBestWithChart>>
 }
 
@@ -33,22 +34,20 @@ class RelationshipsRepositoryImpl(
      * if you only need the non-null values.
      */
     @Transaction
-    override fun playResultsWithCharts(): Flow<List<PlayResultWithChart>?> {
-        return relationshipsDao.playResultsWithCharts().transform { list ->
+    override fun playResultsWithCharts(): Flow<List<PlayResultWithChart>?> =
+        relationshipsDao.playResultsWithCharts().transform { list ->
             emit(null)
 
             val result = list.map { PlayResultWithChart(playResult = it.key, chart = it.value) }
             emit(result)
         }
-    }
 
     @Transaction
-    override fun playResultsBestWithCharts(limit: Int): Flow<List<PlayResultBestWithChart>> {
-        return playResultBestRepository.orderDescWithLimit(limit).map { list ->
+    override fun playResultsBestWithCharts(limit: Int): Flow<List<PlayResultBestWithChart>> =
+        playResultBestRepository.orderDescWithLimit(limit).map { list ->
             list.map {
                 val chart = chartDao.find(it.songId, it.ratingClass).firstOrNull()
                 PlayResultBestWithChart(playResultBest = it, chart = chart)
             }
         }
-    }
 }

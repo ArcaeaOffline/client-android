@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 
-
 @Dao
 interface OcrQueueTaskDao {
     @Query("SELECT * FROM ocr_queue_tasks")

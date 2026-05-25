@@ -28,7 +28,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildAlertCard
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsNavEntry(
@@ -47,9 +46,10 @@ internal fun SettingsNavEntry(
                 item {
                     UnstableBuildAlertCard(
                         onClick = { onNavigateToSubRoute(SettingsScreenDestination.UnstableAlert.route) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = dimensionResource(R.dimen.page_padding)),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = dimensionResource(R.dimen.page_padding)),
                         showDetails = true,
                     )
                 }
@@ -75,7 +75,7 @@ internal fun SettingsNavEntry(
 
             item {
                 CompositionLocalProvider(
-                    LocalContentColor provides MaterialTheme.colorScheme.error
+                    LocalContentColor provides MaterialTheme.colorScheme.error,
                 ) {
                     TextPreferencesWidget(
                         title = stringResource(R.string.emergency_mode_title),

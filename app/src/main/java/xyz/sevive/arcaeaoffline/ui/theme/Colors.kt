@@ -1,4 +1,4 @@
-/**
+/*
  * Auto generated file from https://material-foundation.github.io/material-theme-builder/
  */
 

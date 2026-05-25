@@ -12,7 +12,6 @@ import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidge
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
-
 @Composable
 internal fun SettingsGeneralScreen(
     onNavigateUp: () -> Unit,
@@ -22,7 +21,7 @@ internal fun SettingsGeneralScreen(
 ) {
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.General.title)
+        title = stringResource(SettingsScreenDestination.General.title),
     ) {
         LazyColumn(modifier) {
             item {

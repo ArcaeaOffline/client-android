@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
-
 @Composable
 fun NavEntryNavigateButton(
     title: String,

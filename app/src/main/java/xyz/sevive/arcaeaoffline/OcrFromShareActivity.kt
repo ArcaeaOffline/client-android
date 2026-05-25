@@ -20,7 +20,6 @@ import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareScreen
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 class OcrFromShareActivity : ComponentActivity() {
     private val viewModel by viewModels<OcrFromShareViewModel>(factoryProducer = { AppViewModelProvider.Factory })
 
@@ -74,9 +73,12 @@ class OcrFromShareActivity : ComponentActivity() {
         // fix 'getParcelableExtra(String!): T?' is deprecated. Deprecated in Java
         // https://stackoverflow.com/a/75824124/16484891
         // CC BY-SA 4.0
-        val uri = IntentCompat.getParcelableExtra(
-            intent, Intent.EXTRA_STREAM, Uri::class.java
-        ) ?: return
+        val uri =
+            IntentCompat.getParcelableExtra(
+                intent,
+                Intent.EXTRA_STREAM,
+                Uri::class.java,
+            ) ?: return
 
         // get an input stream from the Uri
         val inputStream = contentResolver.openInputStream(uri)

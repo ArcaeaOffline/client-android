@@ -17,22 +17,20 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.CheckboxPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
-private val groupByValueResIdMap = mapOf(
-    GroupByValue.SCORE to R.string.arcaea_play_result_score,
-    GroupByValue.PURE to R.string.arcaea_play_result_pure,
-    GroupByValue.FAR to R.string.arcaea_play_result_far,
-    GroupByValue.LOST to R.string.arcaea_play_result_lost,
-    GroupByValue.MAX_RECALL to R.string.arcaea_play_result_max_recall,
-    GroupByValue.DATE to R.string.datetime_picker_label,
-    GroupByValue.CLEAR_TYPE to R.string.arcaea_play_result_clear_type,
-    GroupByValue.MODIFIER to R.string.arcaea_play_result_modifier,
-)
+private val groupByValueResIdMap =
+    mapOf(
+        GroupByValue.SCORE to R.string.arcaea_play_result_score,
+        GroupByValue.PURE to R.string.arcaea_play_result_pure,
+        GroupByValue.FAR to R.string.arcaea_play_result_far,
+        GroupByValue.LOST to R.string.arcaea_play_result_lost,
+        GroupByValue.MAX_RECALL to R.string.arcaea_play_result_max_recall,
+        GroupByValue.DATE to R.string.datetime_picker_label,
+        GroupByValue.CLEAR_TYPE to R.string.arcaea_play_result_clear_type,
+        GroupByValue.MODIFIER to R.string.arcaea_play_result_modifier,
+    )
 
 @Composable
-private fun groupByValueTitle(value: GroupByValue): String {
-    return stringResource(groupByValueResIdMap[value] ?: R.string.develop_placeholder)
-}
+private fun groupByValueTitle(value: GroupByValue): String = stringResource(groupByValueResIdMap[value] ?: R.string.develop_placeholder)
 
 @Composable
 private fun DatabaseDeduplicatorGroupByValuesSelectDialogContent(
@@ -65,7 +63,7 @@ private fun DatabaseDeduplicatorGroupByValuesSelectDialogContent(
 internal fun DatabaseDeduplicatorGroupByValuesSelectDialog(
     onDismissRequest: () -> Unit,
     values: Set<GroupByValue>,
-    onValuesChange: (Set<GroupByValue>) -> Unit
+    onValuesChange: (Set<GroupByValue>) -> Unit,
 ) {
     var selectedValues by rememberSaveable { mutableStateOf(values) }
 
@@ -86,7 +84,7 @@ internal fun DatabaseDeduplicatorGroupByValuesSelectDialog(
                     if (enabled) selectedValues += value else selectedValues -= value
                 },
             )
-        }
+        },
     )
 }
 

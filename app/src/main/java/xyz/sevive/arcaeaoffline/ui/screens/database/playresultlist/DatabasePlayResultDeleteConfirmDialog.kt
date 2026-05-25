@@ -18,7 +18,6 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefault
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import java.util.UUID
 
-
 @Composable
 internal fun DatabasePlayResultDeleteConfirmDialog(
     onDismissRequest: () -> Unit,
@@ -52,7 +51,7 @@ internal fun DatabasePlayResultDeleteConfirmDialog(
                     R.plurals.database_play_result_list_delete_confirm_dialog_content,
                     count = selectedItemsCount,
                     selectedItemsCount,
-                )
+                ),
             )
         },
         iconContentColor = MaterialTheme.colorScheme.error,

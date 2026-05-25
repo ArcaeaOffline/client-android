@@ -33,13 +33,14 @@ data class ArcaeaColors(
     companion object {
         val Light = ArcaeaColors()
 
-        val Dark = ArcaeaColors(
-            past = Color(0xFF5CBAD3),
-            present = Color(0xFFB5C76F),
-            future = Color(0xFFC56DAC),
-            beyond = Color(0xFFF24058),
-            eternal = Color(0xFFD3B5F9),
-        )
+        val Dark =
+            ArcaeaColors(
+                past = Color(0xFF5CBAD3),
+                present = Color(0xFFB5C76F),
+                future = Color(0xFFC56DAC),
+                beyond = Color(0xFFF24058),
+                eternal = Color(0xFFD3B5F9),
+            )
     }
 }
 
@@ -56,25 +57,27 @@ data class ArcaeaGradeGradientColors(
     val d: List<Color> = listOf(Color.Unspecified, Color.Unspecified),
 ) {
     companion object {
-        val Light = ArcaeaGradeGradientColors(
-            exPlus = listOf(Color(0xff83238c), Color(0xff2c72ae)),
-            ex = listOf(Color(0xff721b6b), Color(0xff295b8d)),
-            aa = listOf(Color(0xff5a3463), Color(0xff9b4b8d)),
-            a = listOf(Color(0xff46324d), Color(0xff92588a)),
-            b = listOf(Color(0xff43334a), Color(0xff755b7c)),
-            c = listOf(Color(0xff3b2b27), Color(0xff80566b)),
-            d = listOf(Color(0xff5d1d35), Color(0xff9f3c55)),
-        )
+        val Light =
+            ArcaeaGradeGradientColors(
+                exPlus = listOf(Color(0xff83238c), Color(0xff2c72ae)),
+                ex = listOf(Color(0xff721b6b), Color(0xff295b8d)),
+                aa = listOf(Color(0xff5a3463), Color(0xff9b4b8d)),
+                a = listOf(Color(0xff46324d), Color(0xff92588a)),
+                b = listOf(Color(0xff43334a), Color(0xff755b7c)),
+                c = listOf(Color(0xff3b2b27), Color(0xff80566b)),
+                d = listOf(Color(0xff5d1d35), Color(0xff9f3c55)),
+            )
 
-        val Dark = ArcaeaGradeGradientColors(
-            exPlus = listOf(Color(0xffbf33cc), Color(0xff4791d1)),
-            ex = listOf(Color(0xffba2cae), Color(0xff397fc6)),
-            aa = listOf(Color(0xff785880), Color(0xffb464a6)),
-            a = listOf(Color(0xff62476c), Color(0xffab73a3)),
-            b = listOf(Color(0xff604969), Color(0xff8f7297)),
-            c = listOf(Color(0xff5c433d), Color(0xff9d6c85)),
-            d = listOf(Color(0xff842a4b), Color(0xffbd516c)),
-        )
+        val Dark =
+            ArcaeaGradeGradientColors(
+                exPlus = listOf(Color(0xffbf33cc), Color(0xff4791d1)),
+                ex = listOf(Color(0xffba2cae), Color(0xff397fc6)),
+                aa = listOf(Color(0xff785880), Color(0xffb464a6)),
+                a = listOf(Color(0xff62476c), Color(0xffab73a3)),
+                b = listOf(Color(0xff604969), Color(0xff8f7297)),
+                c = listOf(Color(0xff5c433d), Color(0xff9d6c85)),
+                d = listOf(Color(0xff842a4b), Color(0xffbd516c)),
+            )
     }
 }
 

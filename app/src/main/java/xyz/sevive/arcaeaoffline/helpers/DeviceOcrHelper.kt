@@ -38,29 +38,37 @@ object DeviceOcrHelper {
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-            ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
+        val inputStream =
+            context.contentResolver.openInputStream(imageUri)
+                ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
 
         val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
         val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
         val imgCropped = CropBlackEdges.crop(img)
 
         val roisAutoType = DeviceRoisAutoSelector.select(img)
-        val rois = when (roisAutoType) {
-            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisAutoT1(
-                imgCropped.width(),
-                imgCropped.height()
-            )
+        val rois =
+            when (roisAutoType) {
+                DeviceRoisAutoSelectorResult.T1 -> {
+                    DeviceRoisAutoT1(
+                        imgCropped.width(),
+                        imgCropped.height(),
+                    )
+                }
 
-            else -> DeviceRoisAutoT2(
-                imgCropped.width(), imgCropped.height()
-            )
-        }
+                else -> {
+                    DeviceRoisAutoT2(
+                        imgCropped.width(),
+                        imgCropped.height(),
+                    )
+                }
+            }
         val extractor = DeviceRoisExtractor(rois, imgCropped)
-        val masker = when (roisAutoType) {
-            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
-            else -> DeviceRoisMaskerAutoT2()
-        }
+        val masker =
+            when (roisAutoType) {
+                DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
+                else -> DeviceRoisMaskerAutoT2()
+            }
 
         return DeviceOcr(
             extractor = extractor,
@@ -75,7 +83,7 @@ object DeviceOcrHelper {
         imageUri: Uri,
         context: Context,
         fallbackDate: Instant? = null,
-        overrideDate: Instant? = null
+        overrideDate: Instant? = null,
     ): Instant? {
         val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
 
@@ -87,9 +95,11 @@ object DeviceOcrHelper {
                 imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
 
             if (imgExifDateTimeOriginal != null) {
-                val localDateTime = LocalDateTime.parse(
-                    imgExifDateTimeOriginal, DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")
-                )
+                val localDateTime =
+                    LocalDateTime.parse(
+                        imgExifDateTimeOriginal,
+                        DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"),
+                    )
                 var zonedDateTime = localDateTime.atZone(ZoneId.systemDefault())
 
                 val imgExifOffsetTimeOriginal =

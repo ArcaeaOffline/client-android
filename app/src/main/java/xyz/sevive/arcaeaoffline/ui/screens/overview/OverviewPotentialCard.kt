@@ -21,7 +21,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 private fun PotentialLabel(
     title: String,
@@ -55,9 +54,10 @@ internal fun OverviewPotentialCard(
                 potential = uiState.potential,
                 titleTextStyle = MaterialTheme.typography.headlineSmall,
                 potentialTextStyle = MaterialTheme.typography.displayLarge,
-                modifier = Modifier
-                    .align(Alignment.Bottom)
-                    .weight(1f),
+                modifier =
+                    Modifier
+                        .align(Alignment.Bottom)
+                        .weight(1f),
             )
 
             Column(

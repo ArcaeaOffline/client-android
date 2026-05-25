@@ -21,10 +21,9 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 
-
 @Composable
 internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
-    val score by viewModel.score.collectAsStateWithLifecycle()
+    val score by viewModel.playResult.collectAsStateWithLifecycle()
     val exception by viewModel.exception.collectAsStateWithLifecycle()
     val chart by viewModel.chart.collectAsStateWithLifecycle()
 
@@ -46,7 +45,7 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
             ArcaeaPlayResultCard(
                 playResult = score!!,
                 modifier = Modifier.weight(1f),
-                chart = chart
+                chart = chart,
             )
 
             AnimatedVisibility(visible = !scoreSaved && !scoreCached) {

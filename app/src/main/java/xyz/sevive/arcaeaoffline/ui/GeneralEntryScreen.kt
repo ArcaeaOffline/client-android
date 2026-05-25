@@ -59,15 +59,21 @@ fun <T> GeneralEntryScreen(
                     AnimatedContent(
                         targetState = navigator.currentDestination?.contentKey,
                         transitionSpec = {
-                            (slideInVertically {
-                                round(EaseOutCubic.transform(it * 0.025f)).toInt()
-                            } + fadeIn(
-                                animationSpec = tween(easing = EaseOutCubic)
-                            )).togetherWith((slideOutVertically {
-                                round(EaseInCubic.transform(it * 0.025f)).toInt()
-                            } + fadeOut(
-                                animationSpec = tween(easing = EaseInCubic)
-                            )))
+                            (
+                                slideInVertically {
+                                    round(EaseOutCubic.transform(it * 0.025f)).toInt()
+                                } +
+                                    fadeIn(
+                                        animationSpec = tween(easing = EaseOutCubic),
+                                    )
+                            ).togetherWith(
+                                slideOutVertically {
+                                    round(EaseInCubic.transform(it * 0.025f)).toInt()
+                                } +
+                                    fadeOut(
+                                        animationSpec = tween(easing = EaseInCubic),
+                                    ),
+                            )
                         },
                         modifier = Modifier.fillMaxSize(),
                         label = "detailPaneTransition",
@@ -81,7 +87,7 @@ fun <T> GeneralEntryScreen(
                                     contentDescription = null,
                                     Modifier
                                         .size(75.dp)
-                                        .align(Alignment.Center)
+                                        .align(Alignment.Center),
                                 )
                             }
                         }

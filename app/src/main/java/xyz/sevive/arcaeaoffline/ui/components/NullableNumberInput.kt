@@ -33,7 +33,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButtonDefaults
 
-
 @Composable
 private fun NullableNumberInputEditDialog(
     onDismiss: () -> Unit,
@@ -42,11 +41,12 @@ private fun NullableNumberInputEditDialog(
     modifier: Modifier = Modifier,
     minimum: Int = 0,
     maximum: Int = Int.MAX_VALUE,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    val onNumberChangeCoerceIn = remember(minimum, maximum, onValueChange) {
-        { num: Int -> num.coerceIn(minimum, maximum).let(onValueChange) }
-    }
+    val onNumberChangeCoerceIn =
+        remember(minimum, maximum, onValueChange) {
+            { num: Int -> num.coerceIn(minimum, maximum).let(onValueChange) }
+        }
 
     var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value.toString()))
@@ -59,15 +59,15 @@ private fun NullableNumberInputEditDialog(
                 TextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },
-                    modifier = Modifier
-                        .testTag("nullableNumberInputTextField")
-                        .then(modifier),
+                    modifier =
+                        Modifier
+                            .testTag("nullableNumberInputTextField")
+                            .then(modifier),
                     placeholder = { Text("0") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     visualTransformation = visualTransformation,
                 )
-
             }
         },
         confirmButton = {
@@ -86,10 +86,11 @@ private fun NullableNumberInputEditDialog(
         dismissButton = {
             IconButton(
                 onClick = onDismiss,
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = DialogDismissTextButtonDefaults.defaultColors.contentColor,
-                    containerColor = DialogDismissTextButtonDefaults.defaultColors.containerColor,
-                ),
+                colors =
+                    IconButtonDefaults.iconButtonColors(
+                        contentColor = DialogDismissTextButtonDefaults.defaultColors.contentColor,
+                        containerColor = DialogDismissTextButtonDefaults.defaultColors.containerColor,
+                    ),
             ) {
                 Icon(
                     Icons.Default.Close,
@@ -131,19 +132,26 @@ fun NullableNumberInput(
         TextField(
             value = textFieldValue,
             onValueChange = { },
-            modifier = Modifier
-                .clickable(editable) { tryOpenEditDialog() }
-                .then(modifier),
+            modifier =
+                Modifier
+                    .clickable(editable) { tryOpenEditDialog() }
+                    .then(modifier),
             readOnly = true,
-            enabled = false,  // so custom clickable Modifier works
-            colors = if (value != null) TextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            enabled = false, // so custom clickable Modifier works
+            colors =
+                if (value != null) {
+                    TextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
 //                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ) else TextFieldDefaults.colors(),  // so colors look like normal TextField even disabled
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    TextFieldDefaults.colors()
+                },
+            // so colors look like normal TextField even disabled
             label = label,
             trailingIcon = {
                 IconButton(onClick = tryOpenEditDialog, enabled = editable) {

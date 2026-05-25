@@ -41,27 +41,24 @@ object DeviceOcrOnnxHelper {
         @SerialName("pad_token") val padToken: String,
     )
 
-    private fun getOrtEnvironment(): OrtEnvironment {
-        return OrtEnvironment.getEnvironment("ocr")
-    }
+    private fun getOrtEnvironment(): OrtEnvironment = OrtEnvironment.getEnvironment("ocr")
 
     fun loadModelInfo(context: Context) {
-        val modelInfo = jsonSerializer.decodeFromString<ModelInfo>(
-            IOUtils.toString(context.assets.open("ocr/model_info.json"))
-        )
+        val modelInfo =
+            jsonSerializer.decodeFromString<ModelInfo>(
+                IOUtils.toString(context.assets.open("ocr/model_info.json")),
+            )
 
         Log.d(LOG_TAG, "Loaded model info $modelInfo")
 
         imageSize = Size(modelInfo.imageWidth.toDouble(), modelInfo.imageHeight.toDouble())
         imageShape = longArrayOf(modelInfo.imageHeight, modelInfo.imageWidth, 3L)
-        labels = modelInfo.labels.toList()  // make a copy
+        labels = modelInfo.labels.toList() // make a copy
         blankToken = modelInfo.blankToken
         padToken = modelInfo.padToken
     }
 
-    private fun readOnnxModelBytes(context: Context): ByteArray {
-        return IOUtils.toByteArray(context.assets.open("ocr/model_patched.onnx"))
-    }
+    private fun readOnnxModelBytes(context: Context): ByteArray = IOUtils.toByteArray(context.assets.open("ocr/model_patched.onnx"))
 
     /**
      * @see <a href="https://onnx.ai/onnx/repo-docs/Versioning.html#serializing-semver-version-numbers-in-protobuf">ONNX documentation</a>
@@ -80,9 +77,7 @@ object DeviceOcrOnnxHelper {
         return listOf(major shr 16, minor shr 8, patch)
     }
 
-    fun modelVersionString(version: Long): String {
-        return "v" + modelVersion(version).joinToString(".")
-    }
+    fun modelVersionString(version: Long): String = "v" + modelVersion(version).joinToString(".")
 
     fun createOrtSession(context: Context): OrtSession {
         val ortEnvironment = getOrtEnvironment()
@@ -105,7 +100,10 @@ object DeviceOcrOnnxHelper {
         ortMat.get(0, 0, byteBuffer.array())
 
         return OnnxTensor.createTensor(
-            getOrtEnvironment(), byteBuffer, imageShape, OnnxJavaType.UINT8
+            getOrtEnvironment(),
+            byteBuffer,
+            imageShape,
+            OnnxJavaType.UINT8,
         )
     }
 
@@ -130,14 +128,19 @@ object DeviceOcrOnnxHelper {
         }
     }
 
-    fun ocrBgrMat(bgrMat: Mat, ortSession: OrtSession): String {
+    fun ocrBgrMat(
+        bgrMat: Mat,
+        ortSession: OrtSession,
+    ): String {
         val rgbMat = Mat()
         Imgproc.cvtColor(bgrMat, rgbMat, Imgproc.COLOR_BGR2RGB)
 
         val inputTensor = matToModelInput(rgbMat)
         val result = ortSession.run(mapOf("raw_image" to inputTensor))
-        val decodedOutput = result.get("decoded_output")
-            .getOrElse { throw NullPointerException("ONNX model output null!") }
+        val decodedOutput =
+            result
+                .get("decoded_output")
+                .getOrElse { throw NullPointerException("ONNX model output null!") }
         val finalResult = modelDecodedOutputToString(decodedOutput as OnnxTensor)
         var placeholderCount = 0
         return buildString {

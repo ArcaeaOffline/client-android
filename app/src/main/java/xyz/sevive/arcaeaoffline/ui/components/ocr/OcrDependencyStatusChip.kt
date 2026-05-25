@@ -42,7 +42,6 @@ import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
-
 data class OcrDependencyStatusChipUiState(
     val icon: ImageVector = Icons.Default.QuestionMark,
     val text: String = "Unknown",
@@ -51,49 +50,55 @@ data class OcrDependencyStatusChipUiState(
 ) {
     companion object {
         val OK: OcrDependencyStatusChipUiState
-            @Composable get() = OcrDependencyStatusChipUiState(
-                icon = Icons.Default.Check,
-                text = stringResource(R.string.general_ok),
-                color = MaterialTheme.colorScheme.primary,
-            )
+            @Composable get() =
+                OcrDependencyStatusChipUiState(
+                    icon = Icons.Default.Check,
+                    text = stringResource(R.string.general_ok),
+                    color = MaterialTheme.colorScheme.primary,
+                )
 
         val WARNING: OcrDependencyStatusChipUiState
-            @Composable get() = OcrDependencyStatusChipUiState(
-                icon = Icons.Default.Warning,
-                text = "WARNING",
-                color = MaterialTheme.extendedColorScheme.warning,
-            )
+            @Composable get() =
+                OcrDependencyStatusChipUiState(
+                    icon = Icons.Default.Warning,
+                    text = "WARNING",
+                    color = MaterialTheme.extendedColorScheme.warning,
+                )
 
         val ERROR: OcrDependencyStatusChipUiState
-            @Composable get() = OcrDependencyStatusChipUiState(
-                icon = Icons.Default.Cancel,
-                text = "ERROR",
-                color = MaterialTheme.colorScheme.error,
-            )
+            @Composable get() =
+                OcrDependencyStatusChipUiState(
+                    icon = Icons.Default.Cancel,
+                    text = "ERROR",
+                    color = MaterialTheme.colorScheme.error,
+                )
 
         val UNKNOWN: OcrDependencyStatusChipUiState
-            @Composable get() = OcrDependencyStatusChipUiState(
-                icon = Icons.Default.QuestionMark,
-                text = "UNKNOWN",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            @Composable get() =
+                OcrDependencyStatusChipUiState(
+                    icon = Icons.Default.QuestionMark,
+                    text = "UNKNOWN",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
         val ABSENCE: OcrDependencyStatusChipUiState
-            @Composable get() = OcrDependencyStatusChipUiState(
-                icon = ImageVector.vectorResource(R.drawable.ic_file_hidden),
-                text = "404",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            @Composable get() =
+                OcrDependencyStatusChipUiState(
+                    icon = ImageVector.vectorResource(R.drawable.ic_file_hidden),
+                    text = "404",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
     }
 }
 
 @Composable
 fun OcrDependencyStatusChip(
-    uiState: OcrDependencyStatusChipUiState, modifier: Modifier = Modifier
+    uiState: OcrDependencyStatusChipUiState,
+    modifier: Modifier = Modifier,
 ) {
     val padding by animateDpAsState(
         targetValue = if (uiState.expanded) dimensionResource(R.dimen.icon_text_padding) else 0.dp,
-        label = "iconPadding"
+        label = "iconPadding",
     )
 
     CompositionLocalProvider(
@@ -104,7 +109,7 @@ fun OcrDependencyStatusChip(
             Icon(
                 uiState.icon,
                 contentDescription = null,
-                Modifier.padding(end = padding)
+                Modifier.padding(end = padding),
             )
             AnimatedVisibility(visible = uiState.expanded) {
                 Text(uiState.text)
@@ -112,7 +117,6 @@ fun OcrDependencyStatusChip(
         }
     }
 }
-
 
 @Composable
 fun OcrDependencyStatusChip(
@@ -140,12 +144,12 @@ private fun OcrDependencyStatusChipSinglePreview() {
         Surface(
             Modifier
                 .width(200.dp)
-                .padding(8.dp)
+                .padding(8.dp),
         ) {
             OcrDependencyStatusChip(
                 OcrDependencyStatus.UNKNOWN,
                 modifier = Modifier.clickable { expanded = !expanded },
-                expanded = expanded
+                expanded = expanded,
             )
         }
     }
@@ -180,7 +184,7 @@ private fun OcrDependencyStatusChipPreview() {
                             text = "Lor ips",
                             color = Color.Red,
                             expanded = true,
-                        )
+                        ),
                     )
                 }
             }

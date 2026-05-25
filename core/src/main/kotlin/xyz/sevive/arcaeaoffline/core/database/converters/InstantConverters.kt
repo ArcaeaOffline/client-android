@@ -5,12 +5,8 @@ import org.threeten.bp.Instant
 
 object InstantConverters {
     @TypeConverter
-    fun fromTimestamp(value: Long?): Instant? {
-        return value?.let { Instant.ofEpochMilli(it) }
-    }
+    fun fromTimestamp(value: Long?): Instant? = value?.let { Instant.ofEpochMilli(it) }
 
     @TypeConverter
-    fun dateToTimestamp(date: Instant?): Long? {
-        return date?.toEpochMilli()
-    }
+    fun dateToTimestamp(date: Instant?): Long? = date?.toEpochMilli()
 }

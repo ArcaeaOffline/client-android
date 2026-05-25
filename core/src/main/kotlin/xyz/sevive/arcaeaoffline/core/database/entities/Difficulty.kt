@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
-
 @Entity(tableName = "difficulties", primaryKeys = ["song_id", "rating_class"])
 data class Difficulty(
     @ColumnInfo(name = "song_id") val songId: String,
@@ -23,5 +22,5 @@ data class Difficulty(
     val bpm: String?,
     @ColumnInfo(name = "bpm_base") val bpmBase: Double?,
     val version: String?,
-    val date: Int?
+    val date: Int?,
 )

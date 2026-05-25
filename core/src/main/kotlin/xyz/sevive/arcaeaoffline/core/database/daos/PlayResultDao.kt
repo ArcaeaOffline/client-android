@@ -10,11 +10,13 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import java.util.UUID
 
-
 @Dao
 interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE song_id = :songId AND rating_class = :ratingClass")
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<PlayResult?>
+    fun find(
+        songId: String,
+        ratingClass: ArcaeaRatingClass,
+    ): Flow<PlayResult?>
 
     @Query("SELECT * FROM play_results WHERE uuid = :uuid")
     fun findByUUID(uuid: UUID): Flow<PlayResult?>
@@ -31,7 +33,7 @@ interface PlayResultDao {
     @Query("SELECT * FROM play_results WHERE song_id = :songId AND rating_class = :ratingClass")
     fun findAllBySongIdAndRatingClass(
         songId: String,
-        ratingClass: ArcaeaRatingClass
+        ratingClass: ArcaeaRatingClass,
     ): Flow<List<PlayResult>>
 
     @Query("SELECT * FROM play_results WHERE uuid IN (:uuids)")
@@ -52,5 +54,3 @@ interface PlayResultDao {
     @Delete
     suspend fun deleteBatch(vararg items: PlayResult): Int
 }
-
-

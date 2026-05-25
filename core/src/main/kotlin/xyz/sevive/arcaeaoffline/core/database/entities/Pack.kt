@@ -17,13 +17,12 @@ data class Pack(
     @Ignore
     private val appendPackRegexMatcher: Matcher = appendPackRegexPattern.matcher(this.id)
 
-    fun basePackId(): String? {
-        return if (appendPackRegexMatcher.matches()) {
+    fun basePackId(): String? =
+        if (appendPackRegexMatcher.matches()) {
             appendPackRegexMatcher.group(1)
-        } else null
-    }
+        } else {
+            null
+        }
 
-    fun isAppendPack(): Boolean {
-        return basePackId() != null
-    }
+    fun isAppendPack(): Boolean = basePackId() != null
 }

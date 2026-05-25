@@ -45,28 +45,29 @@ object Notifications {
         legacyChannels.forEach { notificationManager.deleteNotificationChannel(it) }
         legacyChannelGroups.forEach { notificationManager.deleteNotificationChannelGroup(it) }
 
-        val groups = listOf(
-            buildNotificationChannelGroup(GROUP_TASKS) {
-                setName(context.getString(R.string.notif_group_tasks))
-            },
-        )
+        val groups =
+            listOf(
+                buildNotificationChannelGroup(GROUP_TASKS) {
+                    setName(context.getString(R.string.notif_group_tasks))
+                },
+            )
         notificationManager.createNotificationChannelGroupsCompat(groups)
 
-        val channels = listOf(
-            buildNotificationChannel(CHANNEL_OCR_QUEUE_JOB) {
-                setGroup(GROUP_TASKS)
-                setName(context.getString(R.string.notif_channel_ocr_queue_job))
-                setDescription(context.getString(R.string.notif_description_ocr_queue_job))
-                setShowBadge(false)
-            },
-
-            buildNotificationChannel(CHANNEL_OCR_QUEUE_ENQUEUE_CHECKER_JOB) {
-                setGroup(GROUP_TASKS)
-                setName(context.getString(R.string.notif_channel_ocr_queue_enqueue_checker_job))
-                setDescription(context.getString(R.string.notif_description_ocr_queue_enqueue_checker_job))
-                setShowBadge(false)
-            },
-        )
+        val channels =
+            listOf(
+                buildNotificationChannel(CHANNEL_OCR_QUEUE_JOB) {
+                    setGroup(GROUP_TASKS)
+                    setName(context.getString(R.string.notif_channel_ocr_queue_job))
+                    setDescription(context.getString(R.string.notif_description_ocr_queue_job))
+                    setShowBadge(false)
+                },
+                buildNotificationChannel(CHANNEL_OCR_QUEUE_ENQUEUE_CHECKER_JOB) {
+                    setGroup(GROUP_TASKS)
+                    setName(context.getString(R.string.notif_channel_ocr_queue_enqueue_checker_job))
+                    setDescription(context.getString(R.string.notif_description_ocr_queue_enqueue_checker_job))
+                    setShowBadge(false)
+                },
+            )
         notificationManager.createNotificationChannelsCompat(channels)
     }
 }

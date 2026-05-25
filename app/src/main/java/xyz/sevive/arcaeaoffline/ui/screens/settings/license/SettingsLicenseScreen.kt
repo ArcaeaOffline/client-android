@@ -23,7 +23,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
-
 private const val LICENSE_FILENAME = "gpl-3.0.md"
 
 @Composable
@@ -38,9 +37,12 @@ internal fun SettingsLicenseScreen(
             // so we're adding a explicit delay to ensure the loading indicator is visible,
             // informing user that there is some loading in the background.
             delay(500L)
-            value = if (context.assets.list("")?.contains(LICENSE_FILENAME) == true)
-                IOUtils.toString(context.assets.open(LICENSE_FILENAME))
-            else "License file [${LICENSE_FILENAME}] not found! Check your assets."
+            value =
+                if (context.assets.list("")?.contains(LICENSE_FILENAME) == true) {
+                    IOUtils.toString(context.assets.open(LICENSE_FILENAME))
+                } else {
+                    "License file [${LICENSE_FILENAME}] not found! Check your assets."
+                }
         }
     }
 

@@ -47,7 +47,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import java.io.File
 
-
 @Composable
 private fun TaskDetailsDialog(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
@@ -129,9 +128,10 @@ internal fun OcrQueueTaskListItemHeader(
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = onDeleteTask,
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
+                colors =
+                    IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
             ) {
                 Icon(
                     Icons.Default.Delete,
@@ -176,9 +176,10 @@ internal fun OcrQueueTaskListItemHeader(
             IconButton(
                 onClick = onSaveTask,
                 enabled = uiItem.status == OcrQueueTaskStatus.DONE,
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                ),
+                colors =
+                    IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary,
+                    ),
             ) {
                 Icon(Icons.Default.Save, contentDescription = null)
             }
@@ -193,15 +194,16 @@ private fun OcrQueueTaskListItemHeaderPreview() {
         Surface {
             Column {
                 OcrQueueTaskListItemHeader(
-                    uiItem = OcrQueueScreenViewModel.TaskUiItem(
-                        id = 123,
-                        fileUri = Uri.fromFile(File("preview.png")),
-                        status = OcrQueueTaskStatus.DONE,
-                        ocrResult = null,
-                        playResult = null,
-                        chart = null,
-                        exception = null,
-                    ),
+                    uiItem =
+                        OcrQueueScreenViewModel.TaskUiItem(
+                            id = 123,
+                            fileUri = Uri.fromFile(File("preview.png")),
+                            status = OcrQueueTaskStatus.DONE,
+                            ocrResult = null,
+                            playResult = null,
+                            chart = null,
+                            exception = null,
+                        ),
                     onShowImagePreview = {},
                     onSaveTask = {},
                     onEditChart = {},

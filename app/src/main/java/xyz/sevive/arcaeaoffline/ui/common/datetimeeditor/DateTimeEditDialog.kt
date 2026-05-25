@@ -44,21 +44,21 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 private fun SecondEditor(
     second: Int,
     onSecondChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val selection = remember { TextRange(2, 2) }  // force cursor to the end
+    val selection = remember { TextRange(2, 2) } // force cursor to the end
 
     DisableSelection {
         TextField(
             value = TextFieldValue(second.toString(), selection = selection),
             onValueChange = {
-                if (it.text.isEmpty()) onSecondChange(0)
-                else {
+                if (it.text.isEmpty()) {
+                    onSecondChange(0)
+                } else {
                     it.text.toIntOrNull()?.let { int -> if (int in 0..59) onSecondChange(int) }
                 }
             },

@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 object OcrDependencyStatusViewerDefaults {
     @Composable
     fun Title(string: String) {
@@ -137,7 +136,7 @@ private fun OcrDependencyStatusViewerPreview() {
             Text(
                 "Test Dependencies",
                 Modifier.padding(16.dp),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
 
             OcrDependencyStatusViewer(

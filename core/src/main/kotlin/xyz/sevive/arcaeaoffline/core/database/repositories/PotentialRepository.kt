@@ -7,15 +7,15 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 
 interface PotentialRepository {
     fun b30(): Flow<Double>
+
     fun r10(): Flow<Double>
 }
 
 class PotentialRepositoryImpl(
     private val playResultBestRepo: PlayResultBestRepository,
-    private val r30EntryRepo: R30EntryRepository
+    private val r30EntryRepo: R30EntryRepository,
 ) : PotentialRepository {
-    private fun b30Entries(): Flow<List<PlayResultCalculated>> =
-        playResultBestRepo.orderDescWithLimit(30)
+    private fun b30Entries(): Flow<List<PlayResultCalculated>> = playResultBestRepo.orderDescWithLimit(30)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun r10Entries(): Flow<List<R30EntryCombined>> =
@@ -24,14 +24,22 @@ class PotentialRepositoryImpl(
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun b30() = this.b30Entries().mapLatest { entries ->
-        if (entries.isEmpty()) 0.0
-        else entries.sumOf { it.potential } / entries.size
-    }
+    override fun b30() =
+        this.b30Entries().mapLatest { entries ->
+            if (entries.isEmpty()) {
+                0.0
+            } else {
+                entries.sumOf { it.potential } / entries.size
+            }
+        }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun r10() = this.r10Entries().mapLatest { entries ->
-        if (entries.isEmpty()) 0.0
-        else entries.sumOf { it.potential() ?: 0.0 } / entries.size
-    }
+    override fun r10() =
+        this.r10Entries().mapLatest { entries ->
+            if (entries.isEmpty()) {
+                0.0
+            } else {
+                entries.sumOf { it.potential() ?: 0.0 } / entries.size
+            }
+        }
 }

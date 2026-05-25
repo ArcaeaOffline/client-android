@@ -29,7 +29,6 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
-
 class AppIconBeingClickedTooManyTimesSoEmbarrassingException : Exception() {
     override val message: String = "(⁄ ⁄•⁄ω⁄•⁄ ⁄)"
 }
@@ -37,10 +36,13 @@ class AppIconBeingClickedTooManyTimesSoEmbarrassingException : Exception() {
 @Composable
 private fun AppIcon(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val appIcon = remember {
-        context.packageManager.getApplicationIcon(BuildConfig.APPLICATION_ID).toBitmap()
-            .asImageBitmap()
-    }
+    val appIcon =
+        remember {
+            context.packageManager
+                .getApplicationIcon(BuildConfig.APPLICATION_ID)
+                .toBitmap()
+                .asImageBitmap()
+        }
 
     Image(appIcon, contentDescription = null, modifier = modifier)
 }
@@ -55,15 +57,19 @@ internal fun SettingsAboutScreen(
 
     val versionText = remember { "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})" }
     val appName = stringResource(R.string.app_name)
-    val appNameText = remember(appIconClickCrasherState.count) {
-        val count = appIconClickCrasherState.count
-        if (count <= 4) "$appName (${appIconClickCrasherState.count})"
-        else appName
-    }
+    val appNameText =
+        remember(appIconClickCrasherState.count) {
+            val count = appIconClickCrasherState.count
+            if (count <= 4) {
+                "$appName (${appIconClickCrasherState.count})"
+            } else {
+                appName
+            }
+        }
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.About.title)
+        title = stringResource(SettingsScreenDestination.About.title),
     ) {
         LazyColumn {
             item {
@@ -75,7 +81,7 @@ internal fun SettingsAboutScreen(
                     AppIcon(
                         Modifier
                             .clickable { appIconClickCrasherState.clicked() }
-                            .size(100.dp)
+                            .size(100.dp),
                     )
 
                     Text(appNameText, style = MaterialTheme.typography.titleLarge)

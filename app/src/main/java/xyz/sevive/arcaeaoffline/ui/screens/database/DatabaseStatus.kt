@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 private fun DatabaseStatusIconRow(
     icon: ImageVector,
@@ -65,7 +64,10 @@ private fun DatabaseStatusIconRow(
 }
 
 @Composable
-private fun DatabaseStatusLabel(@PluralsRes labelId: Int, count: Int) {
+private fun DatabaseStatusLabel(
+    @PluralsRes labelId: Int,
+    count: Int,
+) {
     Text(text = pluralStringResource(id = labelId, count = count, count))
 }
 
@@ -81,9 +83,12 @@ fun DatabaseStatus(
             pluralStringResource(R.plurals.database_pack_entries, packCount, packCount)
         val songCountText =
             pluralStringResource(R.plurals.database_song_entries, songCount, songCount)
-        val difficultyCountText = pluralStringResource(
-            R.plurals.database_difficulty_entries, difficultyCount, difficultyCount
-        )
+        val difficultyCountText =
+            pluralStringResource(
+                R.plurals.database_difficulty_entries,
+                difficultyCount,
+                difficultyCount,
+            )
 
         Card(modifier) {
             Column(

@@ -47,8 +47,10 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 
-
-class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
+class OcrQueueJob(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "OcrQueueJob"
         const val WORK_NAME = "OcrQueueJob"
@@ -65,14 +67,15 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
         val parallelCount: Int,
     )
 
-    private fun getWorkOptions(): WorkOptions {
-        return WorkOptions(
+    private fun getWorkOptions(): WorkOptions =
+        WorkOptions(
             runMode = RunMode.fromInt(inputData.getInt(DATA_RUN_MODE, RunMode.NORMAL.value)),
-            parallelCount = inputData.getInt(
-                DATA_PARALLEL_COUNT, Runtime.getRuntime().availableProcessors() / 2
-            ),
+            parallelCount =
+                inputData.getInt(
+                    DATA_PARALLEL_COUNT,
+                    Runtime.getRuntime().availableProcessors() / 2,
+                ),
         )
-    }
 
     private val workOptions = getWorkOptions()
 
@@ -81,18 +84,21 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
     private val channelScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val channel = Channel<OcrQueueTask>()
 
-    private val _progress = MutableStateFlow(0)
-    private val _progressTotal = MutableStateFlow(-1)
+    private val progressCurrent = MutableStateFlow(0)
+    private val progressTotal = MutableStateFlow(-1)
     private val progressLock = Mutex()
-    private val progress = combine(_progress, _progressTotal) { p, t ->
-        if (t > -1) p to t else null
-    }.stateIn(channelScope, SharingStarted.WhileSubscribed(2500L), null)
+    private val progress =
+        combine(progressCurrent, progressTotal) { p, t ->
+            if (t > -1) p to t else null
+        }.stateIn(channelScope, SharingStarted.WhileSubscribed(2500L), null)
     private var progressListenJob: Job? = null
 
     private fun createNotification(progress: Pair<Int, Int>?): Notification {
-        val builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
-            .setSmallIcon(R.drawable.ic_ocr)
-            .setContentTitle(applicationContext.getString(R.string.notif_title_ocr_queue_job))
+        val builder =
+            NotificationCompat
+                .Builder(applicationContext, NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.ic_ocr)
+                .setContentTitle(applicationContext.getString(R.string.notif_title_ocr_queue_job))
 
         val progressDone = progress == null
         if (progressDone) {
@@ -118,24 +124,29 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(
-                NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
             )
         } else {
             ForegroundInfo(NOTIFICATION_ID, notification)
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return createForegroundInfo()
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
     /**
      * * [RunMode.NORMAL]: Only process [OcrQueueTaskStatus.IDLE] and [OcrQueueTaskStatus.ERROR] tasks.
      * * [RunMode.ALL]: Process all tasks, no matter what their status is.
      * * [RunMode.SMART_FIX]: Try fixing those [OcrQueueTaskStatus.DONE] tasks with warnings.
      */
-    enum class RunMode(val value: Int) {
-        NORMAL(0), ALL(1), SMART_FIX(2);
+    enum class RunMode(
+        val value: Int,
+    ) {
+        NORMAL(0),
+        ALL(1),
+        SMART_FIX(2),
+        ;
 
         companion object {
             fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: NORMAL
@@ -153,11 +164,12 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
 
         val workOptions = getWorkOptions()
 
-        progressListenJob = channelScope.launch {
-            progress.collectLatest {
-                notificationManager.notify(NOTIFICATION_ID, createNotification(it))
+        progressListenJob =
+            channelScope.launch {
+                progress.collectLatest {
+                    notificationManager.notify(NOTIFICATION_ID, createNotification(it))
+                }
             }
-        }
 
         try {
             when (workOptions.runMode) {
@@ -172,11 +184,12 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
             channelScope.coroutineContext.cancelChildren()
 
             withContext(NonCancellable + Dispatchers.IO) {
-                channelScope.async {
-                    repo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
-                        repo.update(it.copy(status = OcrQueueTaskStatus.ERROR, exception = e))
-                    }
-                }.await()
+                channelScope
+                    .async {
+                        repo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
+                            repo.update(it.copy(status = OcrQueueTaskStatus.ERROR, exception = e))
+                        }
+                    }.await()
             }
 
             return Result.failure()
@@ -204,7 +217,8 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
     ) {
         if (isStopped) return
 
-        @Suppress("NAME_SHADOWING") var task = task.copy()
+        @Suppress("NAME_SHADOWING")
+        var task = task.copy()
         task = task.copy(status = OcrQueueTaskStatus.PROCESSING)
         taskRepo.update(task)
         Log.v(LOG_TAG, "Processing task ${task.id}")
@@ -213,42 +227,53 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
         try {
             val uri = task.fileUri
 
-            val ocrResult = scope.async {
-                DeviceOcrHelper.ocrImage(
-                    uri,
-                    applicationContext,
-                    kNearestModel,
-                    imageHashesDatabase,
-                    ortSession = ortSession
+            val ocrResult =
+                scope
+                    .async {
+                        DeviceOcrHelper.ocrImage(
+                            uri,
+                            applicationContext,
+                            kNearestModel,
+                            imageHashesDatabase,
+                            ortSession = ortSession,
+                        )
+                    }.await()
+
+            val playResult =
+                scope
+                    .async {
+                        DeviceOcrHelper.ocrResultToPlayResult(
+                            uri,
+                            applicationContext,
+                            ocrResult,
+                            fallbackDate = Instant.now(),
+                        )
+                    }.await()
+
+            val warnings =
+                scope
+                    .async {
+                        val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
+                        ArcaeaPlayResultValidator.validate(playResult, chartInfo)
+                    }.await()
+
+            task =
+                task.copy(
+                    status = OcrQueueTaskStatus.DONE,
+                    result = ocrResult,
+                    playResult = playResult,
+                    warnings = warnings,
+                    exception = null,
                 )
-            }.await()
-
-            val playResult = scope.async {
-                DeviceOcrHelper.ocrResultToPlayResult(
-                    uri, applicationContext, ocrResult, fallbackDate = Instant.now()
-                )
-            }.await()
-
-            val warnings = scope.async {
-                val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
-                ArcaeaPlayResultValidator.validate(playResult, chartInfo)
-            }.await()
-
-            task = task.copy(
-                status = OcrQueueTaskStatus.DONE,
-                result = ocrResult,
-                playResult = playResult,
-                warnings = warnings,
-                exception = null,
-            )
         } catch (e: CancellationException) {
             Log.i(LOG_TAG, "Job (${task.id}) CancellationException caught")
             shouldUpdateTask = false
         } catch (e: Exception) {
-            task = task.copy(
-                status = OcrQueueTaskStatus.ERROR,
-                exception = e,
-            )
+            task =
+                task.copy(
+                    status = OcrQueueTaskStatus.ERROR,
+                    exception = e,
+                )
 
             Log.e(LOG_TAG, "Error occurred at task ${task.id} ${task.fileUri}", e)
             Sentry.captureException(e)
@@ -265,7 +290,7 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
 
                 withContext(Dispatchers.IO) {
                     launch {
-                        _progressTotal.value = tasks.size
+                        progressTotal.value = tasks.size
                         tasks.forEach { channel.send(it) }
                         channel.close()
                     }
@@ -282,7 +307,7 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
                                     kNearestModel = kNearestModel,
                                     imageHashesDatabase = imageHashesDatabase,
                                 )
-                                progressLock.withLock { _progress.value += 1 }
+                                progressLock.withLock { progressCurrent.value += 1 }
                             }
                         }
                     }
@@ -292,9 +317,13 @@ class OcrQueueJob(context: Context, params: WorkerParameters) : CoroutineWorker(
     }
 
     private suspend fun runNormal() {
-        val tasks = repo.findByStatus(
-            OcrQueueTaskStatus.IDLE, OcrQueueTaskStatus.PROCESSING, OcrQueueTaskStatus.ERROR
-        ).firstOrNull() ?: return
+        val tasks =
+            repo
+                .findByStatus(
+                    OcrQueueTaskStatus.IDLE,
+                    OcrQueueTaskStatus.PROCESSING,
+                    OcrQueueTaskStatus.ERROR,
+                ).firstOrNull() ?: return
         processTasks(tasks)
     }
 

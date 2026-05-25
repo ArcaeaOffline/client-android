@@ -7,16 +7,17 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-
 object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
     private fun applyDefaultValues(preferences: OcrQueuePreferences): OcrQueuePreferences {
         val builder = preferences.toBuilder()
 
         if (!builder.hasCheckIsImage()) builder.setCheckIsImage(true)
         if (!builder.hasCheckIsArcaeaImage()) builder.setCheckIsArcaeaImage(true)
-        if (!builder.hasParallelCount()) builder.setParallelCount(
-            Runtime.getRuntime().availableProcessors() / 2
-        )
+        if (!builder.hasParallelCount()) {
+            builder.setParallelCount(
+                Runtime.getRuntime().availableProcessors() / 2,
+            )
+        }
 
         return builder.build()
     }
@@ -32,11 +33,15 @@ object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
         }
     }
 
-    override suspend fun writeTo(t: OcrQueuePreferences, output: OutputStream) =
-        t.writeTo(output)
+    override suspend fun writeTo(
+        t: OcrQueuePreferences,
+        output: OutputStream,
+    ) = t.writeTo(output)
 }
 
-class OcrQueuePreferencesRepository(private val dataStore: DataStore<OcrQueuePreferences>) {
+class OcrQueuePreferencesRepository(
+    private val dataStore: DataStore<OcrQueuePreferences>,
+) {
     val preferencesFlow = dataStore.data
 
     suspend fun setCheckIsImage(value: Boolean) {

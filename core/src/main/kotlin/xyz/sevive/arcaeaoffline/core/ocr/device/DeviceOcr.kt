@@ -38,25 +38,38 @@ data class DeviceOcrResult(
     val clearStatus: Int?,
     val partnerIdResults: List<ImageHashItem>,
 ) {
-    val songId = if (songIdResults.isEmpty()) ""
-    else songIdResults.getMostConfidentItem()?.label ?: ""
+    val songId =
+        if (songIdResults.isEmpty()) {
+            ""
+        } else {
+            songIdResults.getMostConfidentItem()?.label ?: ""
+        }
 
-    val partnerId = if (partnerIdResults.isEmpty()) ""
-    else partnerIdResults.getMostConfidentItem()?.label ?: ""
+    val partnerId =
+        if (partnerIdResults.isEmpty()) {
+            ""
+        } else {
+            partnerIdResults.getMostConfidentItem()?.label ?: ""
+        }
 }
-
 
 fun DeviceOcrResult.toPlayResult(
     arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
     date: Instant? = null,
     comment: String? = null,
 ): PlayResult {
-    val playResultModifier = if (arcaeaPartnerModifiers != null) {
-        arcaeaPartnerModifiers[this.partnerId]
-    } else null
-    val clearType = if (playResultModifier != null && this.clearStatus != null) {
-        clearStatusToClearType(this.clearStatus, playResultModifier)
-    } else null
+    val playResultModifier =
+        if (arcaeaPartnerModifiers != null) {
+            arcaeaPartnerModifiers[this.partnerId]
+        } else {
+            null
+        }
+    val clearType =
+        if (playResultModifier != null && this.clearStatus != null) {
+            clearStatusToClearType(this.clearStatus, playResultModifier)
+        } else {
+            null
+        }
 
     return PlayResult(
         id = 0,
@@ -74,7 +87,6 @@ fun DeviceOcrResult.toPlayResult(
         comment = comment,
     )
 }
-
 
 class DeviceOcr(
     private val extractor: DeviceRoisExtractor,
@@ -94,7 +106,7 @@ class DeviceOcr(
                     0,
                     0,
                     0,
-                    Core.BORDER_REPLICATE
+                    Core.BORDER_REPLICATE,
                 )
             } else {
                 imgGray.copyTo(iconSquared)
@@ -108,7 +120,7 @@ class DeviceOcr(
                     MatOfPoint(Point(0.0, 0.0), Point(w / 2, 0.0), Point(0.0, h / 2)),
                     MatOfPoint(Point(w, 0.0), Point(w / 2, 0.0), Point(w, h / 2)),
                     MatOfPoint(Point(0.0, h), Point(w / 2, h), Point(0.0, h / 2)),
-                    MatOfPoint(Point(w, h), Point(w / 2, h), Point(w, h / 2))
+                    MatOfPoint(Point(w, h), Point(w / 2, h), Point(w, h / 2)),
                 ),
                 Scalar(128.0),
             )
@@ -116,10 +128,17 @@ class DeviceOcr(
         }
     }
 
-    private fun pfl(roiGray: Mat, factor: Double = 1.0): Int {
+    private fun pfl(
+        roiGray: Mat,
+        factor: Double = 1.0,
+    ): Int {
         val contours = ArrayList<MatOfPoint>()
         Imgproc.findContours(
-            roiGray, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE
+            roiGray,
+            contours,
+            Mat(),
+            Imgproc.RETR_EXTERNAL,
+            Imgproc.CHAIN_APPROX_NONE,
         )
         val filteredContours = contours.filter { Imgproc.contourArea(it) >= 5 * factor }
         var rects = filteredContours.map { Imgproc.boundingRect(it) }
@@ -143,14 +162,20 @@ class DeviceOcr(
     }
 
     fun pure() = pfl(masker.pure(extractor.pure))
+
     fun far() = pfl(masker.far(extractor.far))
+
     fun lost() = pfl(masker.lost(extractor.lost))
 
     fun score(): Int {
         val roi = masker.score(extractor.score)
         val contours = ArrayList<MatOfPoint>()
         Imgproc.findContours(
-            roi, contours, Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE
+            roi,
+            contours,
+            Mat(),
+            Imgproc.RETR_EXTERNAL,
+            Imgproc.CHAIN_APPROX_NONE,
         )
         for (contour in contours) {
             if (Imgproc.boundingRect(contour).height < roi.height() * 0.6) {
@@ -162,27 +187,28 @@ class DeviceOcr(
 
     fun ratingClass(): ArcaeaRatingClass {
         val roi = extractor.ratingClass
-        val results = listOf(
-            masker.ratingClassPst(roi),
-            masker.ratingClassPrs(roi),
-            masker.ratingClassFtr(roi),
-            masker.ratingClassByd(roi),
-            masker.ratingClassEtr(roi),
-        )
+        val results =
+            listOf(
+                masker.ratingClassPst(roi),
+                masker.ratingClassPrs(roi),
+                masker.ratingClassFtr(roi),
+                masker.ratingClassByd(roi),
+                masker.ratingClassEtr(roi),
+            )
         return ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
     }
 
-    fun maxRecall(): Int =
-        ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), kNearestModel)
+    fun maxRecall(): Int = ocrDigitsByContourKnn(masker.maxRecall(extractor.maxRecall), kNearestModel)
 
     private fun clearStatus(): Int {
         val roi = extractor.clearStatus
-        val results = listOf(
-            masker.clearStatusTrackLost(roi),
-            masker.clearStatusTrackComplete(roi),
-            masker.clearStatusFullRecall(roi),
-            masker.clearStatusPureMemory(roi),
-        )
+        val results =
+            listOf(
+                masker.clearStatusTrackLost(roi),
+                masker.clearStatusTrackComplete(roi),
+                masker.clearStatusFullRecall(roi),
+                masker.clearStatusPureMemory(roi),
+            )
         return results.indices.maxBy { Core.countNonZero(results[it]) }
     }
 
@@ -198,8 +224,8 @@ class DeviceOcr(
         return hashesDb.lookupPartnerIcon(preprocessPartnerIcon(roiGray))
     }
 
-    fun ocr(): DeviceOcrResult {
-        return DeviceOcrResult(
+    fun ocr(): DeviceOcrResult =
+        DeviceOcrResult(
             ratingClass = ratingClass(),
 //            pure = pure(),
 //            far = far(),
@@ -215,5 +241,4 @@ class DeviceOcr(
             clearStatus = clearStatus(),
             partnerIdResults = lookupPartnerId(),
         )
-    }
 }

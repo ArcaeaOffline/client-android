@@ -7,7 +7,6 @@ import androidx.room.Index
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
-
 @Entity(
     tableName = "difficulties_localized",
     primaryKeys = ["song_id", "rating_class"],
@@ -15,14 +14,16 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
         Index(value = ["song_id", "rating_class", "lang"], unique = true),
         Index(value = ["lang"]),
     ],
-    foreignKeys = [ForeignKey(
-        entity = Difficulty::class,
-        parentColumns = ["song_id", "rating_class"],
-        childColumns = ["song_id", "rating_class"],
-        onUpdate = ForeignKey.CASCADE,
-        onDelete = ForeignKey.CASCADE,
-        deferred = true
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = Difficulty::class,
+            parentColumns = ["song_id", "rating_class"],
+            childColumns = ["song_id", "rating_class"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE,
+            deferred = true,
+        ),
+    ],
 )
 data class DifficultyLocalized(
     @ColumnInfo(name = "song_id") val songId: String,

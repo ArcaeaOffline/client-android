@@ -5,7 +5,9 @@ import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
 
-class OcrQueueDatabaseRepositoryContainer(private val context: Context) {
+class OcrQueueDatabaseRepositoryContainer(
+    private val context: Context,
+) {
     private fun database() = OcrQueueDatabase.getDatabase(context)
 
     val ocrQueueTaskRepo by lazy {

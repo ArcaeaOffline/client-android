@@ -20,15 +20,16 @@ fun DatabaseManageExport(
     onExportPlayResults: (Uri) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val exportPlayResultsHandler = rememberLauncherForActivityResult(CreateJsonDocument()) {
-        it?.let(onExportPlayResults)
-    }
+    val exportPlayResultsHandler =
+        rememberLauncherForActivityResult(CreateJsonDocument()) {
+            it?.let(onExportPlayResults)
+        }
 
     Column(modifier) {
         TextPreferencesWidget(
             onClick = {
                 exportPlayResultsHandler.launch(
-                    "arcaea-offline-data-exchange-${Instant.now().toEpochMilli()}"
+                    "arcaea-offline-data-exchange-${Instant.now().toEpochMilli()}",
                 )
             },
             title = stringResource(R.string.database_manage_export_play_results),

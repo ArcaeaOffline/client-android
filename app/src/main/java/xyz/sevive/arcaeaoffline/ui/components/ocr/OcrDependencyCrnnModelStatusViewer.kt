@@ -15,7 +15,8 @@ data class OcrDependencyCrnnModelStatusUiState(
 
 @Composable
 fun OcrDependencyCrnnModelStatusViewer(
-    uiState: OcrDependencyCrnnModelStatusUiState, modifier: Modifier = Modifier
+    uiState: OcrDependencyCrnnModelStatusUiState,
+    modifier: Modifier = Modifier,
 ) {
     val statusDetail = uiState.statusDetail
 

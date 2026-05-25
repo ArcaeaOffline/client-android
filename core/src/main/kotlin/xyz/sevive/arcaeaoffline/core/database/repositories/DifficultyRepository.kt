@@ -8,26 +8,41 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 interface DifficultyRepository {
-    fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Difficulty?>
+    fun find(
+        songId: String,
+        ratingClass: ArcaeaRatingClass,
+    ): Flow<Difficulty?>
+
     fun find(playResult: PlayResult) = find(playResult.songId, playResult.ratingClass)
+
     fun find(chartInfo: ChartInfo) = find(chartInfo.songId, chartInfo.ratingClass)
+
     fun findAll(): Flow<List<Difficulty>>
+
     fun findAllBySongId(songId: String): Flow<List<Difficulty>>
+
     fun count(): Flow<Int>
+
     suspend fun upsert(item: Difficulty): Long
+
     suspend fun upsertBatch(vararg items: Difficulty): List<Long>
+
     suspend fun delete(item: Difficulty): Int
+
     suspend fun deleteBatch(vararg items: Difficulty): Int
 }
 
-class DifficultyRepositoryImpl(private val dao: DifficultyDao) : DifficultyRepository {
-    override fun find(songId: String, ratingClass: ArcaeaRatingClass): Flow<Difficulty?> =
-        dao.find(songId, ratingClass)
+class DifficultyRepositoryImpl(
+    private val dao: DifficultyDao,
+) : DifficultyRepository {
+    override fun find(
+        songId: String,
+        ratingClass: ArcaeaRatingClass,
+    ): Flow<Difficulty?> = dao.find(songId, ratingClass)
 
     override fun findAll(): Flow<List<Difficulty>> = dao.findAll()
 
-    override fun findAllBySongId(songId: String): Flow<List<Difficulty>> =
-        dao.findAllBySongId(songId)
+    override fun findAllBySongId(songId: String): Flow<List<Difficulty>> = dao.findAllBySongId(songId)
 
     override fun count(): Flow<Int> = dao.count()
 

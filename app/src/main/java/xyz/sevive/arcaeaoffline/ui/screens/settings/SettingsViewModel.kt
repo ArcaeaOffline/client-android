@@ -16,11 +16,13 @@ class SettingsViewModel(
         val autoSendCrashReports: Boolean = false,
     )
 
-    val appPreferencesUiState = appPreferencesRepository.preferencesFlow.map {
-        AppPreferencesUiState(
-            autoSendCrashReports = it.autoSendCrashReports
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), AppPreferencesUiState())
+    val appPreferencesUiState =
+        appPreferencesRepository.preferencesFlow
+            .map {
+                AppPreferencesUiState(
+                    autoSendCrashReports = it.autoSendCrashReports,
+                )
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), AppPreferencesUiState())
 
     fun setAutoSendCrashReports(value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

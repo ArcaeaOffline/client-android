@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
-
 @Composable
 internal fun processingColor() = MaterialTheme.colorScheme.secondary
 
@@ -26,14 +25,18 @@ internal fun doneColor() = MaterialTheme.colorScheme.primary
 internal fun errorColor() = MaterialTheme.colorScheme.error
 
 @Composable
-private fun rememberItemWidthPercentage(itemCount: Int, totalCount: Int): Float {
-    return remember(itemCount, totalCount) {
+private fun rememberItemWidthPercentage(
+    itemCount: Int,
+    totalCount: Int,
+): Float =
+    remember(itemCount, totalCount) {
         if (totalCount == 0) 0f else itemCount.toFloat() / totalCount
     }
-}
 
 private fun DrawScope.drawProgressLine(
-    offsetPercentage: Float, progressPercentage: Float, color: Color
+    offsetPercentage: Float,
+    progressPercentage: Float,
+    color: Color,
 ) {
     val width = size.width
     val height = size.height

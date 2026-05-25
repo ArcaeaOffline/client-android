@@ -36,7 +36,10 @@ sealed interface ArcaeaPlayResultValidatorWarning {
      * If the given values will trigger this warning, return `true`. That is, there are
      * problems with the given values.
      */
-    fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo? = null): Boolean
+    fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo? = null,
+    ): Boolean
 }
 
 data object ArcaeaPlayResultValidatorScoreIsZeroWarning : ArcaeaPlayResultValidatorWarning {
@@ -48,9 +51,10 @@ data object ArcaeaPlayResultValidatorScoreIsZeroWarning : ArcaeaPlayResultValida
     override val message = "Score is zero"
     override val messageId = R.string.play_result_validator_SCORE_IS_ZERO_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
-        return playResult.score == 0
-    }
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean = playResult.score == 0
 }
 
 data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultValidatorWarning {
@@ -62,7 +66,10 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
     override val message = "Score out of range"
     override val messageId = R.string.play_result_validator_SCORE_OUT_OF_RANGE_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (chartInfo?.notes == null || playResult.pure == null || playResult.far == null) {
             return false
         }
@@ -82,7 +89,10 @@ data object ArcaeaPlayResultValidatorPflOverflowWarning : ArcaeaPlayResultValida
     override val message = "pure + far + lost > chart note count"
     override val messageId = R.string.play_result_validator_PFL_OVERFLOW_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (chartInfo?.notes == null) {
             return false
         }
@@ -105,7 +115,10 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
     override val message = "max recall > chart note count"
     override val messageId = R.string.play_result_validator_MAX_RECALL_OVERFLOW_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (chartInfo?.notes == null || playResult.maxRecall == null) {
             return false
         }
@@ -124,9 +137,14 @@ data object ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning :
     override val message = "A FR/PM play result should have same max recall with the chart notes."
     override val messageId = R.string.play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
-        if (playResult.clearType !in listOf(
-                ArcaeaPlayResultClearType.FULL_RECALL, ArcaeaPlayResultClearType.PURE_MEMORY
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
+        if (playResult.clearType !in
+            listOf(
+                ArcaeaPlayResultClearType.FULL_RECALL,
+                ArcaeaPlayResultClearType.PURE_MEMORY,
             )
         ) {
             return false
@@ -135,7 +153,6 @@ data object ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning :
         return playResult.maxRecall != chartInfo?.notes
     }
 }
-
 
 data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultValidatorWarning {
     override val id = "CLEAR_PFL_MISMATCH"
@@ -146,7 +163,10 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
     override val message = "pure + far + lost != chart note count"
     override val messageId = R.string.play_result_validator_CLEAR_PFL_MISMATCH_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (chartInfo?.notes == null || playResult.clearType == null || playResult.modifier == null) {
             return false
         }
@@ -174,7 +194,10 @@ data object ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning :
     override val message = "A FR play result should have 0 lost."
     override val messageId = R.string.play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (playResult.clearType != ArcaeaPlayResultClearType.FULL_RECALL) {
             return false
         }
@@ -193,7 +216,10 @@ data object ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning :
     override val message = "A PM play result should have 0 far and 0 lost."
     override val messageId = R.string.play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
         if (playResult.clearType != ArcaeaPlayResultClearType.PURE_MEMORY) {
             return false
         }
@@ -212,8 +238,10 @@ data object ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning :
     override val message = "easy clear != easy || hard clear != hard"
     override val messageId = R.string.play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message
 
-    override fun conditionsMet(playResult: PlayResult, chartInfo: ChartInfo?): Boolean {
-        return (playResult.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.EASY) || (playResult.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.HARD)
-    }
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean =
+        (playResult.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.EASY) ||
+            (playResult.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.HARD)
 }
-

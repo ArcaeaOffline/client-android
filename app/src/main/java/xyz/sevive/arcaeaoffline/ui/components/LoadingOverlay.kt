@@ -17,7 +17,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 
-/* https://stackoverflow.com/a/69146178/16484891, CC BY-SA 4.0 */
+// https://stackoverflow.com/a/69146178/16484891, CC BY-SA 4.0
 private fun Modifier.interceptChildrenInteractions(intercept: Boolean = true) =
     if (intercept) {
         pointerInput(Unit) {
@@ -53,7 +53,7 @@ fun LoadingOverlay(
     Box(
         Modifier
             .interceptChildrenInteractions(intercept = shouldInterceptInteraction)
-            .then(modifier)
+            .then(modifier),
     ) {
         content()
 
@@ -61,7 +61,7 @@ fun LoadingOverlay(
             Box(
                 Modifier
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = overlayBackgroundAlpha))
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             }

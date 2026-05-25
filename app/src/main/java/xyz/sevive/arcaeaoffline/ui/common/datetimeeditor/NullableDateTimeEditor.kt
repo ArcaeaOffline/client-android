@@ -28,7 +28,6 @@ import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 internal fun NullableDateTimeEditor(
     dateTime: LocalDateTime?,
@@ -48,14 +47,19 @@ internal fun NullableDateTimeEditor(
             readOnly = true,
             enabled = false,
             label = { Text(stringResource(R.string.datetime_picker_label)) },
-            colors = if (dateTime != null) TextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            colors =
+                if (dateTime != null) {
+                    TextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
 //                disabledBorderColor = MaterialTheme.colorScheme.outline,
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ) else TextFieldDefaults.colors(),
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    TextFieldDefaults.colors()
+                },
             trailingIcon = {
                 IconButton(onClick = { showEditor = true }, enabled = editable) {
                     Icon(Icons.Default.Edit, null)

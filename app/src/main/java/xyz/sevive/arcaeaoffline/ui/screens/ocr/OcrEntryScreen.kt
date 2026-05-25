@@ -12,7 +12,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreen
 
-
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun OcrEntryScreen() {

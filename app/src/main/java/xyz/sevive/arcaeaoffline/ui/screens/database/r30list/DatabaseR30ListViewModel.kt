@@ -21,7 +21,6 @@ import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
-
 class DatabaseR30ListViewModel(
     private val workManager: WorkManager,
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
@@ -52,53 +51,66 @@ class DatabaseR30ListViewModel(
         val listItems: List<ListItem> = emptyList(),
     )
 
-    val uiState = repositoryContainer.r30EntryRepo.findAllCombined().transform { dbItems ->
-        emit(UiState(isLoading = true))
+    val uiState =
+        repositoryContainer.r30EntryRepo
+            .findAllCombined()
+            .transform { dbItems ->
+                emit(UiState(isLoading = true))
 
-        val listItems = dbItems.map { dbItem ->
-            val potential = dbItem.potential()
+                val listItems =
+                    dbItems
+                        .map { dbItem ->
+                            val potential = dbItem.potential()
 
-            ListItem(
-                index = -1,
-                r30Entry = dbItem.entry,
-                playResult = dbItem.playResult,
-                chart = getUiItemChart(dbItem.playResult),
-                potential = potential,
+                            ListItem(
+                                index = -1,
+                                r30Entry = dbItem.entry,
+                                playResult = dbItem.playResult,
+                                chart = getUiItemChart(dbItem.playResult),
+                                potential = potential,
+                            )
+                        }.sortedByDescending { it.potential }
+                        .mapIndexed { i, uiItem -> uiItem.copy(index = i) }
+
+                val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
+
+                emit(
+                    UiState(isLoading = false, lastUpdatedAt = lastUpdatedAt, listItems = listItems),
+                )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                UiState(),
             )
-        }.sortedByDescending { it.potential }.mapIndexed { i, uiItem -> uiItem.copy(index = i) }
-
-        val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
-
-        emit(
-            UiState(isLoading = false, lastUpdatedAt = lastUpdatedAt, listItems = listItems)
-        )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        UiState(),
-    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val updateProgress =
-        workManager.getWorkInfosForUniqueWorkFlow(R30UpdateJob.WORK_NAME).mapLatest { workInfos ->
-            val workInfo = workInfos.getOrNull(0) ?: return@mapLatest 0 to -1
+        workManager
+            .getWorkInfosForUniqueWorkFlow(R30UpdateJob.WORK_NAME)
+            .mapLatest { workInfos ->
+                val workInfo = workInfos.getOrNull(0) ?: return@mapLatest 0 to -1
 
-            workInfo.progress.getInt(R30UpdateJob.KEY_PROGRESS, 0) to workInfo.progress.getInt(
-                R30UpdateJob.KEY_PROGRESS_TOTAL, -1
+                workInfo.progress.getInt(R30UpdateJob.KEY_PROGRESS, 0) to
+                    workInfo.progress.getInt(
+                        R30UpdateJob.KEY_PROGRESS_TOTAL,
+                        -1,
+                    )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                0 to -1,
             )
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            0 to -1,
-        )
 
     private fun enqueueWork(runMode: R30UpdateJob.RunMode) {
-        val workRequest = OneTimeWorkRequestBuilder<R30UpdateJob>().setInputData(
-            workDataOf(R30UpdateJob.DATA_RUN_MODE to runMode.value)
-        )
+        val workRequest =
+            OneTimeWorkRequestBuilder<R30UpdateJob>().setInputData(
+                workDataOf(R30UpdateJob.DATA_RUN_MODE to runMode.value),
+            )
 
         workManager.enqueueUniqueWork(
-            R30UpdateJob.WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest.build()
+            R30UpdateJob.WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            workRequest.build(),
         )
     }
 

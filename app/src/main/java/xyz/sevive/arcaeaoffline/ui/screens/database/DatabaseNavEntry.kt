@@ -28,13 +28,12 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
-    vm: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    vm: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
 
@@ -51,7 +50,7 @@ fun DatabaseNavEntry(
                     statusUiState,
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.page_padding))
+                        .padding(horizontal = dimensionResource(R.dimen.page_padding)),
                 )
             }
 
@@ -76,7 +75,7 @@ fun DatabaseNavEntry(
             item {
                 NavEntryNavigateButton(
                     titleResId = DatabaseScreenDestinations.ScoreList.title,
-                    icon = Icons.AutoMirrored.Default.List
+                    icon = Icons.AutoMirrored.Default.List,
                 ) {
                     onNavigateToSubRoute(DatabaseScreenDestinations.ScoreList.route)
                 }

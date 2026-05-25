@@ -8,16 +8,25 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 
 interface PackRepository {
     fun find(id: String): Flow<Pack?>
+
     fun findAll(): Flow<List<Pack>>
+
     fun findBasePack(id: String): Flow<Pack?>
+
     fun count(): Flow<Int>
+
     suspend fun upsert(item: Pack): Long
+
     suspend fun upsertBatch(vararg items: Pack): List<Long>
+
     suspend fun delete(item: Pack): Int
+
     suspend fun deleteBatch(vararg items: Pack): Int
 }
 
-class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
+class PackRepositoryImpl(
+    private val dao: PackDao,
+) : PackRepository {
     override fun find(id: String): Flow<Pack?> = dao.find(id)
 
     override fun findAll(): Flow<List<Pack>> = dao.findAll()
@@ -27,7 +36,9 @@ class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
         return if (re.find(id) != null) {
             val baseId = re.replace(id, "")
             dao.find(baseId)
-        } else MutableStateFlow(null).asStateFlow()
+        } else {
+            MutableStateFlow(null).asStateFlow()
+        }
     }
 
     override fun count() = dao.count()
@@ -40,5 +51,3 @@ class PackRepositoryImpl(private val dao: PackDao) : PackRepository {
 
     override suspend fun deleteBatch(vararg items: Pack) = dao.deleteBatch(*items)
 }
-
-

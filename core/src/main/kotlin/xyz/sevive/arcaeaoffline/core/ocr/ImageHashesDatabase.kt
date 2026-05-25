@@ -6,12 +6,17 @@ import org.threeten.bp.Instant
 import kotlin.math.pow
 import kotlin.properties.Delegates
 
-private fun hammingDistance(byteArray1: ByteArray, byteArray2: ByteArray): Int {
+private fun hammingDistance(
+    byteArray1: ByteArray,
+    byteArray2: ByteArray,
+): Int {
     assert(byteArray1.size == byteArray2.size) { "hash size does not match!" }
     return byteArray1.zip(byteArray2).count { (b1, b2) -> b1 != b2 }
 }
 
-class ImageHashesDatabase(private val conn: SQLiteConnection) {
+class ImageHashesDatabase(
+    private val conn: SQLiteConnection,
+) {
     companion object {
         const val PROP_HASH_SIZE_KEY = "hash_size"
         const val PROP_HIGH_FREQ_FACTOR_KEY = "high_freq_factor"
@@ -39,7 +44,6 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
 
     private lateinit var allHashes: List<HashEntry>
 
-
     private fun initialize() {
         conn.prepare("SELECT `key`, `value` FROM `properties`").use { stmt ->
             while (stmt.step()) {
@@ -63,7 +67,7 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
                         hashType = ImageHashItemHashType.entries[stmt.getInt(0)],
                         label = stmt.getText(2),
                         hash = stmt.getBlob(3),
-                    )
+                    ),
                 )
             }
         }
@@ -72,7 +76,9 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
         jacketHashesCount =
             hashes.filter { it.type == ImageHashItemType.JACKET }.distinctBy { it.label }.count()
         partnerIconHashesCount =
-            hashes.filter { it.type == ImageHashItemType.PARTNER_ICON }.distinctBy { it.label }
+            hashes
+                .filter { it.type == ImageHashItemType.PARTNER_ICON }
+                .distinctBy { it.label }
                 .count()
     }
 
@@ -82,7 +88,9 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
 
     @Suppress("Unused")
     private fun lookupHashWithSqlFunc(
-        type: ImageHashItemType, hashType: ImageHashItemHashType, hash: ByteArray
+        type: ImageHashItemType,
+        hashType: ImageHashItemHashType,
+        hash: ByteArray,
     ): List<ImageHashItem> {
 //        conn.addFunction("HAMMING_DISTANCE", 2) { args, result ->
 //            val byteArray1 = args.getBlob(0)
@@ -92,39 +100,45 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
 
         val result = mutableListOf<ImageHashItem>()
 
-        conn.prepare(
-            """SELECT label, HAMMING_DISTANCE(hash, ?) AS distance FROM hashes
+        conn
+            .prepare(
+                """
+                SELECT label, HAMMING_DISTANCE(hash, ?) AS distance FROM hashes
                 WHERE type = ? AND hash_type = ?
-                ORDER BY distance ASC LIMIT 10""".trimIndent()
-        ).use { stmt ->
-            stmt.bindBlob(1, hash)
-            stmt.bindInt(2, type.value)
-            stmt.bindInt(3, hashType.value)
+                ORDER BY distance ASC LIMIT 10
+                """.trimIndent(),
+            ).use { stmt ->
+                stmt.bindBlob(1, hash)
+                stmt.bindInt(2, type.value)
+                stmt.bindInt(3, hashType.value)
 
-            while (stmt.step()) {
-                val label = stmt.getText(0)
-                val distance = stmt.getInt(1)
+                while (stmt.step()) {
+                    val label = stmt.getText(0)
+                    val distance = stmt.getInt(1)
 
-                val hashLength = hashSize.toDouble().pow(2)
-                result.add(
-                    ImageHashItem(
-                        hashType = hashType,
-                        type = type,
-                        label = label,
-                        confidence = (hashLength - distance) / hashLength
+                    val hashLength = hashSize.toDouble().pow(2)
+                    result.add(
+                        ImageHashItem(
+                            hashType = hashType,
+                            type = type,
+                            label = label,
+                            confidence = (hashLength - distance) / hashLength,
+                        ),
                     )
-                )
+                }
             }
-        }
 
         return result
     }
 
     private fun lookupHash(
-        type: ImageHashItemType, hashType: ImageHashItemHashType, hash: ByteArray
+        type: ImageHashItemType,
+        hashType: ImageHashItemHashType,
+        hash: ByteArray,
     ): List<ImageHashItem> {
         val hashLength = hashSize.toDouble().pow(2)
-        return allHashes.filter { it.type == type && it.hashType == hashType }
+        return allHashes
+            .filter { it.type == type && it.hashType == hashType }
             .sortedBy { it.distance(hash) }
             .take(10)
             .map { entry ->
@@ -134,21 +148,30 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
                     hashType = hashType,
                     type = type,
                     label = entry.label,
-                    confidence = (hashLength - distance) / hashLength
+                    confidence = (hashLength - distance) / hashLength,
                 )
             }
     }
 
-    private fun lookupAHash(type: ImageHashItemType, hash: ByteArray) =
-        lookupHash(type = type, hashType = ImageHashItemHashType.AVERAGE, hash = hash)
+    private fun lookupAHash(
+        type: ImageHashItemType,
+        hash: ByteArray,
+    ) = lookupHash(type = type, hashType = ImageHashItemHashType.AVERAGE, hash = hash)
 
-    private fun lookupDHash(type: ImageHashItemType, hash: ByteArray) =
-        lookupHash(type = type, hashType = ImageHashItemHashType.DIFFERENCE, hash = hash)
+    private fun lookupDHash(
+        type: ImageHashItemType,
+        hash: ByteArray,
+    ) = lookupHash(type = type, hashType = ImageHashItemHashType.DIFFERENCE, hash = hash)
 
-    private fun lookupPHash(type: ImageHashItemType, hash: ByteArray) =
-        lookupHash(type = type, hashType = ImageHashItemHashType.DCT, hash = hash)
+    private fun lookupPHash(
+        type: ImageHashItemType,
+        hash: ByteArray,
+    ) = lookupHash(type = type, hashType = ImageHashItemHashType.DCT, hash = hash)
 
-    private fun lookupImage(type: ImageHashItemType, image: Mat): List<ImageHashItem> {
+    private fun lookupImage(
+        type: ImageHashItemType,
+        image: Mat,
+    ): List<ImageHashItem> {
         val items = mutableListOf<ImageHashItem>()
 
         val aHash = ImageHashers.average(image, this.hashSize)
@@ -162,9 +185,7 @@ class ImageHashesDatabase(private val conn: SQLiteConnection) {
         return items
     }
 
-    fun lookupJacket(image: Mat): List<ImageHashItem> =
-        lookupImage(type = ImageHashItemType.JACKET, image = image)
+    fun lookupJacket(image: Mat): List<ImageHashItem> = lookupImage(type = ImageHashItemType.JACKET, image = image)
 
-    fun lookupPartnerIcon(image: Mat): List<ImageHashItem> =
-        lookupImage(type = ImageHashItemType.PARTNER_ICON, image = image)
+    fun lookupPartnerIcon(image: Mat): List<ImageHashItem> = lookupImage(type = ImageHashItemType.PARTNER_ICON, image = image)
 }

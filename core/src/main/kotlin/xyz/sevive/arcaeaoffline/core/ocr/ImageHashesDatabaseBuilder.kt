@@ -9,7 +9,9 @@ import org.opencv.core.Mat
 import org.threeten.bp.Instant
 import java.io.File
 
-class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
+class ImageHashesDatabaseBuilder(
+    private val conn: SQLiteConnection,
+) {
     companion object {
         const val LOG_TAG = "ImageHashesDbBuilder"
     }
@@ -18,7 +20,7 @@ class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
         val type: ImageHashItemType,
         val label: String,
         val input: T,
-        val inputToGrayscaleImage: (T) -> Mat
+        val inputToGrayscaleImage: (T) -> Mat,
     )
 
     private val _buildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
@@ -39,18 +41,27 @@ class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
     }
 
     fun addTask(
-        type: ImageHashItemType, label: String, input: File, inputToGrayscaleImage: (File) -> Mat
+        type: ImageHashItemType,
+        label: String,
+        input: File,
+        inputToGrayscaleImage: (File) -> Mat,
     ) {
         tasks.add(Task(type, label, input, inputToGrayscaleImage))
     }
 
-    private fun insertProperties(hashSize: Int, highFreqFactor: Int, builtTimestamp: Instant) {
+    private fun insertProperties(
+        hashSize: Int,
+        highFreqFactor: Int,
+        builtTimestamp: Instant,
+    ) {
         conn.prepare("INSERT INTO `properties` (`key`, `value`) VALUES (?, ?)").use { stmt ->
             mapOf(
                 ImageHashesDatabase.PROP_HASH_SIZE_KEY to hashSize.toString(),
                 ImageHashesDatabase.PROP_HIGH_FREQ_FACTOR_KEY to highFreqFactor.toString(),
-                ImageHashesDatabase.PROP_BUILT_TIMESTAMP_KEY to builtTimestamp.toEpochMilli()
-                    .toString(),
+                ImageHashesDatabase.PROP_BUILT_TIMESTAMP_KEY to
+                    builtTimestamp
+                        .toEpochMilli()
+                        .toString(),
             ).forEach { (key, value) ->
                 stmt.bindText(1, key)
                 stmt.bindText(2, value)
@@ -67,7 +78,10 @@ class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
         conn.execSQL("CREATE TABLE hashes (`hash_type` INTEGER, `type` INTEGER, `label` VARCHAR, `hash` BLOB)")
     }
 
-    fun build(hashSize: Int, highFreqFactor: Int) {
+    fun build(
+        hashSize: Int,
+        highFreqFactor: Int,
+    ) {
         Log.d(LOG_TAG, "build() called, ${tasks.size} items in task list")
         conn.execSQL("BEGIN IMMEDIATE TRANSACTION")
 
@@ -76,22 +90,25 @@ class ImageHashesDatabaseBuilder(private val conn: SQLiteConnection) {
 
             createTables()
 
-            conn.prepare("INSERT INTO `hashes` (`hash_type`, `type`, `label`, `hash`) VALUES (?, ?, ?, ?)")
+            conn
+                .prepare("INSERT INTO `hashes` (`hash_type`, `type`, `label`, `hash`) VALUES (?, ?, ?, ?)")
                 .use { stmtInsertHash ->
                     tasks.forEach { task ->
                         val img = task.inputToGrayscaleImage(task.input)
 
                         mapOf(
                             ImageHashItemHashType.AVERAGE to ImageHashers.average(img, hashSize),
-                            ImageHashItemHashType.DIFFERENCE to ImageHashers.difference(
-                                img,
-                                hashSize
-                            ),
-                            ImageHashItemHashType.DCT to ImageHashers.dct(
-                                img,
-                                hashSize,
-                                highFreqFactor
-                            )
+                            ImageHashItemHashType.DIFFERENCE to
+                                ImageHashers.difference(
+                                    img,
+                                    hashSize,
+                                ),
+                            ImageHashItemHashType.DCT to
+                                ImageHashers.dct(
+                                    img,
+                                    hashSize,
+                                    highFreqFactor,
+                                ),
                         ).forEach { (hashType, hash) ->
                             stmtInsertHash.bindInt(1, hashType.value)
                             stmtInsertHash.bindInt(2, task.type.value)

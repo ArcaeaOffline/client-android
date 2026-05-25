@@ -57,17 +57,19 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val expandArrowRotateDegree by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f, label = "expandArrow"
+        targetValue = if (expanded) 180f else 0f,
+        label = "expandArrow",
     )
 
     val context = LocalContext.current
     val density = LocalDensity.current
 
     val padding = dimensionResource(R.dimen.card_padding)
-    val messagePadding = remember(density) {
-        val start = with(density) { 24.sp.toDp() + padding * 2 }
-        PaddingValues(start = start, end = padding, bottom = padding)
-    }
+    val messagePadding =
+        remember(density) {
+            val start = with(density) { 24.sp.toDp() + padding * 2 }
+            PaddingValues(start = start, end = padding, bottom = padding)
+        }
 
     val title = remember(warning) { warning.getTitle(context) }
     val message = remember(warning) { warning.getMessage(context) }
@@ -79,7 +81,8 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
     Column(
         Modifier
             .clickable { expanded = !expanded }
-            .then(modifier)) {
+            .then(modifier),
+    ) {
         Row(
             Modifier
                 .minimumInteractiveComponentSize()
@@ -88,7 +91,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.extendedColorScheme.warning
+                LocalContentColor provides MaterialTheme.extendedColorScheme.warning,
             ) {
                 Icon(Icons.Default.ErrorOutline, contentDescription = null)
 
@@ -97,7 +100,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
                     AnimatedVisibility(visible = showWarningId) {
                         Text(
                             warning.id,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light)
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
                         )
                     }
                 }
@@ -186,11 +189,12 @@ private fun ArcaeaPlayResultValidatorWarningDetailsPreview() {
     ArcaeaOfflineTheme {
         Surface {
             ArcaeaPlayResultValidatorWarningDetails(
-                warnings = listOf(
-                    ArcaeaPlayResultValidatorPflOverflowWarning,
-                    ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-                    ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-                )
+                warnings =
+                    listOf(
+                        ArcaeaPlayResultValidatorPflOverflowWarning,
+                        ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
+                        ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+                    ),
             )
         }
     }
@@ -203,11 +207,12 @@ private fun ArcaeaPlayResultValidatorWarningDetailsDialogPreview() {
         Surface {
             ArcaeaPlayResultValidatorWarningDetailsDialog(
                 onDismissRequest = {},
-                warnings = listOf(
-                    ArcaeaPlayResultValidatorPflOverflowWarning,
-                    ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-                    ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-                ),
+                warnings =
+                    listOf(
+                        ArcaeaPlayResultValidatorPflOverflowWarning,
+                        ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
+                        ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+                    ),
             )
         }
     }

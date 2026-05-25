@@ -38,9 +38,10 @@ import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
-
-class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
-    CoroutineWorker(context, params) {
+class OcrQueueEnqueueCheckerJob(
+    context: Context,
+    params: WorkerParameters,
+) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "OcrQueueEnqCheckerJob"
         const val WORK_NAME = "OcrQueueEnqueueChecker"
@@ -63,13 +64,16 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
         val parallelCount: Int,
     )
 
-    private fun getWorkOptions(): WorkOptions = WorkOptions(
-        checkIsImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_IMAGE, true),
-        checkIsArcaeaImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_ARCAEA_IMAGE, true),
-        parallelCount = inputData.getInt(
-            KEY_PARALLEL_COUNT, Runtime.getRuntime().availableProcessors() / 2
+    private fun getWorkOptions(): WorkOptions =
+        WorkOptions(
+            checkIsImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_IMAGE, true),
+            checkIsArcaeaImage = inputData.getBoolean(KEY_INPUT_CHECK_IS_ARCAEA_IMAGE, true),
+            parallelCount =
+                inputData.getInt(
+                    KEY_PARALLEL_COUNT,
+                    Runtime.getRuntime().availableProcessors() / 2,
+                ),
         )
-    )
 
     private val repoContainer = OcrQueueDatabaseRepositoryContainer(applicationContext)
     private val repo = repoContainer.ocrQueueEnqueueBufferRepo
@@ -86,20 +90,27 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
     private val channelScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val channel = Channel<OcrQueueEnqueueBuffer>()
 
-    private val _progress = MutableStateFlow(0)
-    private val _progressTotal = MutableStateFlow(-1)
+    private val progressCurrent = MutableStateFlow(0)
+    private val progressTotal = MutableStateFlow(-1)
 
     private val progressLock = Mutex()
     private val progressListenScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var progressListenJob: Job? = null
-    private val progress = combine(_progress, _progressTotal) { progress, total ->
-        if (total == -1) null
-        else progress to total
-    }.stateIn(progressListenScope, SharingStarted.Eagerly, null)
+    private val progress =
+        combine(progressCurrent, progressTotal) { progress, total ->
+            if (total == -1) {
+                null
+            } else {
+                progress to total
+            }
+        }.stateIn(progressListenScope, SharingStarted.Eagerly, null)
 
     private fun createNotification(progress: Pair<Int, Int>?): Notification {
-        val builder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL)
-            .setSmallIcon(R.drawable.ic_ocr).setContentTitle(notificationTitle)
+        val builder =
+            NotificationCompat
+                .Builder(applicationContext, NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.ic_ocr)
+                .setContentTitle(notificationTitle)
 
         if (progress == null) {
             builder.setContentText(applicationContext.getString(R.string.general_please_wait))
@@ -118,16 +129,16 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
         val notification = createNotification(progress.value)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(
-                NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
             )
         } else {
             ForegroundInfo(NOTIFICATION_ID, notification)
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return createForegroundInfo()
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
     override suspend fun doWork(): Result {
         val workOptions = getWorkOptions()
@@ -139,23 +150,25 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
 
             val dbItems = repo.findUnchecked().firstOrNull() ?: return Result.failure()
 
-            progressListenJob = progressListenScope.launch {
-                progress.collect {
-                    if (it == null || it.first % 5 == 0 || it.first == it.second) {
-                        notificationManager.notify(NOTIFICATION_ID, createNotification(it))
+            progressListenJob =
+                progressListenScope.launch {
+                    progress.collect {
+                        if (it == null || it.first % 5 == 0 || it.first == it.second) {
+                            notificationManager.notify(NOTIFICATION_ID, createNotification(it))
+                        }
                     }
                 }
-            }
 
             withContext(Dispatchers.IO) {
-                _progressTotal.value = dbItems.size
+                progressTotal.value = dbItems.size
 
-                channelScope.launch {
-                    dbItems.forEach { channel.send(it) }
-                    channel.close()
-                }.invokeOnCompletion {
-                    Log.d(LOG_TAG, "Channel send complete")
-                }
+                channelScope
+                    .launch {
+                        dbItems.forEach { channel.send(it) }
+                        channel.close()
+                    }.invokeOnCompletion {
+                        Log.d(LOG_TAG, "Channel send complete")
+                    }
 
                 delay(0.5.seconds)
 
@@ -163,7 +176,7 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
                     launch(Dispatchers.IO) {
                         channel.consumeEach {
                             processItem(it, repo, workOptions)
-                            progressLock.withLock { _progress.value += 1 }
+                            progressLock.withLock { progressCurrent.value += 1 }
                         }
                     }
                 }
@@ -215,7 +228,7 @@ class OcrQueueEnqueueCheckerJob(context: Context, params: WorkerParameters) :
         }
 
         repo.update(
-            dbItem.copy(checked = true, shouldInsert = shouldInsert)
+            dbItem.copy(checked = true, shouldInsert = shouldInsert),
         )
     }
 }

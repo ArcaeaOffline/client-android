@@ -28,12 +28,13 @@ import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
-
 class DatabasePlayResultListViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
 ) : ViewModel() {
     enum class SortOrder {
-        ASC, DESC;
+        ASC,
+        DESC,
+        ;
 
         fun reverse() = if (this == ASC) DESC else ASC
     }
@@ -47,17 +48,20 @@ class DatabasePlayResultListViewModel(
     ) {
         val uuid = playResult.uuid
         val potential = chart?.let { playResult.potential(it) }
-        val potentialText = buildAnnotatedString {
-            val baseText = ArcaeaFormatters.potentialToText(potential)
+        val potentialText =
+            buildAnnotatedString {
+                val baseText = ArcaeaFormatters.potentialToText(potential)
 
-            if (isDeletedInGame) pushStyle(
-                SpanStyle(
-                    textDecoration = TextDecoration.LineThrough,
-                    fontWeight = FontWeight.Light,
-                )
-            )
-            append(baseText)
-        }
+                if (isDeletedInGame) {
+                    pushStyle(
+                        SpanStyle(
+                            textDecoration = TextDecoration.LineThrough,
+                            fontWeight = FontWeight.Light,
+                        ),
+                    )
+                }
+                append(baseText)
+            }
         val warnings = ArcaeaPlayResultValidator.validate(playResult, chart)
     }
 
@@ -82,52 +86,62 @@ class DatabasePlayResultListViewModel(
             chartCache.updateCache(dbItems, repositoryContainer)
 
             val deletedSongIds =
-                repositoryContainer.songRepo.findDeletedInGame().firstOrNull()?.map { it.id }
+                repositoryContainer.songRepo
+                    .findDeletedInGame()
+                    .firstOrNull()
+                    ?.map { it.id }
                     ?: emptyList()
-            val listItems = dbItems.map { playResult ->
-                val chart = chartCache.get(playResult)
+            val listItems =
+                dbItems.map { playResult ->
+                    val chart = chartCache.get(playResult)
 
-                ListItem(
-                    playResult = playResult,
-                    chart = chart,
-                    isDeletedInGame = playResult.songId in deletedSongIds,
-                )
-            }
+                    ListItem(
+                        playResult = playResult,
+                        chart = chart,
+                        isDeletedInGame = playResult.songId in deletedSongIds,
+                    )
+                }
 
             emit(listItems)
 
             isLoading.value = false
         }
 
-    private val listItems = combine(rawListItems, sortOrder, sortByValue) { items, order, sortBy ->
-        val itemsSorted = when (sortBy) {
-            SortByValue.ID -> items.sortedBy { it.playResult.id }
-            SortByValue.SCORE -> items.sortedBy { it.playResult.score }
-            SortByValue.POTENTIAL -> items.sortedBy { it.potential }
-            SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilli() }
-        }
+    private val listItems =
+        combine(rawListItems, sortOrder, sortByValue) { items, order, sortBy ->
+            val itemsSorted =
+                when (sortBy) {
+                    SortByValue.ID -> items.sortedBy { it.playResult.id }
+                    SortByValue.SCORE -> items.sortedBy { it.playResult.score }
+                    SortByValue.POTENTIAL -> items.sortedBy { it.potential }
+                    SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilli() }
+                }
 
-        if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        emptyList(),
-    )
-
-    val uiState = combine(
-        isLoading, listItems, sortOrder, sortByValue
-    ) { isLoading, listItems, sortOrder, sortByValue ->
-        UiState(
-            isLoading = isLoading,
-            listItems = listItems,
-            sortOrder = sortOrder,
-            sortByValue = sortByValue,
+            if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            emptyList(),
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        initialValue = UiState(),
-    )
+
+    val uiState =
+        combine(
+            isLoading,
+            listItems,
+            sortOrder,
+            sortByValue,
+        ) { isLoading, listItems, sortOrder, sortByValue ->
+            UiState(
+                isLoading = isLoading,
+                listItems = listItems,
+                sortOrder = sortOrder,
+                sortByValue = sortByValue,
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            initialValue = UiState(),
+        )
 
     fun setSortOrder(value: SortOrder) {
         sortOrder.value = value
@@ -137,7 +151,10 @@ class DatabasePlayResultListViewModel(
         sortByValue.value = value
     }
 
-    fun setItemSelected(listItem: ListItem, selected: Boolean) {
+    fun setItemSelected(
+        listItem: ListItem,
+        selected: Boolean,
+    ) {
         if (selected) {
             selectedItemUuids.value += listItem.playResult.uuid
         } else {
@@ -151,7 +168,8 @@ class DatabasePlayResultListViewModel(
     fun deleteSelectedItemsInDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
             val playResults =
-                repositoryContainer.playResultRepo.findAllByUUID(selectedItemUuids.value)
+                repositoryContainer.playResultRepo
+                    .findAllByUUID(selectedItemUuids.value)
                     .firstOrNull() ?: emptyList()
 
             repositoryContainer.playResultRepo.deleteBatch(*playResults.toTypedArray())
@@ -176,10 +194,11 @@ class DatabasePlayResultListViewModel(
 
             if (context != null && snackbarHostState != null) {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(
-                        R.string.database_play_result_updated,
-                        "(${playResult.songId}, ${playResult.uuid})"
-                    ),
+                    message =
+                        context.getString(
+                            R.string.database_play_result_updated,
+                            "(${playResult.songId}, ${playResult.uuid})",
+                        ),
                     withDismissAction = true,
                 )
             }

@@ -7,20 +7,31 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
 interface SongRepository {
     fun find(id: String): Flow<Song?>
+
     fun find(playResult: PlayResult) = find(playResult.songId)
+
     fun findBySet(set: String): Flow<List<Song>>
+
     fun findAll(): Flow<List<Song>>
+
     fun findDeletedInGame(): Flow<List<Song>>
+
     fun count(): Flow<Int>
+
     fun countDeletedInGame(): Flow<Int>
+
     suspend fun upsert(item: Song): Long
+
     suspend fun upsertBatch(vararg items: Song): List<Long>
+
     suspend fun delete(item: Song): Int
+
     suspend fun deleteBatch(vararg items: Song): Int
 }
 
-
-class SongRepositoryImpl(private val dao: SongDao) : SongRepository {
+class SongRepositoryImpl(
+    private val dao: SongDao,
+) : SongRepository {
     override fun find(id: String): Flow<Song?> = dao.find(id)
 
     override fun findBySet(set: String): Flow<List<Song>> = dao.findBySet(set)

@@ -14,9 +14,8 @@ import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryCon
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import kotlin.time.Duration.Companion.seconds
 
-
 class DatabaseB30ListViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
 ) : ViewModel() {
     data class ListItem(
         val index: Int,
@@ -34,24 +33,30 @@ class DatabaseB30ListViewModel(
     private val limit = MutableStateFlow(INIT_LIMIT)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState = limit.transformLatest { limit ->
-        emit(UiState(isLoading = true, limit = limit))
+    val uiState =
+        limit
+            .transformLatest { limit ->
+                emit(UiState(isLoading = true, limit = limit))
 
-        repositoryContainer.relationshipsRepo.playResultsBestWithCharts(limit)
-            .collectLatest { dbItems ->
-                val listItems = dbItems.mapIndexed { i, dbItem ->
-                    ListItem(
-                        index = i, playResultBest = dbItem.playResultBest, chart = dbItem.chart
-                    )
-                }
+                repositoryContainer.relationshipsRepo
+                    .playResultsBestWithCharts(limit)
+                    .collectLatest { dbItems ->
+                        val listItems =
+                            dbItems.mapIndexed { i, dbItem ->
+                                ListItem(
+                                    index = i,
+                                    playResultBest = dbItem.playResultBest,
+                                    chart = dbItem.chart,
+                                )
+                            }
 
-                emit(UiState(isLoading = false, limit = limit, listItems = listItems))
-            }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        UiState(),
-    )
+                        emit(UiState(isLoading = false, limit = limit, listItems = listItems))
+                    }
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                UiState(),
+            )
 
     fun setLimit(limit: Int) {
         this.limit.value = limit

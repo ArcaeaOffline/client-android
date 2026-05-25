@@ -12,7 +12,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 
-
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
@@ -22,7 +21,7 @@ fun OverviewScreen(
 
     LazyColumn(
         modifier.fillMaxSize(),
-        contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding))
+        contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
     ) {
         item {
             OverviewPotentialCard(uiState)

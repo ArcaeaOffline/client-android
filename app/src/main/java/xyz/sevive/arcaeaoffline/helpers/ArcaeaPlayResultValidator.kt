@@ -4,23 +4,23 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
-
 object ArcaeaPlayResultValidator {
-    val WARNINGS = listOf(
-        ArcaeaPlayResultValidatorScoreIsZeroWarning,
-        ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-        ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
-        ArcaeaPlayResultValidatorPflOverflowWarning,
-        ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-        ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
-        ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning,
-        ArcaeaPlayResultValidatorClearPflMismatchWarning,
-        ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
-    )
+    val WARNINGS =
+        listOf(
+            ArcaeaPlayResultValidatorScoreIsZeroWarning,
+            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
+            ArcaeaPlayResultValidatorPflOverflowWarning,
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
+            ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
+            ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning,
+            ArcaeaPlayResultValidatorClearPflMismatchWarning,
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
+        )
 
     fun validate(
         playResult: PlayResult,
-        chartInfo: ChartInfo?
+        chartInfo: ChartInfo?,
     ): List<ArcaeaPlayResultValidatorWarning> {
         val warnings = mutableListOf<ArcaeaPlayResultValidatorWarning>()
 
@@ -35,7 +35,7 @@ object ArcaeaPlayResultValidator {
 
     fun validate(
         playResult: PlayResult,
-        chart: Chart?
+        chart: Chart?,
     ): List<ArcaeaPlayResultValidatorWarning> {
         if (chart == null) {
             return validate(playResult = playResult, chartInfo = null)
@@ -43,12 +43,13 @@ object ArcaeaPlayResultValidator {
 
         return validate(
             playResult = playResult,
-            chartInfo = ChartInfo(
-                songId = chart.songId,
-                ratingClass = chart.ratingClass,
-                constant = chart.constant,
-                notes = chart.notes,
-            )
+            chartInfo =
+                ChartInfo(
+                    songId = chart.songId,
+                    ratingClass = chart.ratingClass,
+                    constant = chart.constant,
+                    notes = chart.notes,
+                ),
         )
     }
 }

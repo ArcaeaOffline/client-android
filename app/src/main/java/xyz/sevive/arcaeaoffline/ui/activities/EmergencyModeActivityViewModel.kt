@@ -22,7 +22,6 @@ import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
 
-
 class EmergencyModeActivityViewModel(
     private val preferencesRepository: EmergencyModePreferencesRepository,
 ) : ViewModel() {
@@ -48,11 +47,12 @@ class EmergencyModeActivityViewModel(
     private val _outputDirectory = MutableStateFlow<DocumentFile?>(null)
     val outputDirectory = _outputDirectory.asStateFlow()
 
-    val outputDirectoryValid = outputDirectory.map { outputDirectoryValidResultProducer() }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
-        initialValue = false
-    )
+    val outputDirectoryValid =
+        outputDirectory.map { outputDirectoryValidResultProducer() }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
+            initialValue = false,
+        )
 
     fun setOutputDirectory(documentFile: DocumentFile) {
         _outputDirectory.value = documentFile
@@ -85,11 +85,12 @@ class EmergencyModeActivityViewModel(
                 context.deleteDatabase(OcrQueueDatabase.DATABASE_FILENAME)
             }.invokeOnCompletion {
                 launch(Dispatchers.Main) {
-                    val message = if (it == null) {
-                        context.getString(R.string.general_delete)
-                    } else {
-                        it::class.simpleName ?: "ERROR"
-                    }
+                    val message =
+                        if (it == null) {
+                            context.getString(R.string.general_delete)
+                        } else {
+                            it::class.simpleName ?: "ERROR"
+                        }
 
                     Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                 }
@@ -100,29 +101,33 @@ class EmergencyModeActivityViewModel(
     fun copyDatabase(context: Context) {
         val originalDatabaseFile = context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
         var outputFile: DocumentFile? = null
-        viewModelScope.launch(Dispatchers.IO) {
-            val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
-            val backupFile =
-                outputDirectory.value?.createFile("application/octet-stream", backupFileName)
-                    ?: return@launch
+        viewModelScope
+            .launch(Dispatchers.IO) {
+                val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
+                val backupFile =
+                    outputDirectory.value?.createFile("application/octet-stream", backupFileName)
+                        ?: return@launch
 
-            val backupFileStream =
-                context.contentResolver.openOutputStream(backupFile.uri) ?: return@launch
+                val backupFileStream =
+                    context.contentResolver.openOutputStream(backupFile.uri) ?: return@launch
 
-            backupFileStream.use { IOUtils.copy(originalDatabaseFile.inputStream(), it) }
+                backupFileStream.use { IOUtils.copy(originalDatabaseFile.inputStream(), it) }
 
-            outputFile = backupFile
-        }.invokeOnCompletion {
-            outputFile?.let {
-                val fileSizeReadable = Formatter.formatShortFileSize(context, it.length())
-                Toast.makeText(
-                    context,
-                    context.getString(
-                        R.string.emergency_mode_database_copied_message, it.name, fileSizeReadable
-                    ),
-                    Toast.LENGTH_LONG,
-                ).show()
+                outputFile = backupFile
+            }.invokeOnCompletion {
+                outputFile?.let {
+                    val fileSizeReadable = Formatter.formatShortFileSize(context, it.length())
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(
+                                R.string.emergency_mode_database_copied_message,
+                                it.name,
+                                fileSizeReadable,
+                            ),
+                            Toast.LENGTH_LONG,
+                        ).show()
+                }
             }
-        }
     }
 }

@@ -29,27 +29,35 @@ internal fun DatabaseR30ListItem(
     modifier: Modifier = Modifier,
 ) {
     val indexTextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    val indexText = remember(item.index) {
-        buildAnnotatedString {
-            append("#")
-            withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
+    val indexText =
+        remember(item.index) {
+            buildAnnotatedString {
+                append("#")
+                withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
+            }
         }
-    }
 
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-    val minTextWidth = remember {
-        density.run { textMeasurer.measure("#00", style = indexTextStyle).size.width.toDp() }
-    }
+    val minTextWidth =
+        remember {
+            density.run {
+                textMeasurer
+                    .measure("#00", style = indexTextStyle)
+                    .size.width
+                    .toDp()
+            }
+        }
 
-    val potentialText = remember(item.potential) {
-        ArcaeaFormatters.potentialToText(item.potential)
-    }
+    val potentialText =
+        remember(item.potential) {
+            ArcaeaFormatters.potentialToText(item.potential)
+        }
 
     Row(
         modifier,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Bottom,
     ) {
         ArcaeaPlayResultCard(
             playResult = item.playResult,
@@ -72,5 +80,3 @@ internal fun DatabaseR30ListItem(
         }
     }
 }
-
-

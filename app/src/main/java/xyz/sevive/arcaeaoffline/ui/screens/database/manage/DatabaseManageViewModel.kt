@@ -43,11 +43,10 @@ import java.util.UUID
 import java.util.zip.ZipInputStream
 import kotlin.time.Duration.Companion.seconds
 
-
 class DatabaseManageViewModel(
     private val res: Resources,
     private val assets: AssetManager,
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer
+    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
 ) : ViewModel() {
     companion object {
         private const val LOG_TAG = "DatabaseManageVM"
@@ -88,14 +87,15 @@ class DatabaseManageViewModel(
             taskChannel.consumeEach {
                 taskChannelActive.value = true
                 Log.d(LOG_TAG, "Processing task ${it.uuid}")
-                taskScope.launch {
-                    try {
-                        it.action(this)
-                    } catch (e: Throwable) {
-                        Log.e(LOG_TAG, "Error processing task ${it.uuid}", e)
-                        appendUiLog(tag = null, message = e.toString())
-                    }
-                }.join()
+                taskScope
+                    .launch {
+                        try {
+                            it.action(this)
+                        } catch (e: Throwable) {
+                            Log.e(LOG_TAG, "Error processing task ${it.uuid}", e)
+                            appendUiLog(tag = null, message = e.toString())
+                        }
+                    }.join()
                 taskChannelActive.value = false
             }
         }
@@ -104,19 +104,21 @@ class DatabaseManageViewModel(
     private val logLock = Mutex()
     private val logs = MutableStateFlow(emptyList<LogObject>())
 
-    val uiState = combine(taskChannelActive, logs) { isWorking, logs ->
-        UiState(isWorking = isWorking, logObjects = logs.sortedByDescending { it.timestamp })
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-        UiState(),
-    )
+    val uiState =
+        combine(taskChannelActive, logs) { isWorking, logs ->
+            UiState(isWorking = isWorking, logObjects = logs.sortedByDescending { it.timestamp })
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            UiState(),
+        )
 
-    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String {
-        return IOUtils.toString(this, charset)
-    }
+    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = IOUtils.toString(this, charset)
 
-    private suspend fun appendUiLog(tag: String?, message: String) {
+    private suspend fun appendUiLog(
+        tag: String?,
+        message: String,
+    ) {
         logLock.withLock {
             logs.value += LogObject(timestamp = Instant.now(), tag = tag, message = message)
         }
@@ -141,7 +143,7 @@ class DatabaseManageViewModel(
                 R.plurals.database_packs_imported,
                 packsAffectedRows,
                 packsAffectedRows,
-            )
+            ),
         )
 
         val packsLocalized = importer.packsLocalized()
@@ -154,18 +156,21 @@ class DatabaseManageViewModel(
                 R.plurals.database_packs_localized_imported,
                 packsLocalizedAffectedRows,
                 packsLocalizedAffectedRows,
-            )
+            ),
         )
     }
 
-    fun importPacklist(uri: Uri, context: Context) {
+    fun importPacklist(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
                     appendUiLog(
                         LOG_TAG_IMPORT_PACKLIST,
-                        "Cannot open packlist inputStream from $uri, aborting!"
+                        "Cannot open packlist inputStream from $uri, aborting!",
                     )
                     return@sendTask
                 }
@@ -182,9 +187,11 @@ class DatabaseManageViewModel(
         val importer = ArcaeaSonglistImporter(songlistContent)
 
         val deletedSongIds = importer.deletedSongIds()
-        val supplementSongs = supplementImporter.songs()
-            .filter { it.id in deletedSongIds }
-            .map { it.copy(deletedInGame = true) }
+        val supplementSongs =
+            supplementImporter
+                .songs()
+                .filter { it.id in deletedSongIds }
+                .map { it.copy(deletedInGame = true) }
 
         val songs = (importer.songs() + supplementSongs).toTypedArray()
         val songsAffectedRows = repositoryContainer.songRepo.upsertBatch(*songs).size
@@ -195,11 +202,13 @@ class DatabaseManageViewModel(
                 R.plurals.database_songs_imported,
                 songsAffectedRows,
                 songsAffectedRows,
-            )
+            ),
         )
 
-        val supplementDifficulties = supplementImporter.difficulties()
-            .filter { it.songId in deletedSongIds }
+        val supplementDifficulties =
+            supplementImporter
+                .difficulties()
+                .filter { it.songId in deletedSongIds }
         val difficulties = (importer.difficulties() + supplementDifficulties).toTypedArray()
         val difficultiesAffectedRows =
             repositoryContainer.difficultyRepo.upsertBatch(*difficulties).size
@@ -210,11 +219,13 @@ class DatabaseManageViewModel(
                 R.plurals.database_difficulties_imported,
                 difficultiesAffectedRows,
                 difficultiesAffectedRows,
-            )
+            ),
         )
 
-        val supplementSongsLocalized = supplementImporter.songsLocalized()
-            .filter { it.id in deletedSongIds }
+        val supplementSongsLocalized =
+            supplementImporter
+                .songsLocalized()
+                .filter { it.id in deletedSongIds }
         val songsLocalized = importer.songsLocalized() + supplementSongsLocalized
         val songsLocalizedAffectedRows =
             repositoryContainer.songLocalizedRepo.insertBatch(songsLocalized).size
@@ -225,11 +236,13 @@ class DatabaseManageViewModel(
                 R.plurals.database_songs_localized_imported,
                 songsLocalizedAffectedRows,
                 songsLocalizedAffectedRows,
-            )
+            ),
         )
 
-        val supplementDifficultiesLocalized = supplementImporter.difficultiesLocalized()
-            .filter { it.songId in deletedSongIds }
+        val supplementDifficultiesLocalized =
+            supplementImporter
+                .difficultiesLocalized()
+                .filter { it.songId in deletedSongIds }
         val difficultiesLocalized =
             importer.difficultiesLocalized() + supplementDifficultiesLocalized
         val difficultiesLocalizedAffectedRows =
@@ -241,18 +254,21 @@ class DatabaseManageViewModel(
                 R.plurals.database_difficulties_localized_imported,
                 difficultiesLocalizedAffectedRows,
                 difficultiesLocalizedAffectedRows,
-            )
+            ),
         )
     }
 
-    fun importSonglist(uri: Uri, context: Context) {
+    fun importSonglist(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val inputStream = context.contentResolver.openInputStream(uri)
                 if (inputStream == null) {
                     appendUiLog(
                         LOG_TAG_IMPORT_SONGLIST,
-                        "Cannot open songlist inputStream from $uri, aborting!"
+                        "Cannot open songlist inputStream from $uri, aborting!",
                     )
                     return@sendTask
                 }
@@ -266,7 +282,7 @@ class DatabaseManageViewModel(
     private suspend fun importArcaeaApkFromSelectedTask(zipInputStream: ZipInputStream) {
         appendUiLog(
             LOG_TAG_IMPORT_ARCAEA_APK,
-            res.getString(R.string.database_manage_import_reading_apk)
+            res.getString(R.string.database_manage_import_reading_apk),
         )
 
         var entry = zipInputStream.nextEntry
@@ -292,7 +308,10 @@ class DatabaseManageViewModel(
         if (!songlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "songlist not found!")
     }
 
-    fun importArcaeaApkFromSelected(uri: Uri, context: Context) {
+    fun importArcaeaApkFromSelected(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 context.contentResolver.openInputStream(uri)?.use { fis ->
@@ -344,17 +363,21 @@ class DatabaseManageViewModel(
                 R.plurals.database_chart_info_imported,
                 affectedRows,
                 affectedRows,
-            )
+            ),
         )
     }
 
-    fun importChartsInfoDatabase(fileUri: Uri, context: Context) {
+    fun importChartsInfoDatabase(
+        fileUri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val databaseCopied =
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
-                BundledSQLiteDriver().open(databaseCopied.absolutePath, SQLITE_OPEN_READONLY)
+                BundledSQLiteDriver()
+                    .open(databaseCopied.absolutePath, SQLITE_OPEN_READONLY)
                     .use { conn -> importChartsInfoDatabase(conn) }
 
                 databaseCopied.delete()
@@ -373,16 +396,20 @@ class DatabaseManageViewModel(
                 R.plurals.database_play_results_imported,
                 affectedRows,
                 affectedRows,
-            )
+            ),
         )
     }
 
-    fun importSt3(fileUri: Uri, context: Context) {
+    fun importSt3(
+        fileUri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
-                BundledSQLiteDriver().open(dbCacheFile.absolutePath, SQLITE_OPEN_READONLY)
+                BundledSQLiteDriver()
+                    .open(dbCacheFile.absolutePath, SQLITE_OPEN_READONLY)
                     .use { conn -> importSt3(conn) }
 
                 dbCacheFile.delete()
@@ -401,12 +428,15 @@ class DatabaseManageViewModel(
                     R.plurals.database_play_results_exported,
                     it.playResults.size,
                     it.playResults.size,
-                )
+                ),
             )
         }
     }
 
-    fun exportPlayResults(uri: Uri, context: Context) {
+    fun exportPlayResults(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 context.contentResolver.openOutputStream(uri)?.use {

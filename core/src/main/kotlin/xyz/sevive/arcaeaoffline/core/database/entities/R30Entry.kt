@@ -9,14 +9,16 @@ import java.util.UUID
 @Entity(
     tableName = "r30_entries",
     indices = [Index("uuid")],
-    foreignKeys = [ForeignKey(
-        entity = PlayResult::class,
-        parentColumns = ["uuid"],
-        childColumns = ["uuid"],
-        onUpdate = ForeignKey.CASCADE,
-        onDelete = ForeignKey.CASCADE,
-        deferred = true,
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = PlayResult::class,
+            parentColumns = ["uuid"],
+            childColumns = ["uuid"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE,
+            deferred = true,
+        ),
+    ],
 )
 data class R30Entry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

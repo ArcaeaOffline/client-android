@@ -29,9 +29,10 @@ fun ImagePreviewDialog(
     onDismiss: () -> Unit,
     topBarContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    val zoomableState = rememberZoomableState(
-        Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat())
-    )
+    val zoomableState =
+        rememberZoomableState(
+            Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
+        )
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -42,7 +43,7 @@ fun ImagePreviewDialog(
                 Surface(
                     Modifier
                         .fillMaxWidth()
-                        .animateContentSize()
+                        .animateContentSize(),
                 ) {
                     Column(Modifier.padding(dimensionResource(R.dimen.card_padding))) {
                         topBarContent()
@@ -56,13 +57,13 @@ fun ImagePreviewDialog(
                     imageBitmap = imageBitmap,
                     zoomableState = zoomableState,
                     onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             } else {
                 ImagePreviewDialogImageCompat(
                     imageBitmap = imageBitmap,
                     onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }

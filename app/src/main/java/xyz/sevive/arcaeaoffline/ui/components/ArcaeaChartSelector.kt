@@ -29,15 +29,16 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
-
 @Composable
-private fun rememberArcaeaSong(songRepo: SongRepository, songId: String?): State<Song?> {
-    return produceState<Song?>(initialValue = null, songId) {
+private fun rememberArcaeaSong(
+    songRepo: SongRepository,
+    songId: String?,
+): State<Song?> =
+    produceState<Song?>(initialValue = null, songId) {
         songId?.let {
             songRepo.find(songId).collect { value = it }
         }
     }
-}
 
 @Composable
 private fun rememberArcaeaCharts(
@@ -45,25 +46,25 @@ private fun rememberArcaeaCharts(
     chartRepo: ChartRepository,
     song: Song?,
     allowFakeChart: Boolean = false,
-): State<List<Chart>> {
-    return produceState(initialValue = emptyList(), song?.id, allowFakeChart) {
+): State<List<Chart>> =
+    produceState(initialValue = emptyList(), song?.id, allowFakeChart) {
         song?.let {
             val availableRatingClasses =
                 difficultyRepo.findAllBySongId(song.id).firstOrNull()?.map { it.ratingClass }
                     ?: emptyList()
 
-            value = availableRatingClasses.mapNotNull { ratingClass ->
-                var chart = chartRepo.find(song.id, ratingClass).firstOrNull()
-                if (chart == null && allowFakeChart) {
-                    difficultyRepo.find(song.id, ratingClass).firstOrNull()?.let { difficulty ->
-                        chart = ChartFactory.fakeChart(song, difficulty)
+            value =
+                availableRatingClasses.mapNotNull { ratingClass ->
+                    var chart = chartRepo.find(song.id, ratingClass).firstOrNull()
+                    if (chart == null && allowFakeChart) {
+                        difficultyRepo.find(song.id, ratingClass).firstOrNull()?.let { difficulty ->
+                            chart = ChartFactory.fakeChart(song, difficulty)
+                        }
                     }
+                    chart
                 }
-                chart
-            }
         }
     }
-}
 
 @Composable
 fun ArcaeaChartSelector(
@@ -72,9 +73,10 @@ fun ArcaeaChartSelector(
     allowFakeChart: Boolean = true,
 ) {
     val context = LocalContext.current
-    val repositoryContainer = remember {
-        ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
-    }
+    val repositoryContainer =
+        remember {
+            ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
+        }
 
     var selectedSongId by rememberSaveable(chart?.songId) { mutableStateOf(chart?.songId) }
     var selectedRatingClass by rememberSaveable(chart?.ratingClass) {
@@ -88,12 +90,14 @@ fun ArcaeaChartSelector(
         allowFakeChart = allowFakeChart,
     )
 
-    val ratingDetails = remember(charts) {
-        charts.associate { it.ratingClass to (it.rating to it.ratingPlus) }
-    }
-    val enabledRatingClasses = remember(charts) {
-        charts.map { it.ratingClass }
-    }
+    val ratingDetails =
+        remember(charts) {
+            charts.associate { it.ratingClass to (it.rating to it.ratingPlus) }
+        }
+    val enabledRatingClasses =
+        remember(charts) {
+            charts.map { it.ratingClass }
+        }
 
     // Emit the change when either [selectedSongId] or [selectedRatingClass] changes.
     // Since [selectedSongId] will eventually cause [charts] to change, and considering
@@ -117,7 +121,7 @@ fun ArcaeaChartSelector(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding))
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
         ) {
             Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 

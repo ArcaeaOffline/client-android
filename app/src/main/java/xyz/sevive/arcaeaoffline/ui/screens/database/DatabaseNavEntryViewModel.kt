@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
-
 class DatabaseNavEntryViewModel(
     repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
     databaseSchemaVersionGetter: suspend () -> Int?,
@@ -20,42 +19,43 @@ class DatabaseNavEntryViewModel(
         val difficultyCount: Int = 0,
         val chartInfoCount: Int = 0,
         val playResultCount: Int = 0,
-
         val packLocalizedCount: Int = 0,
         val songLocalizedCount: Int = 0,
         val difficultyLocalizedCount: Int = 0,
-
         val songDeletedInGameCount: Int = 0,
     )
 
-    val statusUiState = combine(
-        repositoryContainer.propertyRepo.databaseVersion(),
-        repositoryContainer.packRepo.count(),
-        repositoryContainer.songRepo.count(),
-        repositoryContainer.difficultyRepo.count(),
-        repositoryContainer.chartInfoRepo.count(),
-        repositoryContainer.playResultRepo.count(),
-        repositoryContainer.packLocalizedRepo.count(),
-        repositoryContainer.songLocalizedRepo.count(),
-        repositoryContainer.difficultyLocalizedRepo.count(),
-        repositoryContainer.songRepo.countDeletedInGame(),
-    ) { flows ->
-        StatusUiState(
-            databaseVersion = flows[0] ?: 0,
-            databaseSchemaVersion = databaseSchemaVersionGetter() ?: -1,
-            packCount = flows[1] ?: 0,
-            songCount = flows[2] ?: 0,
-            difficultyCount = flows[3] ?: 0,
-            chartInfoCount = flows[4] ?: 0,
-            playResultCount = flows[5] ?: 0,
-            packLocalizedCount = flows[6] ?: 0,
-            songLocalizedCount = flows[7] ?: 0,
-            difficultyLocalizedCount = flows[8] ?: 0,
-            songDeletedInGameCount = flows[9] ?: 0,
+    val statusUiState =
+        combine(
+            repositoryContainer.propertyRepo.databaseVersion(),
+            repositoryContainer.packRepo.count(),
+            repositoryContainer.songRepo.count(),
+            repositoryContainer.difficultyRepo.count(),
+            repositoryContainer.chartInfoRepo.count(),
+            repositoryContainer.playResultRepo.count(),
+            repositoryContainer.packLocalizedRepo.count(),
+            repositoryContainer.songLocalizedRepo.count(),
+            repositoryContainer.difficultyLocalizedRepo.count(),
+            repositoryContainer.songRepo.countDeletedInGame(),
+        ) { flows ->
+            StatusUiState(
+                databaseVersion = flows[0] ?: 0,
+                databaseSchemaVersion = databaseSchemaVersionGetter() ?: -1,
+                packCount = flows[1] ?: 0,
+                songCount = flows[2] ?: 0,
+                difficultyCount = flows[3] ?: 0,
+                chartInfoCount = flows[4] ?: 0,
+                playResultCount = flows[5] ?: 0,
+                packLocalizedCount = flows[6] ?: 0,
+                songLocalizedCount = flows[7] ?: 0,
+                difficultyLocalizedCount = flows[8] ?: 0,
+                songDeletedInGameCount = flows[9] ?: 0,
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            StatusUiState(),
         )
-    }.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(TIMEOUT_MILLIS), StatusUiState()
-    )
 
     companion object {
         private const val TIMEOUT_MILLIS = 1000L

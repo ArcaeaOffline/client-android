@@ -36,7 +36,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultDeleteConfirmDialog
 
-
 @Composable
 fun DatabaseDeduplicatorScreen(
     onNavigateUp: () -> Unit,
@@ -118,9 +117,10 @@ fun DatabaseDeduplicatorScreen(
             IconButton(
                 onClick = { showDeleteConfirmDialog = true },
                 enabled = !uiState.isLoading && selectionIsNotEmpty,
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                ),
+                colors =
+                    IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null)
             }

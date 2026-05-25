@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.em
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 
-
 @Composable
 fun ArcaeaPackSelector(
     packs: List<Pack>,
@@ -30,24 +29,30 @@ fun ArcaeaPackSelector(
     selectedIndex: Int = -1,
     disableIfEmpty: Boolean = true,
 ) {
-    val basePackMap: Map<String, Pack> = packs.filter { !it.isAppendPack() }
-        .associateBy(keySelector = { it.id }, valueTransform = { it })
+    val basePackMap: Map<String, Pack> =
+        packs
+            .filter { !it.isAppendPack() }
+            .associateBy(keySelector = { it.id }, valueTransform = { it })
 
-    val labels = packs.map {
-        val basePack = basePackMap[it.basePackId()]
-        val packLabel = if (basePack != null) {
-            buildAnnotatedString {
-                append(it.name)
-                withStyle(
-                    SpanStyle(fontSize = 0.8.em, color = MaterialTheme.colorScheme.secondary)
-                ) {
-                    append("@${basePack.name}")
+    val labels =
+        packs.map {
+            val basePack = basePackMap[it.basePackId()]
+            val packLabel =
+                if (basePack != null) {
+                    buildAnnotatedString {
+                        append(it.name)
+                        withStyle(
+                            SpanStyle(fontSize = 0.8.em, color = MaterialTheme.colorScheme.secondary),
+                        ) {
+                            append("@${basePack.name}")
+                        }
+                    }
+                } else {
+                    buildAnnotatedString { append(it.name) }
                 }
-            }
-        } else buildAnnotatedString { append(it.name) }
 
-        return@map packLabel
-    }
+            return@map packLabel
+        }
 
     var showSelectDialog by rememberSaveable { mutableStateOf(false) }
     if (showSelectDialog) {

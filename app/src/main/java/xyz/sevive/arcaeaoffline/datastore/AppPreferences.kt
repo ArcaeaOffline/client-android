@@ -7,7 +7,6 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-
 object AppPreferencesSerializer : Serializer<AppPreferences> {
     private fun applyDefaultValues(preferences: AppPreferences): AppPreferences {
         val builder = preferences.toBuilder()
@@ -28,12 +27,14 @@ object AppPreferencesSerializer : Serializer<AppPreferences> {
         }
     }
 
-    override suspend fun writeTo(t: AppPreferences, output: OutputStream) =
-        t.writeTo(output)
+    override suspend fun writeTo(
+        t: AppPreferences,
+        output: OutputStream,
+    ) = t.writeTo(output)
 }
 
 class AppPreferencesRepository(
-    private val dataStore: DataStore<AppPreferences>
+    private val dataStore: DataStore<AppPreferences>,
 ) {
     val preferencesFlow = dataStore.data
 

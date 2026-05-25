@@ -11,7 +11,9 @@ interface OcrDependencyStatusDetail {
     val exception: Exception?
 
     fun status(): OcrDependencyStatus
+
     fun summary(): String?
+
     fun details(): String? {
         if (exception == null) return null
         return exception!!.message ?: exception.toString()
@@ -31,18 +33,16 @@ data class KNearestModelStatusDetail(
         return when (varCount) {
             null -> OcrDependencyStatus.UNKNOWN
             81 -> OcrDependencyStatus.OK
-
             else -> OcrDependencyStatus.WARNING
         }
     }
 
-    override fun summary(): String? {
-        return when {
+    override fun summary(): String? =
+        when {
             exception != null -> exception::class.simpleName ?: "Error"
             varCount != null -> "varCount $varCount"
             else -> null
         }
-    }
 }
 
 data class ImageHashesDatabaseStatusDetail(

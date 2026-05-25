@@ -10,17 +10,18 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.datastore.UnstableFlavorPreferencesRepository
 import kotlin.time.Duration.Companion.seconds
 
-
 class SettingsUnstableAlertScreenViewModel(
-    private val prefsRepository: UnstableFlavorPreferencesRepository
+    private val prefsRepository: UnstableFlavorPreferencesRepository,
 ) : ViewModel() {
-    val unstableAlertRead = prefsRepository.preferencesFlow.map {
-        it.unstableAlertRead
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(2.seconds.inWholeMilliseconds),
-        null,
-    )
+    val unstableAlertRead =
+        prefsRepository.preferencesFlow
+            .map {
+                it.unstableAlertRead
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(2.seconds.inWholeMilliseconds),
+                null,
+            )
 
     fun setUnstableAlertRead(value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -26,7 +26,6 @@ import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 internal fun OcrQueueCategoryItem(
     onClick: () -> Unit,
@@ -70,7 +69,7 @@ private fun OcrQueueCategoryItemPreview() {
                     icon = Icons.Default.MoreHoriz,
                     title = "IDLE",
                     count = 25,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
 
                 OcrQueueCategoryItem(
@@ -78,7 +77,7 @@ private fun OcrQueueCategoryItemPreview() {
                     icon = Icons.Default.HourglassBottom,
                     title = "PROCESSING",
                     count = 8,
-                    tint = MaterialTheme.colorScheme.tertiary
+                    tint = MaterialTheme.colorScheme.tertiary,
                 )
 
                 OcrQueueCategoryItem(
@@ -86,7 +85,7 @@ private fun OcrQueueCategoryItemPreview() {
                     icon = Icons.Default.Check,
                     title = "DONE",
                     count = 422,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
 
                 OcrQueueCategoryItem(
@@ -94,7 +93,7 @@ private fun OcrQueueCategoryItemPreview() {
                     icon = Icons.Default.Close,
                     title = "ERROR",
                     count = 42,
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         }

@@ -7,7 +7,6 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 
-
 interface DeviceRoisMaskerAuto : DeviceRoisMasker
 
 class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
@@ -76,23 +75,19 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
         return grayMasked
     }
 
-    override fun pure(roiBgr: Mat): Mat {
-        return pfl(roiBgr)
-    }
+    override fun pure(roiBgr: Mat): Mat = pfl(roiBgr)
 
-    override fun far(roiBgr: Mat): Mat {
-        return pfl(roiBgr)
-    }
+    override fun far(roiBgr: Mat): Mat = pfl(roiBgr)
 
-    override fun lost(roiBgr: Mat): Mat {
-        return pfl(roiBgr)
-    }
+    override fun lost(roiBgr: Mat): Mat = pfl(roiBgr)
 
-    override fun maxRecall(roiBgr: Mat): Mat {
-        return gray(roiBgr)
-    }
+    override fun maxRecall(roiBgr: Mat): Mat = gray(roiBgr)
 
-    private fun maskHsv(roiBgr: Mat, hsvLower: Scalar, hsvUpper: Scalar): Mat {
+    private fun maskHsv(
+        roiBgr: Mat,
+        hsvLower: Scalar,
+        hsvUpper: Scalar,
+    ): Mat {
         val roiHsv = Mat()
         val dst = Mat()
         Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
@@ -100,45 +95,25 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
         return dst
     }
 
-    override fun score(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, whiteHsvLower, whiteHsvUpper)
-    }
+    override fun score(roiBgr: Mat): Mat = maskHsv(roiBgr, whiteHsvLower, whiteHsvUpper)
 
-    override fun ratingClassPst(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, pstHsvLower, pstHsvUpper)
-    }
+    override fun ratingClassPst(roiBgr: Mat): Mat = maskHsv(roiBgr, pstHsvLower, pstHsvUpper)
 
-    override fun ratingClassPrs(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, prsHsvLower, prsHsvUpper)
-    }
+    override fun ratingClassPrs(roiBgr: Mat): Mat = maskHsv(roiBgr, prsHsvLower, prsHsvUpper)
 
-    override fun ratingClassFtr(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, ftrHsvLower, ftrHsvUpper)
-    }
+    override fun ratingClassFtr(roiBgr: Mat): Mat = maskHsv(roiBgr, ftrHsvLower, ftrHsvUpper)
 
-    override fun ratingClassByd(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, bydHsvLower, bydHsvUpper)
-    }
+    override fun ratingClassByd(roiBgr: Mat): Mat = maskHsv(roiBgr, bydHsvLower, bydHsvUpper)
 
-    override fun ratingClassEtr(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, etrHsvMin, etrHsvMax)
-    }
+    override fun ratingClassEtr(roiBgr: Mat): Mat = maskHsv(roiBgr, etrHsvMin, etrHsvMax)
 
-    override fun clearStatusTrackLost(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, trackLostHsvLower, trackLostHsvUpper)
-    }
+    override fun clearStatusTrackLost(roiBgr: Mat): Mat = maskHsv(roiBgr, trackLostHsvLower, trackLostHsvUpper)
 
-    override fun clearStatusTrackComplete(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, trackCompleteHsvLower, trackCompleteHsvUpper)
-    }
+    override fun clearStatusTrackComplete(roiBgr: Mat): Mat = maskHsv(roiBgr, trackCompleteHsvLower, trackCompleteHsvUpper)
 
-    override fun clearStatusFullRecall(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, fullRecallHsvLower, fullRecallHsvUpper)
-    }
+    override fun clearStatusFullRecall(roiBgr: Mat): Mat = maskHsv(roiBgr, fullRecallHsvLower, fullRecallHsvUpper)
 
-    override fun clearStatusPureMemory(roiBgr: Mat): Mat {
-        return maskHsv(roiBgr, pureMemoryHsvLower, pureMemoryHsvUpper)
-    }
+    override fun clearStatusPureMemory(roiBgr: Mat): Mat = maskHsv(roiBgr, pureMemoryHsvLower, pureMemoryHsvUpper)
 }
 
 class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
@@ -196,7 +171,11 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
     private val pureMemoryHsvLower = Scalar(90.0, 70.0, 80.0)
     private val pureMemoryHsvUpper = Scalar(110.0, 200.0, 175.0)
 
-    private fun maskHsv(roiBgr: Mat, hsvLower: Scalar, hsvUpper: Scalar): Mat {
+    private fun maskHsv(
+        roiBgr: Mat,
+        hsvLower: Scalar,
+        hsvUpper: Scalar,
+    ): Mat {
         val roiHsv = Mat()
         val dst = Mat()
         Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
@@ -214,63 +193,33 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
 //        return result
 //    }
 
-    private fun pfl(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.pflHsvLower, this.pflHsvUpper)
-    }
+    private fun pfl(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.pflHsvLower, this.pflHsvUpper)
 
-    override fun pure(roiBgr: Mat): Mat {
-        return this.pfl(roiBgr)
-    }
+    override fun pure(roiBgr: Mat): Mat = this.pfl(roiBgr)
 
-    override fun far(roiBgr: Mat): Mat {
-        return this.pfl(roiBgr)
-    }
+    override fun far(roiBgr: Mat): Mat = this.pfl(roiBgr)
 
-    override fun lost(roiBgr: Mat): Mat {
-        return this.pfl(roiBgr)
-    }
+    override fun lost(roiBgr: Mat): Mat = this.pfl(roiBgr)
 
-    override fun score(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.scoreHsvLower, this.scoreHsvUpper)
-    }
+    override fun score(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.scoreHsvLower, this.scoreHsvUpper)
 
-    override fun ratingClassPst(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.pstHsvLower, this.pstHsvUpper)
-    }
+    override fun ratingClassPst(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.pstHsvLower, this.pstHsvUpper)
 
-    override fun ratingClassPrs(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.prsHsvLower, this.prsHsvUpper)
-    }
+    override fun ratingClassPrs(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.prsHsvLower, this.prsHsvUpper)
 
-    override fun ratingClassFtr(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.ftrHsvLower, this.ftrHsvUpper)
-    }
+    override fun ratingClassFtr(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.ftrHsvLower, this.ftrHsvUpper)
 
-    override fun ratingClassByd(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.bydHsvLower, this.bydHsvUpper)
-    }
+    override fun ratingClassByd(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.bydHsvLower, this.bydHsvUpper)
 
-    override fun ratingClassEtr(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.etrHsvMin, this.etrHsvMax)
-    }
+    override fun ratingClassEtr(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.etrHsvMin, this.etrHsvMax)
 
-    override fun maxRecall(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.maxRecallHsvLower, this.maxRecallHsvUpper)
-    }
+    override fun maxRecall(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.maxRecallHsvLower, this.maxRecallHsvUpper)
 
-    override fun clearStatusTrackLost(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.trackLostHsvLower, this.trackLostHsvUpper)
-    }
+    override fun clearStatusTrackLost(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.trackLostHsvLower, this.trackLostHsvUpper)
 
-    override fun clearStatusTrackComplete(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.trackCompleteHsvLower, this.trackCompleteHsvUpper)
-    }
+    override fun clearStatusTrackComplete(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.trackCompleteHsvLower, this.trackCompleteHsvUpper)
 
-    override fun clearStatusFullRecall(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.fullRecallHsvLower, this.fullRecallHsvUpper)
-    }
+    override fun clearStatusFullRecall(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.fullRecallHsvLower, this.fullRecallHsvUpper)
 
-    override fun clearStatusPureMemory(roiBgr: Mat): Mat {
-        return this.maskHsv(roiBgr, this.pureMemoryHsvLower, this.pureMemoryHsvUpper)
-    }
+    override fun clearStatusPureMemory(roiBgr: Mat): Mat = this.maskHsv(roiBgr, this.pureMemoryHsvLower, this.pureMemoryHsvUpper)
 }

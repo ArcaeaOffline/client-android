@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.DatabaseView
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
-
 @DatabaseView(
     """
         SELECT
@@ -20,7 +19,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
         FROM difficulties d
         INNER JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class
         INNER JOIN songs s ON d.song_id = s.id
-    """, "charts"
+    """,
+    "charts",
 )
 data class Chart(
     @ColumnInfo(name = "song_idx") val songIdx: Int,

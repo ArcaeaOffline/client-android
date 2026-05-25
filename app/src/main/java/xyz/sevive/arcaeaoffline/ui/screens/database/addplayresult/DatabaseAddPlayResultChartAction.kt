@@ -34,7 +34,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
-
 @Composable
 private fun SelectChartDialog(
     onDismiss: () -> Unit,
@@ -81,7 +80,7 @@ internal fun DatabaseAddPlayResultChartAction(
                         IconRow(
                             Modifier
                                 .minimumInteractiveComponentSize()
-                                .padding(dimensionResource(R.dimen.card_padding))
+                                .padding(dimensionResource(R.dimen.card_padding)),
                         ) {
                             Icon(Icons.Default.TouchApp, null)
                             Text(stringResource(R.string.database_add_play_result_click_select_chart))
@@ -100,20 +99,21 @@ internal fun DatabaseAddPlayResultChartAction(
 @PreviewLightDark
 @Composable
 private fun PlayResultActionPreview() {
-    val chart = Chart(
-        songIdx = 0,
-        songId = "test",
-        ratingClass = ArcaeaRatingClass.FUTURE,
-        rating = 9,
-        ratingPlus = true,
-        title = "Preview",
-        artist = "Preview",
-        set = "preview",
-        audioOverride = false,
-        jacketOverride = false,
-        constant = 90,
-        side = 0,
-    )
+    val chart =
+        Chart(
+            songIdx = 0,
+            songId = "test",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            rating = 9,
+            ratingPlus = true,
+            title = "Preview",
+            artist = "Preview",
+            set = "preview",
+            audioOverride = false,
+            jacketOverride = false,
+            constant = 90,
+            side = 0,
+        )
 
     ArcaeaOfflineTheme {
         Surface {

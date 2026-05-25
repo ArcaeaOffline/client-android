@@ -42,7 +42,6 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 
-
 @Database(
     entities = [
         Property::class,
@@ -80,15 +79,25 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 )
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun propertyDao(): PropertyDao
+
     abstract fun packDao(): PackDao
+
     abstract fun packLocalizedDao(): PackLocalizedDao
+
     abstract fun songDao(): SongDao
+
     abstract fun songLocalizedDao(): SongLocalizedDao
+
     abstract fun difficultyDao(): DifficultyDao
+
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
+
     abstract fun chartInfoDao(): ChartInfoDao
+
     abstract fun playResultDao(): PlayResultDao
+
     abstract fun relationshipsDao(): RelationshipsDao
+
     abstract fun r30EntryDao(): R30EntryDao
 
     abstract fun chartDao(): ChartDao
@@ -97,7 +106,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
         const val DATABASE_FILENAME = "arcaea_offline.db"
 
         @Volatile
-        private var Instance: ArcaeaOfflineDatabase? = null
+        private var instance: ArcaeaOfflineDatabase? = null
 
         private fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
             val appContext = context.applicationContext
@@ -110,12 +119,15 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): ArcaeaOfflineDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
-            return Instance ?: synchronized(this) {
-                getDatabaseBuilder(context).setDriver(BundledSQLiteDriver())
-                    .setQueryCoroutineContext(Dispatchers.IO).addMigrations(
+            return instance ?: synchronized(this) {
+                getDatabaseBuilder(context)
+                    .setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO)
+                    .addMigrations(
                         Migration_6_7,
                         Migration_7_8,
-                    ).build().also { Instance = it }
+                    ).build()
+                    .also { instance = it }
             }
         }
     }

@@ -11,10 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 internal class AppIconClickCrasherState(
     clicksToCrash: Int,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) {
     private var delayedResetJob: Job? = null
 
@@ -27,10 +26,11 @@ internal class AppIconClickCrasherState(
 
         if (count <= 0) throw AppIconBeingClickedTooManyTimesSoEmbarrassingException()
 
-        delayedResetJob = coroutineScope.launch {
-            delay(1500L)
-            count = 7
-        }
+        delayedResetJob =
+            coroutineScope.launch {
+                delay(1500L)
+                count = 7
+            }
     }
 }
 
@@ -38,6 +38,4 @@ internal class AppIconClickCrasherState(
 internal fun rememberAppIconClickCrasherState(
     clicksToCrash: Int = 7,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-): AppIconClickCrasherState {
-    return remember { AppIconClickCrasherState(clicksToCrash, coroutineScope) }
-}
+): AppIconClickCrasherState = remember { AppIconClickCrasherState(clicksToCrash, coroutineScope) }

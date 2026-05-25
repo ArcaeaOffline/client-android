@@ -33,7 +33,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import java.util.UUID
 
-
 @Composable
 internal fun DatabaseDeduplicatorGroupListItem(
     item: DatabaseDeduplicatorViewModel.GroupListUiItem,
@@ -90,9 +89,10 @@ internal fun DatabaseDeduplicatorGroupListItem(
         item.playResults.forEach {
             val selected = selectedUuids.contains(it.uuid)
             val onSelect = { onPlayResultSelectedChange(it.uuid, !selected) }
-            val warnings = remember(it, item.chart) {
-                ArcaeaPlayResultValidator.validate(it, item.chart)
-            }
+            val warnings =
+                remember(it, item.chart) {
+                    ArcaeaPlayResultValidator.validate(it, item.chart)
+                }
 
             Row(
                 Modifier.clickable(onClick = onSelect),

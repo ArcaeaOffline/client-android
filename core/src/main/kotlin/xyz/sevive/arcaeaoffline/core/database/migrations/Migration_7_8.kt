@@ -7,22 +7,27 @@ import androidx.sqlite.execSQL
 private val ratingClassMap =
     mapOf("PAST" to 0, "PRESENT" to 1, "FUTURE" to 2, "BEYOND" to 3, "ETERNAL" to 4)
 
-private val clearTypeMap = mapOf(
-    "TRACK_LOST" to 0,
-    "NORMAL_CLEAR" to 1,
-    "FULL_RECALL" to 2,
-    "PURE_MEMORY" to 3,
-    "EASY_CLEAR" to 4,
-    "HARD_CLEAR" to 5,
-)
+private val clearTypeMap =
+    mapOf(
+        "TRACK_LOST" to 0,
+        "NORMAL_CLEAR" to 1,
+        "FULL_RECALL" to 2,
+        "PURE_MEMORY" to 3,
+        "EASY_CLEAR" to 4,
+        "HARD_CLEAR" to 5,
+    )
 
 private val modifierMap = mapOf("NORMAL" to 0, "EASY" to 1, "HARD" to 2)
 
 object Migration_7_8 : Migration(7, 8) {
     private fun applyValueMap(
-        connection: SQLiteConnection, map: Map<String, Int>, tableName: String, columnName: String
+        connection: SQLiteConnection,
+        map: Map<String, Int>,
+        tableName: String,
+        columnName: String,
     ) {
-        connection.prepare("UPDATE `$tableName` SET `$columnName` = ? WHERE `$columnName` = ?")
+        connection
+            .prepare("UPDATE `$tableName` SET `$columnName` = ? WHERE `$columnName` = ?")
             .use { stmt ->
                 map.forEach { (oldVal, newVal) ->
                     stmt.bindInt(1, newVal)

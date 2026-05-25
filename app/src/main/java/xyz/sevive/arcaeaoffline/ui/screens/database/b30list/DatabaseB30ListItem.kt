@@ -40,23 +40,30 @@ internal fun DatabaseB30ListItem(
     modifier: Modifier = Modifier,
 ) {
     val indexTextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    val indexText = remember(item.index) {
-        buildAnnotatedString {
-            append("#")
-            withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
+    val indexText =
+        remember(item.index) {
+            buildAnnotatedString {
+                append("#")
+                withStyle(indexTextStyle.toSpanStyle()) { append("${item.index + 1}") }
+            }
         }
-    }
 
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-    val minTextWidth = remember {
-        density.run { textMeasurer.measure("#00", style = indexTextStyle).size.width.toDp() }
-    }
+    val minTextWidth =
+        remember {
+            density.run {
+                textMeasurer
+                    .measure("#00", style = indexTextStyle)
+                    .size.width
+                    .toDp()
+            }
+        }
 
     Row(
         modifier,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Bottom,
     ) {
         ArcaeaPlayResultCard(
             playResult = item.playResultBest.playResult,
@@ -85,48 +92,58 @@ internal fun DatabaseB30ListItem(
 private fun DatabaseB30ListItemPreview() {
     AndroidThreeTen.init(LocalContext.current)
 
-    fun fakeListItem(index: Int, withChart: Boolean = true): DatabaseB30ListViewModel.ListItem {
-        return DatabaseB30ListViewModel.ListItem(
+    fun fakeListItem(
+        index: Int,
+        withChart: Boolean = true,
+    ): DatabaseB30ListViewModel.ListItem =
+        DatabaseB30ListViewModel.ListItem(
             index = index,
-            playResultBest = PlayResultCalculated(
-                playResult = PlayResult(
-                    id = 1,
-                    uuid = UUID.randomUUID(),
-                    songId = "test",
-                    ratingClass = ArcaeaRatingClass.FUTURE,
-                    score = 9950000,
-                    pure = null,
-                    far = null,
-                    lost = null,
-                    date = Instant.ofEpochMilli(0),
-                    maxRecall = null,
-                    modifier = null,
-                    clearType = null,
-                    comment = null,
+            playResultBest =
+                PlayResultCalculated(
+                    playResult =
+                        PlayResult(
+                            id = 1,
+                            uuid = UUID.randomUUID(),
+                            songId = "test",
+                            ratingClass = ArcaeaRatingClass.FUTURE,
+                            score = 9950000,
+                            pure = null,
+                            far = null,
+                            lost = null,
+                            date = Instant.ofEpochMilli(0),
+                            maxRecall = null,
+                            modifier = null,
+                            clearType = null,
+                            comment = null,
+                        ),
+                    chartInfo =
+                        ChartInfo(
+                            songId = "test",
+                            ratingClass = ArcaeaRatingClass.FUTURE,
+                            constant = 115,
+                            notes = null,
+                        ),
                 ),
-                chartInfo = ChartInfo(
-                    songId = "test",
-                    ratingClass = ArcaeaRatingClass.FUTURE,
-                    constant = 115,
-                    notes = null,
-                ),
-            ),
-            chart = if (withChart) Chart(
-                songIdx = 0,
-                songId = "test",
-                ratingClass = ArcaeaRatingClass.FUTURE,
-                rating = 11,
-                ratingPlus = true,
-                title = "Preview",
-                artist = "Preview",
-                set = "preview",
-                audioOverride = false,
-                jacketOverride = false,
-                constant = 115,
-                side = 0,
-            ) else null,
+            chart =
+                if (withChart) {
+                    Chart(
+                        songIdx = 0,
+                        songId = "test",
+                        ratingClass = ArcaeaRatingClass.FUTURE,
+                        rating = 11,
+                        ratingPlus = true,
+                        title = "Preview",
+                        artist = "Preview",
+                        set = "preview",
+                        audioOverride = false,
+                        jacketOverride = false,
+                        constant = 115,
+                        side = 0,
+                    )
+                } else {
+                    null
+                },
         )
-    }
 
     ArcaeaOfflineTheme {
         Surface {
@@ -137,4 +154,3 @@ private fun DatabaseB30ListItemPreview() {
         }
     }
 }
-

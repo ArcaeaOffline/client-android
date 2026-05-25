@@ -63,7 +63,6 @@ import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun LogsBottomSheet(
@@ -113,13 +112,14 @@ private fun LogsBottomSheet(
                 }
 
                 items(logObjects, key = { it.uuid }) {
-                    val timestampText = remember(widthSizeClass) {
-                        if (widthSizeClass >= WindowWidthSizeClass.Medium) {
-                            it.timestamp.formatAsLocalizedDateTime()
-                        } else {
-                            it.timestamp.formatAsLocalizedDate() + "\n" + it.timestamp.formatAsLocalizedTime()
+                    val timestampText =
+                        remember(widthSizeClass) {
+                            if (widthSizeClass >= WindowWidthSizeClass.Medium) {
+                                it.timestamp.formatAsLocalizedDateTime()
+                            } else {
+                                it.timestamp.formatAsLocalizedDate() + "\n" + it.timestamp.formatAsLocalizedTime()
+                            }
                         }
-                    }
 
                     Row(
                         Modifier
@@ -134,12 +134,13 @@ private fun LogsBottomSheet(
                             horizontalAlignment = Alignment.End,
                         ) {
                             CompositionLocalProvider(
-                                LocalTextStyle provides MaterialTheme.typography.bodySmall.copy(
-                                    fontWeight = FontWeight.Normal
-                                )
+                                LocalTextStyle provides
+                                    MaterialTheme.typography.bodySmall.copy(
+                                        fontWeight = FontWeight.Normal,
+                                    ),
                             ) {
                                 Text(timestampText, textAlign = TextAlign.End)
-                                it.tag?.let { tag -> Text("[${tag}]") }
+                                it.tag?.let { tag -> Text("[$tag]") }
                             }
                         }
 
@@ -155,7 +156,7 @@ private fun LogsBottomSheet(
 fun DatabaseManageScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val context = LocalContext.current
 

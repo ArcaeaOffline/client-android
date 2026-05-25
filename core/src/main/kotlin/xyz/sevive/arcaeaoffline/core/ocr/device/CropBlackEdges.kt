@@ -13,7 +13,7 @@ class CropBlackEdges {
         private fun isBlackEdge(
             imgGraySlice: Mat,
             blackPixelThreshold: Int,
-            ratio: Double = 0.6
+            ratio: Double = 0.6,
         ): Boolean {
             val pixelsCompared = Mat()
             Core.compare(
@@ -26,7 +26,10 @@ class CropBlackEdges {
             return Core.countNonZero(pixelsCompared) > (imgGraySlice.width() * imgGraySlice.height()) * ratio
         }
 
-        private fun getCropRect(imgGray: Mat, blackPixelThreshold: Int = 25): Rect {
+        private fun getCropRect(
+            imgGray: Mat,
+            blackPixelThreshold: Int = 25,
+        ): Rect {
             val width = imgGray.width()
             val height = imgGray.height()
 
@@ -94,13 +97,12 @@ class CropBlackEdges {
             img: Mat,
             convertFlag: Int = Imgproc.COLOR_BGR2GRAY,
             blackPixelThreshold: Int = 25,
-        ): Mat {
-            return try {
+        ): Mat =
+            try {
                 crop(img, convertFlag, blackPixelThreshold)
             } catch (e: Exception) {
                 Log.e("CropBlackEdges", "Error cropping an image", e)
                 img
             }
-        }
     }
 }

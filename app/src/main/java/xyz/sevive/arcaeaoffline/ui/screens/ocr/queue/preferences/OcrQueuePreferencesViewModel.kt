@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import kotlin.time.Duration.Companion.seconds
 
-
 class OcrQueuePreferencesViewModel(
     private val preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
@@ -17,7 +16,6 @@ class OcrQueuePreferencesViewModel(
         val checkIsImage: Boolean = false,
         val checkIsArcaeaImage: Boolean = false,
         val parallelCount: Int = -1,
-
         val parallelCountMin: Int = 1,
         val parallelCountMax: Int = Runtime.getRuntime().availableProcessors() * 2,
     ) {
@@ -25,17 +23,19 @@ class OcrQueuePreferencesViewModel(
         val parallelCountSliderSteps = parallelCountMax - parallelCountMin - 1
     }
 
-    val preferencesUiState = preferencesRepository.preferencesFlow.map {
-        PreferencesUiState(
-            checkIsImage = it.checkIsImage,
-            checkIsArcaeaImage = it.checkIsArcaeaImage,
-            parallelCount = it.parallelCount,
-        )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(1.seconds.inWholeMilliseconds),
-        PreferencesUiState(),
-    )
+    val preferencesUiState =
+        preferencesRepository.preferencesFlow
+            .map {
+                PreferencesUiState(
+                    checkIsImage = it.checkIsImage,
+                    checkIsArcaeaImage = it.checkIsArcaeaImage,
+                    parallelCount = it.parallelCount,
+                )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(1.seconds.inWholeMilliseconds),
+                PreferencesUiState(),
+            )
 
     fun setCheckIsImage(value: Boolean) {
         viewModelScope.launch { preferencesRepository.setCheckIsImage(value) }

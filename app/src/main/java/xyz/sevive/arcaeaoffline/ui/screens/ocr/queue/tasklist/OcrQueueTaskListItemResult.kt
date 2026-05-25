@@ -11,7 +11,6 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
-
 @Composable
 internal fun OcrQueueTaskListItemResult(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
@@ -19,13 +18,15 @@ internal fun OcrQueueTaskListItemResult(
 ) {
     Box {
         when (uiItem.status) {
-            OcrQueueTaskStatus.DONE -> uiItem.playResult?.let {
-                ArcaeaPlayResultCard(
-                    playResult = uiItem.playResult,
-                    warnings = uiItem.warnings,
-                    chart = uiItem.chart,
-                    modifier = modifier,
-                )
+            OcrQueueTaskStatus.DONE -> {
+                uiItem.playResult?.let {
+                    ArcaeaPlayResultCard(
+                        playResult = uiItem.playResult,
+                        warnings = uiItem.warnings,
+                        chart = uiItem.chart,
+                        modifier = modifier,
+                    )
+                }
             }
 
             OcrQueueTaskStatus.ERROR -> {

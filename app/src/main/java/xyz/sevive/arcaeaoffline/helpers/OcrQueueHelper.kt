@@ -13,9 +13,11 @@ import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 
-
 object OcrQueueHelper {
-    suspend fun isUriImage(uri: Uri, context: Context): Boolean {
+    suspend fun isUriImage(
+        uri: Uri,
+        context: Context,
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             async {
                 val inputStream = context.contentResolver.openInputStream(uri) ?: return@async false
@@ -31,7 +33,10 @@ object OcrQueueHelper {
         }
     }
 
-    suspend fun isUriArcaeaImage(uri: Uri, context: Context): Boolean {
+    suspend fun isUriArcaeaImage(
+        uri: Uri,
+        context: Context,
+    ): Boolean {
         return withContext(Dispatchers.IO) {
             async {
                 val inputStream = context.contentResolver.openInputStream(uri) ?: return@async false

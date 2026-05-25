@@ -69,15 +69,17 @@ import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
 
 @Composable
-private fun pflAnnotatedString(label: String, number: Int?): AnnotatedString {
-    return buildAnnotatedString {
+private fun pflAnnotatedString(
+    label: String,
+    number: Int?,
+): AnnotatedString =
+    buildAnnotatedString {
         withStyle(SpanStyle(fontSize = MaterialTheme.typography.labelMedium.fontSize)) {
             append(label)
             append(' ')
         }
         append(number?.toString() ?: "-")
     }
-}
 
 @Composable
 private fun PlayResultDetailsDialog(
@@ -85,20 +87,22 @@ private fun PlayResultDetailsDialog(
     playResult: PlayResult,
 ) {
     val context = LocalContext.current
-    val items = remember(playResult) {
-        with(playResult) {
-            buildMap {
-                put(key = "ID", value = id.toString())
-                put(key = "UUID", value = uuid.toString())
-                put(key = "songId.ratingClass", value = "${songId}.${ratingClass}")
-                comment?.let {
-                    put(
-                        key = context.getString(R.string.arcaea_play_result_comment), value = it
-                    )
+    val items =
+        remember(playResult) {
+            with(playResult) {
+                buildMap {
+                    put(key = "ID", value = id.toString())
+                    put(key = "UUID", value = uuid.toString())
+                    put(key = "songId.ratingClass", value = "$songId.$ratingClass")
+                    comment?.let {
+                        put(
+                            key = context.getString(R.string.arcaea_play_result_comment),
+                            value = it,
+                        )
+                    }
                 }
             }
         }
-    }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -116,7 +120,6 @@ private fun PlayResultDetailsDialog(
     )
 }
 
-
 @Composable
 fun ArcaeaPlayResultCard(
     playResult: PlayResult,
@@ -130,32 +133,49 @@ fun ArcaeaPlayResultCard(
 
     val cardColors = colors ?: CardDefaults.cardColors()
 
-    val scoreText = remember(playResult.score) {
-        playResult.score.toString().padStart(8, '0').reversed().chunked(3).joinToString("'")
-            .reversed()
-    }
-    val dateText = remember(playResult.date) {
-        playResult.date?.formatAsLocalizedDateTime()
-            ?: context.getString(R.string.play_result_no_date)
-    }
-    val clearTypeAndModifierText = remember(playResult.clearType, playResult.modifier) {
-        val clearTypeText = playResult.clearType?.toDisplayString()
-            ?: context.getString(R.string.play_result_no_clear_type)
-        val modifierText = playResult.modifier?.toDisplayString()
-            ?: context.getString(R.string.play_result_no_modifier)
+    val scoreText =
+        remember(playResult.score) {
+            playResult.score
+                .toString()
+                .padStart(8, '0')
+                .reversed()
+                .chunked(3)
+                .joinToString("'")
+                .reversed()
+        }
+    val dateText =
+        remember(playResult.date) {
+            playResult.date?.formatAsLocalizedDateTime()
+                ?: context.getString(R.string.play_result_no_date)
+        }
+    val clearTypeAndModifierText =
+        remember(playResult.clearType, playResult.modifier) {
+            val clearTypeText =
+                playResult.clearType?.toDisplayString()
+                    ?: context.getString(R.string.play_result_no_clear_type)
+            val modifierText =
+                playResult.modifier?.toDisplayString()
+                    ?: context.getString(R.string.play_result_no_modifier)
 
-        "$clearTypeText · $modifierText"
-    }
+            "$clearTypeText · $modifierText"
+        }
 
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
-    val levelTextTextStyle = MaterialTheme.typography.headlineMedium.copy(
-        fontWeight = FontWeight.Bold,
-        brush = playResultGradeGradientBrush(playResult.score),
-    )
-    val exPlusWidthDp = remember {
-        density.run { textMeasurer.measure("EX+", levelTextTextStyle).size.width.toDp() }
-    }
+    val levelTextTextStyle =
+        MaterialTheme.typography.headlineMedium.copy(
+            fontWeight = FontWeight.Bold,
+            brush = playResultGradeGradientBrush(playResult.score),
+        )
+    val exPlusWidthDp =
+        remember {
+            density.run {
+                textMeasurer
+                    .measure("EX+", levelTextTextStyle)
+                    .size.width
+                    .toDp()
+            }
+        }
 
     var showDetails by rememberSaveable { mutableStateOf(false) }
     if (showDetails) {
@@ -172,10 +192,11 @@ fun ArcaeaPlayResultCard(
     LaunchedEffect(warnings) { if (warnings.isEmpty()) showWarningsDialog = false }
 
     Card(
-        modifier = Modifier
-            .clickable(onClick != null) { onClick?.invoke() }
-            .height(IntrinsicSize.Min)
-            .then(modifier),
+        modifier =
+            Modifier
+                .clickable(onClick != null) { onClick?.invoke() }
+                .height(IntrinsicSize.Min)
+                .then(modifier),
         shape = shape,
         colors = cardColors,
     ) {
@@ -206,11 +227,12 @@ fun ArcaeaPlayResultCard(
                         ) {
                             Icon(
                                 Icons.Default.Warning,
-                                contentDescription = pluralStringResource(
-                                    R.plurals.play_result_validator_warning_count,
-                                    warnings.size,
-                                    warnings.size,
-                                ),
+                                contentDescription =
+                                    pluralStringResource(
+                                        R.plurals.play_result_validator_warning_count,
+                                        warnings.size,
+                                        warnings.size,
+                                    ),
                             )
                         }
                     }
@@ -241,7 +263,7 @@ fun ArcaeaPlayResultCard(
             Column(
                 Modifier
                     .weight(1f)
-                    .padding(dimensionResource(R.dimen.card_padding))
+                    .padding(dimensionResource(R.dimen.card_padding)),
             ) {
                 Text(scoreText, style = MaterialTheme.typography.titleLarge)
 
@@ -265,8 +287,8 @@ fun ArcaeaPlayResultCard(
                 Text(
                     pflAnnotatedString(
                         stringResource(R.string.arcaea_play_result_max_recall),
-                        playResult.maxRecall
-                    )
+                        playResult.maxRecall,
+                    ),
                 )
 
                 Text(
@@ -284,7 +306,6 @@ fun ArcaeaPlayResultCard(
         }
     }
 }
-
 
 @Composable
 fun ArcaeaPlayResultCard(
@@ -307,12 +328,14 @@ fun ArcaeaPlayResultCard(
     }
 
     val cornerSize = remember { 8.dp }
-    val upperCardShape = remember {
-        RoundedCornerShape(topStart = cornerSize, topEnd = cornerSize)
-    }
-    val lowerCardShape = remember {
-        RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize)
-    }
+    val upperCardShape =
+        remember {
+            RoundedCornerShape(topStart = cornerSize, topEnd = cornerSize)
+        }
+    val lowerCardShape =
+        remember {
+            RoundedCornerShape(bottomStart = cornerSize, bottomEnd = cornerSize)
+        }
 
     Column(modifier) {
         ArcaeaChartCard(chart = chart, shape = upperCardShape)
@@ -330,7 +353,6 @@ fun ArcaeaPlayResultCard(
     }
 }
 
-
 @Composable
 private fun previewCharts(): Array<Chart> {
     fun chart(
@@ -338,8 +360,8 @@ private fun previewCharts(): Array<Chart> {
         rating: Int,
         ratingPlus: Boolean,
         constant: Int,
-    ): Chart {
-        return Chart(
+    ): Chart =
+        Chart(
             songIdx = 75,
             songId = "test",
             title = "TestTitle",
@@ -348,26 +370,36 @@ private fun previewCharts(): Array<Chart> {
             side = 0,
             audioOverride = false,
             jacketOverride = false,
-
             ratingClass = ratingClass,
             rating = rating,
             ratingPlus = ratingPlus,
-            constant = constant
+            constant = constant,
         )
-    }
 
     return arrayOf(
         chart(
-            ratingClass = ArcaeaRatingClass.PAST, rating = 2, ratingPlus = false, constant = 20
+            ratingClass = ArcaeaRatingClass.PAST,
+            rating = 2,
+            ratingPlus = false,
+            constant = 20,
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.PRESENT, rating = 6, ratingPlus = false, constant = 65
+            ratingClass = ArcaeaRatingClass.PRESENT,
+            rating = 6,
+            ratingPlus = false,
+            constant = 65,
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.FUTURE, rating = 9, ratingPlus = true, constant = 96
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            rating = 9,
+            ratingPlus = true,
+            constant = 96,
         ),
         chart(
-            ratingClass = ArcaeaRatingClass.BEYOND, rating = 12, ratingPlus = false, constant = 120
+            ratingClass = ArcaeaRatingClass.BEYOND,
+            rating = 12,
+            ratingPlus = false,
+            constant = 120,
         ),
     )
 }
@@ -375,9 +407,14 @@ private fun previewCharts(): Array<Chart> {
 @Composable
 private fun previewPlayResults(): Array<PlayResult> {
     fun playResult(
-        id: Long, ratingClass: ArcaeaRatingClass, score: Int, pure: Int?, far: Int?, lost: Int?
-    ): PlayResult {
-        return PlayResult(
+        id: Long,
+        ratingClass: ArcaeaRatingClass,
+        score: Int,
+        pure: Int?,
+        far: Int?,
+        lost: Int?,
+    ): PlayResult =
+        PlayResult(
             id = id,
             songId = "test",
             ratingClass = ratingClass,
@@ -391,7 +428,6 @@ private fun previewPlayResults(): Array<PlayResult> {
             clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
             comment = "Test Only",
         )
-    }
 
     return arrayOf(
         playResult(
@@ -400,7 +436,7 @@ private fun previewPlayResults(): Array<PlayResult> {
             score = 9900000,
             pure = null,
             far = null,
-            lost = null
+            lost = null,
         ),
         playResult(
             id = 1,
@@ -408,7 +444,7 @@ private fun previewPlayResults(): Array<PlayResult> {
             score = 9800000,
             pure = 543,
             far = 2,
-            lost = 1
+            lost = 1,
         ),
         playResult(
             id = 2,
@@ -416,7 +452,7 @@ private fun previewPlayResults(): Array<PlayResult> {
             score = 9700000,
             pure = 1023,
             far = 45,
-            lost = 23
+            lost = 23,
         ),
         playResult(
             id = 3,
@@ -424,7 +460,7 @@ private fun previewPlayResults(): Array<PlayResult> {
             score = 895000,
             pure = 1234,
             far = 56,
-            lost = 78
+            lost = 78,
         ),
     )
 }
@@ -443,7 +479,7 @@ private fun PlayResultCardPreview() {
                 ArcaeaPlayResultCard(
                     playResult = playResults[i],
                     chart = if (i >= 1) charts[i] else null,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    modifier = Modifier.padding(bottom = 4.dp),
                 )
             }
         }

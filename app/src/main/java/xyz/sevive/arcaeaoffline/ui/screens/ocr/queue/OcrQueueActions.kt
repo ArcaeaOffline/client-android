@@ -13,14 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-
 @Composable
 internal fun OcrQueueActions(
     onStartQueue: () -> Unit,
     onStopQueue: () -> Unit,
     onClearAllTasks: () -> Unit,
     queueRunning: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onStartQueue, enabled = !queueRunning) {
@@ -34,7 +33,7 @@ internal fun OcrQueueActions(
         IconButton(
             onClick = onClearAllTasks,
             enabled = !queueRunning,
-            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error),
         ) {
             Icon(Icons.Default.ClearAll, null)
         }

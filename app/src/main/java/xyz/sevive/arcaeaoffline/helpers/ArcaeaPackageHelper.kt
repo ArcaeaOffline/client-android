@@ -20,8 +20,9 @@ import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
-
-class ArcaeaPackageHelper(context: Context) {
+class ArcaeaPackageHelper(
+    context: Context,
+) {
     private val packageManager = context.packageManager
 
     private val arcaeaExtractRootCacheDir = File(context.cacheDir, "arcaea")
@@ -32,21 +33,19 @@ class ArcaeaPackageHelper(context: Context) {
     // val jacketsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/jackets")
     // val partnerIconsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/partner_icons")
 
-    fun getPackageInfo(): PackageInfo? {
-        return try {
+    fun getPackageInfo(): PackageInfo? =
+        try {
             packageManager.getPackageInfo(ARCAEA_PACKAGE_NAME, 0)
         } catch (_: PackageManager.NameNotFoundException) {
             null
         }
-    }
 
-    fun getIcon(): Drawable? {
-        return try {
+    fun getIcon(): Drawable? =
+        try {
             packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
         } catch (_: PackageManager.NameNotFoundException) {
             null
         }
-    }
 
     fun getApkZipFile(): ZipFile? {
         try {
@@ -57,17 +56,15 @@ class ArcaeaPackageHelper(context: Context) {
         }
     }
 
-    fun getPacklistEntry(): ZipEntry? {
-        return getApkZipFile()?.use {
+    fun getPacklistEntry(): ZipEntry? =
+        getApkZipFile()?.use {
             it.getEntry(APK_PACKLIST_FILE_ENTRY_NAME)
         }
-    }
 
-    fun getSonglistEntry(): ZipEntry? {
-        return getApkZipFile()?.use {
+    fun getSonglistEntry(): ZipEntry? =
+        getApkZipFile()?.use {
             it.getEntry(APK_SONGLIST_FILE_ENTRY_NAME)
         }
-    }
 
     /**
      * If the [filename] matches a jacket file's naming pattern, return the
@@ -94,11 +91,12 @@ class ArcaeaPackageHelper(context: Context) {
         val difficulty = baseFilename.replace("1080_", "")
         val ext = FilenameUtils.getExtension(filename)
 
-        val finalFilename = if (difficulty == "base") {
-            "${songId}.${ext}"
-        } else {
-            "${songId}_${difficulty}.${ext}"
-        }
+        val finalFilename =
+            if (difficulty == "base") {
+                "$songId.$ext"
+            } else {
+                "${songId}_$difficulty.$ext"
+            }
         Log.v(LOG_TAG, "jacketExtractFilename: mapping [$filename] to [$finalFilename]")
         return finalFilename
     }
@@ -125,7 +123,7 @@ class ArcaeaPackageHelper(context: Context) {
         val partnerId = baseFilename.replace("_icon", "")
         val ext = FilenameUtils.getExtension(filename)
 
-        val finalFilename = "${partnerId}.${ext}"
+        val finalFilename = "$partnerId.$ext"
         Log.v(LOG_TAG, "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]")
         return finalFilename
     }
@@ -186,11 +184,13 @@ class ArcaeaPackageHelper(context: Context) {
         }
 
         val entries = apkJacketZipEntries()
-        val outputMapping = entries.mapNotNull { zipEntry ->
-            jacketExtractFilename(zipEntry.name)?.let { filename ->
-                Pair(zipEntry, File(jacketsCacheDir, filename))
-            }
-        }.toMap()
+        val outputMapping =
+            entries
+                .mapNotNull { zipEntry ->
+                    jacketExtractFilename(zipEntry.name)?.let { filename ->
+                        Pair(zipEntry, File(jacketsCacheDir, filename))
+                    }
+                }.toMap()
         extractAssetBase(outputMapping)
     }
 
@@ -214,11 +214,13 @@ class ArcaeaPackageHelper(context: Context) {
         }
 
         val entries = apkPartnerIconZipEntries()
-        val outputMapping = entries.mapNotNull { zipEntry ->
-            partnerIconExtractFilename(zipEntry.name)?.let { filename ->
-                Pair(zipEntry, File(partnerIconsCacheDir, filename))
-            }
-        }.toMap()
+        val outputMapping =
+            entries
+                .mapNotNull { zipEntry ->
+                    partnerIconExtractFilename(zipEntry.name)?.let { filename ->
+                        Pair(zipEntry, File(partnerIconsCacheDir, filename))
+                    }
+                }.toMap()
         extractAssetBase(outputMapping)
     }
 

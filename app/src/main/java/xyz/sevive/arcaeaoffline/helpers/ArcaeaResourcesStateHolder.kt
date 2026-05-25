@@ -28,29 +28,37 @@ object ArcaeaResourcesStateHolder {
     private val status = MutableStateFlow(Status())
     private var statusReloadJob: Job? = null
 
-    val canImportLists = status.map { it.hasPacklist || it.hasSonglist }.stateIn(
-        scope, SharingStarted.Eagerly, false
-    )
+    val canImportLists =
+        status.map { it.hasPacklist || it.hasSonglist }.stateIn(
+            scope,
+            SharingStarted.Eagerly,
+            false,
+        )
 
-    val canBuildHashesDatabase = status.map { it.hasJackets && it.hasPartnerIcons }.stateIn(
-        scope, SharingStarted.Eagerly, false
-    )
+    val canBuildHashesDatabase =
+        status.map { it.hasJackets && it.hasPartnerIcons }.stateIn(
+            scope,
+            SharingStarted.Eagerly,
+            false,
+        )
 
     fun reloadStatus(context: Context) {
         statusReloadJob?.cancel()
-        statusReloadJob = scope.launch {
-            val packageHelper = ArcaeaPackageHelper(context)
+        statusReloadJob =
+            scope.launch {
+                val packageHelper = ArcaeaPackageHelper(context)
 
-            status.value = Status(
-                isArcaeaInstalled = packageHelper.getPackageInfo() != null,
-                hasPacklist = packageHelper.getPacklistEntry() != null,
-                hasSonglist = packageHelper.getSonglistEntry() != null,
-                hasJackets = packageHelper.apkJacketZipEntries().isNotEmpty(),
-                hasPartnerIcons = packageHelper.apkPartnerIconZipEntries().isNotEmpty(),
-            )
-            Log.d(LOG_TAG, "reloaded, ${status.value}")
+                status.value =
+                    Status(
+                        isArcaeaInstalled = packageHelper.getPackageInfo() != null,
+                        hasPacklist = packageHelper.getPacklistEntry() != null,
+                        hasSonglist = packageHelper.getSonglistEntry() != null,
+                        hasJackets = packageHelper.apkJacketZipEntries().isNotEmpty(),
+                        hasPartnerIcons = packageHelper.apkPartnerIconZipEntries().isNotEmpty(),
+                    )
+                Log.d(LOG_TAG, "reloaded, ${status.value}")
 
-            statusReloadJob = null
-        }
+                statusReloadJob = null
+            }
     }
 }

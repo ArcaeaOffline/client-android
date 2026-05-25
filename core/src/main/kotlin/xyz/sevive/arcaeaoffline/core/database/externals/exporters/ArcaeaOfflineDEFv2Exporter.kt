@@ -6,12 +6,12 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaOfflineDEFv2PlayResultItem
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaOfflineDEFv2PlayResultRoot
 
-
 object ArcaeaOfflineDEFv2Exporter {
-    private val json = Json {
-        encodeDefaults = true
-        ignoreUnknownKeys = true
-    }
+    private val json =
+        Json {
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        }
 
     fun playResultsRoot(playResults: List<PlayResult>): ArcaeaOfflineDEFv2PlayResultRoot {
         val items = mutableListOf<ArcaeaOfflineDEFv2PlayResultItem>()
@@ -32,13 +32,11 @@ object ArcaeaOfflineDEFv2Exporter {
                     clearType = it.clearType?.value,
                     source = "https://arcaeaoffline.sevive.xyz/android",
                     comment = it.comment,
-                )
+                ),
             )
         }
         return ArcaeaOfflineDEFv2PlayResultRoot(playResults = items)
     }
 
-    fun playResults(root: ArcaeaOfflineDEFv2PlayResultRoot): String {
-        return json.encodeToString(root)
-    }
+    fun playResults(root: ArcaeaOfflineDEFv2PlayResultRoot): String = json.encodeToString(root)
 }
