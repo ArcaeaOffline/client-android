@@ -41,8 +41,7 @@ class UiDisplayChartCacheHolder {
                     .groupBy { it.first }
                     .map {
                         it.key to it.value.map { it.second }.distinct()
-                    }
-                    .toMap()
+                    }.toMap()
                     .toMutableMap()
 
             Log.d(LOG_TAG, "${itemsToQuery.size} before chart")
