@@ -12,17 +12,26 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 interface RelationshipsDao {
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT * FROM play_results LEFT JOIN charts" +
-            " ON play_results.song_id = charts.song_id" +
-            " AND charts.rating_class = play_results.rating_class"
+        """SELECT
+    *
+FROM
+    play_results
+    LEFT JOIN charts ON play_results.song_id = charts.song_id
+    AND charts.rating_class = play_results.rating_class""",
     )
     fun playResultsWithCharts(): Flow<Map<PlayResult, Chart?>>
 
     @Query(
-        "SELECT pr.uuid, pr.song_id, pr.rating_class, pr.score, ci.constant " +
-            "FROM play_results AS pr " +
-            "LEFT JOIN charts_info AS ci " +
-            "ON pr.song_id = ci.song_id AND pr.rating_class = ci.rating_class"
+        """SELECT
+    pr.uuid,
+    pr.song_id,
+    pr.rating_class,
+    pr.score,
+    ci.constant
+FROM
+    play_results AS pr
+    LEFT JOIN charts_info AS ci ON pr.song_id = ci.song_id
+    AND pr.rating_class = ci.rating_class""",
     )
     fun minimumPlayResultPotentialFields(): Flow<List<MinimumPlayResultPotentialFields>>
 }

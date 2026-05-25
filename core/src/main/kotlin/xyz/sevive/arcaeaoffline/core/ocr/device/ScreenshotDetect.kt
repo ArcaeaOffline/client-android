@@ -14,15 +14,19 @@ object ScreenshotDetect {
     private const val ROI_WIDTH_OFFSET = -250
     private const val ROI_HEIGHT = 165
 
-    fun isArcaeaScreenshot(imgHsv: Mat, ratio: Double = 0.65): Boolean {
+    fun isArcaeaScreenshot(
+        imgHsv: Mat,
+        ratio: Double = 0.65,
+    ): Boolean {
         val rois = DeviceRoisAutoT2(imgHsv.width(), imgHsv.height())
 
-        val roiRect = Rect(
-            0,
-            (rois.layoutAreaHMid + ROI_HEIGHT_OFFSET * rois.factor).toInt(),
-            (rois.wMid + ROI_WIDTH_OFFSET * rois.factor).toInt(),
-            (ROI_HEIGHT * rois.factor).toInt()
-        )
+        val roiRect =
+            Rect(
+                0,
+                (rois.layoutAreaHMid + ROI_HEIGHT_OFFSET * rois.factor).toInt(),
+                (rois.wMid + ROI_WIDTH_OFFSET * rois.factor).toInt(),
+                (ROI_HEIGHT * rois.factor).toInt(),
+            )
 
         val roi = imgHsv.submat(roiRect)
         Core.inRange(roi, PURPLE_HSV_LOWER, PURPLE_HSV_UPPER, roi)

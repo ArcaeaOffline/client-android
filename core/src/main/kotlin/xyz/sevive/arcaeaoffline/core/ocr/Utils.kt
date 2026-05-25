@@ -32,7 +32,6 @@ fun matMedian(mat: Mat): Double {
     }
 }
 
-
 /**
  * Port of numpy.bincount.
  *
@@ -43,7 +42,11 @@ fun matMedian(mat: Mat): Double {
  * @param minLength int, minimum number of bins for the output array.
  */
 @Suppress("unused")
-fun binCount(x: Mat, weights: Mat? = null, minLength: Int = 0): Mat {
+fun binCount(
+    x: Mat,
+    weights: Mat? = null,
+    minLength: Int = 0,
+): Mat {
     assert(x.cols() == 1) { "binCount: `x` should be a one dimension array" }
     if (weights != null) {
         assert(weights.size() == x.size()) { "binCount: `weights` should have the same size as `x`" }
@@ -94,15 +97,22 @@ fun collectionStandardDeviation(list: Collection<Double>): Double {
     return sqrt(meanOfSquaredDifferences)
 }
 
-fun collectionMedian(list: List<Double>) = list.sorted().let {
-    if (it.size % 2 == 0) (it[it.size / 2] + it[(it.size - 1) / 2]) / 2
-    else it[it.size / 2]
-}
+fun collectionMedian(list: List<Double>) =
+    list.sorted().let {
+        if (it.size % 2 == 0) {
+            (it[it.size / 2] + it[(it.size - 1) / 2]) / 2
+        } else {
+            it[it.size / 2]
+        }
+    }
 
 class FixRects {
     companion object {
         fun connectBroken(
-            rects: List<Rect>, imgWidth: Double, imgHeight: Double, overrideTolerance: Int? = null
+            rects: List<Rect>,
+            imgWidth: Double,
+            imgHeight: Double,
+            overrideTolerance: Int? = null,
         ): List<Rect> {
             val tolerance: Int = overrideTolerance ?: floor(imgWidth * 0.08).toInt()
 
@@ -114,7 +124,6 @@ class FixRects {
 
                 // filter out large rects
                 if (!(imgHeight * 0.1 <= rect.height && rect.height <= imgHeight * 0.6)) continue
-
 
                 val group = mutableListOf<Rect>()
                 // see if there's other rects that have near left & right borders
@@ -151,7 +160,7 @@ class FixRects {
             imgMasked: Mat,
             rects: List<Rect>,
             rectWHRatio: Double = 1.05,
-            widthRangeRatio: Double = 0.1
+            widthRangeRatio: Double = 0.1,
         ): List<Rect> {
             val connectedRects = mutableListOf<Rect>()
             val newRects = mutableListOf<Rect>()
@@ -164,11 +173,16 @@ class FixRects {
                 // find the thinnest part
                 val borderIgnore = round(rect.width * widthRangeRatio).toInt()
 
-                val imgCropped = imgMasked.submat(
-                    Rect(
-                        borderIgnore, rect.y, rect.width - borderIgnore, rect.height
-                    )
-                ).clone()
+                val imgCropped =
+                    imgMasked
+                        .submat(
+                            Rect(
+                                borderIgnore,
+                                rect.y,
+                                rect.width - borderIgnore,
+                                rect.height,
+                            ),
+                        ).clone()
                 val whitePixels = mutableMapOf<Int, Int>()
                 for (i in 0 until imgCropped.rows()) {
                     val col = imgCropped.submat(i, i + 1, 0, imgCropped.cols()).clone()
@@ -184,9 +198,10 @@ class FixRects {
                 // select only middle values
                 val xMean = xValues.average()
                 val xStd = collectionStandardDeviation(xValues)
-                val xValuesInRange = xValues.filter {
-                    xMean - xStd * 1.5 <= it && it <= xMean + xStd * 1.5
-                }
+                val xValuesInRange =
+                    xValues.filter {
+                        xMean - xStd * 1.5 <= it && it <= xMean + xStd * 1.5
+                    }
                 val xMid = collectionMedian(xValuesInRange).roundToInt()
 
                 // split rect

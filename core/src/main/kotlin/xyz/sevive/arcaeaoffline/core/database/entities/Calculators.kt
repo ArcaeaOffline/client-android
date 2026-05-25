@@ -2,7 +2,10 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import kotlin.math.max
 
-internal fun calculatePotential(score: Int, constant: Int): Double {
+internal fun calculatePotential(
+    score: Int,
+    constant: Int,
+): Double {
     if (constant < 0) return 0.0
 
     return if (score >= 100000000) {

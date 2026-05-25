@@ -72,9 +72,14 @@ private data class St3PlayResult(
             lost = lost,
             date = date?.let { Instant.ofEpochSecond(date) },
             modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
-            clearType = if (!isClearTypeReliable) null else clearType?.let {
-                ArcaeaPlayResultClearType.fromInt(it)
-            },
+            clearType =
+                if (!isClearTypeReliable) {
+                    null
+                } else {
+                    clearType?.let {
+                        ArcaeaPlayResultClearType.fromInt(it)
+                    }
+                },
             comment = "Imported from st3 at $commentDateString",
         )
     }
@@ -85,8 +90,9 @@ object ArcaeaSt3PlayResultImporter {
         val items = mutableListOf<PlayResult>()
         val importDate = LocalDate.now()
 
-        conn.prepare(
-            """SELECT
+        conn
+            .prepare(
+                """SELECT
   s.songId,
   s.songDifficulty AS ratingClass,
   s.score,
@@ -99,36 +105,38 @@ object ArcaeaSt3PlayResultImporter {
 FROM
   scores s
   JOIN cleartypes ct ON s.songId = ct.songId
-  AND s.songDifficulty = ct.songDifficulty"""
-        ).use { stmt ->
-            while (stmt.step()) {
-                val st3PlayResult = St3PlayResult(
-                    songId = stmt.getText(0),
-                    ratingClass = stmt.getInt(1),
-                    score = stmt.getInt(2),
-                    pure = stmt.getIntOrNull(3),
-                    far = stmt.getIntOrNull(4),
-                    lost = stmt.getIntOrNull(5),
-                    date = fixTimestamp(stmt.getLongOrNull(6)),
-                    modifier = stmt.getIntOrNull(7),
-                    clearType = stmt.getIntOrNull(8),
-                )
+  AND s.songDifficulty = ct.songDifficulty""",
+            ).use { stmt ->
+                while (stmt.step()) {
+                    val st3PlayResult =
+                        St3PlayResult(
+                            songId = stmt.getText(0),
+                            ratingClass = stmt.getInt(1),
+                            score = stmt.getInt(2),
+                            pure = stmt.getIntOrNull(3),
+                            far = stmt.getIntOrNull(4),
+                            lost = stmt.getIntOrNull(5),
+                            date = fixTimestamp(stmt.getLongOrNull(6)),
+                            modifier = stmt.getIntOrNull(7),
+                            clearType = stmt.getIntOrNull(8),
+                        )
 
-                var playResult = st3PlayResult.toPlayResult(importDate)
+                    var playResult = st3PlayResult.toPlayResult(importDate)
 
-                if (playResult.clearType == ArcaeaPlayResultClearType.FULL_RECALL) {
-                    playResult = playResult.copy(
-                        maxRecall = playResult.pure!! + playResult.far!!
-                    )
+                    if (playResult.clearType == ArcaeaPlayResultClearType.FULL_RECALL) {
+                        playResult =
+                            playResult.copy(
+                                maxRecall = playResult.pure!! + playResult.far!!,
+                            )
+                    }
+
+                    if (playResult.clearType == ArcaeaPlayResultClearType.PURE_MEMORY) {
+                        playResult = playResult.copy(maxRecall = playResult.pure)
+                    }
+
+                    items.add(playResult)
                 }
-
-                if (playResult.clearType == ArcaeaPlayResultClearType.PURE_MEMORY) {
-                    playResult = playResult.copy(maxRecall = playResult.pure)
-                }
-
-                items.add(playResult)
             }
-        }
 
         return items
     }

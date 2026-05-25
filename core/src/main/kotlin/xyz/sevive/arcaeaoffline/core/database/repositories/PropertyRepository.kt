@@ -7,22 +7,29 @@ import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 
-
 interface PropertyRepository {
     fun find(key: String): Flow<Property?>
+
     suspend fun upsert(item: Property)
+
     suspend fun delete(item: Property)
+
     suspend fun delete(key: String)
 
     fun databaseVersion(): Flow<Int?>
+
     suspend fun setDatabaseVersion(ver: Int)
 
     suspend fun r30LastUpdatedAt(): Instant?
+
     suspend fun setR30LastUpdatedAt(instant: Instant)
+
     suspend fun deleteR30LastUpdatedAt()
 }
 
-class PropertyRepositoryImpl(private val dao: PropertyDao) : PropertyRepository {
+class PropertyRepositoryImpl(
+    private val dao: PropertyDao,
+) : PropertyRepository {
     companion object {
         const val LOG_TAG = "PropertyRepoImpl"
     }
@@ -35,9 +42,7 @@ class PropertyRepositoryImpl(private val dao: PropertyDao) : PropertyRepository 
 
     override suspend fun delete(key: String) = dao.delete(key)
 
-    override fun databaseVersion(): Flow<Int?> {
-        return this.find(Property.KEY_VERSION).map { it?.value?.toIntOrNull() }
-    }
+    override fun databaseVersion(): Flow<Int?> = this.find(Property.KEY_VERSION).map { it?.value?.toIntOrNull() }
 
     override suspend fun setDatabaseVersion(ver: Int) {
         this.upsert(Property(Property.KEY_VERSION, ver.toString()))

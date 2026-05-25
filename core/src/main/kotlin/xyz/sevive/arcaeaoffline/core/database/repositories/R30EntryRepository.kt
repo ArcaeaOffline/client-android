@@ -12,27 +12,27 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
 
-
 data class R30EntryCombined(
     val entry: R30Entry,
     val playResult: PlayResult,
     val chartInfo: ChartInfo?,
 ) {
-    fun potential(): Double? {
-        return if (chartInfo == null) null else playResult.potential(chartInfo)
-    }
+    fun potential(): Double? = if (chartInfo == null) null else playResult.potential(chartInfo)
 
     companion object {
-        fun build(playResult: PlayResult, chartInfo: ChartInfo?): R30EntryCombined {
-            return R30EntryCombined(
+        fun build(
+            playResult: PlayResult,
+            chartInfo: ChartInfo?,
+        ): R30EntryCombined =
+            R30EntryCombined(
                 entry = R30Entry(uuid = playResult.uuid),
                 playResult = playResult,
                 chartInfo = chartInfo,
             )
-        }
 
         suspend fun build(
-            playResult: PlayResult, chartInfoRepository: ChartInfoRepository
+            playResult: PlayResult,
+            chartInfoRepository: ChartInfoRepository,
         ): R30EntryCombined {
             val chartInfo = chartInfoRepository.find(playResult).firstOrNull()
             return this.build(playResult, chartInfo)
@@ -45,13 +45,19 @@ interface R30EntryRepository {
     val updateProgress: StateFlow<Pair<Int, Int>>
 
     fun findAll(): Flow<List<R30Entry>>
+
     fun findAllCombined(): Flow<List<R30EntryCombined>>
+
     suspend fun insertBatch(vararg items: R30Entry)
+
     suspend fun deleteBatch(vararg items: R30Entry)
+
     suspend fun deleteAll()
 }
 
-class R30EntryRepositoryImpl(private val dao: R30EntryDao) : R30EntryRepository {
+class R30EntryRepositoryImpl(
+    private val dao: R30EntryDao,
+) : R30EntryRepository {
     companion object {
         const val LOG_TAG = "R30EntryRepoImpl"
     }
@@ -63,8 +69,11 @@ class R30EntryRepositoryImpl(private val dao: R30EntryDao) : R30EntryRepository 
     override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
 
     override fun findAll(): Flow<List<R30Entry>> = dao.findAll()
+
     override suspend fun insertBatch(vararg items: R30Entry) = dao.insertBatch(*items)
+
     override suspend fun deleteBatch(vararg items: R30Entry) = dao.deleteBatch(*items)
+
     override suspend fun deleteAll() = dao.deleteAll()
 
     override fun findAllCombined(): Flow<List<R30EntryCombined>> {

@@ -12,21 +12,26 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-fun resizeFillSquare(img: Mat, target: Int = 20): Mat {
+fun resizeFillSquare(
+    img: Mat,
+    target: Int = 20,
+): Mat {
     val h = img.size().height
     val w = img.size().width
 
-    val newSize: Size = if (h > w) {
-        Size(w * (target / h), target.toDouble())
-    } else {
-        Size(target.toDouble(), h * (target / w))
-    }
+    val newSize: Size =
+        if (h > w) {
+            Size(w * (target / h), target.toDouble())
+        } else {
+            Size(target.toDouble(), h * (target / w))
+        }
     val resized = Mat()
     Imgproc.resize(img, resized, newSize)
 
-    val borderSize = ceil(
-        (max(newSize.width, newSize.height) - min(newSize.width, newSize.height)) / 2
-    ).toInt()
+    val borderSize =
+        ceil(
+            (max(newSize.width, newSize.height) - min(newSize.width, newSize.height)) / 2,
+        ).toInt()
     val bordered = Mat()
     if (newSize.width < newSize.height) {
         Core.copyMakeBorder(resized, bordered, 0, 0, borderSize, borderSize, Core.BORDER_CONSTANT)
@@ -42,13 +47,14 @@ fun preprocessHog(digitRois: List<Mat>): Mat {
     // https://learnopencv.com/handwritten-digits-classification-an-opencv-c-python-tutorial/
     val samples = mutableListOf<Mat>()
     for (digit in digitRois) {
-        val hog = HOGDescriptor(
-            Size(20.0, 20.0),
-            Size(10.0, 10.0),
-            Size(5.0, 5.0),
-            Size(10.0, 10.0),
-            9,
-        )
+        val hog =
+            HOGDescriptor(
+                Size(20.0, 20.0),
+                Size(10.0, 10.0),
+                Size(5.0, 5.0),
+                Size(10.0, 10.0),
+                9,
+            )
         val hist = MatOfFloat()
         hog.compute(digit, hist)
         samples.add(hist)
@@ -59,7 +65,11 @@ fun preprocessHog(digitRois: List<Mat>): Mat {
     return mat
 }
 
-fun ocrDigitSamplesKnn(samples: Mat, knnModel: KNearest, k: Int = 4): Int {
+fun ocrDigitSamplesKnn(
+    samples: Mat,
+    knnModel: KNearest,
+    k: Int = 4,
+): Int {
     val results = Mat()
     knnModel.findNearest(samples, k, results)
     var resultStr = ""
@@ -71,7 +81,10 @@ fun ocrDigitSamplesKnn(samples: Mat, knnModel: KNearest, k: Int = 4): Int {
     return resultStr.toInt(10)
 }
 
-fun ocrDigitsByContourGetSamples(roiGray: Mat, size: Int): Mat {
+fun ocrDigitsByContourGetSamples(
+    roiGray: Mat,
+    size: Int,
+): Mat {
     val roi = roiGray.clone()
     val contours = ArrayList<MatOfPoint>()
     val hierarchy = Mat()
@@ -85,7 +98,10 @@ fun ocrDigitsByContourGetSamples(roiGray: Mat, size: Int): Mat {
 }
 
 fun ocrDigitsByContourKnn(
-    roiGray: Mat, knnModel: KNearest, k: Int = 4, size: Int = 20
+    roiGray: Mat,
+    knnModel: KNearest,
+    k: Int = 4,
+    size: Int = 20,
 ): Int {
     val samples = ocrDigitsByContourGetSamples(roiGray, size)
     return ocrDigitSamplesKnn(samples, knnModel, k)

@@ -14,13 +14,14 @@ import java.util.UUID
 
 interface PlayResultCalculatedRepository {
     fun find(uuid: UUID): Flow<PlayResultCalculated?>
+
     fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResultCalculated>>
+
     fun findAllBySongIdAndRatingClass(
         songId: String,
         ratingClass: ArcaeaRatingClass,
     ): Flow<List<PlayResultCalculated>>
 }
-
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayResultCalculatedRepositoryImpl(
@@ -35,24 +36,25 @@ class PlayResultCalculatedRepositoryImpl(
             songDao.isDeletedInGame(playResult.songId).firstOrNull() ?: return null
         if (isDeletedInGame) return null
 
-        val chartInfo = chartInfoDao.find(playResult.songId, playResult.ratingClass).firstOrNull()
-            ?: return null
+        val chartInfo =
+            chartInfoDao.find(playResult.songId, playResult.ratingClass).firstOrNull()
+                ?: return null
 
         return PlayResultCalculated(playResult, chartInfo)
     }
 
-    private suspend fun mapPlayResults(playResults: List<PlayResult>) =
-        playResults.mapNotNull { calculatePlayResult(it) }
+    private suspend fun mapPlayResults(playResults: List<PlayResult>) = playResults.mapNotNull { calculatePlayResult(it) }
 
-    override fun find(uuid: UUID): Flow<PlayResultCalculated?> =
-        playResultDao.findByUUID(uuid).mapLatest { calculatePlayResult(it) }
+    override fun find(uuid: UUID): Flow<PlayResultCalculated?> = playResultDao.findByUUID(uuid).mapLatest { calculatePlayResult(it) }
 
     override fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResultCalculated>> =
         playResultDao.findAllByUUID(uuids).mapLatest { mapPlayResults(it) }
 
     override fun findAllBySongIdAndRatingClass(
-        songId: String, ratingClass: ArcaeaRatingClass
+        songId: String,
+        ratingClass: ArcaeaRatingClass,
     ): Flow<List<PlayResultCalculated>> =
-        playResultDao.findAllBySongIdAndRatingClass(songId, ratingClass)
+        playResultDao
+            .findAllBySongIdAndRatingClass(songId, ratingClass)
             .mapLatest { mapPlayResults(it) }
 }

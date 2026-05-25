@@ -14,7 +14,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 
-
 @Serializable
 data class ArcaeaListLocalizedObject(
     val en: String? = null,
@@ -40,31 +39,40 @@ data class ArcaeaPacklistItem(
     @SerialName("description_localized") val descriptionLocalized: ArcaeaListLocalizedObject,
 ) {
     fun getPackLocalized(lang: ArcaeaLanguage): PackLocalized? {
-        val name = when (lang) {
-            ArcaeaLanguage.JA -> nameLocalized.ja
-            ArcaeaLanguage.KO -> nameLocalized.ko
-            ArcaeaLanguage.ZH_HANS -> nameLocalized.zhHans
-            ArcaeaLanguage.ZH_HANT -> nameLocalized.zhHant
-            else -> null
-        }
+        val name =
+            when (lang) {
+                ArcaeaLanguage.JA -> nameLocalized.ja
+                ArcaeaLanguage.KO -> nameLocalized.ko
+                ArcaeaLanguage.ZH_HANS -> nameLocalized.zhHans
+                ArcaeaLanguage.ZH_HANT -> nameLocalized.zhHant
+                else -> null
+            }
 
-        val description = when (lang) {
-            ArcaeaLanguage.JA -> descriptionLocalized.ja
-            ArcaeaLanguage.KO -> descriptionLocalized.ko
-            ArcaeaLanguage.ZH_HANS -> descriptionLocalized.zhHans
-            ArcaeaLanguage.ZH_HANT -> descriptionLocalized.zhHant
-            else -> null
-        }
+        val description =
+            when (lang) {
+                ArcaeaLanguage.JA -> descriptionLocalized.ja
+                ArcaeaLanguage.KO -> descriptionLocalized.ko
+                ArcaeaLanguage.ZH_HANS -> descriptionLocalized.zhHans
+                ArcaeaLanguage.ZH_HANT -> descriptionLocalized.zhHant
+                else -> null
+            }
 
-        return if (name != null || description != null) PackLocalized(
-            id = id, lang = lang, name = name, description = description
-        ) else null
+        return if (name != null || description != null) {
+            PackLocalized(
+                id = id,
+                lang = lang,
+                name = name,
+                description = description,
+            )
+        } else {
+            null
+        }
     }
 }
 
 @Serializable
 data class ArcaeaPacklistRoot(
-    val packs: List<ArcaeaPacklistItem>
+    val packs: List<ArcaeaPacklistItem>,
 )
 
 @Serializable
@@ -93,27 +101,39 @@ data class ArcaeaSonglistDifficultyItem(
     val version: String? = null,
     val date: Int? = null,
 ) {
-    fun getDifficultyLocalized(songId: String, lang: ArcaeaLanguage): DifficultyLocalized? {
-        val title = when (lang) {
-            ArcaeaLanguage.JA -> titleLocalized?.ja
-            ArcaeaLanguage.KO -> titleLocalized?.ko
-            ArcaeaLanguage.ZH_HANS -> titleLocalized?.zhHans
-            ArcaeaLanguage.ZH_HANT -> titleLocalized?.zhHant
-            else -> null
-        }
+    fun getDifficultyLocalized(
+        songId: String,
+        lang: ArcaeaLanguage,
+    ): DifficultyLocalized? {
+        val title =
+            when (lang) {
+                ArcaeaLanguage.JA -> titleLocalized?.ja
+                ArcaeaLanguage.KO -> titleLocalized?.ko
+                ArcaeaLanguage.ZH_HANS -> titleLocalized?.zhHans
+                ArcaeaLanguage.ZH_HANT -> titleLocalized?.zhHant
+                else -> null
+            }
 
-        val artist = when (lang) {
-            ArcaeaLanguage.JA -> artistLocalized?.ja
-            ArcaeaLanguage.KO -> artistLocalized?.ko
-            ArcaeaLanguage.ZH_HANS -> artistLocalized?.zhHans
-            ArcaeaLanguage.ZH_HANT -> artistLocalized?.zhHant
-            else -> null
-        }
+        val artist =
+            when (lang) {
+                ArcaeaLanguage.JA -> artistLocalized?.ja
+                ArcaeaLanguage.KO -> artistLocalized?.ko
+                ArcaeaLanguage.ZH_HANS -> artistLocalized?.zhHans
+                ArcaeaLanguage.ZH_HANT -> artistLocalized?.zhHant
+                else -> null
+            }
 
-        return if (title != null || artist != null) DifficultyLocalized(
-            songId = songId, ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
-            lang = lang, title = title, artist = artist,
-        ) else null
+        return if (title != null || artist != null) {
+            DifficultyLocalized(
+                songId = songId,
+                ratingClass = ArcaeaRatingClass.fromInt(ratingClass),
+                lang = lang,
+                title = title,
+                artist = artist,
+            )
+        } else {
+            null
+        }
     }
 }
 
@@ -144,28 +164,37 @@ data class ArcaeaSonglistItem(
     @SerialName("source_copyright") val sourceCopyright: String? = null,
     val date: Int,
     val version: String,
-    val difficulties: List<ArcaeaSonglistDifficultyItem>
+    val difficulties: List<ArcaeaSonglistDifficultyItem>,
 ) : ArcaeaSonglistItemBase() {
     fun getSongLocalized(lang: ArcaeaLanguage): SongLocalized? {
-        val title = when (lang) {
-            ArcaeaLanguage.JA -> titleLocalized.ja
-            ArcaeaLanguage.KO -> titleLocalized.ko
-            ArcaeaLanguage.ZH_HANS -> titleLocalized.zhHans
-            ArcaeaLanguage.ZH_HANT -> titleLocalized.zhHant
-            else -> null
-        }
+        val title =
+            when (lang) {
+                ArcaeaLanguage.JA -> titleLocalized.ja
+                ArcaeaLanguage.KO -> titleLocalized.ko
+                ArcaeaLanguage.ZH_HANS -> titleLocalized.zhHans
+                ArcaeaLanguage.ZH_HANT -> titleLocalized.zhHant
+                else -> null
+            }
 
-        val source = when (lang) {
-            ArcaeaLanguage.JA -> sourceLocalized?.ja
-            ArcaeaLanguage.KO -> sourceLocalized?.ko
-            ArcaeaLanguage.ZH_HANS -> sourceLocalized?.zhHans
-            ArcaeaLanguage.ZH_HANT -> sourceLocalized?.zhHant
-            else -> null
-        }
+        val source =
+            when (lang) {
+                ArcaeaLanguage.JA -> sourceLocalized?.ja
+                ArcaeaLanguage.KO -> sourceLocalized?.ko
+                ArcaeaLanguage.ZH_HANS -> sourceLocalized?.zhHans
+                ArcaeaLanguage.ZH_HANT -> sourceLocalized?.zhHant
+                else -> null
+            }
 
-        return if (title != null || source != null) SongLocalized(
-            id = id, lang = lang, title = title, source = source
-        ) else null
+        return if (title != null || source != null) {
+            SongLocalized(
+                id = id,
+                lang = lang,
+                title = title,
+                source = source,
+            )
+        } else {
+            null
+        }
     }
 }
 
@@ -178,15 +207,14 @@ data class ArcaeaSonglistItemDeleted(
 
 object ArcaeaSonglistItemBaseSerializer :
     JsonContentPolymorphicSerializer<ArcaeaSonglistItemBase>(ArcaeaSonglistItemBase::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<ArcaeaSonglistItemBase> {
-        return when (element.jsonObject["deleted"]?.jsonPrimitive?.booleanOrNull) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<ArcaeaSonglistItemBase> =
+        when (element.jsonObject["deleted"]?.jsonPrimitive?.booleanOrNull) {
             true -> ArcaeaSonglistItemDeleted.serializer()
             else -> ArcaeaSonglistItem.serializer()
         }
-    }
 }
 
 @Serializable
 data class ArcaeaSonglistRoot(
-    val songs: List<ArcaeaSonglistItemBase>
+    val songs: List<ArcaeaSonglistItemBase>,
 )

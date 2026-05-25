@@ -12,22 +12,25 @@ import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistItem
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistItemDeleted
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaSonglistRoot
 
-
-class ArcaeaSonglistImporter(songlistContent: String) {
+class ArcaeaSonglistImporter(
+    songlistContent: String,
+) {
     companion object {
         const val LOG_TAG = "ArcaeaSlstImporter"
 
-        private val LANGUAGES = listOf(
-            ArcaeaLanguage.JA, ArcaeaLanguage.KO, ArcaeaLanguage.ZH_HANS, ArcaeaLanguage.ZH_HANT
-        )
+        private val LANGUAGES =
+            listOf(
+                ArcaeaLanguage.JA,
+                ArcaeaLanguage.KO,
+                ArcaeaLanguage.ZH_HANS,
+                ArcaeaLanguage.ZH_HANT,
+            )
     }
 
     private val json = Json { ignoreUnknownKeys = true }
     private val contentDecoded = json.decodeFromString<ArcaeaSonglistRoot>(songlistContent)
 
-    fun deletedSongIds(): List<String> {
-        return contentDecoded.songs.filterIsInstance<ArcaeaSonglistItemDeleted>().map { it.id }
-    }
+    fun deletedSongIds(): List<String> = contentDecoded.songs.filterIsInstance<ArcaeaSonglistItemDeleted>().map { it.id }
 
     fun songs(): List<Song> {
         val items = mutableListOf<Song>()
@@ -54,7 +57,7 @@ class ArcaeaSonglistImporter(songlistContent: String) {
                     bgNight = song.bgDayNight?.night,
                     source = song.sourceLocalized?.en,
                     sourceCopyright = song.sourceCopyright,
-                )
+                ),
             )
         }
         return items
@@ -83,7 +86,8 @@ class ArcaeaSonglistImporter(songlistContent: String) {
             for (difficulty in song.difficulties) {
                 if (difficulty.rating == 0) {
                     Log.d(
-                        LOG_TAG, "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0"
+                        LOG_TAG,
+                        "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0",
                     )
                     continue
                 }
@@ -107,7 +111,7 @@ class ArcaeaSonglistImporter(songlistContent: String) {
                         bpmBase = difficulty.bpmBase,
                         version = difficulty.version,
                         date = difficulty.date,
-                    )
+                    ),
                 )
             }
         }
@@ -125,7 +129,8 @@ class ArcaeaSonglistImporter(songlistContent: String) {
                 for (lang in LANGUAGES) {
                     if (difficulty.rating == 0) {
                         Log.d(
-                            LOG_TAG, "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0"
+                            LOG_TAG,
+                            "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0",
                         )
                         continue
                     }

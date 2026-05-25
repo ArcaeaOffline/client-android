@@ -5,8 +5,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 
 object ChartFactory {
-    fun fakeChart(song: Song, difficulty: Difficulty): Chart {
-        return Chart(
+    fun fakeChart(
+        song: Song,
+        difficulty: Difficulty,
+    ): Chart =
+        Chart(
             songIdx = song.idx,
             songId = song.id,
             ratingClass = difficulty.ratingClass,
@@ -36,5 +39,4 @@ object ChartFactory {
             constant = -1,
             notes = null,
         )
-    }
 }

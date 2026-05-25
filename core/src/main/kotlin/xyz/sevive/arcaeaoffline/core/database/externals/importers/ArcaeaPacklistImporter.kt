@@ -6,16 +6,22 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.PackLocalized
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaPacklistRoot
 
-
-class ArcaeaPacklistImporter(packlistContent: String) {
+class ArcaeaPacklistImporter(
+    packlistContent: String,
+) {
     companion object {
-        /* packs that built in Arcaea but not included in packlist */
-        private val BUILT_IN_PACKS = listOf(
-            Pack(id = "single", name = "Memory Archive"),
-        )
-        private val LANGUAGES = listOf(
-            ArcaeaLanguage.JA, ArcaeaLanguage.KO, ArcaeaLanguage.ZH_HANS, ArcaeaLanguage.ZH_HANT
-        )
+        // packs that built in Arcaea but not included in packlist
+        private val BUILT_IN_PACKS =
+            listOf(
+                Pack(id = "single", name = "Memory Archive"),
+            )
+        private val LANGUAGES =
+            listOf(
+                ArcaeaLanguage.JA,
+                ArcaeaLanguage.KO,
+                ArcaeaLanguage.ZH_HANS,
+                ArcaeaLanguage.ZH_HANT,
+            )
     }
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -28,8 +34,8 @@ class ArcaeaPacklistImporter(packlistContent: String) {
                 Pack(
                     id = pack.id,
                     name = pack.nameLocalized.en ?: "Pack",
-                    description = pack.descriptionLocalized.en
-                )
+                    description = pack.descriptionLocalized.en,
+                ),
             )
         }
         return items

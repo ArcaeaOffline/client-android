@@ -6,21 +6,22 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 
-
 @Entity(
     tableName = "packs_localized",
     indices = [
         Index(value = ["id", "lang"], unique = true),
-        Index(value = ["lang"])
+        Index(value = ["lang"]),
     ],
-    foreignKeys = [ForeignKey(
-        entity = Pack::class,
-        parentColumns = ["id"],
-        childColumns = ["id"],
-        onUpdate = ForeignKey.CASCADE,
-        onDelete = ForeignKey.CASCADE,
-        deferred = true,
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity = Pack::class,
+            parentColumns = ["id"],
+            childColumns = ["id"],
+            onUpdate = ForeignKey.CASCADE,
+            onDelete = ForeignKey.CASCADE,
+            deferred = true,
+        ),
+    ],
 )
 data class PackLocalized(
     @PrimaryKey val id: String,

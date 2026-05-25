@@ -6,16 +6,25 @@ import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 
 interface SongLocalizedRepository {
     fun find(id: String): Flow<SongLocalized?>
+
     fun findAll(): Flow<List<SongLocalized>>
+
     fun count(): Flow<Int>
+
     suspend fun insert(item: SongLocalized): Long
+
     suspend fun insertBatch(vararg items: SongLocalized): List<Long>
+
     suspend fun insertBatch(items: List<SongLocalized>) = insertBatch(*items.toTypedArray())
+
     suspend fun delete(item: SongLocalized): Int
+
     suspend fun deleteBatch(vararg items: SongLocalized): Int
 }
 
-class SongLocalizedRepositoryImpl(private val dao: SongLocalizedDao) : SongLocalizedRepository {
+class SongLocalizedRepositoryImpl(
+    private val dao: SongLocalizedDao,
+) : SongLocalizedRepository {
     override fun find(id: String): Flow<SongLocalized?> = dao.find(id)
 
     override fun findAll(): Flow<List<SongLocalized>> = dao.findAll()

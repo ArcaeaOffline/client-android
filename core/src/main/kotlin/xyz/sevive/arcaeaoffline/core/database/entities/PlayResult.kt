@@ -37,5 +37,7 @@ data class PlayResult(
 )
 
 fun PlayResult.potential(constant: Int): Double = calculatePotential(this.score, constant)
+
 fun PlayResult.potential(chartInfo: ChartInfo) = potential(chartInfo.constant)
+
 fun PlayResult.potential(chart: Chart) = potential(chart.constant)

@@ -12,7 +12,6 @@ import xyz.sevive.arcaeaoffline.core.database.extensions.getTextOrNull
 import java.nio.ByteBuffer
 import java.util.UUID
 
-
 private const val CREATE_TABLE_PLAY_RESULTS_7 =
     "CREATE TABLE play_results (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uuid` BLOB NOT NULL, `song_id` TEXT NOT NULL, `rating_class` TEXT NOT NULL, `score` INTEGER NOT NULL, `pure` INTEGER, `far` INTEGER, `lost` INTEGER, `date` INTEGER, `max_recall` INTEGER, `modifier` TEXT, `clear_type` TEXT, `comment` TEXT)"
 private const val CREATE_UNIQUE_INDEX_PLAY_RESULTS_UUID_7 =
@@ -37,41 +36,43 @@ private data class PlayResultIntermediate(
     val clearType: String?,
     val comment: String?,
 ) {
-    val uuidByteArray: ByteArray = uuid.let {
-        val bb = ByteBuffer.wrap(ByteArray(16))
-        bb.putLong(it.mostSignificantBits)
-        bb.putLong(it.leastSignificantBits)
-        bb.array()
-    }
+    val uuidByteArray: ByteArray =
+        uuid.let {
+            val bb = ByteBuffer.wrap(ByteArray(16))
+            bb.putLong(it.mostSignificantBits)
+            bb.putLong(it.leastSignificantBits)
+            bb.array()
+        }
 }
 
 object Migration_6_7 : Migration(6, 7) {
     override fun migrate(connection: SQLiteConnection) {
         val playResults = mutableListOf<PlayResultIntermediate>()
 
-        connection.prepare(
-            "SELECT id, song_id, rating_class, score, pure, far, lost, date, max_recall, modifier, clear_type, comment FROM play_results"
-        ).use {
-            while (it.step()) {
-                playResults.add(
-                    PlayResultIntermediate(
-                        uuid = UUID.randomUUID(),  // the only real logic bro
-                        id = it.getInt(0),
-                        songId = it.getText(1),
-                        ratingClass = it.getText(2),
-                        score = it.getInt(3),
-                        pure = it.getIntOrNull(4),
-                        far = it.getIntOrNull(5),
-                        lost = it.getIntOrNull(6),
-                        date = it.getLongOrNull(7),
-                        maxRecall = it.getIntOrNull(8),
-                        modifier = it.getTextOrNull(9),
-                        clearType = it.getTextOrNull(10),
-                        comment = it.getTextOrNull(11),
+        connection
+            .prepare(
+                "SELECT id, song_id, rating_class, score, pure, far, lost, date, max_recall, modifier, clear_type, comment FROM play_results",
+            ).use {
+                while (it.step()) {
+                    playResults.add(
+                        PlayResultIntermediate(
+                            uuid = UUID.randomUUID(), // the only real logic bro
+                            id = it.getInt(0),
+                            songId = it.getText(1),
+                            ratingClass = it.getText(2),
+                            score = it.getInt(3),
+                            pure = it.getIntOrNull(4),
+                            far = it.getIntOrNull(5),
+                            lost = it.getIntOrNull(6),
+                            date = it.getLongOrNull(7),
+                            maxRecall = it.getIntOrNull(8),
+                            modifier = it.getTextOrNull(9),
+                            clearType = it.getTextOrNull(10),
+                            comment = it.getTextOrNull(11),
+                        ),
                     )
-                )
+                }
             }
-        }
 
         connection.execSQL("DROP TABLE play_results")
         connection.execSQL("DROP VIEW play_results_calculated")
@@ -82,28 +83,29 @@ object Migration_6_7 : Migration(6, 7) {
         connection.execSQL(CREATE_VIEW_PLAY_RESULTS_CALCULATED_7)
         connection.execSQL(CREATE_VIEW_PLAY_RESULTS_BEST_7)
 
-        connection.prepare(
-            "INSERT INTO play_results " + "(`id`, `uuid`, `song_id`, `rating_class`, `score`, `pure`, `far`, `lost`, `date`, `max_recall`, `modifier`, `clear_type`, `comment`) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        ).use { stmt ->
-            playResults.forEach {
-                stmt.bindInt(1, it.id)
-                stmt.bindBlob(2, it.uuidByteArray)
-                stmt.bindText(3, it.songId)
-                stmt.bindText(4, it.ratingClass)
-                stmt.bindInt(5, it.score)
-                stmt.bindIntOrNull(6, it.pure)
-                stmt.bindIntOrNull(7, it.far)
-                stmt.bindIntOrNull(8, it.lost)
-                stmt.bindLongOrNull(9, it.date)
-                stmt.bindIntOrNull(10, it.maxRecall)
-                stmt.bindTextOrNull(11, it.modifier)
-                stmt.bindTextOrNull(12, it.clearType)
-                stmt.bindTextOrNull(13, it.comment)
+        connection
+            .prepare(
+                "INSERT INTO play_results " + "(`id`, `uuid`, `song_id`, `rating_class`, `score`, `pure`, `far`, `lost`, `date`, `max_recall`, `modifier`, `clear_type`, `comment`) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ).use { stmt ->
+                playResults.forEach {
+                    stmt.bindInt(1, it.id)
+                    stmt.bindBlob(2, it.uuidByteArray)
+                    stmt.bindText(3, it.songId)
+                    stmt.bindText(4, it.ratingClass)
+                    stmt.bindInt(5, it.score)
+                    stmt.bindIntOrNull(6, it.pure)
+                    stmt.bindIntOrNull(7, it.far)
+                    stmt.bindIntOrNull(8, it.lost)
+                    stmt.bindLongOrNull(9, it.date)
+                    stmt.bindIntOrNull(10, it.maxRecall)
+                    stmt.bindTextOrNull(11, it.modifier)
+                    stmt.bindTextOrNull(12, it.clearType)
+                    stmt.bindTextOrNull(13, it.comment)
 
-                stmt.step()
-                stmt.clearBindings()
-                stmt.reset()
+                    stmt.step()
+                    stmt.clearBindings()
+                    stmt.reset()
+                }
             }
-        }
     }
 }
