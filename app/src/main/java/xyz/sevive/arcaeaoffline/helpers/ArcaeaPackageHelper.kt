@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -23,6 +23,7 @@ import java.util.zip.ZipFile
 class ArcaeaPackageHelper(
     context: Context,
 ) {
+    private val logger = Logger.withTag(LOG_TAG)
     private val packageManager = context.packageManager
 
     private val arcaeaExtractRootCacheDir = File(context.cacheDir, "arcaea")
@@ -97,7 +98,7 @@ class ArcaeaPackageHelper(
             } else {
                 "${songId}_$difficulty.$ext"
             }
-        Log.v(LOG_TAG, "jacketExtractFilename: mapping [$filename] to [$finalFilename]")
+        logger.v { "jacketExtractFilename: mapping [$filename] to [$finalFilename]" }
         return finalFilename
     }
 
@@ -124,18 +125,18 @@ class ArcaeaPackageHelper(
         val ext = FilenameUtils.getExtension(filename)
 
         val finalFilename = "$partnerId.$ext"
-        Log.v(LOG_TAG, "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]")
+        logger.v { "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]" }
         return finalFilename
     }
 
     private suspend fun extractAssetBase(outputMapping: Map<ZipEntry, File>) {
         if (outputMapping.isEmpty()) {
-            Log.w(LOG_TAG, "extractAssetBase: outputMapping empty, returning")
+            logger.w { "extractAssetBase: outputMapping empty, returning" }
             return
         }
 
         withContext(Dispatchers.IO) {
-            Log.d(LOG_TAG, "extractAssetBase: extracting ${outputMapping.size} entries")
+            logger.d { "extractAssetBase: extracting ${outputMapping.size} entries" }
             getApkZipFile()?.use { zipFile ->
                 outputMapping.entries.forEach { mapEntry ->
                     val zipEntry = mapEntry.key

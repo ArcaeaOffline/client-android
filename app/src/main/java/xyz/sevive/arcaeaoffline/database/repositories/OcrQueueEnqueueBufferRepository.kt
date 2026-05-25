@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.database.repositories
 
 import android.net.Uri
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBufferDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
@@ -23,7 +23,7 @@ class OcrQueueEnqueueBufferRepository(
 
     suspend fun insertBatch(uris: List<Uri>): List<Long> {
         val wtf = dao.insertBatch(uris.map { OcrQueueEnqueueBuffer(uri = it) })
-        Log.d("OCR", wtf.size.toString())
+        Logger.withTag("OCR").d { wtf.size.toString() }
         return wtf
     }
 

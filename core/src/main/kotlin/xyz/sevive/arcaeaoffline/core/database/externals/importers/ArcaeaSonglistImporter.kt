@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -26,6 +26,8 @@ class ArcaeaSonglistImporter(
                 ArcaeaLanguage.ZH_HANT,
             )
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private val json = Json { ignoreUnknownKeys = true }
     private val contentDecoded = json.decodeFromString<ArcaeaSonglistRoot>(songlistContent)
@@ -85,10 +87,7 @@ class ArcaeaSonglistImporter(
 
             for (difficulty in song.difficulties) {
                 if (difficulty.rating == 0) {
-                    Log.d(
-                        LOG_TAG,
-                        "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0",
-                    )
+                    logger.d { "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0" }
                     continue
                 }
 
@@ -128,10 +127,7 @@ class ArcaeaSonglistImporter(
             for (difficulty in song.difficulties) {
                 for (lang in LANGUAGES) {
                     if (difficulty.rating == 0) {
-                        Log.d(
-                            LOG_TAG,
-                            "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0",
-                        )
+                        logger.d { "Skipping ${song.id}.${difficulty.ratingClass}: rating is 0" }
                         continue
                     }
 

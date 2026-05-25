@@ -1,11 +1,11 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import android.util.Log
 import androidx.room.withTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +64,8 @@ class R30UpdateJob(
         val runMode: RunMode,
     )
 
+    private val logger = Logger.withTag(LOG_TAG)
+
     private fun getWorkOptions(): WorkOptions =
         WorkOptions(
             runMode =
@@ -117,7 +119,7 @@ class R30UpdateJob(
                     .sortedBy { it.date }
 
             progressTotal.value = newPlayResults.size
-            Log.d(LOG_TAG, "Updating r30 list with ${newPlayResults.size} new play results")
+            logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
             newPlayResults.forEach {
                 r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
                 progress.value += 1
@@ -132,7 +134,7 @@ class R30UpdateJob(
 
             return Result.success()
         } catch (e: Throwable) {
-            Log.e(LOG_TAG, "Error updating r30", e)
+            logger.e(e) { "Error updating r30" }
             Sentry.captureException(e)
             return Result.failure()
         }

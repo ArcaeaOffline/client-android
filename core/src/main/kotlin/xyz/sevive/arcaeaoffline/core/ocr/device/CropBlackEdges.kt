@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.ocr.device
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Rect
@@ -10,6 +10,9 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges.Companion.cropOrO
 
 class CropBlackEdges {
     companion object {
+        private const val LOG_TAG = "CropBlackEdges"
+        private val logger = Logger.withTag(LOG_TAG)
+
         private fun isBlackEdge(
             imgGraySlice: Mat,
             blackPixelThreshold: Int,
@@ -101,7 +104,7 @@ class CropBlackEdges {
             try {
                 crop(img, convertFlag, blackPixelThreshold)
             } catch (e: Exception) {
-                Log.e("CropBlackEdges", "Error cropping an image", e)
+                logger.e(e) { "Error cropping an image" }
                 img
             }
     }

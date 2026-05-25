@@ -4,12 +4,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,6 +46,12 @@ class OcrFromShareViewModel(
         val imageHashesDatabase: OcrDependencyImageHashesDatabaseStatusUiState = OcrDependencyImageHashesDatabaseStatusUiState(),
         val crnnModel: OcrDependencyCrnnModelStatusUiState = OcrDependencyCrnnModelStatusUiState(),
     )
+
+    companion object {
+        const val LOG_TAG = "OcrFromShareViewModel"
+    }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private val _ocrDependencyViewersUiState = MutableStateFlow(OcrDependencyViewersUiState())
     val ocrDependencyViewersUiState = _ocrDependencyViewersUiState.asStateFlow()
@@ -170,7 +176,7 @@ class OcrFromShareViewModel(
             if (bitmap != null) {
                 val parentDir = OcrPaths(context).fromShareImageCacheDir
                 if (!parentDir.exists()) {
-                    Log.i(TAG, "Creating image cache dir, success: ${parentDir.mkdirs()}")
+                    logger.i { "Creating image cache dir, success: ${parentDir.mkdirs()}" }
                 }
 
                 val cacheImageFile = File(parentDir, "$id.jpg")
@@ -185,7 +191,7 @@ class OcrFromShareViewModel(
         imageUri: Uri,
         context: Context,
     ) {
-        Log.i(TAG, "OCR from share request: $imageUri")
+        logger.i { "OCR from share request: $imageUri" }
 
         val ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
 
@@ -222,14 +228,10 @@ class OcrFromShareViewModel(
                 _playResult.value = null
                 _exception.value = e
 
-                Log.e(TAG, "Error occurred during OCR", e)
+                logger.e(e) { "Error occurred during OCR" }
             } finally {
                 ortSession.close()
             }
         }
-    }
-
-    companion object {
-        const val TAG = "OcrFromShareViewModel"
     }
 }

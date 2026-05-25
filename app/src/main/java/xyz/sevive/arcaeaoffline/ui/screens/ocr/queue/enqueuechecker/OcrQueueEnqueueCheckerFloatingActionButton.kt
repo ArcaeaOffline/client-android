@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -39,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -56,7 +56,7 @@ private fun persistUrisPermission(
         try {
             context.contentResolver.takePersistableUriPermission(it, permissionFlags)
         } catch (e: Throwable) {
-            Log.w("Application", "Error persisting permissions for uri $it", e)
+            Logger.withTag("Application").w(e) { "Error persisting permissions for uri $it" }
 
             if (!exceptionCaptured) {
                 Sentry.captureException(e)

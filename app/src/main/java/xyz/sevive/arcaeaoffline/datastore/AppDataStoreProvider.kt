@@ -1,17 +1,18 @@
 package xyz.sevive.arcaeaoffline.datastore
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.preferencesDataStoreFile
+import co.touchlab.kermit.Logger
 
 object AppDataStoreProvider {
     private const val LOG_TAG = "AppDataStoreProvider"
+    private val logger = Logger.withTag(LOG_TAG)
 
     private fun logCorrupt(name: String) {
-        Log.w(LOG_TAG, "$name corrupt! Falling back to its default value")
+        logger.w { "$name corrupt! Falling back to its default value" }
     }
 
     fun appPreferences(context: Context): DataStore<AppPreferences> =

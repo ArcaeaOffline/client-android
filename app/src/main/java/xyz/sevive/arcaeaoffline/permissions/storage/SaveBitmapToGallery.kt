@@ -8,8 +8,8 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.core.content.ContextCompat
+import co.touchlab.kermit.Logger
 import org.threeten.bp.Instant
 import java.io.File
 import java.io.FileOutputStream
@@ -35,6 +35,8 @@ class SaveBitmapToGallery(
         fun checkPermission(context: Context): Boolean = checkSaveToGalleryPermission(context)
     }
 
+    private val logger = Logger.withTag(TAG)
+
     /**
      * https://stackoverflow.com/a/73554532/16484891
      *
@@ -47,7 +49,7 @@ class SaveBitmapToGallery(
         compressFormat: Bitmap.CompressFormat,
         quality: Int,
     ): Boolean {
-        Log.i(TAG, "Saving $filename to gallery")
+        logger.i { "Saving $filename to gallery" }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (!checkPermission(context)) return false
@@ -59,7 +61,7 @@ class SaveBitmapToGallery(
                 )
 
             if (!parentDir.exists()) {
-                Log.i(TAG, "Creating parent dir, success: ${parentDir.mkdirs()}")
+                logger.i { "Creating parent dir, success: ${parentDir.mkdirs()}" }
             }
             FileOutputStream(File(parentDir, filename)).use {
                 bitmap.compress(compressFormat, quality, it)

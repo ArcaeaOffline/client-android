@@ -6,7 +6,7 @@ import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -21,6 +21,7 @@ import kotlin.properties.Delegates
 
 object DeviceOcrOnnxHelper {
     private const val LOG_TAG = "OnnxHelper"
+    private val logger = Logger.withTag(LOG_TAG)
 
     private var imageSize by Delegates.notNull<Size>()
     private var imageShape by Delegates.notNull<LongArray>()
@@ -49,7 +50,7 @@ object DeviceOcrOnnxHelper {
                 IOUtils.toString(context.assets.open("ocr/model_info.json")),
             )
 
-        Log.d(LOG_TAG, "Loaded model info $modelInfo")
+        logger.d { "Loaded model info $modelInfo" }
 
         imageSize = Size(modelInfo.imageWidth.toDouble(), modelInfo.imageHeight.toDouble())
         imageShape = longArrayOf(modelInfo.imageHeight, modelInfo.imageWidth, 3L)

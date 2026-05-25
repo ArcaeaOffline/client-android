@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.helpers
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
@@ -17,6 +17,8 @@ class UiDisplayChartCacheHolder {
     companion object {
         private const val LOG_TAG = "UiDispChartCacheHolder"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     private fun PlayResult.siRcKey() = songId to ratingClass
 
@@ -44,7 +46,7 @@ class UiDisplayChartCacheHolder {
                     }.toMap()
                     .toMutableMap()
 
-            Log.d(LOG_TAG, "${itemsToQuery.size} before chart")
+            logger.d { "${itemsToQuery.size} before chart" }
             // Consider normal charts first, then other screens may use these chart
             // for play results validation or other functions.
             chartRepo.findAllBySongIds(itemsToQuery.keys.toList()).firstOrNull()?.forEach { chart ->
@@ -57,7 +59,7 @@ class UiDisplayChartCacheHolder {
             }
 
             val itemsToFake = itemsToQuery.filter { it.value.isNotEmpty() }
-            Log.d(LOG_TAG, "${itemsToFake.size} before fake chart")
+            logger.d { "${itemsToFake.size} before fake chart" }
             // Try faking charts for the remaining items
             for ((songId, ratingClasses) in itemsToFake) {
                 val song = songRepo.find(songId).firstOrNull()
@@ -68,7 +70,7 @@ class UiDisplayChartCacheHolder {
                     cache[difficulty.siRcKey()] = ChartFactory.fakeChart(song, difficulty)
                 }
             }
-        }.let { Log.d(LOG_TAG, "updateCache took $it") }
+        }.let { logger.d { "updateCache took $it" } }
     }
 
     suspend fun updateCache(

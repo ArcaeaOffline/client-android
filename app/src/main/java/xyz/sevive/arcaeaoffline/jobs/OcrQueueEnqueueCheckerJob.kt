@@ -4,12 +4,12 @@ import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +54,8 @@ class OcrQueueEnqueueCheckerJob(
         const val KEY_PARALLEL_COUNT = "parallelCount"
     }
 
+    private val logger = Logger.withTag(LOG_TAG)
+
     private val notificationManager = NotificationManagerCompat.from(applicationContext)
     private val notificationTitle =
         applicationContext.getString(R.string.notif_title_ocr_queue_enqueue_checker_job)
@@ -80,7 +82,7 @@ class OcrQueueEnqueueCheckerJob(
     private val taskRepo = repoContainer.ocrQueueTaskRepo
 
     private suspend fun cleanup() {
-        Log.i(LOG_TAG, "Cleaning up")
+        logger.i { "Cleaning up" }
 
         val urisToEnqueue = repo.findShouldInsertUris().firstOrNull() ?: emptyList()
         taskRepo.insertBatch(urisToEnqueue, applicationContext)
@@ -167,7 +169,7 @@ class OcrQueueEnqueueCheckerJob(
                         dbItems.forEach { channel.send(it) }
                         channel.close()
                     }.invokeOnCompletion {
-                        Log.d(LOG_TAG, "Channel send complete")
+                        logger.d { "Channel send complete" }
                     }
 
                 delay(0.5.seconds)
@@ -184,21 +186,21 @@ class OcrQueueEnqueueCheckerJob(
 
             return Result.success()
         } catch (e: CancellationException) {
-            Log.i(LOG_TAG, "CancellationException caught")
+            logger.i { "CancellationException caught" }
             withContext(NonCancellable) {
                 cleanup()
                 repo.deleteAll()
             }
             return Result.failure()
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "Unexpected error during enqueue checking", e)
+            logger.e(e) { "Unexpected error during enqueue checking" }
             Sentry.configureScope {
                 it.setContexts(WORK_NAME, workOptions)
                 Sentry.captureException(e)
             }
             return Result.failure()
         } finally {
-            Log.i(LOG_TAG, "doWork finally cleaning up")
+            logger.i { "doWork finally cleaning up" }
             withContext(NonCancellable) {
                 cleanup()
             }
