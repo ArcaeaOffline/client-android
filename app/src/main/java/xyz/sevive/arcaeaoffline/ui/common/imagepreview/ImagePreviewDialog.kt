@@ -35,7 +35,7 @@ fun ImagePreviewDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
     ) {
         Column(Modifier.fillMaxSize()) {
             if (topBarContent != null) {

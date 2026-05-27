@@ -29,7 +29,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ArcaeaOffline"
-        tools:targetApi="34">
+        tools:targetApi="35">
         <profileable
             android:enabled="true"
             android:shell="true" />
@@ -41,6 +41,7 @@
         <activity
             android:name=".OcrFromShareActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.ArcaeaOffline">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -52,6 +53,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.ArcaeaOffline">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,7 +69,8 @@
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnTaskLaunch="true"
-            android:launchMode="singleInstance" />
+            android:launchMode="singleInstance"
+            android:windowSoftInputMode="adjustResize" />
 
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"

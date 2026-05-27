@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -35,7 +36,12 @@ fun SubScreenContainer(
         floatingActionButton = floatingActionButton,
         snackbarHost = snackbarHost,
     ) {
-        Box(Modifier.padding(it)) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .consumeWindowInsets(it)
+                .padding(it),
+        ) {
             content()
         }
     }

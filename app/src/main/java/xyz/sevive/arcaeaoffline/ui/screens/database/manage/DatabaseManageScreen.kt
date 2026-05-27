@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -97,12 +98,13 @@ private fun LogsBottomSheet(
                     }
                 }
             },
-        ) { contentPadding ->
+        ) { innerPadding ->
             LazyColumn(
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = dimensionResource(R.dimen.page_padding))
-                    .padding(contentPadding),
+                    .consumeWindowInsets(innerPadding)
+                    .padding(horizontal = dimensionResource(R.dimen.page_padding)),
+                contentPadding = innerPadding,
                 state = lazyColumnState,
             ) {
                 if (logObjects.isEmpty()) {

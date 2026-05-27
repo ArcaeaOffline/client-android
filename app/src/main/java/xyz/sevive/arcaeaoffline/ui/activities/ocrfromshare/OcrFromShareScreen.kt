@@ -3,7 +3,10 @@ package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -102,10 +105,12 @@ internal fun OcrFromShareScreenContentMedium(
 
     LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
 
-    Scaffold(topBar = { OcrFromShareTopBar() }) {
+    Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         Row(
             Modifier
-                .padding(it)
+                .fillMaxSize()
+                .consumeWindowInsets(innerPadding)
+                .padding(innerPadding)
                 .padding(dimensionResource(R.dimen.page_padding)),
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding)),
         ) {
@@ -157,12 +162,18 @@ fun OcrFromShareScreenCompact(
 
     LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
 
-    Scaffold(topBar = { OcrFromShareTopBar() }) {
+    Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         LazyColumn(
             modifier =
                 Modifier
-                    .padding(it)
-                    .padding(dimensionResource(R.dimen.page_padding)),
+                    .fillMaxSize()
+                    .consumeWindowInsets(innerPadding),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + dimensionResource(R.dimen.page_padding),
+                bottom = innerPadding.calculateBottomPadding() + dimensionResource(R.dimen.page_padding),
+                start = dimensionResource(R.dimen.page_padding),
+                end = dimensionResource(R.dimen.page_padding),
+            ),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {

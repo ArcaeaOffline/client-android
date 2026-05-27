@@ -67,7 +67,7 @@ android {
     defaultConfig {
         applicationId = "xyz.sevive.arcaeaoffline"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = androidGitVersion.code()
         versionName = androidGitVersion.name()
 

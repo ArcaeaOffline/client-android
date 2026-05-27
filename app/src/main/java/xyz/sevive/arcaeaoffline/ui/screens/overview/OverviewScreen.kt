@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.overview
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +21,9 @@ fun OverviewScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LazyColumn(
-        modifier.fillMaxSize(),
+        modifier
+            .safeDrawingPadding()
+            .fillMaxSize(),
         contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
     ) {
         item {
