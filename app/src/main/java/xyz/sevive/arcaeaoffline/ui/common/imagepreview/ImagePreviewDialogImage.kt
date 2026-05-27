@@ -1,7 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.common.imagepreview
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -29,18 +27,5 @@ fun ImagePreviewDialogImage(
                 onTap = { onDismiss() },
                 onDoubleTap = { coroutineScope.launch { zoomableState.toggleScale(it) } },
             ),
-    )
-}
-
-@Composable
-fun ImagePreviewDialogImageCompat(
-    imageBitmap: ImageBitmap,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Image(
-        imageBitmap,
-        contentDescription = "Preview image",
-        modifier.clickable { onDismiss() },
     )
 }

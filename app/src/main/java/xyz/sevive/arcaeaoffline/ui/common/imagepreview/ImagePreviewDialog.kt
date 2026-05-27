@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.common.imagepreview
 
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
@@ -51,21 +50,12 @@ fun ImagePreviewDialog(
                 }
             }
 
-            // `com.jvziyaoyao.scale` minSdk 24
-            if (Build.VERSION.SDK_INT >= 24) {
-                ImagePreviewDialogImage(
-                    imageBitmap = imageBitmap,
-                    zoomableState = zoomableState,
-                    onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                ImagePreviewDialogImageCompat(
-                    imageBitmap = imageBitmap,
-                    onDismiss = onDismiss,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            ImagePreviewDialogImage(
+                imageBitmap = imageBitmap,
+                zoomableState = zoomableState,
+                onDismiss = onDismiss,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

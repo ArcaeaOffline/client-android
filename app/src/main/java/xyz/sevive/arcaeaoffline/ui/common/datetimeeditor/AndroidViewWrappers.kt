@@ -87,15 +87,8 @@ internal fun AndroidViewTimePicker(
         modifier = Modifier.wrapContentSize(),
         factory = { context -> TimePicker(context) },
         update = { view ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                view.hour = time.hour
-                view.minute = time.minute
-            } else {
-                @Suppress("DEPRECATION")
-                view.currentHour = time.hour
-                @Suppress("DEPRECATION")
-                view.currentMinute = time.minute
-            }
+            view.hour = time.hour
+            view.minute = time.minute
 
             view.setOnTimeChangedListener { _, hourOfDay, minute ->
                 onTimeSelect(LocalTime.of(hourOfDay, minute))
