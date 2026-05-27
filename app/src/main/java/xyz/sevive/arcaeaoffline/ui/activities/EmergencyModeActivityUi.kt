@@ -91,12 +91,13 @@ fun EmergencyModeActivityUi(
             Modifier
                 .fillMaxSize()
                 .consumeWindowInsets(padding),
-            contentPadding = PaddingValues(
-                top = padding.calculateTopPadding() + dimensionResource(R.dimen.list_padding),
-                bottom = padding.calculateBottomPadding() + dimensionResource(R.dimen.list_padding),
-                start = dimensionResource(R.dimen.list_padding),
-                end = dimensionResource(R.dimen.list_padding),
-            ),
+            contentPadding =
+                PaddingValues(
+                    top = padding.calculateTopPadding() + dimensionResource(R.dimen.list_padding),
+                    bottom = padding.calculateBottomPadding() + dimensionResource(R.dimen.list_padding),
+                    start = dimensionResource(R.dimen.list_padding),
+                    end = dimensionResource(R.dimen.list_padding),
+                ),
         ) {
             item {
                 ListGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))

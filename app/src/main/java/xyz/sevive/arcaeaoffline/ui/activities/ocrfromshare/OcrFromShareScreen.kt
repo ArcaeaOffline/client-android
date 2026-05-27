@@ -168,12 +168,13 @@ fun OcrFromShareScreenCompact(
                 Modifier
                     .fillMaxSize()
                     .consumeWindowInsets(innerPadding),
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding() + dimensionResource(R.dimen.page_padding),
-                bottom = innerPadding.calculateBottomPadding() + dimensionResource(R.dimen.page_padding),
-                start = dimensionResource(R.dimen.page_padding),
-                end = dimensionResource(R.dimen.page_padding),
-            ),
+            contentPadding =
+                PaddingValues(
+                    top = innerPadding.calculateTopPadding() + dimensionResource(R.dimen.page_padding),
+                    bottom = innerPadding.calculateBottomPadding() + dimensionResource(R.dimen.page_padding),
+                    start = dimensionResource(R.dimen.page_padding),
+                    end = dimensionResource(R.dimen.page_padding),
+                ),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
         ) {
             item {
