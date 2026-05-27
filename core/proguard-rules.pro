@@ -20,5 +20,5 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep public class org.opencv.core.CvException
+-keep public class org.opencv.core.CvException { *; }
 -keep class * extends androidx.room.RoomDatabase { <init>(); }

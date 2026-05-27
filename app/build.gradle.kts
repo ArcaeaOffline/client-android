@@ -5,7 +5,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
@@ -128,10 +127,6 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
-    }
-    @Suppress("UnstableApiUsage")
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
