@@ -62,7 +62,7 @@ kotlin {
 
 android {
     namespace = "xyz.sevive.arcaeaoffline"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "xyz.sevive.arcaeaoffline"
