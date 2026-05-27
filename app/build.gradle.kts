@@ -17,12 +17,13 @@ plugins {
 
 secrets {
     defaultPropertiesFileName = "local.defaults.properties"
-    ignoreList += listOf(
-        "SENTRY_DSN",
-        "SIGNING_STORE_PASSWORD",
-        "SIGNING_KEY_ALIAS",
-        "SIGNING_KEY_PASSWORD",
-    )
+    ignoreList +=
+        listOf(
+            "SENTRY_DSN",
+            "SIGNING_STORE_PASSWORD",
+            "SIGNING_KEY_ALIAS",
+            "SIGNING_KEY_PASSWORD",
+        )
 }
 
 protobuf {
@@ -45,9 +46,10 @@ protobuf {
 }
 
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
-val localProperties = Properties().apply {
-    load(FileInputStream(File(rootDir, "local.properties")))
-}
+val localProperties =
+    Properties().apply {
+        load(FileInputStream(File(rootDir, "local.properties")))
+    }
 
 room {
     schemaDirectory("$projectDir/schemas")
