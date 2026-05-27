@@ -30,7 +30,7 @@ protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", 
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
-onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.20.0" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.23.0" }
 
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
