@@ -1,8 +1,8 @@
 [versions]
-androidGradlePlugin = "8.11.1"
+androidGradlePlugin = "9.2.1"
 
-kotlin = "2.2.0"
-ksp = "2.2.0-2.0.2"
+kotlin = "2.2.10"
+ksp = "2.3.6"
 
 opencv = "4.12.0"
 
@@ -13,13 +13,13 @@ threetenabp = "1.4.9"
 compose-richtext = "0.20.0"
 github-jvziyaoyao-scale = "1.1.0-alpha.7"
 github-cheonjaeung-gridlayout = "2.3.2"
-aboutlibraries = "12.2.4"
+aboutlibraries = "14.2.1"
 
 kermit = "2.1.0"
 
 junit = "4.13.2"
 
-dependencyAnalysis = "2.19.0"
+dependencyAnalysis = "3.13.0"
 
 
 [libraries]
@@ -30,7 +30,7 @@ protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", 
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
-onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.20.0" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.23.0" }
 
 apache-commons-io = { module = "org.apache.directory.studio:org.apache.commons.io", version.ref = "apache-commons-io" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
@@ -48,14 +48,13 @@ junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-protobuf = { id = "com.google.protobuf", version = "0.9.4" }
+protobuf = { id = "com.google.protobuf", version = "0.10.0" }
 
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }

@@ -3,8 +3,12 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
@@ -76,6 +80,7 @@ internal fun DatabaseAddPlayResultScreen(
         title = stringResource(DatabaseScreenDestinations.AddPlayResult.title),
     ) {
         Scaffold(
+            contentWindowInsets = WindowInsets.safeDrawing,
             bottomBar = {
                 BottomActionsBar(
                     onReset = { viewModel.reset() },
@@ -87,8 +92,13 @@ internal fun DatabaseAddPlayResultScreen(
                             .padding(dimensionResource(R.dimen.page_padding)),
                 )
             },
-        ) { contentPadding ->
-            LazyColumn(Modifier.padding(contentPadding)) {
+        ) { innerPadding ->
+            LazyColumn(
+                Modifier
+                    .fillMaxSize()
+                    .consumeWindowInsets(innerPadding),
+                contentPadding = innerPadding,
+            ) {
                 item {
                     ListGroupHeader(stringResource(R.string.database_add_play_result_select_chart_header))
                 }

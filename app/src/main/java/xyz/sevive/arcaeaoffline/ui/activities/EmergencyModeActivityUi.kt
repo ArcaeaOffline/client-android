@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -87,8 +88,16 @@ fun EmergencyModeActivityUi(
 
     Scaffold(modifier, topBar = { UiTopAppBar() }) { padding ->
         LazyColumn(
-            Modifier.padding(padding),
-            contentPadding = PaddingValues(dimensionResource(R.dimen.list_padding)),
+            Modifier
+                .fillMaxSize()
+                .consumeWindowInsets(padding),
+            contentPadding =
+                PaddingValues(
+                    top = padding.calculateTopPadding() + dimensionResource(R.dimen.list_padding),
+                    bottom = padding.calculateBottomPadding() + dimensionResource(R.dimen.list_padding),
+                    start = dimensionResource(R.dimen.list_padding),
+                    end = dimensionResource(R.dimen.list_padding),
+                ),
         ) {
             item {
                 ListGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))

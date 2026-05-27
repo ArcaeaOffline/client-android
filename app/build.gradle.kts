@@ -1,10 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
@@ -16,12 +16,13 @@ plugins {
 
 secrets {
     defaultPropertiesFileName = "local.defaults.properties"
-    ignoreList += listOf(
-        "SENTRY_DSN",
-        "SIGNING_STORE_PASSWORD",
-        "SIGNING_KEY_ALIAS",
-        "SIGNING_KEY_PASSWORD",
-    )
+    ignoreList +=
+        listOf(
+            "SENTRY_DSN",
+            "SIGNING_STORE_PASSWORD",
+            "SIGNING_KEY_ALIAS",
+            "SIGNING_KEY_PASSWORD",
+        )
 }
 
 protobuf {
@@ -44,12 +45,19 @@ protobuf {
 }
 
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
-val localProperties = Properties().apply {
-    load(FileInputStream(File(rootDir, "local.properties")))
-}
+val localProperties =
+    Properties().apply {
+        load(FileInputStream(File(rootDir, "local.properties")))
+    }
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
 }
 
 android {
@@ -58,8 +66,8 @@ android {
 
     defaultConfig {
         applicationId = "xyz.sevive.arcaeaoffline"
-        minSdk = 23
-        targetSdk = 34
+        minSdk = 24
+        targetSdk = 36
         versionCode = androidGitVersion.code()
         versionName = androidGitVersion.name()
 
@@ -116,15 +124,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         buildConfig = true
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")

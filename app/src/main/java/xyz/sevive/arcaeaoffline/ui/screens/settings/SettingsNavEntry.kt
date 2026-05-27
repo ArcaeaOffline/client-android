@@ -1,5 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings
 
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,7 +43,12 @@ internal fun SettingsNavEntry(
             TopAppBar(title = { Text(stringResource(MainScreenDestinations.Settings.title)) })
         },
     ) {
-        LazyColumn(Modifier.padding(it)) {
+        LazyColumn(
+            Modifier
+                .fillMaxSize()
+                .consumeWindowInsets(it),
+            contentPadding = it,
+        ) {
             if (IS_UNSTABLE_VERSION) {
                 item {
                     UnstableBuildAlertCard(
