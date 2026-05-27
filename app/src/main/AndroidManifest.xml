@@ -29,7 +29,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ArcaeaOffline"
-        tools:targetApi="35">
+        tools:targetApi="36">
         <profileable
             android:enabled="true"
             android:shell="true" />
