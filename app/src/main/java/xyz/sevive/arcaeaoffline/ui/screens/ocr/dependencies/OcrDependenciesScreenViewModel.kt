@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okio.FileSystem
 import okio.IOException
-import okio.Path.Companion.toOkioPath
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
@@ -135,12 +134,12 @@ class OcrDependenciesScreenViewModel(
 
             val cacheFile = context.copyToCache(uri, "knearest_model_import_temp") ?: return@launch
             try {
-                KNearest.load(cacheFile.absolutePath)
-                FileSystem.SYSTEM.copy(cacheFile.toOkioPath(), paths.knnModelFile)
+                KNearest.load(cacheFile.toString())
+                FileSystem.SYSTEM.copy(cacheFile, paths.knnModelFile)
             } catch (e: Exception) {
                 logger.e(e) { "Error importing KNearest model" }
             } finally {
-                FileSystem.SYSTEM.delete(cacheFile.toOkioPath())
+                FileSystem.SYSTEM.delete(cacheFile)
             }
 
             reloadKNearestModelStatusDetailUiState(context)
@@ -160,11 +159,11 @@ class OcrDependenciesScreenViewModel(
             val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
             try {
                 // test if the input is a valid database
-                OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile.toOkioPath()).use { sqliteDb ->
+                OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile).use { sqliteDb ->
                     ImageHashesDatabase(sqliteDb)
                 }
 
-                FileSystem.SYSTEM.copy(cacheFile.toOkioPath(), paths.imageHashesDatabaseFile)
+                FileSystem.SYSTEM.copy(cacheFile, paths.imageHashesDatabaseFile)
             } catch (e: Exception) {
                 if (e is SQLiteException) {
                     logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
@@ -172,7 +171,7 @@ class OcrDependenciesScreenViewModel(
                     logger.e(e) { "Error importing image hashes database" }
                 }
             } finally {
-                FileSystem.SYSTEM.delete(cacheFile.toOkioPath())
+                FileSystem.SYSTEM.delete(cacheFile)
             }
 
             reloadImageHashesDatabaseStatusDetailUiState(context)

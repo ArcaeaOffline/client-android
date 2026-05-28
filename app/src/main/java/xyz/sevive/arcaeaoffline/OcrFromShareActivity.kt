@@ -15,7 +15,6 @@ import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -93,7 +92,7 @@ class OcrFromShareActivity : ComponentActivity() {
             return
         }
 
-        val inputStreamRead = IOUtils.toByteArray(inputStream)
+        val inputStreamRead = inputStream.use { it.readBytes() }
 
         val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
         viewModel.setBitmap(imgBitmap)

@@ -4,7 +4,6 @@ import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import org.apache.commons.io.IOUtils
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
@@ -41,8 +40,7 @@ object DeviceOcrHelper {
         val inputStream =
             context.contentResolver.openInputStream(imageUri)
                 ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
-
-        val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
+        val byteArray = inputStream.use { it.readBytes() }
         val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
         val imgCropped = CropBlackEdges.crop(img)
 
@@ -85,7 +83,8 @@ object DeviceOcrHelper {
         fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
     ): Instant? {
-        val byteArray = IOUtils.toByteArray(context.contentResolver.openInputStream(imageUri))
+        val byteArray =
+            context.contentResolver.openInputStream(imageUri)?.use { it.readBytes() } ?: return null
 
         return if (overrideDate != null) {
             overrideDate

@@ -6,7 +6,6 @@ import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
@@ -40,7 +39,7 @@ object OcrQueueHelper {
         return withContext(Dispatchers.IO) {
             async {
                 val inputStream = context.contentResolver.openInputStream(uri) ?: return@async false
-                val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
+                val byteArray = inputStream.use { it.readBytes() }
 
                 val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
                 val imgHsv = Mat()

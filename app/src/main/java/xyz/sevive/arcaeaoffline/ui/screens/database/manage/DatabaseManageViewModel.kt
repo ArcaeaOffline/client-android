@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.apache.commons.io.IOUtils
+import okio.FileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
@@ -115,7 +115,7 @@ class DatabaseManageViewModel(
             UiState(),
         )
 
-    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = IOUtils.toString(this, charset)
+    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = bufferedReader(charset).use { it.readText() }
 
     private suspend fun appendUiLog(
         tag: String?,
@@ -379,10 +379,10 @@ class DatabaseManageViewModel(
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
                 BundledSQLiteDriver()
-                    .open(databaseCopied.absolutePath, SQLITE_OPEN_READONLY)
+                    .open(databaseCopied.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importChartsInfoDatabase(conn) }
 
-                databaseCopied.delete()
+                FileSystem.SYSTEM.delete(databaseCopied)
             }
         }
     }
@@ -411,10 +411,10 @@ class DatabaseManageViewModel(
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
                 BundledSQLiteDriver()
-                    .open(dbCacheFile.absolutePath, SQLITE_OPEN_READONLY)
+                    .open(dbCacheFile.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importSt3(conn) }
 
-                dbCacheFile.delete()
+                FileSystem.SYSTEM.delete(dbCacheFile)
             }
         }
     }
@@ -423,7 +423,7 @@ class DatabaseManageViewModel(
         val playResults = repositoryContainer.playResultRepo.findAll().firstOrNull() ?: return
 
         ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
-            IOUtils.write(ArcaeaOfflineDEFv2Exporter.playResults(it), outputStream)
+            outputStream.write(ArcaeaOfflineDEFv2Exporter.playResults(it).toByteArray())
             appendUiLog(
                 LOG_TAG_EXPORT_PLAY_RESULTS,
                 res.getQuantityString(

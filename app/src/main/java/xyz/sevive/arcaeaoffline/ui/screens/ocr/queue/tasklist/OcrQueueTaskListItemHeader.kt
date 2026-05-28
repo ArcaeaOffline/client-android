@@ -45,7 +45,6 @@ import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import java.io.File
 
 @Composable
 private fun TaskDetailsDialog(
@@ -197,7 +196,7 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                     uiItem =
                         OcrQueueScreenViewModel.TaskUiItem(
                             id = 123,
-                            fileUri = Uri.fromFile(File("preview.png")),
+                            fileUri = Uri.parse("file:///preview.png"),
                             status = OcrQueueTaskStatus.DONE,
                             ocrResult = null,
                             playResult = null,
