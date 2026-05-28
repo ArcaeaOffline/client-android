@@ -18,7 +18,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.apache.commons.io.FileUtils
+import okio.FileSystem
+import okio.IOException
+import okio.Path.Companion.toOkioPath
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
@@ -92,13 +94,14 @@ class OcrDependenciesScreenViewModel(
         reloadAll(application)
     }
 
-    private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean {
-        if (ocrDependencyPaths.parentDir.exists()) return true
-
-        val result = ocrDependencyPaths.parentDir.mkdirs()
-        if (!result) logger.w { "Create dependencies parent directory failed!" }
-        return result
-    }
+    private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean =
+        try {
+            FileSystem.SYSTEM.createDirectories(ocrDependencyPaths.parentDir)
+            true
+        } catch (e: IOException) {
+            logger.w(e) { "Create dependencies parent directory failed!" }
+            false
+        }
 
     private fun isFileTooLarge(
         uri: Uri,
@@ -133,11 +136,11 @@ class OcrDependenciesScreenViewModel(
             val cacheFile = context.copyToCache(uri, "knearest_model_import_temp") ?: return@launch
             try {
                 KNearest.load(cacheFile.absolutePath)
-                FileUtils.copyFile(cacheFile, paths.knnModelFile)
+                FileSystem.SYSTEM.copy(cacheFile.toOkioPath(), paths.knnModelFile)
             } catch (e: Exception) {
                 logger.e(e) { "Error importing KNearest model" }
             } finally {
-                cacheFile.delete()
+                FileSystem.SYSTEM.delete(cacheFile.toOkioPath())
             }
 
             reloadKNearestModelStatusDetailUiState(context)
@@ -157,11 +160,11 @@ class OcrDependenciesScreenViewModel(
             val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
             try {
                 // test if the input is a valid database
-                OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile).use { sqliteDb ->
+                OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile.toOkioPath()).use { sqliteDb ->
                     ImageHashesDatabase(sqliteDb)
                 }
 
-                FileUtils.copyFile(cacheFile, paths.imageHashesDatabaseFile)
+                FileSystem.SYSTEM.copy(cacheFile.toOkioPath(), paths.imageHashesDatabaseFile)
             } catch (e: Exception) {
                 if (e is SQLiteException) {
                     logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
@@ -169,7 +172,7 @@ class OcrDependenciesScreenViewModel(
                     logger.e(e) { "Error importing image hashes database" }
                 }
             } finally {
-                cacheFile.delete()
+                FileSystem.SYSTEM.delete(cacheFile.toOkioPath())
             }
 
             reloadImageHashesDatabaseStatusDetailUiState(context)

@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.FileSystem
+import okio.buffer
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -35,7 +37,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDataba
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
-import java.io.File
 
 class OcrFromShareViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
@@ -175,12 +176,15 @@ class OcrFromShareViewModel(
             val bitmap = bitmap.value
             if (bitmap != null) {
                 val parentDir = OcrPaths(context).fromShareImageCacheDir
-                if (!parentDir.exists()) {
-                    logger.i { "Creating image cache dir, success: ${parentDir.mkdirs()}" }
+                if (!FileSystem.SYSTEM.exists(parentDir)) {
+                    FileSystem.SYSTEM.createDirectories(parentDir)
+                    logger.i { "Created image cache dir" }
                 }
 
-                val cacheImageFile = File(parentDir, "$id.jpg")
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, cacheImageFile.outputStream())
+                val cacheImagePath = parentDir / "$id.jpg"
+                FileSystem.SYSTEM.sink(cacheImagePath).buffer().use { sink ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, sink.outputStream())
+                }
             }
 
             _scoreCached.value = true

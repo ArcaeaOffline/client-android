@@ -1,24 +1,24 @@
 package xyz.sevive.arcaeaoffline.data
 
 import android.content.Context
-import java.io.File
+import okio.Path.Companion.toOkioPath
 
 class OcrDependencyPaths(
     context: Context,
 ) {
-    val parentDir = File(context.filesDir, "ocr" + File.separator + "dependencies")
+    val parentDir = context.filesDir.toOkioPath() / "ocr" / "dependencies"
 
-    val knnModelFile = File(parentDir, "digits.knn.dat")
-    val phashDatabaseFile = File(parentDir, "image-phash.db")
-    val imageHashesDatabaseFile = File(parentDir, "image-hashes.db")
+    val knnModelFile = parentDir / "digits.knn.dat"
+    val phashDatabaseFile = parentDir / "image-phash.db"
+    val imageHashesDatabaseFile = parentDir / "image-hashes.db"
 }
 
 class OcrPaths(
     context: Context,
 ) {
-    val parentDir = File(context.filesDir, "ocr")
+    val parentDir = context.filesDir.toOkioPath() / "ocr"
 
-    val fromShareImageCacheDir = File(parentDir, "fromShareImages")
+    val fromShareImageCacheDir = parentDir / "fromShareImages"
 }
 
 class Paths(

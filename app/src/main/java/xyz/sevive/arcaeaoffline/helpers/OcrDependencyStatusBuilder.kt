@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
+import okio.FileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
@@ -10,7 +11,7 @@ object OcrDependencyStatusBuilder {
     fun kNearest(context: Context): KNearestModelStatusDetail {
         try {
             val paths = OcrDependencyPaths(context)
-            if (!paths.knnModelFile.exists()) return KNearestModelStatusDetail(absence = true)
+            if (!FileSystem.SYSTEM.exists(paths.knnModelFile)) return KNearestModelStatusDetail(absence = true)
 
             val model = OcrDependencyLoader.kNearestModel(context)
             return KNearestModelStatusDetail(varCount = model.varCount, isTrained = model.isTrained)
@@ -22,7 +23,7 @@ object OcrDependencyStatusBuilder {
     fun imageHashesDatabase(context: Context): ImageHashesDatabaseStatusDetail {
         try {
             val paths = OcrDependencyPaths(context)
-            if (!paths.imageHashesDatabaseFile.exists()) {
+            if (!FileSystem.SYSTEM.exists(paths.imageHashesDatabaseFile)) {
                 return ImageHashesDatabaseStatusDetail(
                     absence = true,
                 )

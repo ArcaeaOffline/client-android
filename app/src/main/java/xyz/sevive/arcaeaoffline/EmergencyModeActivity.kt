@@ -11,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.documentfile.provider.DocumentFile
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.init
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityUi
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
@@ -37,11 +39,12 @@ class EmergencyModeActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-
         setTitle(R.string.app_name)
+
+        FileKit.init(this)
 
         setContent {
             ArcaeaOfflineTheme {

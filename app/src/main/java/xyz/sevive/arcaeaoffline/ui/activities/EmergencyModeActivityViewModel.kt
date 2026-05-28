@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import okio.FileSystem
 import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
@@ -75,8 +76,9 @@ class EmergencyModeActivityViewModel(
 
     fun deleteAllOcrDependencies(context: Context) {
         val paths = OcrDependencyPaths(context)
-        paths.knnModelFile.delete()
-        paths.phashDatabaseFile.delete()
+        FileSystem.SYSTEM.delete(paths.knnModelFile)
+        FileSystem.SYSTEM.delete(paths.phashDatabaseFile)
+        FileSystem.SYSTEM.delete(paths.imageHashesDatabaseFile)
     }
 
     fun deleteOcrQueueDatabase(context: Context) {

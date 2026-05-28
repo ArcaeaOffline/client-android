@@ -17,6 +17,9 @@ aboutlibraries = "14.2.1"
 
 kermit = "2.1.0"
 
+filekit = "0.14.1"
+okio = "3.16.2"
+
 junit = "4.13.2"
 
 dependencyAnalysis = "3.13.0"
@@ -42,6 +45,10 @@ aboutlibrariesCore = { module = "com.mikepenz:aboutlibraries-core", version.ref 
 aboutlibrariesComposeM3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 
