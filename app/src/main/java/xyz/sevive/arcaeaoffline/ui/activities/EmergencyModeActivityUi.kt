@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -36,8 +37,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.path
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 
@@ -73,7 +79,6 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EmergencyModeActivityUi(
-    onSelectOutputDirectory: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EmergencyModeActivityViewModel,
 ) {
@@ -82,8 +87,19 @@ fun EmergencyModeActivityUi(
     val outputDirectory by viewModel.outputDirectory.collectAsStateWithLifecycle()
     val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle()
 
+    val dirPicker =
+        rememberDirectoryPickerLauncher { dir ->
+            dir?.let {
+                context.persistUriPermissions(
+                    it.path.toUri(),
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+                viewModel.setOutputDirectory(it)
+            }
+        }
+
     LaunchedEffect(key1 = Unit) {
-        viewModel.reloadPreferencesOnStartUp(context)
+        viewModel.reloadPreferencesOnStartUp()
     }
 
     Scaffold(modifier, topBar = { UiTopAppBar() }) { padding ->
@@ -107,7 +123,7 @@ fun EmergencyModeActivityUi(
                     IconRow {
                         Icon(Icons.Default.Code, contentDescription = null)
                         Text(
-                            outputDirectory?.uri?.path.toString(),
+                            outputDirectory?.path.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -118,7 +134,7 @@ fun EmergencyModeActivityUi(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Button(onClick = onSelectOutputDirectory) {
+                        Button(onClick = { dirPicker.launch() }) {
                             Text(stringResource(R.string.emergency_mode_output_directory_select_button))
                         }
 

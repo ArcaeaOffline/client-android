@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
+import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
@@ -39,3 +40,21 @@ suspend fun Context.copyToCache(
 }
 
 fun Context.getFileSize(uri: Uri): Long? = runCatching { PlatformFile(uri).size() }.getOrNull()
+
+fun Context.persistUriPermissions(
+    uri: Uri,
+    modeFlags: Int,
+): Boolean {
+    try {
+        this.contentResolver.takePersistableUriPermission(uri, modeFlags)
+        return true
+    } catch (e: Exception) {
+        Logger.w(e, tag = "Application") { "Error persisting permission $modeFlags for Uri $uri" }
+        return false
+    }
+}
+
+fun Context.persistUriPermissions(
+    uris: List<Uri>,
+    modeFlags: Int,
+): Map<Uri, Boolean> = uris.associateWith { this.persistUriPermissions(it, modeFlags) }
