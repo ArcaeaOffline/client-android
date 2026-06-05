@@ -18,8 +18,6 @@ kermit = "2.1.0"
 
 filekit = "0.14.1"
 okio = "3.16.2"
-kotlinx-io = "0.9.0"
-
 junit = "4.13.2"
 
 dependencyAnalysis = "3.13.0"
@@ -48,7 +46,6 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
-kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 

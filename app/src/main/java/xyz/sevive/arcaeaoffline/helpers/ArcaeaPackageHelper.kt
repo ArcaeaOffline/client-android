@@ -7,8 +7,9 @@ import android.graphics.drawable.Drawable
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.io.files.Path
+import okio.Path
 import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -82,12 +83,12 @@ class ArcaeaPackageHelper(
 
         if (filenameParts.size < 2) return null
 
-        val tailFilename = Path(filenameParts.last()).name
+        val tailFilename = filenameParts.last().toPath().name
         if (JACKET_FILENAME_REGEX.find(tailFilename) == null) return null
 
         val songId = filenameParts[filenameParts.size - 2].replace("dl_", "")
 
-        val path = Path(filename)
+        val path = filename.toPath()
         val baseFilename = path.name.substringBeforeLast(".")
         val difficulty = baseFilename.replace("1080_", "")
         val ext = path.name.substringAfterLast(".")
@@ -117,12 +118,12 @@ class ArcaeaPackageHelper(
         if (filenameParts.size < 2) return null
         if (filenameParts[filenameParts.size - 2] != "char") return null
 
-        val tailFilename = Path(filenameParts.last()).name
+        val tailFilename = filenameParts.last().toPath().name
         if (PARTNER_ICON_FILENAME_REGEX.find(tailFilename) == null) return null
 
-        val baseFilename = Path(filenameParts.last()).name.substringBeforeLast(".")
+        val baseFilename = filenameParts.last().toPath().name.substringBeforeLast(".")
         val partnerId = baseFilename.replace("_icon", "")
-        val ext = Path(filename).name.substringAfterLast(".")
+        val ext = filename.toPath().name.substringAfterLast(".")
 
         val finalFilename = "$partnerId.$ext"
         logger.v { "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]" }
@@ -253,7 +254,7 @@ class ArcaeaPackageHelper(
         jacketsCacheDir.listFiles()?.forEach {
             builder.addTask(
                 ImageHashItemType.JACKET,
-                Path(it.name).name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
+                it.name.toPath().name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
                 input = it.toOkioPath(),
                 inputToGrayscaleImage = ::jacketFileToGrayscaleImage,
             )
@@ -263,7 +264,7 @@ class ArcaeaPackageHelper(
         partnerIconsCacheDir.listFiles()?.forEach {
             builder.addTask(
                 ImageHashItemType.PARTNER_ICON,
-                Path(it.name).name.substringBeforeLast("."),
+                it.name.toPath().name.substringBeforeLast("."),
                 input = it.toOkioPath(),
                 inputToGrayscaleImage = ::partnerIconFileToGrayscaleImage,
             )

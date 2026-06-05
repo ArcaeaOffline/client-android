@@ -189,7 +189,6 @@ dependencies {
     implementation(libs.io.sentry.sentryAndroid)
 
     implementation(libs.okio)
-    implementation(libs.kotlinx.io.core)
     implementation(libs.filekit.core)
     implementation(libs.filekit.dialogs.compose)
 

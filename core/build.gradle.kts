@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.kermit)
 
     implementation(libs.okio)
-    implementation(libs.kotlinx.io.core)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)
