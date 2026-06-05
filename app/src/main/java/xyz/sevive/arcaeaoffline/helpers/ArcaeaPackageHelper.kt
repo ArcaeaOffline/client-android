@@ -8,6 +8,7 @@ import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.files.Path
+import okio.Path.Companion.toOkioPath
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -231,15 +232,15 @@ class ArcaeaPackageHelper(
         if (partnerIconsCacheDir.exists()) partnerIconsCacheDir.listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    private fun jacketFileToGrayscaleImage(file: File): Mat {
-        val img = Imgcodecs.imread(file.absolutePath, Imgcodecs.IMREAD_COLOR)
+    private fun jacketFileToGrayscaleImage(path: okio.Path): Mat {
+        val img = Imgcodecs.imread(path.toString(), Imgcodecs.IMREAD_COLOR)
         val imgGrayscale = Mat()
         Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
         return imgGrayscale
     }
 
-    private fun partnerIconFileToGrayscaleImage(file: File): Mat {
-        val img = Imgcodecs.imread(file.absolutePath, Imgcodecs.IMREAD_COLOR)
+    private fun partnerIconFileToGrayscaleImage(path: okio.Path): Mat {
+        val img = Imgcodecs.imread(path.toString(), Imgcodecs.IMREAD_COLOR)
         val imgGrayscale = Mat()
         Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
         return DeviceOcr.preprocessPartnerIcon(imgGrayscale)
@@ -253,7 +254,7 @@ class ArcaeaPackageHelper(
             builder.addTask(
                 ImageHashItemType.JACKET,
                 Path(it.name).name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
-                input = it,
+                input = it.toOkioPath(),
                 inputToGrayscaleImage = ::jacketFileToGrayscaleImage,
             )
         }
@@ -263,7 +264,7 @@ class ArcaeaPackageHelper(
             builder.addTask(
                 ImageHashItemType.PARTNER_ICON,
                 Path(it.name).name.substringBeforeLast("."),
-                input = it,
+                input = it.toOkioPath(),
                 inputToGrayscaleImage = ::partnerIconFileToGrayscaleImage,
             )
         }

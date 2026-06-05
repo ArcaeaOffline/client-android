@@ -64,7 +64,6 @@ dependencies {
 
     implementation(libs.okio)
     implementation(libs.kotlinx.io.core)
-    implementation(libs.apache.commons.io)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)

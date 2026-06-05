@@ -5,9 +5,9 @@ import androidx.sqlite.execSQL
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okio.Path
 import org.opencv.core.Mat
 import org.threeten.bp.Instant
-import java.io.File
 
 class ImageHashesDatabaseBuilder(
     private val conn: SQLiteConnection,
@@ -28,7 +28,7 @@ class ImageHashesDatabaseBuilder(
     private val _buildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
     val buildProgress = _buildProgress.asStateFlow()
 
-    private val tasks = mutableListOf<Task<File>>()
+    private val tasks = mutableListOf<Task<Path>>()
 
     private fun initBuildProgress() {
         _buildProgress.value = 0 to tasks.size
@@ -45,8 +45,8 @@ class ImageHashesDatabaseBuilder(
     fun addTask(
         type: ImageHashItemType,
         label: String,
-        input: File,
-        inputToGrayscaleImage: (File) -> Mat,
+        input: Path,
+        inputToGrayscaleImage: (Path) -> Mat,
     ) {
         tasks.add(Task(type, label, input, inputToGrayscaleImage))
     }

@@ -178,8 +178,6 @@ dependencies {
 
     implementation(androidx.navigation.compose)
 
-    implementation(androidx.documentfile)
-
     implementation(androidx.work.workRuntime)
     implementation(androidx.work.workRuntimeKtx)
 
@@ -198,8 +196,6 @@ dependencies {
     implementation(libs.opencv)
 
     implementation(libs.onnxruntime.android)
-
-    implementation(libs.apache.commons.io)
 
     implementation(libs.protobuf.protobufJavalite)
 
