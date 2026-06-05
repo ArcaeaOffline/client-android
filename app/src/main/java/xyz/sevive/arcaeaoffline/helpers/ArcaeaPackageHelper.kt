@@ -7,9 +7,7 @@ import android.graphics.drawable.Drawable
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.FilenameUtils
-import org.apache.commons.io.IOUtils
+import kotlinx.io.files.Path
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -83,14 +81,15 @@ class ArcaeaPackageHelper(
 
         if (filenameParts.size < 2) return null
 
-        val tailFilename = FilenameUtils.getName(filenameParts[filenameParts.size - 1])
+        val tailFilename = Path(filenameParts.last()).name
         if (JACKET_FILENAME_REGEX.find(tailFilename) == null) return null
 
         val songId = filenameParts[filenameParts.size - 2].replace("dl_", "")
 
-        val baseFilename = FilenameUtils.getBaseName(filename)
+        val path = Path(filename)
+        val baseFilename = path.name.substringBeforeLast(".")
         val difficulty = baseFilename.replace("1080_", "")
-        val ext = FilenameUtils.getExtension(filename)
+        val ext = path.name.substringAfterLast(".")
 
         val finalFilename =
             if (difficulty == "base") {
@@ -117,12 +116,12 @@ class ArcaeaPackageHelper(
         if (filenameParts.size < 2) return null
         if (filenameParts[filenameParts.size - 2] != "char") return null
 
-        val tailFilename = FilenameUtils.getName(filenameParts[filenameParts.size - 1])
+        val tailFilename = Path(filenameParts.last()).name
         if (PARTNER_ICON_FILENAME_REGEX.find(tailFilename) == null) return null
 
-        val baseFilename = FilenameUtils.getBaseName(filenameParts[filenameParts.size - 1])
+        val baseFilename = Path(filenameParts.last()).name.substringBeforeLast(".")
         val partnerId = baseFilename.replace("_icon", "")
-        val ext = FilenameUtils.getExtension(filename)
+        val ext = Path(filename).name.substringAfterLast(".")
 
         val finalFilename = "$partnerId.$ext"
         logger.v { "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]" }
@@ -142,8 +141,10 @@ class ArcaeaPackageHelper(
                     val zipEntry = mapEntry.key
                     val outputFile = mapEntry.value
 
-                    outputFile.outputStream().use {
-                        IOUtils.copy(zipFile.getInputStream(zipEntry), it)
+                    zipFile.getInputStream(zipEntry).use { input ->
+                        outputFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
                     }
                 }
             }
@@ -226,8 +227,8 @@ class ArcaeaPackageHelper(
     }
 
     fun buildHashesDatabaseCleanUp() {
-        if (jacketsCacheDir.exists()) FileUtils.cleanDirectory(jacketsCacheDir)
-        if (partnerIconsCacheDir.exists()) FileUtils.cleanDirectory(partnerIconsCacheDir)
+        if (jacketsCacheDir.exists()) jacketsCacheDir.listFiles()?.forEach { it.deleteRecursively() }
+        if (partnerIconsCacheDir.exists()) partnerIconsCacheDir.listFiles()?.forEach { it.deleteRecursively() }
     }
 
     private fun jacketFileToGrayscaleImage(file: File): Mat {
@@ -251,7 +252,7 @@ class ArcaeaPackageHelper(
         jacketsCacheDir.listFiles()?.forEach {
             builder.addTask(
                 ImageHashItemType.JACKET,
-                FilenameUtils.getBaseName(it.name).replace(JACKET_RENAME_REGEX, ""),
+                Path(it.name).name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
                 input = it,
                 inputToGrayscaleImage = ::jacketFileToGrayscaleImage,
             )
@@ -261,7 +262,7 @@ class ArcaeaPackageHelper(
         partnerIconsCacheDir.listFiles()?.forEach {
             builder.addTask(
                 ImageHashItemType.PARTNER_ICON,
-                FilenameUtils.getBaseName(it.name),
+                Path(it.name).name.substringBeforeLast("."),
                 input = it,
                 inputToGrayscaleImage = ::partnerIconFileToGrayscaleImage,
             )
