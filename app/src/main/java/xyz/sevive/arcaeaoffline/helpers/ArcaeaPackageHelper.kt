@@ -7,16 +7,18 @@ import android.graphics.drawable.Drawable
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.Path.Companion.toPath
+import okio.buffer
+import okio.source
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashItemType
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
-import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -26,13 +28,13 @@ class ArcaeaPackageHelper(
     private val logger = Logger.withTag(LOG_TAG)
     private val packageManager = context.packageManager
 
-    private val arcaeaExtractRootCacheDir = File(context.cacheDir, "arcaea")
-    private val jacketsCacheDir = File(arcaeaExtractRootCacheDir, "jackets")
-    private val partnerIconsCacheDir = File(arcaeaExtractRootCacheDir, "partner_icons")
+    private val arcaeaExtractRootCacheDir = context.cacheDir.toOkioPath() / "arcaea"
+    private val jacketsCacheDir = arcaeaExtractRootCacheDir / "jackets"
+    private val partnerIconsCacheDir = arcaeaExtractRootCacheDir / "partner_icons"
 
     // debug only
-    // val jacketsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/jackets")
-    // val partnerIconsCacheDir = File("/storage/emulated/0/Documents/ArcaeaOffline/partner_icons")
+    // val jacketsCacheDir = "/storage/emulated/0/Documents/ArcaeaOffline/jackets".toPath()
+    // val partnerIconsCacheDir = "/storage/emulated/0/Documents/ArcaeaOffline/partner_icons".toPath()
 
     fun getPackageInfo(): PackageInfo? =
         try {
@@ -121,7 +123,12 @@ class ArcaeaPackageHelper(
         val tailFilename = filenameParts.last().toPath().name
         if (PARTNER_ICON_FILENAME_REGEX.find(tailFilename) == null) return null
 
-        val baseFilename = filenameParts.last().toPath().name.substringBeforeLast(".")
+        val baseFilename =
+            filenameParts
+                .last()
+                .toPath()
+                .name
+                .substringBeforeLast(".")
         val partnerId = baseFilename.replace("_icon", "")
         val ext = filename.toPath().name.substringAfterLast(".")
 
@@ -130,7 +137,7 @@ class ArcaeaPackageHelper(
         return finalFilename
     }
 
-    private suspend fun extractAssetBase(outputMapping: Map<ZipEntry, File>) {
+    private suspend fun extractAssetBase(outputMapping: Map<ZipEntry, Path>) {
         if (outputMapping.isEmpty()) {
             logger.w { "extractAssetBase: outputMapping empty, returning" }
             return
@@ -144,8 +151,8 @@ class ArcaeaPackageHelper(
                     val outputFile = mapEntry.value
 
                     zipFile.getInputStream(zipEntry).use { input ->
-                        outputFile.outputStream().use { output ->
-                            input.copyTo(output)
+                        FileSystem.SYSTEM.sink(outputFile).buffer().use { sink ->
+                            sink.writeAll(input.source().buffer())
                         }
                     }
                 }
@@ -183,16 +190,14 @@ class ArcaeaPackageHelper(
     }
 
     private suspend fun extractJackets() {
-        if (!jacketsCacheDir.exists()) {
-            jacketsCacheDir.mkdirs()
-        }
+        FileSystem.SYSTEM.createDirectories(jacketsCacheDir)
 
         val entries = apkJacketZipEntries()
         val outputMapping =
             entries
                 .mapNotNull { zipEntry ->
                     jacketExtractFilename(zipEntry.name)?.let { filename ->
-                        Pair(zipEntry, File(jacketsCacheDir, filename))
+                        Pair(zipEntry, jacketsCacheDir / filename)
                     }
                 }.toMap()
         extractAssetBase(outputMapping)
@@ -213,34 +218,36 @@ class ArcaeaPackageHelper(
     }
 
     private suspend fun extractPartnerIcons() {
-        if (!partnerIconsCacheDir.exists()) {
-            partnerIconsCacheDir.mkdirs()
-        }
+        FileSystem.SYSTEM.createDirectories(partnerIconsCacheDir)
 
         val entries = apkPartnerIconZipEntries()
         val outputMapping =
             entries
                 .mapNotNull { zipEntry ->
                     partnerIconExtractFilename(zipEntry.name)?.let { filename ->
-                        Pair(zipEntry, File(partnerIconsCacheDir, filename))
+                        Pair(zipEntry, partnerIconsCacheDir / filename)
                     }
                 }.toMap()
         extractAssetBase(outputMapping)
     }
 
     fun buildHashesDatabaseCleanUp() {
-        if (jacketsCacheDir.exists()) jacketsCacheDir.listFiles()?.forEach { it.deleteRecursively() }
-        if (partnerIconsCacheDir.exists()) partnerIconsCacheDir.listFiles()?.forEach { it.deleteRecursively() }
+        if (FileSystem.SYSTEM.exists(jacketsCacheDir)) {
+            FileSystem.SYSTEM.list(jacketsCacheDir).forEach { FileSystem.SYSTEM.delete(it) }
+        }
+        if (FileSystem.SYSTEM.exists(partnerIconsCacheDir)) {
+            FileSystem.SYSTEM.list(partnerIconsCacheDir).forEach { FileSystem.SYSTEM.delete(it) }
+        }
     }
 
-    private fun jacketFileToGrayscaleImage(path: okio.Path): Mat {
+    private fun jacketFileToGrayscaleImage(path: Path): Mat {
         val img = Imgcodecs.imread(path.toString(), Imgcodecs.IMREAD_COLOR)
         val imgGrayscale = Mat()
         Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
         return imgGrayscale
     }
 
-    private fun partnerIconFileToGrayscaleImage(path: okio.Path): Mat {
+    private fun partnerIconFileToGrayscaleImage(path: Path): Mat {
         val img = Imgcodecs.imread(path.toString(), Imgcodecs.IMREAD_COLOR)
         val imgGrayscale = Mat()
         Imgproc.cvtColor(img, imgGrayscale, Imgproc.COLOR_BGR2GRAY)
@@ -251,21 +258,21 @@ class ArcaeaPackageHelper(
         buildHashesDatabaseCleanUp()
 
         extractJackets()
-        jacketsCacheDir.listFiles()?.forEach {
+        FileSystem.SYSTEM.list(jacketsCacheDir).forEach {
             builder.addTask(
                 ImageHashItemType.JACKET,
-                it.name.toPath().name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
-                input = it.toOkioPath(),
+                it.name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
+                input = it,
                 inputToGrayscaleImage = ::jacketFileToGrayscaleImage,
             )
         }
 
         extractPartnerIcons()
-        partnerIconsCacheDir.listFiles()?.forEach {
+        FileSystem.SYSTEM.list(partnerIconsCacheDir).forEach {
             builder.addTask(
                 ImageHashItemType.PARTNER_ICON,
-                it.name.toPath().name.substringBeforeLast("."),
-                input = it.toOkioPath(),
+                it.name.substringBeforeLast("."),
+                input = it,
                 inputToGrayscaleImage = ::partnerIconFileToGrayscaleImage,
             )
         }
