@@ -210,7 +210,6 @@ class OcrFromShareViewModel(
                         val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
                         DeviceOcrHelper.ocrImage(
                             imageUri,
-                            context,
                             kNearestModel,
                             imageHashesDatabase,
                             ortSession = ortSession,

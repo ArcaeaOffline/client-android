@@ -230,27 +230,20 @@ class OcrQueueJob(
             val uri = task.fileUri
 
             val ocrResult =
-                scope
-                    .async {
-                        DeviceOcrHelper.ocrImage(
-                            uri,
-                            applicationContext,
-                            kNearestModel,
-                            imageHashesDatabase,
-                            ortSession = ortSession,
-                        )
-                    }.await()
+                DeviceOcrHelper.ocrImage(
+                    uri,
+                    kNearestModel,
+                    imageHashesDatabase,
+                    ortSession = ortSession,
+                )
 
             val playResult =
-                scope
-                    .async {
-                        DeviceOcrHelper.ocrResultToPlayResult(
-                            uri,
-                            applicationContext,
-                            ocrResult,
-                            fallbackDate = Instant.now(),
-                        )
-                    }.await()
+                DeviceOcrHelper.ocrResultToPlayResult(
+                    uri,
+                    applicationContext,
+                    ocrResult,
+                    fallbackDate = Instant.now(),
+                )
 
             val warnings =
                 scope

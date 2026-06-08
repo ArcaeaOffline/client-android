@@ -10,6 +10,9 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,6 +26,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
 import okio.FileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
@@ -164,20 +169,10 @@ class DatabaseManageViewModel(
 
     fun importPacklist(
         uri: Uri,
-        context: Context,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                if (inputStream == null) {
-                    appendUiLog(
-                        LOG_TAG_IMPORT_PACKLIST,
-                        "Cannot open packlist inputStream from $uri, aborting!",
-                    )
-                    return@sendTask
-                }
-                val packlistContent = inputStream.use { inputStream.readText() }
-
+                val packlistContent = PlatformFile(uri).readBytes().decodeToString()
                 importPacklistTask(packlistContent)
             }
         }
@@ -262,20 +257,10 @@ class DatabaseManageViewModel(
 
     fun importSonglist(
         uri: Uri,
-        context: Context,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                if (inputStream == null) {
-                    appendUiLog(
-                        LOG_TAG_IMPORT_SONGLIST,
-                        "Cannot open songlist inputStream from $uri, aborting!",
-                    )
-                    return@sendTask
-                }
-                val songlistContent = inputStream.use { inputStream.readText() }
-
+                val songlistContent = PlatformFile(uri).readBytes().decodeToString()
                 importSonglistTask(songlistContent)
             }
         }
@@ -312,12 +297,13 @@ class DatabaseManageViewModel(
 
     fun importArcaeaApkFromSelected(
         uri: Uri,
-        context: Context,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                context.contentResolver.openInputStream(uri)?.use { fis ->
-                    ZipInputStream(fis).use { zis -> importArcaeaApkFromSelectedTask(zis) }
+                PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
+                    ZipInputStream(inputStream).use { zis ->
+                        importArcaeaApkFromSelectedTask(zis)
+                    }
                 }
             }
         }

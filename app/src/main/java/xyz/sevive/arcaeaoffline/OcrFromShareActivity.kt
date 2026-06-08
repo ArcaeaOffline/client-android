@@ -12,7 +12,9 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.IntentCompat
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.init
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.opencv.android.OpenCVLoader
@@ -85,16 +87,15 @@ class OcrFromShareActivity : ComponentActivity() {
             ) ?: return
 
         // get an input stream from the Uri
-        val inputStream = contentResolver.openInputStream(uri)
-
-        if (inputStream == null) {
-            viewModel.setException(Exception("Error reading image"))
+        // TODO: use input stream
+        val imageBytes = runCatching {
+            runBlocking { PlatformFile(uri).readBytes() }
+        }.getOrElse {
+            viewModel.setException(Exception("Error reading image", it))
             return
         }
 
-        val inputStreamRead = inputStream.use { it.readBytes() }
-
-        val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
+        val imgBitmap = BitmapFactory.decodeStream(imageBytes.inputStream())
         viewModel.setBitmap(imgBitmap)
         runBlocking {
             launch {

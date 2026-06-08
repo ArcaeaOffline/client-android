@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.Dialog
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.source
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -36,7 +40,7 @@ private fun OcrQueueTaskListItemImagePreviewDialog(
     val displayText = if (showFileUri) uiItem.fileUri.toString() else filename
 
     ImagePreviewDialog(
-        inputStream = context.contentResolver.openInputStream(uiItem.fileUri),
+        inputStream = PlatformFile(uiItem.fileUri).source().buffered().asInputStream(),
         onDismiss = onDismissRequest,
         topBarContent = {
             Text(

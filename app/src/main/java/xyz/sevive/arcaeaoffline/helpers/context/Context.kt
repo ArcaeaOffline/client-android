@@ -7,11 +7,15 @@ import android.net.Uri
 import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
-import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.size
+import io.github.vinceglb.filekit.source
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import okio.buffer
+import okio.source
 
 // find activity from context
 // https://stackoverflow.com/a/69235067/16484891
@@ -31,8 +35,11 @@ suspend fun Context.copyToCache(
 ): Path? {
     val cachePath = (this.externalCacheDir ?: this.cacheDir).toOkioPath().resolve(filename)
     return try {
-        val bytes = PlatformFile(uri).readBytes()
-        FileSystem.SYSTEM.write(cachePath) { write(bytes) }
+        PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
+            FileSystem.SYSTEM.sink(cachePath).buffer().use { sink ->
+                sink.writeAll(inputStream.source().buffer())
+            }
+        }
         cachePath
     } catch (e: Exception) {
         null

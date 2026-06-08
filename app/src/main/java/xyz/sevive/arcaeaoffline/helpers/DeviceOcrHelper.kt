@@ -4,6 +4,8 @@ import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
@@ -27,20 +29,15 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
-import java.io.FileNotFoundException
 
 object DeviceOcrHelper {
-    fun ocrImage(
+    suspend fun ocrImage(
         imageUri: Uri,
-        context: Context,
         kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
-        val inputStream =
-            context.contentResolver.openInputStream(imageUri)
-                ?: throw FileNotFoundException("Cannot open a input stream for $imageUri")
-        val byteArray = inputStream.use { it.readBytes() }
+        val byteArray = PlatformFile(imageUri).readBytes()
         val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
         val imgCropped = CropBlackEdges.crop(img)
 
@@ -77,14 +74,12 @@ object DeviceOcrHelper {
         ).ocr()
     }
 
-    fun readImageDateFromExif(
+    suspend fun readImageDateFromExif(
         imageUri: Uri,
-        context: Context,
         fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
     ): Instant? {
-        val byteArray =
-            context.contentResolver.openInputStream(imageUri)?.use { it.readBytes() } ?: return null
+        val byteArray = PlatformFile(imageUri).readBytes()
 
         return if (overrideDate != null) {
             overrideDate
@@ -116,7 +111,7 @@ object DeviceOcrHelper {
         }
     }
 
-    fun ocrResultToPlayResult(
+    suspend fun ocrResultToPlayResult(
         imageUri: Uri,
         context: Context,
         ocrResult: DeviceOcrResult,
@@ -127,7 +122,7 @@ object DeviceOcrHelper {
         val arcaeaPartnerModifiers =
             customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
 
-        val date = readImageDateFromExif(imageUri, context, fallbackDate, overrideDate)
+        val date = readImageDateFromExif(imageUri, fallbackDate, overrideDate)
         val imgFilename = context.getFilename(imageUri)
 
         return ocrResult.toPlayResult(
