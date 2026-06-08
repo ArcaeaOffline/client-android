@@ -167,9 +167,7 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importPacklist(
-        uri: Uri,
-    ) {
+    fun importPacklist(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val packlistContent = PlatformFile(uri).readBytes().decodeToString()
@@ -255,9 +253,7 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importSonglist(
-        uri: Uri,
-    ) {
+    fun importSonglist(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val songlistContent = PlatformFile(uri).readBytes().decodeToString()
@@ -295,9 +291,7 @@ class DatabaseManageViewModel(
         if (!songlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "songlist not found!")
     }
 
-    fun importArcaeaApkFromSelected(
-        uri: Uri,
-    ) {
+    fun importArcaeaApkFromSelected(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->

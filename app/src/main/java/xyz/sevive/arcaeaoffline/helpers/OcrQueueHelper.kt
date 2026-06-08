@@ -17,10 +17,8 @@ import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 
 object OcrQueueHelper {
-    suspend fun isUriImage(
-        uri: Uri,
-    ): Boolean {
-        return withContext(Dispatchers.IO) {
+    suspend fun isUriImage(uri: Uri): Boolean =
+        withContext(Dispatchers.IO) {
             async {
                 // Know if a file is an image in Java/Android
                 // https://stackoverflow.com/a/18499840/16484891
@@ -34,12 +32,9 @@ object OcrQueueHelper {
                 options.outWidth != -1 && options.outHeight != -1
             }.await()
         }
-    }
 
-    suspend fun isUriArcaeaImage(
-        uri: Uri,
-    ): Boolean {
-        return withContext(Dispatchers.IO) {
+    suspend fun isUriArcaeaImage(uri: Uri): Boolean =
+        withContext(Dispatchers.IO) {
             async {
                 val byteArray = PlatformFile(uri).readBytes()
 
@@ -50,5 +45,4 @@ object OcrQueueHelper {
                 ScreenshotDetect.isArcaeaScreenshot(imgHsv)
             }.await()
         }
-    }
 }

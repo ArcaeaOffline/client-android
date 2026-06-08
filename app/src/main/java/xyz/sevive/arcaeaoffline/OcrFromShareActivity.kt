@@ -88,12 +88,13 @@ class OcrFromShareActivity : ComponentActivity() {
 
         // get an input stream from the Uri
         // TODO: use input stream
-        val imageBytes = runCatching {
-            runBlocking { PlatformFile(uri).readBytes() }
-        }.getOrElse {
-            viewModel.setException(Exception("Error reading image", it))
-            return
-        }
+        val imageBytes =
+            runCatching {
+                runBlocking { PlatformFile(uri).readBytes() }
+            }.getOrElse {
+                viewModel.setException(Exception("Error reading image", it))
+                return
+            }
 
         val imgBitmap = BitmapFactory.decodeStream(imageBytes.inputStream())
         viewModel.setBitmap(imgBitmap)

@@ -1,11 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
-import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.isRegularFile
-import io.github.vinceglb.filekit.list
-import io.github.vinceglb.filekit.path
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -13,6 +10,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.isRegularFile
+import io.github.vinceglb.filekit.list
+import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,7 +27,6 @@ import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
-import androidx.core.net.toUri
 
 class OcrQueueEnqueueCheckerViewModel(
     private val workManager: WorkManager,
