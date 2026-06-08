@@ -230,12 +230,14 @@ class ArcaeaPackageHelper(
         extractAssetBase(outputMapping)
     }
 
-    fun buildHashesDatabaseCleanUp() {
-        if (SystemFileSystem.exists(jacketsCacheDir)) {
-            SystemFileSystem.list(jacketsCacheDir).forEach { SystemFileSystem.delete(it) }
-        }
-        if (SystemFileSystem.exists(partnerIconsCacheDir)) {
-            SystemFileSystem.list(partnerIconsCacheDir).forEach { SystemFileSystem.delete(it) }
+    suspend fun buildHashesDatabaseCleanUp() {
+        withContext(Dispatchers.IO) {
+            if (SystemFileSystem.exists(jacketsCacheDir)) {
+                SystemFileSystem.list(jacketsCacheDir).forEach { SystemFileSystem.delete(it) }
+            }
+            if (SystemFileSystem.exists(partnerIconsCacheDir)) {
+                SystemFileSystem.list(partnerIconsCacheDir).forEach { SystemFileSystem.delete(it) }
+            }
         }
     }
 

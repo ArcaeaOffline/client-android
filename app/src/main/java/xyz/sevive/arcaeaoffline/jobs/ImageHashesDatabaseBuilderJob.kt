@@ -41,7 +41,7 @@ class ImageHashesDatabaseBuilderJob(
         try {
             withContext(Dispatchers.IO) {
                 if (SystemFileSystem.exists(path)) SystemFileSystem.delete(path)
-                SystemFileSystem.createDirectories(path.parent!!)
+                SystemFileSystem.createDirectories(path.parent ?: error("$path has no parent"))
             }
 
             BundledSQLiteDriver()
