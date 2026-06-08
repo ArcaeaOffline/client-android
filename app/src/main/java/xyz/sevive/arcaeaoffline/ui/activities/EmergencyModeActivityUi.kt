@@ -37,9 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import xyz.sevive.arcaeaoffline.R
@@ -91,7 +91,7 @@ fun EmergencyModeActivityUi(
         rememberDirectoryPickerLauncher { dir ->
             dir?.let {
                 context.persistUriPermissions(
-                    it.path.toUri(),
+                    it.toAndroidUri(),
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                 )
                 viewModel.setOutputDirectory(it)

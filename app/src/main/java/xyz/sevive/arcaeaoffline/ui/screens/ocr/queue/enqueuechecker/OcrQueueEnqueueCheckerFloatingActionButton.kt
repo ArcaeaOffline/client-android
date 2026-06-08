@@ -31,7 +31,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.vinceglb.filekit.PlatformFile
@@ -40,7 +39,6 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
-import io.github.vinceglb.filekit.path
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -63,7 +61,7 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
         ) { files: List<PlatformFile>? ->
             // persist access permission to these images, ensuring the image preview function
             // will work even if the application restarted
-            val uris = files?.map { it.path.toUri() }.orEmpty()
+            val uris = files?.map { it.toAndroidUri() }.orEmpty()
             context.persistUriPermissions(uris, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             vm.addImageFiles(uris)
         }

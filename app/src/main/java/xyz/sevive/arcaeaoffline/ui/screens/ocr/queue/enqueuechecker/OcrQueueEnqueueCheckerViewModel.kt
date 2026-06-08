@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
 import android.net.Uri
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Data
@@ -11,9 +10,9 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.isRegularFile
 import io.github.vinceglb.filekit.list
-import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -127,7 +126,7 @@ class OcrQueueEnqueueCheckerViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             isPreparing.value = true
             try {
-                val uris = folder.list().filter { it.isRegularFile() }.map { it.path.toUri() }
+                val uris = folder.list().filter { it.isRegularFile() }.map { it.toAndroidUri() }
                 addImageFiles(uris)
             } finally {
                 isPreparing.value = false
