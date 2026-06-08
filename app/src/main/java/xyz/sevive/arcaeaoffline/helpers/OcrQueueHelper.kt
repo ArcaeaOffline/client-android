@@ -1,12 +1,15 @@
 package xyz.sevive.arcaeaoffline.helpers
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import org.apache.commons.io.IOUtils
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
@@ -14,33 +17,26 @@ import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 
 object OcrQueueHelper {
-    suspend fun isUriImage(
-        uri: Uri,
-        context: Context,
-    ): Boolean {
-        return withContext(Dispatchers.IO) {
+    suspend fun isUriImage(uri: Uri): Boolean =
+        withContext(Dispatchers.IO) {
             async {
-                val inputStream = context.contentResolver.openInputStream(uri) ?: return@async false
-                // Know if a file is a image in Java/Android
+                // Know if a file is an image in Java/Android
                 // https://stackoverflow.com/a/18499840/16484891
                 // CC BY-SA 3.0
                 val options = BitmapFactory.Options()
                 options.inJustDecodeBounds = true
-                inputStream.use { BitmapFactory.decodeStream(it, null, options) }
+                PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
+                    BitmapFactory.decodeStream(inputStream, null, options)
+                }
 
                 options.outWidth != -1 && options.outHeight != -1
             }.await()
         }
-    }
 
-    suspend fun isUriArcaeaImage(
-        uri: Uri,
-        context: Context,
-    ): Boolean {
-        return withContext(Dispatchers.IO) {
+    suspend fun isUriArcaeaImage(uri: Uri): Boolean =
+        withContext(Dispatchers.IO) {
             async {
-                val inputStream = context.contentResolver.openInputStream(uri) ?: return@async false
-                val byteArray = inputStream.use { IOUtils.toByteArray(inputStream) }
+                val byteArray = PlatformFile(uri).readBytes()
 
                 val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
                 val imgHsv = Mat()
@@ -49,5 +45,4 @@ object OcrQueueHelper {
                 ScreenshotDetect.isArcaeaScreenshot(imgHsv)
             }.await()
         }
-    }
 }

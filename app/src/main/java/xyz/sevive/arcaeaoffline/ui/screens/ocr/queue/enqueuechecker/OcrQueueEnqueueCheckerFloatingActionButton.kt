@@ -1,10 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -35,36 +31,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import co.touchlab.kermit.Logger
-import io.sentry.Sentry
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.roundToInt
-
-private fun persistUrisPermission(
-    context: Context,
-    uris: List<Uri>,
-    permissionFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION,
-) {
-    var exceptionCaptured = false
-
-    uris.forEach {
-        try {
-            context.contentResolver.takePersistableUriPermission(it, permissionFlags)
-        } catch (e: Throwable) {
-            Logger.withTag("Application").w(e) { "Error persisting permissions for uri $it" }
-
-            if (!exceptionCaptured) {
-                Sentry.captureException(e)
-                exceptionCaptured = true
-            }
-        }
-    }
-}
 
 @Composable
 internal fun OcrQueueEnqueueCheckerFloatingActionButton(
@@ -76,32 +55,30 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
     val pickImagesLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.GetMultipleContents(),
-        ) { uris ->
+        rememberFilePickerLauncher(
+            mode = FileKitMode.Multiple(),
+            type = FileKitType.Image,
+        ) { files: List<PlatformFile>? ->
             // persist access permission to these images, ensuring the image preview function
             // will work even if the application restarted
-            persistUrisPermission(context, uris)
+            val uris = files?.map { it.toAndroidUri() }.orEmpty()
+            context.persistUriPermissions(uris, Intent.FLAG_GRANT_READ_URI_PERMISSION)
             vm.addImageFiles(uris)
         }
 
     val pickFolderLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.OpenDocumentTree(),
-        ) { uri ->
-            uri?.let {
+        rememberDirectoryPickerLauncher { dir ->
+            dir?.let {
                 // persistent access permission to this folder
-                persistUrisPermission(context, listOf(uri))
-
-                val folder = DocumentFile.fromTreeUri(context, uri)
-                folder?.let { vm.addFolder(it) }
+                context.persistUriPermissions(it.toAndroidUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                vm.addFolder(it)
             }
         }
 
     OcrQueueEnqueueCheckerFloatingActionButton(
         uiState = uiState,
-        onPickImages = { pickImagesLauncher.launch("image/*") },
-        onPickFolder = { pickFolderLauncher.launch(null) },
+        onPickImages = { pickImagesLauncher.launch() },
+        onPickFolder = { pickFolderLauncher.launch() },
         onStopJob = { vm.cancelWork() },
         modifier = modifier,
     )

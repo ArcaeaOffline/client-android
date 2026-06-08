@@ -10,6 +10,9 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,7 +26,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.apache.commons.io.IOUtils
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
+import kotlinx.io.files.SystemFileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
@@ -115,7 +120,7 @@ class DatabaseManageViewModel(
             UiState(),
         )
 
-    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = IOUtils.toString(this, charset)
+    private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = bufferedReader(charset).use { it.readText() }
 
     private suspend fun appendUiLog(
         tag: String?,
@@ -162,22 +167,10 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importPacklist(
-        uri: Uri,
-        context: Context,
-    ) {
+    fun importPacklist(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                if (inputStream == null) {
-                    appendUiLog(
-                        LOG_TAG_IMPORT_PACKLIST,
-                        "Cannot open packlist inputStream from $uri, aborting!",
-                    )
-                    return@sendTask
-                }
-                val packlistContent = inputStream.use { inputStream.readText() }
-
+                val packlistContent = PlatformFile(uri).readBytes().decodeToString()
                 importPacklistTask(packlistContent)
             }
         }
@@ -260,22 +253,10 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importSonglist(
-        uri: Uri,
-        context: Context,
-    ) {
+    fun importSonglist(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                if (inputStream == null) {
-                    appendUiLog(
-                        LOG_TAG_IMPORT_SONGLIST,
-                        "Cannot open songlist inputStream from $uri, aborting!",
-                    )
-                    return@sendTask
-                }
-                val songlistContent = inputStream.use { inputStream.readText() }
-
+                val songlistContent = PlatformFile(uri).readBytes().decodeToString()
                 importSonglistTask(songlistContent)
             }
         }
@@ -310,14 +291,14 @@ class DatabaseManageViewModel(
         if (!songlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "songlist not found!")
     }
 
-    fun importArcaeaApkFromSelected(
-        uri: Uri,
-        context: Context,
-    ) {
+    fun importArcaeaApkFromSelected(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
-                context.contentResolver.openInputStream(uri)?.use { fis ->
-                    ZipInputStream(fis).use { zis -> importArcaeaApkFromSelectedTask(zis) }
+                PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
+                    ZipInputStream(inputStream).use { zis ->
+                        // TODO: change to work manager task, weird `java.io.IOException: Stream closed` inspected
+                        importArcaeaApkFromSelectedTask(zis)
+                    }
                 }
             }
         }
@@ -379,10 +360,10 @@ class DatabaseManageViewModel(
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
                 BundledSQLiteDriver()
-                    .open(databaseCopied.absolutePath, SQLITE_OPEN_READONLY)
+                    .open(databaseCopied.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importChartsInfoDatabase(conn) }
 
-                databaseCopied.delete()
+                SystemFileSystem.delete(databaseCopied)
             }
         }
     }
@@ -411,10 +392,10 @@ class DatabaseManageViewModel(
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
                 BundledSQLiteDriver()
-                    .open(dbCacheFile.absolutePath, SQLITE_OPEN_READONLY)
+                    .open(dbCacheFile.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importSt3(conn) }
 
-                dbCacheFile.delete()
+                SystemFileSystem.delete(dbCacheFile)
             }
         }
     }
@@ -423,7 +404,7 @@ class DatabaseManageViewModel(
         val playResults = repositoryContainer.playResultRepo.findAll().firstOrNull() ?: return
 
         ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
-            IOUtils.write(ArcaeaOfflineDEFv2Exporter.playResults(it), outputStream)
+            outputStream.write(ArcaeaOfflineDEFv2Exporter.playResults(it).toByteArray())
             appendUiLog(
                 LOG_TAG_EXPORT_PLAY_RESULTS,
                 res.getQuantityString(

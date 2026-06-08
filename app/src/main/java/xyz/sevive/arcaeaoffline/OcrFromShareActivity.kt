@@ -11,9 +11,12 @@ import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.IntentCompat
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.init
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.io.IOUtils
 import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
 import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
@@ -26,11 +29,11 @@ class OcrFromShareActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-
         OpenCVLoader.initLocal()
+        FileKit.init(this)
 
         setTitle(R.string.title_activity_ocr_from_share)
 
@@ -84,16 +87,16 @@ class OcrFromShareActivity : ComponentActivity() {
             ) ?: return
 
         // get an input stream from the Uri
-        val inputStream = contentResolver.openInputStream(uri)
+        // TODO: use input stream
+        val imageBytes =
+            runCatching {
+                runBlocking { PlatformFile(uri).readBytes() }
+            }.getOrElse {
+                viewModel.setException(Exception("Error reading image", it))
+                return
+            }
 
-        if (inputStream == null) {
-            viewModel.setException(Exception("Error reading image"))
-            return
-        }
-
-        val inputStreamRead = IOUtils.toByteArray(inputStream)
-
-        val imgBitmap = BitmapFactory.decodeStream(inputStreamRead.inputStream())
+        val imgBitmap = BitmapFactory.decodeStream(imageBytes.inputStream())
         viewModel.setBitmap(imgBitmap)
         runBlocking {
             launch {

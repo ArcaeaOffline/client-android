@@ -1,34 +1,35 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import android.content.Context
+import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import kotlin.use
 
 object OcrDependencyStatusBuilder {
-    fun kNearest(context: Context): KNearestModelStatusDetail {
+    fun kNearest(): KNearestModelStatusDetail {
         try {
-            val paths = OcrDependencyPaths(context)
-            if (!paths.knnModelFile.exists()) return KNearestModelStatusDetail(absence = true)
+            val paths = OcrDependencyPaths()
+            if (!SystemFileSystem.exists(paths.knnModelFile)) return KNearestModelStatusDetail(absence = true)
 
-            val model = OcrDependencyLoader.kNearestModel(context)
+            val model = OcrDependencyLoader.kNearestModel()
             return KNearestModelStatusDetail(varCount = model.varCount, isTrained = model.isTrained)
         } catch (e: Exception) {
             return KNearestModelStatusDetail(exception = e)
         }
     }
 
-    fun imageHashesDatabase(context: Context): ImageHashesDatabaseStatusDetail {
+    fun imageHashesDatabase(): ImageHashesDatabaseStatusDetail {
         try {
-            val paths = OcrDependencyPaths(context)
-            if (!paths.imageHashesDatabaseFile.exists()) {
+            val paths = OcrDependencyPaths()
+            if (!SystemFileSystem.exists(paths.imageHashesDatabaseFile)) {
                 return ImageHashesDatabaseStatusDetail(
                     absence = true,
                 )
             }
 
-            OcrDependencyLoader.imageHashesSQLiteDatabase(context).use { sqliteDb ->
+            OcrDependencyLoader.imageHashesSQLiteDatabase().use { sqliteDb ->
                 val db = ImageHashesDatabase(sqliteDb)
 
                 return ImageHashesDatabaseStatusDetail(

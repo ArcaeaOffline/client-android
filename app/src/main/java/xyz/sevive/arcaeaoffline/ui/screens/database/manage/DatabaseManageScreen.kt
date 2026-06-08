@@ -201,9 +201,9 @@ fun DatabaseManageScreen(
 
             item {
                 DatabaseManageImport(
-                    onImportPacklist = { viewModel.importPacklist(it, context) },
-                    onImportSonglist = { viewModel.importSonglist(it, context) },
-                    onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it, context) },
+                    onImportPacklist = { viewModel.importPacklist(it) },
+                    onImportSonglist = { viewModel.importSonglist(it) },
+                    onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it) },
                     canImportLists = canImportLists,
                     onImportFromInstalledArcaea = { viewModel.importArcaeaApkFromInstalled(context) },
                     onImportChartInfoDatabase = { viewModel.importChartsInfoDatabase(it, context) },

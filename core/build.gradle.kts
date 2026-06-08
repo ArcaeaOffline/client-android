@@ -20,7 +20,7 @@ kotlin {
 
 android {
     namespace = "xyz.sevive.arcaeaoffline.core"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -62,7 +62,7 @@ dependencies {
     // 3rd party
     implementation(libs.kermit)
 
-    implementation(libs.apache.commons.io)
+    implementation(libs.kotlinx.io)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)

@@ -10,7 +10,6 @@ import co.touchlab.kermit.Logger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.apache.commons.io.IOUtils
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
@@ -47,7 +46,10 @@ object DeviceOcrOnnxHelper {
     fun loadModelInfo(context: Context) {
         val modelInfo =
             jsonSerializer.decodeFromString<ModelInfo>(
-                IOUtils.toString(context.assets.open("ocr/model_info.json")),
+                context.assets
+                    .open("ocr/model_info.json")
+                    .bufferedReader()
+                    .use { it.readText() },
             )
 
         logger.d { "Loaded model info $modelInfo" }
@@ -59,7 +61,7 @@ object DeviceOcrOnnxHelper {
         padToken = modelInfo.padToken
     }
 
-    private fun readOnnxModelBytes(context: Context): ByteArray = IOUtils.toByteArray(context.assets.open("ocr/model_patched.onnx"))
+    private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open("ocr/model_patched.onnx").readBytes()
 
     /**
      * @see <a href="https://onnx.ai/onnx/repo-docs/Versioning.html#serializing-semver-version-numbers-in-protobuf">ONNX documentation</a>

@@ -1,29 +1,26 @@
 package xyz.sevive.arcaeaoffline.data
 
-import android.content.Context
-import java.io.File
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.absolutePath
+import io.github.vinceglb.filekit.filesDir
+import io.github.vinceglb.filekit.utils.div
+import kotlinx.io.files.Path
 
-class OcrDependencyPaths(
-    context: Context,
-) {
-    val parentDir = File(context.filesDir, "ocr" + File.separator + "dependencies")
+class OcrDependencyPaths {
+    val parentDir = Path(FileKit.filesDir.absolutePath()) / "ocr" / "dependencies"
 
-    val knnModelFile = File(parentDir, "digits.knn.dat")
-    val phashDatabaseFile = File(parentDir, "image-phash.db")
-    val imageHashesDatabaseFile = File(parentDir, "image-hashes.db")
+    val knnModelFile = parentDir / "digits.knn.dat"
+    val phashDatabaseFile = parentDir / "image-phash.db"
+    val imageHashesDatabaseFile = parentDir / "image-hashes.db"
 }
 
-class OcrPaths(
-    context: Context,
-) {
-    val parentDir = File(context.filesDir, "ocr")
+class OcrPaths {
+    val parentDir = Path(FileKit.filesDir.absolutePath()) / "ocr"
 
-    val fromShareImageCacheDir = File(parentDir, "fromShareImages")
+    val fromShareImageCacheDir = parentDir / "fromShareImages"
 }
 
-class Paths(
-    context: Context,
-) {
-    val ocr = OcrPaths(context)
-    val ocrDependency = OcrDependencyPaths(context)
+class Paths {
+    val ocr = OcrPaths()
+    val ocrDependency = OcrDependencyPaths()
 }

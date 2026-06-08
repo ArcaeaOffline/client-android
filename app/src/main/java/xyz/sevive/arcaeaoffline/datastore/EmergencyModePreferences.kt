@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.datastore
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
-import androidx.documentfile.provider.DocumentFile
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
@@ -31,9 +30,9 @@ class EmergencyModePreferencesRepository(
 ) {
     val preferencesFlow = dataStore.data
 
-    suspend fun updateLastOutputDirectory(documentFile: DocumentFile) {
+    suspend fun updateLastOutputDirectory(path: String) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setLastOutputDirectory(documentFile.uri.toString()).build()
+            preferences.toBuilder().setLastOutputDirectory(path).build()
         }
     }
 }

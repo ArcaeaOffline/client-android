@@ -18,7 +18,6 @@ import com.halilibo.richtext.ui.material3.RichText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
@@ -34,12 +33,15 @@ internal fun SettingsLicenseScreen(
     val licenseText by produceState<String?>(initialValue = null) {
         launch(Dispatchers.IO) {
             // the [RichText] below will block the UI thread for a moment,
-            // so we're adding a explicit delay to ensure the loading indicator is visible,
+            // so we're adding an explicit delay to ensure the loading indicator is visible,
             // informing user that there is some loading in the background.
             delay(500L)
             value =
                 if (context.assets.list("")?.contains(LICENSE_FILENAME) == true) {
-                    IOUtils.toString(context.assets.open(LICENSE_FILENAME))
+                    context.assets
+                        .open(LICENSE_FILENAME)
+                        .bufferedReader()
+                        .use { it.readText() }
                 } else {
                     "License file [${LICENSE_FILENAME}] not found! Check your assets."
                 }

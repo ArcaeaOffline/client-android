@@ -2,11 +2,9 @@ package xyz.sevive.arcaeaoffline.core
 
 import android.content.res.AssetManager
 import kotlinx.serialization.json.Json
-import org.apache.commons.io.IOUtils
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifierRange
-import java.nio.charset.StandardCharsets
 
 class ArcaeaPartnerModifiers(
     assetManager: AssetManager? = null,
@@ -21,7 +19,7 @@ class ArcaeaPartnerModifiers(
 
     fun loadFromAssets(assetManager: AssetManager) {
         val inputStream = assetManager.open("partnerModifiers.json")
-        val content = IOUtils.toString(inputStream, StandardCharsets.UTF_8)
+        val content = inputStream.bufferedReader().use { it.readText() }
         val contentParsed = parsePartnerModifiersJson(content)
         updateWith(contentParsed)
     }

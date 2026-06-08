@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
@@ -31,21 +32,21 @@ class ImageHashesDatabaseBuilderJob(
     }
 
     override suspend fun doWork(): Result {
-        val ocrDependencyPaths = OcrDependencyPaths(applicationContext)
-        val file = ocrDependencyPaths.imageHashesDatabaseFile
+        val ocrDependencyPaths = OcrDependencyPaths()
+        val path = ocrDependencyPaths.imageHashesDatabaseFile
         val arcaeaPackageHelper = ArcaeaPackageHelper(applicationContext)
 
         val collectScope = CoroutineScope(Dispatchers.Default)
 
         try {
             withContext(Dispatchers.IO) {
-                if (file.exists()) file.delete()
-                file.absoluteFile.parentFile?.mkdirs()
+                if (SystemFileSystem.exists(path)) SystemFileSystem.delete(path)
+                SystemFileSystem.createDirectories(path.parent ?: error("$path has no parent"))
             }
 
             BundledSQLiteDriver()
                 .open(
-                    file.absolutePath,
+                    path.toString(),
                     SQLITE_OPEN_READWRITE.or(SQLITE_OPEN_CREATE),
                 ).use { conn ->
                     val builder = ImageHashesDatabaseBuilder(conn)

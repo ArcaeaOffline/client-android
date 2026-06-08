@@ -218,13 +218,13 @@ class OcrQueueEnqueueCheckerJob(
         var shouldInsert = true
 
         if (workOptions.checkIsImage) {
-            if (!OcrQueueHelper.isUriImage(dbItem.uri, applicationContext)) {
+            if (!OcrQueueHelper.isUriImage(dbItem.uri)) {
                 shouldInsert = false
             }
         }
 
         if (workOptions.checkIsArcaeaImage) {
-            if (!OcrQueueHelper.isUriArcaeaImage(dbItem.uri, applicationContext)) {
+            if (!OcrQueueHelper.isUriArcaeaImage(dbItem.uri)) {
                 shouldInsert = false
             }
         }

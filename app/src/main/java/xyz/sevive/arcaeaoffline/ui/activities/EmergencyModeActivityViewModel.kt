@@ -1,12 +1,19 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
 import android.content.Context
-import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.text.format.Formatter
 import android.widget.Toast
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.delete
+import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.path
+import io.github.vinceglb.filekit.size
+import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +22,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.apache.commons.io.IOUtils
+import kotlinx.coroutines.withContext
+import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
@@ -26,57 +34,68 @@ class EmergencyModeActivityViewModel(
     private val preferencesRepository: EmergencyModePreferencesRepository,
 ) : ViewModel() {
     companion object {
-        private const val TEST_FILENAME = "test_write"
+        private const val TEST_FILENAME = "arcaea_offline-test_write-1f8a11c6-65ce-4d73-886f-e0b5bc7f5eb9"
+        private const val LOG_TAG = "EmergencyModeVM"
     }
 
-    fun reloadPreferencesOnStartUp(context: Context) {
+    private val logger = Logger.withTag(LOG_TAG)
+
+    fun reloadPreferencesOnStartUp() {
         viewModelScope.launch {
             val preferences = preferencesRepository.preferencesFlow.firstOrNull() ?: return@launch
 
             if (preferences.hasLastOutputDirectory()) {
                 val lastOutputDirectory = preferences.lastOutputDirectory
                 if (lastOutputDirectory.isNotEmpty()) {
-                    DocumentFile.fromTreeUri(context, Uri.parse(lastOutputDirectory))?.let {
-                        setOutputDirectory(it)
-                    }
+                    val savedDir = PlatformFile(lastOutputDirectory)
+                    setOutputDirectory(savedDir)
                 }
             }
         }
     }
 
-    private val _outputDirectory = MutableStateFlow<DocumentFile?>(null)
+    private val _outputDirectory = MutableStateFlow<PlatformFile?>(null)
     val outputDirectory = _outputDirectory.asStateFlow()
 
     val outputDirectoryValid =
-        outputDirectory.map { outputDirectoryValidResultProducer() }.stateIn(
+        outputDirectory.map { outputDirectoryValidResultProducer(it) }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
             initialValue = false,
         )
 
-    fun setOutputDirectory(documentFile: DocumentFile) {
-        _outputDirectory.value = documentFile
+    fun setOutputDirectory(file: PlatformFile) {
+        _outputDirectory.value = file
 
         viewModelScope.launch {
-            preferencesRepository.updateLastOutputDirectory(documentFile)
+            preferencesRepository.updateLastOutputDirectory(file.path)
         }
     }
 
-    fun outputDirectoryValidResultProducer(): Boolean {
-        outputDirectory.value?.exists() ?: return false
+    suspend fun outputDirectoryValidResultProducer(directory: PlatformFile?): Boolean {
+        if (directory == null) return false
 
-        outputDirectory.value?.createFile("unknown/unknown", TEST_FILENAME)
-        val result = outputDirectory.value?.findFile(TEST_FILENAME)?.exists() ?: false
-        if (result) {
-            outputDirectory.value?.findFile(TEST_FILENAME)?.delete()
+        return try {
+            withContext(Dispatchers.IO) {
+                val testFile = PlatformFile(directory, TEST_FILENAME)
+                testFile.write(ByteArray(0))
+                testFile.delete()
+            }
+
+            true
+        } catch (_: Exception) {
+            false
         }
-        return result
     }
 
-    fun deleteAllOcrDependencies(context: Context) {
-        val paths = OcrDependencyPaths(context)
-        paths.knnModelFile.delete()
-        paths.phashDatabaseFile.delete()
+    fun deleteAllOcrDependencies() {
+        val paths = OcrDependencyPaths()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (SystemFileSystem.exists(paths.knnModelFile)) SystemFileSystem.delete(paths.knnModelFile)
+            if (SystemFileSystem.exists(paths.phashDatabaseFile)) SystemFileSystem.delete(paths.phashDatabaseFile)
+            if (SystemFileSystem.exists(paths.imageHashesDatabaseFile)) SystemFileSystem.delete(paths.imageHashesDatabaseFile)
+        }
     }
 
     fun deleteOcrQueueDatabase(context: Context) {
@@ -100,34 +119,31 @@ class EmergencyModeActivityViewModel(
 
     fun copyDatabase(context: Context) {
         val originalDatabaseFile = context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
-        var outputFile: DocumentFile? = null
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
-                val backupFile =
-                    outputDirectory.value?.createFile("application/octet-stream", backupFileName)
-                        ?: return@launch
+        var toastMessage: String?
 
-                val backupFileStream =
-                    context.contentResolver.openOutputStream(backupFile.uri) ?: return@launch
+        viewModelScope.launch(Dispatchers.IO) {
+            val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
+            val outputDir = outputDirectory.value ?: return@launch
+            val backupFile = PlatformFile(outputDir, backupFileName)
 
-                backupFileStream.use { IOUtils.copy(originalDatabaseFile.inputStream(), it) }
+            try {
+                backupFile.write(originalDatabaseFile.inputStream().use { it.readBytes() })
 
-                outputFile = backupFile
-            }.invokeOnCompletion {
-                outputFile?.let {
-                    val fileSizeReadable = Formatter.formatShortFileSize(context, it.length())
-                    Toast
-                        .makeText(
-                            context,
-                            context.getString(
-                                R.string.emergency_mode_database_copied_message,
-                                it.name,
-                                fileSizeReadable,
-                            ),
-                            Toast.LENGTH_LONG,
-                        ).show()
-                }
+                val fileSizeReadable = Formatter.formatShortFileSize(context, backupFile.size())
+                toastMessage =
+                    context.getString(
+                        R.string.emergency_mode_database_copied_message,
+                        backupFile.name,
+                        fileSizeReadable,
+                    )
+            } catch (e: Exception) {
+                logger.e(e) { "Error copying database" }
+                toastMessage = e.message ?: "Error copying database"
             }
+
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

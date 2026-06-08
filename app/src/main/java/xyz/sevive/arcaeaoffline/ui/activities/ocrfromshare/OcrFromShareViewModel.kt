@@ -10,6 +10,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.utils.div
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +20,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.asOutputStream
+import kotlinx.io.buffered
+import kotlinx.io.files.SystemFileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -35,7 +39,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDataba
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
-import java.io.File
 
 class OcrFromShareViewModel(
     private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
@@ -58,8 +61,8 @@ class OcrFromShareViewModel(
 
     fun reloadOcrDependencyViewersUiState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val kNearest = OcrDependencyStatusBuilder.kNearest(context)
-            val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase(context)
+            val kNearest = OcrDependencyStatusBuilder.kNearest()
+            val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase()
             val crnnModel = OcrDependencyStatusBuilder.crnnModel(context)
 
             _ocrDependencyViewersUiState.value =
@@ -174,13 +177,16 @@ class OcrFromShareViewModel(
 
             val bitmap = bitmap.value
             if (bitmap != null) {
-                val parentDir = OcrPaths(context).fromShareImageCacheDir
-                if (!parentDir.exists()) {
-                    logger.i { "Creating image cache dir, success: ${parentDir.mkdirs()}" }
+                val parentDir = OcrPaths().fromShareImageCacheDir
+                if (!SystemFileSystem.exists(parentDir)) {
+                    SystemFileSystem.createDirectories(parentDir)
+                    logger.i { "Created image cache dir" }
                 }
 
-                val cacheImageFile = File(parentDir, "$id.jpg")
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, cacheImageFile.outputStream())
+                val cacheImagePath = parentDir / "$id.jpg"
+                SystemFileSystem.sink(cacheImagePath).buffered().use { sink ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, sink.asOutputStream())
+                }
             }
 
             _scoreCached.value = true
@@ -197,16 +203,15 @@ class OcrFromShareViewModel(
 
         withContext(Dispatchers.IO) {
             try {
-                val kNearestModel = OcrDependencyLoader.kNearestModel(context)
+                val kNearestModel = OcrDependencyLoader.kNearestModel()
                 val imageHashesSQLiteDatabase =
-                    OcrDependencyLoader.imageHashesSQLiteDatabase(context)
+                    OcrDependencyLoader.imageHashesSQLiteDatabase()
 
                 val ocrResult =
                     imageHashesSQLiteDatabase.use { sqliteDb ->
                         val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
                         DeviceOcrHelper.ocrImage(
                             imageUri,
-                            context,
                             kNearestModel,
                             imageHashesDatabase,
                             ortSession = ortSession,
