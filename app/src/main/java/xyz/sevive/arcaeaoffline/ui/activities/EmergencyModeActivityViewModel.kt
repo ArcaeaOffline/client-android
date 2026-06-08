@@ -121,30 +121,29 @@ class EmergencyModeActivityViewModel(
         val originalDatabaseFile = context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
         var toastMessage: String?
 
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
-                val outputDir = outputDirectory.value ?: return@launch
-                val backupFile = PlatformFile(outputDir, backupFileName)
+        viewModelScope.launch(Dispatchers.IO) {
+            val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
+            val outputDir = outputDirectory.value ?: return@launch
+            val backupFile = PlatformFile(outputDir, backupFileName)
 
-                try {
-                    backupFile.write(originalDatabaseFile.inputStream().use { it.readBytes() })
+            try {
+                backupFile.write(originalDatabaseFile.inputStream().use { it.readBytes() })
 
-                    val fileSizeReadable = Formatter.formatShortFileSize(context, backupFile.size())
-                    toastMessage =
-                        context.getString(
-                            R.string.emergency_mode_database_copied_message,
-                            backupFile.name,
-                            fileSizeReadable,
-                        )
-                } catch (e: Exception) {
-                    logger.e(e) { "Error copying database" }
-                    toastMessage = e.message ?: "Error copying database"
-                }
-
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show()
-                }
+                val fileSizeReadable = Formatter.formatShortFileSize(context, backupFile.size())
+                toastMessage =
+                    context.getString(
+                        R.string.emergency_mode_database_copied_message,
+                        backupFile.name,
+                        fileSizeReadable,
+                    )
+            } catch (e: Exception) {
+                logger.e(e) { "Error copying database" }
+                toastMessage = e.message ?: "Error copying database"
             }
+
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(context, toastMessage, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }
