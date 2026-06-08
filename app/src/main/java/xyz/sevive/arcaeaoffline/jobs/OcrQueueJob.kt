@@ -279,8 +279,8 @@ class OcrQueueJob(
 
     private suspend fun processTasks(tasks: List<OcrQueueTask>) {
         DeviceOcrOnnxHelper.createOrtSession(applicationContext).use { ortSession ->
-            OcrDependencyLoader.imageHashesSQLiteDatabase(applicationContext).use { sqliteDb ->
-                val kNearestModel = OcrDependencyLoader.kNearestModel(applicationContext)
+            OcrDependencyLoader.imageHashesSQLiteDatabase().use { sqliteDb ->
+                val kNearestModel = OcrDependencyLoader.kNearestModel()
                 val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
 
                 withContext(Dispatchers.IO) {

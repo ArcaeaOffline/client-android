@@ -62,7 +62,7 @@ dependencies {
     // 3rd party
     implementation(libs.kermit)
 
-    implementation(libs.okio)
+    implementation(libs.kotlinx.io)
     implementation(libs.threetenabp)
 
     implementation(libs.opencv)

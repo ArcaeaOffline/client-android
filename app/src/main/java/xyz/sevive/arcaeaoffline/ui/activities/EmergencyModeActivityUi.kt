@@ -167,7 +167,7 @@ fun EmergencyModeActivityUi(
             }
             item {
                 FlowRow {
-                    Button(onClick = { viewModel.deleteAllOcrDependencies(context) }) {
+                    Button(onClick = { viewModel.deleteAllOcrDependencies() }) {
                         IconRow {
                             Icon(Icons.Default.DeleteForever, contentDescription = null)
                             Text(stringResource(R.string.emergency_mode_ocr_delete_all_dependencies_button))

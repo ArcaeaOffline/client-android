@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import okio.FileSystem
-import okio.IOException
+import kotlinx.io.buffered
+import kotlinx.io.files.SystemFileSystem
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
@@ -34,6 +34,7 @@ import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
+import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
     application: ArcaeaOfflineApplication,
@@ -95,7 +96,7 @@ class OcrDependenciesScreenViewModel(
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean =
         try {
-            FileSystem.SYSTEM.createDirectories(ocrDependencyPaths.parentDir)
+            SystemFileSystem.createDirectories(ocrDependencyPaths.parentDir)
             true
         } catch (e: IOException) {
             logger.w(e) { "Create dependencies parent directory failed!" }
@@ -126,7 +127,7 @@ class OcrDependenciesScreenViewModel(
         uri: Uri,
         context: Context,
     ) {
-        val paths = OcrDependencyPaths(context)
+        val paths = OcrDependencyPaths()
         if (!mkOcrDependencyParentDirs(paths)) return
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -135,14 +136,18 @@ class OcrDependenciesScreenViewModel(
             val cacheFile = context.copyToCache(uri, "knearest_model_import_temp") ?: return@launch
             try {
                 KNearest.load(cacheFile.toString())
-                FileSystem.SYSTEM.copy(cacheFile, paths.knnModelFile)
+                SystemFileSystem.source(cacheFile).buffered().use { src ->
+                    SystemFileSystem.sink(paths.knnModelFile).buffered().use { dst ->
+                        src.transferTo(dst)
+                    }
+                }
             } catch (e: Exception) {
                 logger.e(e) { "Error importing KNearest model" }
             } finally {
-                FileSystem.SYSTEM.delete(cacheFile)
+                SystemFileSystem.delete(cacheFile)
             }
 
-            reloadKNearestModelStatusDetailUiState(context)
+            reloadKNearestModelStatusDetailUiState()
         }
     }
 
@@ -150,7 +155,7 @@ class OcrDependenciesScreenViewModel(
         uri: Uri,
         context: Context,
     ) {
-        val paths = OcrDependencyPaths(context)
+        val paths = OcrDependencyPaths()
         if (!mkOcrDependencyParentDirs(paths)) return
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -163,7 +168,11 @@ class OcrDependenciesScreenViewModel(
                     ImageHashesDatabase(sqliteDb)
                 }
 
-                FileSystem.SYSTEM.copy(cacheFile, paths.imageHashesDatabaseFile)
+                SystemFileSystem.source(cacheFile).buffered().use { src ->
+                    SystemFileSystem.sink(paths.imageHashesDatabaseFile).buffered().use { dst ->
+                        src.transferTo(dst)
+                    }
+                }
             } catch (e: Exception) {
                 if (e is SQLiteException) {
                     logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
@@ -171,24 +180,24 @@ class OcrDependenciesScreenViewModel(
                     logger.e(e) { "Error importing image hashes database" }
                 }
             } finally {
-                FileSystem.SYSTEM.delete(cacheFile)
+                SystemFileSystem.delete(cacheFile)
             }
 
-            reloadImageHashesDatabaseStatusDetailUiState(context)
+            reloadImageHashesDatabaseStatusDetailUiState()
         }
     }
 
-    private fun reloadKNearestModelStatusDetailUiState(context: Context) {
+    private fun reloadKNearestModelStatusDetailUiState() {
         viewModelScope.launch(Dispatchers.IO) {
             _kNearestModelUiState.value =
-                OcrDependencyKNearestModelStatusUiState(OcrDependencyStatusBuilder.kNearest(context))
+                OcrDependencyKNearestModelStatusUiState(OcrDependencyStatusBuilder.kNearest())
         }
     }
 
-    private fun reloadImageHashesDatabaseStatusDetailUiState(context: Context) {
+    private fun reloadImageHashesDatabaseStatusDetailUiState() {
         viewModelScope.launch(Dispatchers.IO) {
             imagesHashesDatabaseStatusDetail.value =
-                OcrDependencyStatusBuilder.imageHashesDatabase(context)
+                OcrDependencyStatusBuilder.imageHashesDatabase()
         }
     }
 
@@ -214,8 +223,8 @@ class OcrDependenciesScreenViewModel(
     }
 
     fun reloadAll(context: Context) {
-        reloadKNearestModelStatusDetailUiState(context)
-        reloadImageHashesDatabaseStatusDetailUiState(context)
+        reloadKNearestModelStatusDetailUiState()
+        reloadImageHashesDatabaseStatusDetailUiState()
         reloadCrnnModelStatusDetailUiState(context)
     }
 }

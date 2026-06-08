@@ -5,7 +5,7 @@ import androidx.sqlite.execSQL
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import okio.Path
+import kotlinx.io.files.Path
 import org.opencv.core.Mat
 import org.threeten.bp.Instant
 

@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.FileSystem
+import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
@@ -32,7 +32,7 @@ class ImageHashesDatabaseBuilderJob(
     }
 
     override suspend fun doWork(): Result {
-        val ocrDependencyPaths = OcrDependencyPaths(applicationContext)
+        val ocrDependencyPaths = OcrDependencyPaths()
         val path = ocrDependencyPaths.imageHashesDatabaseFile
         val arcaeaPackageHelper = ArcaeaPackageHelper(applicationContext)
 
@@ -40,8 +40,8 @@ class ImageHashesDatabaseBuilderJob(
 
         try {
             withContext(Dispatchers.IO) {
-                if (FileSystem.SYSTEM.exists(path)) FileSystem.SYSTEM.delete(path)
-                FileSystem.SYSTEM.createDirectories(path.parent!!)
+                if (SystemFileSystem.exists(path)) SystemFileSystem.delete(path)
+                SystemFileSystem.createDirectories(path.parent!!)
             }
 
             BundledSQLiteDriver()

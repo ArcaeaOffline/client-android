@@ -5,14 +5,16 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.absolutePath
+import io.github.vinceglb.filekit.cacheDir
+import io.github.vinceglb.filekit.utils.div
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okio.FileSystem
-import okio.Path
-import okio.Path.Companion.toOkioPath
-import okio.Path.Companion.toPath
-import okio.buffer
-import okio.source
+import kotlinx.io.asSource
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
@@ -28,13 +30,9 @@ class ArcaeaPackageHelper(
     private val logger = Logger.withTag(LOG_TAG)
     private val packageManager = context.packageManager
 
-    private val arcaeaExtractRootCacheDir = context.cacheDir.toOkioPath() / "arcaea"
+    private val arcaeaExtractRootCacheDir = Path(FileKit.cacheDir.absolutePath()) / "arcaea"
     private val jacketsCacheDir = arcaeaExtractRootCacheDir / "jackets"
     private val partnerIconsCacheDir = arcaeaExtractRootCacheDir / "partner_icons"
-
-    // debug only
-    // val jacketsCacheDir = "/storage/emulated/0/Documents/ArcaeaOffline/jackets".toPath()
-    // val partnerIconsCacheDir = "/storage/emulated/0/Documents/ArcaeaOffline/partner_icons".toPath()
 
     fun getPackageInfo(): PackageInfo? =
         try {
@@ -85,12 +83,12 @@ class ArcaeaPackageHelper(
 
         if (filenameParts.size < 2) return null
 
-        val tailFilename = filenameParts.last().toPath().name
+        val tailFilename = Path(filenameParts.last()).name
         if (JACKET_FILENAME_REGEX.find(tailFilename) == null) return null
 
         val songId = filenameParts[filenameParts.size - 2].replace("dl_", "")
 
-        val path = filename.toPath()
+        val path = Path(filename)
         val baseFilename = path.name.substringBeforeLast(".")
         val difficulty = baseFilename.replace("1080_", "")
         val ext = path.name.substringAfterLast(".")
@@ -120,17 +118,16 @@ class ArcaeaPackageHelper(
         if (filenameParts.size < 2) return null
         if (filenameParts[filenameParts.size - 2] != "char") return null
 
-        val tailFilename = filenameParts.last().toPath().name
+        val tailFilename = Path(filenameParts.last()).name
         if (PARTNER_ICON_FILENAME_REGEX.find(tailFilename) == null) return null
 
         val baseFilename =
             filenameParts
                 .last()
-                .toPath()
-                .name
+                .let { Path(it).name }
                 .substringBeforeLast(".")
         val partnerId = baseFilename.replace("_icon", "")
-        val ext = filename.toPath().name.substringAfterLast(".")
+        val ext = Path(filename).name.substringAfterLast(".")
 
         val finalFilename = "$partnerId.$ext"
         logger.v { "partnerIconExtractFilename: mapping [$filename] to [$finalFilename]" }
@@ -151,8 +148,10 @@ class ArcaeaPackageHelper(
                     val outputFile = mapEntry.value
 
                     zipFile.getInputStream(zipEntry).use { input ->
-                        FileSystem.SYSTEM.sink(outputFile).buffer().use { sink ->
-                            sink.writeAll(input.source().buffer())
+                        input.asSource().buffered().use { source ->
+                            SystemFileSystem.sink(outputFile).buffered().use { sink ->
+                                source.transferTo(sink)
+                            }
                         }
                     }
                 }
@@ -190,7 +189,7 @@ class ArcaeaPackageHelper(
     }
 
     private suspend fun extractJackets() {
-        FileSystem.SYSTEM.createDirectories(jacketsCacheDir)
+        SystemFileSystem.createDirectories(jacketsCacheDir)
 
         val entries = apkJacketZipEntries()
         val outputMapping =
@@ -218,7 +217,7 @@ class ArcaeaPackageHelper(
     }
 
     private suspend fun extractPartnerIcons() {
-        FileSystem.SYSTEM.createDirectories(partnerIconsCacheDir)
+        SystemFileSystem.createDirectories(partnerIconsCacheDir)
 
         val entries = apkPartnerIconZipEntries()
         val outputMapping =
@@ -232,11 +231,11 @@ class ArcaeaPackageHelper(
     }
 
     fun buildHashesDatabaseCleanUp() {
-        if (FileSystem.SYSTEM.exists(jacketsCacheDir)) {
-            FileSystem.SYSTEM.list(jacketsCacheDir).forEach { FileSystem.SYSTEM.delete(it) }
+        if (SystemFileSystem.exists(jacketsCacheDir)) {
+            SystemFileSystem.list(jacketsCacheDir).forEach { SystemFileSystem.delete(it) }
         }
-        if (FileSystem.SYSTEM.exists(partnerIconsCacheDir)) {
-            FileSystem.SYSTEM.list(partnerIconsCacheDir).forEach { FileSystem.SYSTEM.delete(it) }
+        if (SystemFileSystem.exists(partnerIconsCacheDir)) {
+            SystemFileSystem.list(partnerIconsCacheDir).forEach { SystemFileSystem.delete(it) }
         }
     }
 
@@ -258,7 +257,7 @@ class ArcaeaPackageHelper(
         buildHashesDatabaseCleanUp()
 
         extractJackets()
-        FileSystem.SYSTEM.list(jacketsCacheDir).forEach {
+        SystemFileSystem.list(jacketsCacheDir).forEach {
             builder.addTask(
                 ImageHashItemType.JACKET,
                 it.name.substringBeforeLast(".").replace(JACKET_RENAME_REGEX, ""),
@@ -268,7 +267,7 @@ class ArcaeaPackageHelper(
         }
 
         extractPartnerIcons()
-        FileSystem.SYSTEM.list(partnerIconsCacheDir).forEach {
+        SystemFileSystem.list(partnerIconsCacheDir).forEach {
             builder.addTask(
                 ImageHashItemType.PARTNER_ICON,
                 it.name.substringBeforeLast("."),

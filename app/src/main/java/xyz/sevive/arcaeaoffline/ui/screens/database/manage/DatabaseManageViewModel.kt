@@ -28,7 +28,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
-import okio.FileSystem
+import kotlinx.io.files.SystemFileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
@@ -296,6 +296,7 @@ class DatabaseManageViewModel(
             sendTask {
                 PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
                     ZipInputStream(inputStream).use { zis ->
+                        // TODO: change to work manager task, weird `java.io.IOException: Stream closed` inspected
                         importArcaeaApkFromSelectedTask(zis)
                     }
                 }
@@ -362,7 +363,7 @@ class DatabaseManageViewModel(
                     .open(databaseCopied.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importChartsInfoDatabase(conn) }
 
-                FileSystem.SYSTEM.delete(databaseCopied)
+                SystemFileSystem.delete(databaseCopied)
             }
         }
     }
@@ -394,7 +395,7 @@ class DatabaseManageViewModel(
                     .open(dbCacheFile.toString(), SQLITE_OPEN_READONLY)
                     .use { conn -> importSt3(conn) }
 
-                FileSystem.SYSTEM.delete(dbCacheFile)
+                SystemFileSystem.delete(dbCacheFile)
             }
         }
     }
