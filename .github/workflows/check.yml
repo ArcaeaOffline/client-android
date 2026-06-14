@@ -23,5 +23,5 @@ jobs:
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 
-      - name: Run ktlint
-        run: gradle lintKotlin
+      - name: Run Checks
+        run: gradle check
