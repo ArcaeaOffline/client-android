@@ -24,18 +24,14 @@ jobs:
         uses: ./.github/actions/setup-toolchain
 
       - name: Release keystore file
-        uses: timheuer/base64-to-file@dfa5a5dd38803cb4f5c3a081eeb28e8362d43e9c # v2
-        with:
-          fileName: 'arcaea_offline.jks'
-          fileDir: ${{ github.workspace }}
-          encodedString: ${{ secrets.KEYSTORE_FILE_BASE64 }}
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > arcaea_offline.jks
+          ls -l arcaea_offline.jks
 
       - name: Release local.properties file
-        uses: timheuer/base64-to-file@dfa5a5dd38803cb4f5c3a081eeb28e8362d43e9c # v2
-        with:
-          fileName: 'local.properties'
-          fileDir: ${{ github.workspace }}
-          encodedString: ${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}
+        run: |
+          echo "${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}" | base64 --decode > local.properties
+          ls -l local.properties
 
       - name: Ensure CRNN OCR model asset folder exists
         run: mkdir -p app/src/main/assets/ocr
