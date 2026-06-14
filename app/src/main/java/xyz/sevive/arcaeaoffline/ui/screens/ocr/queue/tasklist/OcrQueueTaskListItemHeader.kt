@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.core.net.toUri
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
@@ -196,7 +196,7 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                     uiItem =
                         OcrQueueScreenViewModel.TaskUiItem(
                             id = 123,
-                            fileUri = Uri.parse("file:///preview.png"),
+                            fileUri = "file:///preview.png".toUri(),
                             status = OcrQueueTaskStatus.DONE,
                             ocrResult = null,
                             playResult = null,
