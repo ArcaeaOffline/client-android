@@ -161,6 +161,7 @@ class OcrQueueJob(
     private val chartInfoRepo =
         (applicationContext as ArcaeaOfflineApplication).arcaeaOfflineDatabaseRepositoryContainer.chartInfoRepo
 
+    @androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         setForeground(createForegroundInfo())
 
