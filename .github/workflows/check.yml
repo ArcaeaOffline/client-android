@@ -17,22 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '25'
-          cache: 'gradle'
-
-      - name: Grant Execute Permission to Gradlew
-        run: chmod +x ./gradlew
+      - name: Setup Toolchain
+        uses: ./.github/actions/setup-toolchain
 
       - name: Release local.properties file
-        uses: timheuer/base64-to-file@v1.2.4
-        with:
-          fileName: 'local.properties'
-          fileDir: ${{ github.workspace }}
-          encodedString: ${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}
+        run: cp local.defaults.properties local.properties
 
       - name: Run ktlint
-        run: ./gradlew lintKotlin --no-daemon
+        run: gradle lintKotlin

@@ -9,7 +9,12 @@ on:
 jobs:
   opencode:
     if: |
-      (github.event.comment.user.login == '283375') && (
+      (
+        contains(
+          fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'),
+          github.event.comment.author_association
+        )
+      ) && (
         contains(github.event.comment.body, ' /oc') ||
         startsWith(github.event.comment.body, '/oc') ||
         contains(github.event.comment.body, ' /opencode') ||
@@ -26,6 +31,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
+
+      - name: Setup Toolchain
+        uses: ./.github/actions/setup-toolchain
+
+      - name: Release local.properties file
+        run: cp local.defaults.properties local.properties
 
       - name: Run opencode
         uses: anomalyco/opencode/github@latest
