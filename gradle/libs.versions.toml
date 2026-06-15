@@ -40,8 +40,8 @@ markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-
 markdown-renderer-android = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "markdown-renderer" }
 github-jvziyaoyao-scale-imageViewer = { module = "com.jvziyaoyao.scale:image-viewer", version.ref = "github-jvziyaoyao-scale" }
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
-aboutlibrariesCore = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
-aboutlibrariesComposeM3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
+aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
@@ -67,5 +67,6 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 appVersioning = { id = "io.github.reactivecircus.app-versioning", version = "1.6.0" }
 
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
+aboutlibraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
 
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }

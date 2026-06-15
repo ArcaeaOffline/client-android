@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.appVersioning)
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.aboutlibraries.android)
     alias(libs.plugins.compose.compiler)
     alias(androidx.plugins.room)
 }
@@ -224,8 +225,8 @@ dependencies {
 
     implementation(libs.github.cheonjaeung.gridlayout)
 
-    implementation(libs.aboutlibrariesCore)
-    implementation(libs.aboutlibrariesComposeM3)
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.m3)
 
     // test & debug
     testImplementation(libs.junit)
