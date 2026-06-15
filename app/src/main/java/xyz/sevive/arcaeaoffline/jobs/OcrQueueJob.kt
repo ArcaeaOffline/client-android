@@ -108,7 +108,7 @@ class OcrQueueJob(
             builder.setContentText(applicationContext.getString(R.string.general_action_done))
         } else {
             builder.setOngoing(true)
-            progress?.let {
+            progress.let {
                 builder.setContentText("${it.first} / ${it.second}")
                 if (it.second > -1) {
                     builder.setProgress(it.second, it.first, false)
