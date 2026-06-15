@@ -1,37 +1,38 @@
 [versions]
 androidGradlePlugin = "9.2.1"
 
-kotlin = "2.2.10"
-ksp = "2.3.6"
+kotlin = "2.3.21"
+kotlinx-serialization = "1.11.0"
+ksp = "2.3.9"
 
-opencv = "4.12.0"
+opencv = "4.13.0"
 
 io-sentry-sentryAndroid = "8.17.0"
 
 threetenabp = "1.4.9"
 compose-richtext = "0.20.0"
-github-jvziyaoyao-scale = "1.1.0-alpha.7"
-github-cheonjaeung-gridlayout = "2.3.2"
+github-jvziyaoyao-scale = "1.1.1-beta.3"
+github-cheonjaeung-gridlayout = "2.7.4"
 aboutlibraries = "14.2.1"
 
 kermit = "2.1.0"
 
-filekit = "0.14.1"
+filekit = "0.14.2"
 kotlinx-io = "0.9.0"
 junit = "4.13.2"
 
-dependencyAnalysis = "3.13.0"
+dependencyAnalysis = "3.15.0"
 
 
 [libraries]
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "4.31.1" }
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
-onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.23.0" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.26.0" }
 
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 compose-richtext-commonmark = { module = "com.halilibo.compose-richtext:richtext-commonmark", version.ref = "compose-richtext" }
