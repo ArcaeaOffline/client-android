@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -86,7 +87,7 @@ private fun PlayResultDetailsDialog(
     onDismissRequest: () -> Unit,
     playResult: PlayResult,
 ) {
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val items =
         remember(playResult) {
             with(playResult) {
@@ -96,7 +97,7 @@ private fun PlayResultDetailsDialog(
                     put(key = "songId.ratingClass", value = "$songId.$ratingClass")
                     comment?.let {
                         put(
-                            key = context.getString(R.string.arcaea_play_result_comment),
+                            key = resources.getString(R.string.arcaea_play_result_comment),
                             value = it,
                         )
                     }
@@ -129,7 +130,7 @@ fun ArcaeaPlayResultCard(
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     val cardColors = colors ?: CardDefaults.cardColors()
 
@@ -146,16 +147,16 @@ fun ArcaeaPlayResultCard(
     val dateText =
         remember(playResult.date) {
             playResult.date?.formatAsLocalizedDateTime()
-                ?: context.getString(R.string.play_result_no_date)
+                ?: resources.getString(R.string.play_result_no_date)
         }
     val clearTypeAndModifierText =
         remember(playResult.clearType, playResult.modifier) {
             val clearTypeText =
                 playResult.clearType?.toDisplayString()
-                    ?: context.getString(R.string.play_result_no_clear_type)
+                    ?: resources.getString(R.string.play_result_no_clear_type)
             val modifierText =
                 playResult.modifier?.toDisplayString()
-                    ?: context.getString(R.string.play_result_no_modifier)
+                    ?: resources.getString(R.string.play_result_no_modifier)
 
             "$clearTypeText · $modifierText"
         }

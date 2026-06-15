@@ -142,6 +142,7 @@ class OcrQueueEnqueueCheckerJob(
 
     override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
+    @androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         val workOptions = getWorkOptions()
 

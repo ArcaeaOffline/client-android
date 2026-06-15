@@ -1,3 +1,4 @@
+import io.github.reactivecircus.appversioning.toSemVer
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
@@ -8,8 +9,9 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
-    alias(libs.plugins.androidGitVersion)
+    alias(libs.plugins.appVersioning)
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.aboutlibraries.android)
     alias(libs.plugins.compose.compiler)
     alias(androidx.plugins.room)
 }
@@ -57,6 +59,21 @@ room {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
+}
+
+appVersioning {
+    overrideVersionName { gitTag, _, _ ->
+        buildString {
+            append(gitTag.toSemVer().toString())
+            if (gitTag.commitsSinceLatestTag > 0) {
+                append('+')
+                append(gitTag.commitsSinceLatestTag)
+            }
+            append(' ')
+            append("(${gitTag.commitHash})")
+        }
     }
 }
 
@@ -68,8 +85,6 @@ android {
         applicationId = "xyz.sevive.arcaeaoffline"
         minSdk = 24
         targetSdk = 36
-        versionCode = androidGitVersion.code()
-        versionName = androidGitVersion.name()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -91,6 +106,10 @@ android {
             enableV3Signing = true
             enableV4Signing = true
         }
+    }
+
+    lint {
+        sarifReport = true
     }
 
     buildTypes {
@@ -199,15 +218,16 @@ dependencies {
 
     implementation(libs.threetenabp)
 
-    implementation(libs.compose.richtext.commonmark)
-    implementation(libs.compose.richtext.ui.material3)
+    implementation(libs.markdown.renderer)
+    implementation(libs.markdown.renderer.m3)
+    implementation(libs.markdown.renderer.android)
 
     implementation(libs.github.jvziyaoyao.scale.imageViewer)
 
     implementation(libs.github.cheonjaeung.gridlayout)
 
-    implementation(libs.aboutlibrariesCore)
-    implementation(libs.aboutlibrariesComposeM3)
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.m3)
 
     // test & debug
     testImplementation(libs.junit)

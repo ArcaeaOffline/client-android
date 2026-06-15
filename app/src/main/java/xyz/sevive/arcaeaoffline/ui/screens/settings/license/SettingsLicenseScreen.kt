@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.screens.settings.license
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import com.halilibo.richtext.markdown.Markdown
-import com.halilibo.richtext.ui.material3.RichText
+import com.mikepenz.markdown.compose.LazyMarkdownSuccess
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.model.rememberMarkdownState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -32,10 +31,6 @@ internal fun SettingsLicenseScreen(
     val context = LocalContext.current
     val licenseText by produceState<String?>(initialValue = null) {
         launch(Dispatchers.IO) {
-            // the [RichText] below will block the UI thread for a moment,
-            // so we're adding an explicit delay to ensure the loading indicator is visible,
-            // informing user that there is some loading in the background.
-            delay(500L)
             value =
                 if (context.assets.list("")?.contains(LICENSE_FILENAME) == true) {
                     context.assets
@@ -47,23 +42,29 @@ internal fun SettingsLicenseScreen(
                 }
         }
     }
+    val markdownState = rememberMarkdownState(licenseText ?: "")
 
     SubScreenContainer(
         onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.License.title),
         modifier = modifier,
     ) {
-        LazyColumn(
-            Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
-        ) {
-            item {
-                licenseText?.let {
-                    RichText { Markdown(it) }
-                } ?: Box(Modifier.fillMaxSize()) {
+        Markdown(
+            markdownState = markdownState,
+            success = { state, components, modifier ->
+                LazyMarkdownSuccess(
+                    state,
+                    components,
+                    modifier,
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding)),
+                )
+            },
+            loading = {
+                Box(Modifier.fillMaxSize()) {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 }
-            }
-        }
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

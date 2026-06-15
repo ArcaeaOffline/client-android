@@ -25,9 +25,9 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 private fun PotentialLabel(
     title: String,
     potential: Double?,
+    modifier: Modifier = Modifier,
     titleTextStyle: TextStyle = MaterialTheme.typography.titleLarge,
     potentialTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
-    modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
         Text(

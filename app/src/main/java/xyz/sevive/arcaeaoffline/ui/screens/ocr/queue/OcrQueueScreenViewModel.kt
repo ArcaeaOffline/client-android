@@ -138,7 +138,7 @@ class OcrQueueScreenViewModel(
         workManager
             .getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME)
             .map {
-                it != null && it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
+                it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
             }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun deleteTask(taskId: Long) {
@@ -256,7 +256,6 @@ class OcrQueueScreenViewModel(
                                     OcrQueueScreenCategory.PROCESSING -> OcrQueueTaskStatus.PROCESSING
                                     OcrQueueScreenCategory.DONE -> OcrQueueTaskStatus.DONE
                                     OcrQueueScreenCategory.ERROR -> OcrQueueTaskStatus.ERROR
-                                    else -> throw IllegalStateException("Category not implemented: $it")
                                 }
                             ocrQueueTaskRepo.findByStatus(taskStatus)
                         }
