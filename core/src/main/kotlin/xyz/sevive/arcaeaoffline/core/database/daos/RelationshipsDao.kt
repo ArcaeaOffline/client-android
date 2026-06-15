@@ -19,7 +19,7 @@ FROM
     LEFT JOIN charts ON play_results.song_id = charts.song_id
     AND charts.rating_class = play_results.rating_class""",
     )
-    fun playResultsWithCharts(): Flow<Map<PlayResult, Chart?>>
+    fun playResultsWithCharts(): Flow<Map<PlayResult, Chart>>
 
     @Query(
         """SELECT
