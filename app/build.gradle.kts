@@ -1,3 +1,4 @@
+import io.github.reactivecircus.appversioning.toSemVer
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
@@ -8,7 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
-    alias(libs.plugins.androidGitVersion)
+    alias(libs.plugins.appVersioning)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.compose.compiler)
     alias(androidx.plugins.room)
@@ -60,6 +61,20 @@ kotlin {
     }
 }
 
+appVersioning {
+    overrideVersionName { gitTag, _, _ ->
+        buildString {
+            append(gitTag.toSemVer().toString())
+            if (gitTag.commitsSinceLatestTag > 0) {
+                append('+')
+                append(gitTag.commitsSinceLatestTag)
+            }
+            append(' ')
+            append("(${gitTag.commitHash})")
+        }
+    }
+}
+
 android {
     namespace = "xyz.sevive.arcaeaoffline"
     compileSdk = 36
@@ -68,8 +83,6 @@ android {
         applicationId = "xyz.sevive.arcaeaoffline"
         minSdk = 24
         targetSdk = 36
-        versionCode = androidGitVersion.code()
-        versionName = androidGitVersion.name()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
