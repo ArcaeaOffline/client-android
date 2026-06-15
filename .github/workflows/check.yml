@@ -26,13 +26,17 @@ jobs:
       - name: Run Checks
         run: gradle check
 
-      - name: Upload SARIF Report
+      - name: Upload SARIF Report (app)
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         if: ${{ !cancelled() }}  # run this step even if previous step failed
         with:
-          sarif_file: |
-            app/build/reports/
-            core/build/reports/
+          sarif_file: app/build/reports/
+
+      - name: Upload SARIF Report (core)
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        if: ${{ !cancelled() }}  # run this step even if previous step failed
+        with:
+          sarif_file: core/build/reports/
 
       - name: Upload Check Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
