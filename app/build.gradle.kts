@@ -106,6 +106,10 @@ android {
         }
     }
 
+    lint {
+        sarifReport = true
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
