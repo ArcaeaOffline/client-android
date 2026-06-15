@@ -59,6 +59,7 @@ room {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
 

@@ -24,9 +24,3 @@ plugins {
 subprojects {
     apply(plugin = "org.jmailen.kotlinter")
 }
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xannotation-default-target=param-property")
-    }
-}
