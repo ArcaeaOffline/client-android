@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.koin.compiler)
 
     alias(androidx.plugins.room)
 }
@@ -51,6 +52,10 @@ android {
 
 dependencies {
     implementation(libs.kotlinx.serialization)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.annotations)
+    implementation(libs.koin.android)
 
     // android & androidx
     implementation(androidx.core.ktx)
