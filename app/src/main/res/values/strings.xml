@@ -318,8 +318,7 @@ CC BY-SA 3.0
     <string name="unstable_version_alert_screen_details_markdown">
         This is an **unstable** version of Arcaea Offline.\n
         \n
-        ---\n
-        #### The app may crash at any time\n
+        #### App may crash at any time\n
         \n
         Some features have not been tested and may result in app crashes.\n
         \n
@@ -328,7 +327,6 @@ CC BY-SA 3.0
         *If you are concerned about privacy issues, you can also choose not to send the reports.*
         *We respect your choice.*\n
         \n
-        ---\n
         #### Risk of data loss\n
         \n
         Some data operations have not been tested, and may result in data loss, even making it

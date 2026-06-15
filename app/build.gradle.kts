@@ -216,8 +216,9 @@ dependencies {
 
     implementation(libs.threetenabp)
 
-    implementation(libs.compose.richtext.commonmark)
-    implementation(libs.compose.richtext.ui.material3)
+    implementation(libs.markdown.renderer)
+    implementation(libs.markdown.renderer.m3)
+    implementation(libs.markdown.renderer.android)
 
     implementation(libs.github.jvziyaoyao.scale.imageViewer)
 
