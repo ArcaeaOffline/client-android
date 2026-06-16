@@ -106,7 +106,7 @@ private fun rememberCandidates(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArcaeaPackAndSongInputFilter(
+fun ArcaeaPackAndSongQuickSearch(
     onSelect: (FilterResult) -> Unit,
     modifier: Modifier = Modifier,
     packRepo: PackRepository = koinInject(),

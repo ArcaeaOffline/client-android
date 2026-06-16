@@ -140,7 +140,7 @@ fun ArcaeaPackAndSongSelector(
         modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
-        ArcaeaPackAndSongInputFilter(
+        ArcaeaPackAndSongQuickSearch(
             onSelect = { filter ->
                 // set the pack directly for instant visual feedback
                 // the async resolution will set it again (to the same value) as a no-op
