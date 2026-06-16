@@ -191,8 +191,8 @@ dependencies {
     implementation(androidx.compose.material3.adaptive.layout)
     implementation(androidx.compose.material3.adaptive.navigation)
 
-    implementation(androidx.lifecycle.lifecycleViewmodelCompose)
-    implementation(androidx.lifecycle.lifecycleRuntimeCompose)
+    implementation(androidx.lifecycle.runtime.compose)
+    implementation(androidx.lifecycle.viewmodel.compose)
 
     implementation(androidx.exifinterface)
 
