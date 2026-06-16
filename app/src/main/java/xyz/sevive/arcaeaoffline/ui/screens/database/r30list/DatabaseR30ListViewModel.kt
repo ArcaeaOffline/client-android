@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.r30list
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
-import org.koin.core.annotation.Provided
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -27,14 +27,15 @@ import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseR30ListViewModel(
-    // TODO: evaluate this usage
-    @Provided private val workManager: WorkManager,
-    private val r30EntryRepo: R30EntryRepository,
+    context: Context,
+    r30EntryRepo: R30EntryRepository,
     private val propertyRepo: PropertyRepository,
     private val chartRepo: ChartRepository,
     private val songRepo: SongRepository,
     private val difficultyRepo: DifficultyRepository,
 ) : ViewModel() {
+    private val workManager = WorkManager.getInstance(context.applicationContext)
+
     private suspend fun getUiItemChart(playResult: PlayResult): Chart? {
         val chart = chartRepo.find(playResult).firstOrNull()
         if (chart != null) return chart

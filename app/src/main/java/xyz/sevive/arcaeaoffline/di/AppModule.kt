@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.di
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
-import androidx.work.WorkManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
@@ -83,7 +82,6 @@ val appModule =
         single<UnstableFlavorPreferencesRepository>()
 
         // TODO: evaluate these usages
-        single<WorkManager> { WorkManager.getInstance(androidContext().applicationContext) }
         single<Resources> { androidContext().applicationContext.resources }
         single<AssetManager> { androidContext().applicationContext.assets }
 

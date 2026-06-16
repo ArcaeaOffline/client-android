@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.Provided
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
@@ -41,19 +41,20 @@ import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
 class OcrQueueScreenViewModel(
-    // TODO: evaluate this usage
-    @Provided private val workManager: WorkManager,
+    context: Context,
     private val chartInfoRepo: ChartInfoRepository,
     private val playResultRepo: PlayResultRepository,
     private val songRepo: SongRepository,
     private val difficultyRepo: DifficultyRepository,
     private val chartRepo: ChartRepository,
     private val ocrQueueTaskRepo: OcrQueueTaskRepositoryImpl,
-    private val preferencesRepository: OcrQueuePreferencesRepository,
+    preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
     companion object {
         const val LOG_TAG = "OcrQueueScreenViewModel"
     }
+
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(

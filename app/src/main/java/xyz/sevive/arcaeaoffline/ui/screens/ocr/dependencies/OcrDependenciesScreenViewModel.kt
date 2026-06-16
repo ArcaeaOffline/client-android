@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
-import org.koin.core.annotation.Provided
 import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
@@ -37,9 +37,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStat
 import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
-    // TODO: WHAT THE FUCK
-    private val context: Context,
-    @Provided private val workManager: WorkManager,
+    context: Context,
 ) : ViewModel() {
     companion object {
         private const val STOP_TIME_MILLIS = 5000L
@@ -48,6 +46,7 @@ class OcrDependenciesScreenViewModel(
     }
 
     private val logger = Logger.withTag(LOG_TAG)
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
     private val _kNearestModelUiState =
         MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
@@ -210,6 +209,16 @@ class OcrDependenciesScreenViewModel(
                 ExistingWorkPolicy.REPLACE,
                 workRequest,
             )
+
+            workManager.getWorkInfoByIdFlow(workRequest.id).collect {
+                when (it?.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        reloadImageHashesDatabaseStatusDetailUiState()
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 
