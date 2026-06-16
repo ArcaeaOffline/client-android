@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseB30ListViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
+    private val relationshipsRepo: RelationshipsRepository,
 ) : ViewModel() {
     data class ListItem(
         val index: Int,
@@ -38,7 +38,7 @@ class DatabaseB30ListViewModel(
             .transformLatest { limit ->
                 emit(UiState(isLoading = true, limit = limit))
 
-                repositoryContainer.relationshipsRepo
+                relationshipsRepo
                     .playResultsBestWithCharts(limit)
                     .collectLatest { dbItems ->
                         val listItems =

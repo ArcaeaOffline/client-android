@@ -11,10 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.EmergencyModeActivity
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
@@ -25,7 +24,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstab
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun SettingsScreen(vm: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val context = LocalContext.current
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()

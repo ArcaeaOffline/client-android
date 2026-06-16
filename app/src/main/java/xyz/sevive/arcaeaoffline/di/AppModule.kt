@@ -1,21 +1,28 @@
 package xyz.sevive.arcaeaoffline.di
 
+import android.content.Context
+import android.content.res.AssetManager
+import android.content.res.Resources
 import androidx.work.WorkManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
+import org.koin.plugin.module.dsl.create
 import org.koin.plugin.module.dsl.single
 import org.koin.plugin.module.dsl.viewModel
 import org.koin.plugin.module.dsl.worker
+import xyz.sevive.arcaeaoffline.core.di.coreModule
 import xyz.sevive.arcaeaoffline.data.BuildFlavor
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
+import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
+import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBufferDao
+import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
-import xyz.sevive.arcaeaoffline.datastore.AppDataStoreProvider
 import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
@@ -26,6 +33,7 @@ import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
+import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
 import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
@@ -45,21 +53,27 @@ import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
 
+internal fun createAppDatabase(context: Context): AppDatabase = AppDatabase.getDatabase(context)
+
+internal fun ocrHistoryDao(db: AppDatabase) = db.ocrHistoryDao()
+
+internal fun createOcrQueueDatabase(context: Context): OcrQueueDatabase = OcrQueueDatabase.getDatabase(context)
+
+internal fun ocrQueueTaskDao(db: OcrQueueDatabase) = db.ocrQueueTaskDao()
+
+internal fun ocrQueueEnqueueBufferDao(db: OcrQueueDatabase) = db.ocrQueueEnqueueBufferDao()
+
 val appModule =
     module {
-        single { AppDatabase.getDatabase(androidContext()) }
-        single { OcrQueueDatabase.getDatabase(androidContext()) }
+        includes(coreModule)
 
-        single { get<AppDatabase>().ocrHistoryDao() }
-        single { get<OcrQueueDatabase>().ocrQueueTaskDao() }
-        single { get<OcrQueueDatabase>().ocrQueueEnqueueBufferDao() }
-
-        single { AppDataStoreProvider.appPreferences(androidContext()) }
-        single { AppDataStoreProvider.emergencyModePreferences(androidContext()) }
-        single { AppDataStoreProvider.ocrQueuePreferences(androidContext()) }
-        single { AppDataStoreProvider.unstableFlavorPreferences(androidContext()) }
-
+        single<AppDatabase> { create(::createAppDatabase) }
+        single<OcrHistoryDao> { create(::ocrHistoryDao) }
         single<OcrHistoryRepository>()
+
+        single<OcrQueueDatabase> { create(::createOcrQueueDatabase) }
+        single<OcrQueueTaskDao> { create(::ocrQueueTaskDao) }
+        single<OcrQueueEnqueueBufferDao> { create(::ocrQueueEnqueueBufferDao) }
         single<OcrQueueTaskRepositoryImpl>().bind(OcrQueueTaskRepository::class)
         single<OcrQueueEnqueueBufferRepository>()
 
@@ -68,10 +82,12 @@ val appModule =
         single<OcrQueuePreferencesRepository>()
         single<UnstableFlavorPreferencesRepository>()
 
-        single { WorkManager.getInstance(androidContext()) }
-        single { androidContext().resources }
-        single { androidContext().assets }
+        // TODO: evaluate these usages
+        single<WorkManager> { WorkManager.getInstance(androidContext().applicationContext) }
+        single<Resources> { androidContext().applicationContext.resources }
+        single<AssetManager> { androidContext().applicationContext.assets }
 
+        // TODO: evaluate these usages
         single { ArcaeaResourcesStateHolder }
         single { Notifications }
         single { OcrDependencyLoader }
@@ -79,10 +95,7 @@ val appModule =
         single { DeviceOcrHelper }
         single { OcrQueueHelper }
         single { BuildFlavor }
-    }
 
-val viewModelModule =
-    module {
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()
         viewModel<DatabaseNavEntryViewModel>()
@@ -99,11 +112,9 @@ val viewModelModule =
         viewModel<OcrFromShareViewModel>()
         viewModel<SettingsViewModel>()
         viewModel<SettingsUnstableAlertScreenViewModel>()
-    }
 
-val workerModule =
-    module {
         worker<R30UpdateJob>()
         worker<OcrQueueJob>()
         worker<ImageHashesDatabaseBuilderJob>()
+        worker<OcrQueueEnqueueCheckerJob>()
     }

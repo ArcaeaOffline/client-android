@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
+import org.koin.core.annotation.Provided
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
@@ -37,7 +37,9 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStat
 import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
-    application: ArcaeaOfflineApplication,
+    // TODO: WHAT THE FUCK
+    private val context: Context,
+    @Provided private val workManager: WorkManager,
 ) : ViewModel() {
     companion object {
         private const val STOP_TIME_MILLIS = 5000L
@@ -46,8 +48,6 @@ class OcrDependenciesScreenViewModel(
     }
 
     private val logger = Logger.withTag(LOG_TAG)
-
-    private val workManager = WorkManager.getInstance(application)
 
     private val _kNearestModelUiState =
         MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
@@ -91,7 +91,7 @@ class OcrDependenciesScreenViewModel(
     val crnnModelUiState = _crnnModelUiState.asStateFlow()
 
     init {
-        reloadAll(application)
+        reloadAll(context)
     }
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean =

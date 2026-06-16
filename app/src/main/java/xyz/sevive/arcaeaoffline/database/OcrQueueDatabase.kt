@@ -41,10 +41,7 @@ abstract class OcrQueueDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_FILENAME = "ocr-queue.db"
 
-        @Volatile
-        private var instance: OcrQueueDatabase? = null
-
-        private fun getDatabaseBuilder(context: Context): Builder<OcrQueueDatabase> {
+        fun getDatabaseBuilder(context: Context): Builder<OcrQueueDatabase> {
             val appContext = context.applicationContext
             val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
             return Room.databaseBuilder<OcrQueueDatabase>(
@@ -53,16 +50,11 @@ abstract class OcrQueueDatabase : RoomDatabase() {
             )
         }
 
-        fun getDatabase(context: Context): OcrQueueDatabase {
-            // if the Instance is not null, return it, otherwise create a new database instance.
-            return instance ?: synchronized(this) {
-                getDatabaseBuilder(context)
-                    .setDriver(BundledSQLiteDriver())
-                    .setQueryCoroutineContext(Dispatchers.IO)
-                    .fallbackToDestructiveMigration(dropAllTables = true)
-                    .build()
-                    .also { instance = it }
-            }
-        }
+        fun getDatabase(context: Context): OcrQueueDatabase =
+            getDatabaseBuilder(context)
+                .setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
     }
 }

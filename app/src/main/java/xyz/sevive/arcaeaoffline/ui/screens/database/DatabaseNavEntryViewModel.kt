@@ -2,14 +2,34 @@ package xyz.sevive.arcaeaoffline.ui.screens.database
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.useReaderConnection
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import org.koin.core.annotation.Provided
+import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 
 class DatabaseNavEntryViewModel(
-    repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    databaseSchemaVersionGetter: suspend () -> Int?,
+    // TODO: evaluate this...?
+    @Provided private val database: ArcaeaOfflineDatabase,
+    private val propertyRepo: PropertyRepository,
+    private val packRepo: PackRepository,
+    private val songRepo: SongRepository,
+    private val difficultyRepo: DifficultyRepository,
+    private val chartInfoRepo: ChartInfoRepository,
+    private val playResultRepo: PlayResultRepository,
+    private val packLocalizedRepo: PackLocalizedRepository,
+    private val songLocalizedRepo: SongLocalizedRepository,
+    private val difficultyLocalizedRepo: DifficultyLocalizedRepository,
 ) : ViewModel() {
     class StatusUiState(
         val databaseVersion: Int = 0,
@@ -25,22 +45,30 @@ class DatabaseNavEntryViewModel(
         val songDeletedInGameCount: Int = 0,
     )
 
+    private suspend fun getDatabaseSchemaVersion(): Int? =
+        database.useReaderConnection { conn ->
+            conn.usePrepared("PRAGMA user_version;") { stmt ->
+                stmt.step()
+                stmt.getText(0).toIntOrNull()
+            }
+        }
+
     val statusUiState =
         combine(
-            repositoryContainer.propertyRepo.databaseVersion(),
-            repositoryContainer.packRepo.count(),
-            repositoryContainer.songRepo.count(),
-            repositoryContainer.difficultyRepo.count(),
-            repositoryContainer.chartInfoRepo.count(),
-            repositoryContainer.playResultRepo.count(),
-            repositoryContainer.packLocalizedRepo.count(),
-            repositoryContainer.songLocalizedRepo.count(),
-            repositoryContainer.difficultyLocalizedRepo.count(),
-            repositoryContainer.songRepo.countDeletedInGame(),
+            propertyRepo.databaseVersion(),
+            packRepo.count(),
+            songRepo.count(),
+            difficultyRepo.count(),
+            chartInfoRepo.count(),
+            playResultRepo.count(),
+            packLocalizedRepo.count(),
+            songLocalizedRepo.count(),
+            difficultyLocalizedRepo.count(),
+            songRepo.countDeletedInGame(),
         ) { flows ->
             StatusUiState(
                 databaseVersion = flows[0] ?: 0,
-                databaseSchemaVersion = databaseSchemaVersionGetter() ?: -1,
+                databaseSchemaVersion = getDatabaseSchemaVersion() ?: -1,
                 packCount = flows[1] ?: 0,
                 songCount = flows[2] ?: 0,
                 difficultyCount = flows[3] ?: 0,

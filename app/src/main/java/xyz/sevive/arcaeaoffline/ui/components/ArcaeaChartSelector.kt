@@ -16,10 +16,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.flow.firstOrNull
+import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
 @Composable
 private fun rememberArcaeaSong(
@@ -72,20 +71,18 @@ fun ArcaeaChartSelector(
     onChartChange: (Chart?) -> Unit,
     allowFakeChart: Boolean = true,
 ) {
-    val context = LocalContext.current
-    val repositoryContainer =
-        remember {
-            ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
-        }
+    val songRepo = koinInject<SongRepository>()
+    val difficultyRepo = koinInject<DifficultyRepository>()
+    val chartRepo = koinInject<ChartRepository>()
 
     var selectedSongId by rememberSaveable(chart?.songId) { mutableStateOf(chart?.songId) }
     var selectedRatingClass by rememberSaveable(chart?.ratingClass) {
         mutableStateOf(chart?.ratingClass)
     }
-    val song by rememberArcaeaSong(songRepo = repositoryContainer.songRepo, songId = selectedSongId)
+    val song by rememberArcaeaSong(songRepo = songRepo, songId = selectedSongId)
     val charts by rememberArcaeaCharts(
-        difficultyRepo = repositoryContainer.difficultyRepo,
-        chartRepo = repositoryContainer.chartRepo,
+        difficultyRepo = difficultyRepo,
+        chartRepo = chartRepo,
         song = song,
         allowFakeChart = allowFakeChart,
     )

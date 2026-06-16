@@ -21,10 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker.OcrQueueEnqueueCheckerFloatingActionButton
@@ -34,7 +33,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 @Composable
 fun OcrQueueScreen(
     onNavigateUp: () -> Unit,
-    viewModel: OcrQueueScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: OcrQueueScreenViewModel = koinViewModel(),
 ) {
     val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
     val queueTaskCounts by viewModel.queueTaskCounts.collectAsStateWithLifecycle()

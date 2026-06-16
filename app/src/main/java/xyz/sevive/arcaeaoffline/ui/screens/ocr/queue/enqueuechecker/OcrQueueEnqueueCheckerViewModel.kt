@@ -20,19 +20,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.Provided
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
-import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
 class OcrQueueEnqueueCheckerViewModel(
-    private val workManager: WorkManager,
-    ocrQueueRepos: OcrQueueDatabaseRepositoryContainer,
+    // TODO: evaluate this usage
+    @Provided private val workManager: WorkManager,
+    bufferRepo: OcrQueueEnqueueBufferRepository,
     preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
-    private val bufferRepo = ocrQueueRepos.ocrQueueEnqueueBufferRepo
+    private val bufferRepo = bufferRepo
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(

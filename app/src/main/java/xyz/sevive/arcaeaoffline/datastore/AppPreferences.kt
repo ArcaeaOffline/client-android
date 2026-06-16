@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.datastore
 
+import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -34,8 +34,9 @@ object AppPreferencesSerializer : Serializer<AppPreferences> {
 }
 
 class AppPreferencesRepository(
-    private val dataStore: DataStore<AppPreferences>,
+    context: Context,
 ) {
+    private val dataStore = AppDataStoreProvider.appPreferences(context)
     val preferencesFlow = dataStore.data
 
     suspend fun setAutoSendCrashReports(value: Boolean) {

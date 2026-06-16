@@ -50,15 +50,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
@@ -158,7 +157,7 @@ private fun LogsBottomSheet(
 fun DatabaseManageScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DatabaseManageViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabaseManageViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
 

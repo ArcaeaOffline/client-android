@@ -25,10 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_FILENAME = "app_data.db"
 
-        @Volatile
-        private var instance: AppDatabase? = null
-
-        private fun getDatabaseBuilder(context: Context): Builder<AppDatabase> {
+        fun getDatabaseBuilder(context: Context): Builder<AppDatabase> {
             val appContext = context.applicationContext
             val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
             return Room.databaseBuilder<AppDatabase>(
@@ -37,16 +34,11 @@ abstract class AppDatabase : RoomDatabase() {
             )
         }
 
-        fun getDatabase(context: Context): AppDatabase {
-            // if the Instance is not null, return it, otherwise create a new database instance.
-            return instance ?: synchronized(this) {
-                getDatabaseBuilder(context)
-                    .setDriver(BundledSQLiteDriver())
-                    .setQueryCoroutineContext(Dispatchers.IO)
-                    .fallbackToDestructiveMigration(dropAllTables = true)
-                    .build()
-                    .also { instance = it }
-            }
-        }
+        fun getDatabase(context: Context): AppDatabase =
+            getDatabaseBuilder(context)
+                .setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
     }
 }

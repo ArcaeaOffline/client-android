@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.datastore
 
+import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -26,8 +26,9 @@ object EmergencyModePreferencesSerializer : Serializer<EmergencyModePreferences>
 }
 
 class EmergencyModePreferencesRepository(
-    private val dataStore: DataStore<EmergencyModePreferences>,
+    context: Context,
 ) {
+    private val dataStore = AppDataStoreProvider.emergencyModePreferences(context)
     val preferencesFlow = dataStore.data
 
     suspend fun updateLastOutputDirectory(path: String) {

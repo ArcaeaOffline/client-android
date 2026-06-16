@@ -17,9 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
@@ -76,7 +75,7 @@ private fun Content(
 @Composable
 internal fun OcrQueuePreferencesBottomSheet(
     onDismissRequest: () -> Unit,
-    vm: OcrQueuePreferencesViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: OcrQueuePreferencesViewModel = koinViewModel(),
 ) {
     val uiState by vm.preferencesUiState.collectAsStateWithLifecycle()
 

@@ -17,13 +17,19 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseDeduplicatorViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
+    private val playResultRepo: PlayResultRepository,
+    private val songRepo: SongRepository,
+    private val difficultyRepo: DifficultyRepository,
+    private val chartRepo: ChartRepository,
 ) : ViewModel() {
     // #region Raw grouped play results
     internal val groupByValues = MutableStateFlow(setOf(GroupByValue.SCORE))
@@ -64,7 +70,7 @@ class DatabaseDeduplicatorViewModel(
 
     private suspend fun buildDuplicateGroupsTask(values: Set<GroupByValue>): Map<String, List<PlayResult>> {
         val playResults =
-            repositoryContainer.playResultRepo.findAll().firstOrNull() ?: return emptyMap()
+            playResultRepo.findAll().firstOrNull() ?: return emptyMap()
 
         return playResults
             .sortedBy { it.id }
@@ -133,10 +139,10 @@ class DatabaseDeduplicatorViewModel(
     fun deleteSelectedItemsInDatabase(uuids: Set<UUID>) {
         viewModelScope.launch(Dispatchers.IO) {
             val playResults =
-                repositoryContainer.playResultRepo.findAllByUUID(uuids.toList()).firstOrNull()
+                playResultRepo.findAllByUUID(uuids.toList()).firstOrNull()
                     ?: emptyList()
 
-            repositoryContainer.playResultRepo.deleteBatch(*playResults.toTypedArray())
+            playResultRepo.deleteBatch(*playResults.toTypedArray())
             clearSelectedItems()
             buildDuplicateGroups(groupByValues.value)
         }
@@ -149,8 +155,8 @@ class DatabaseDeduplicatorViewModel(
         newPlayResult: PlayResult,
     ) {
         val oldPlayResults = groups.value[groupKey] ?: emptyList()
-        repositoryContainer.playResultRepo.upsert(newPlayResult)
-        repositoryContainer.playResultRepo.deleteBatch(*oldPlayResults.toTypedArray())
+        playResultRepo.upsert(newPlayResult)
+        playResultRepo.deleteBatch(*oldPlayResults.toTypedArray())
     }
 
     fun mergeGroup(
@@ -205,7 +211,7 @@ class DatabaseDeduplicatorViewModel(
             groupListUiItemLoading.value = true
 
             val chartCacheHolder = UiDisplayChartCacheHolder()
-            chartCacheHolder.updateCache(groups.values.flatten(), repositoryContainer)
+            chartCacheHolder.updateCache(groups.values.flatten(), songRepo, difficultyRepo, chartRepo)
 
             emit(
                 groups.entries.mapIndexed { i, entry ->
