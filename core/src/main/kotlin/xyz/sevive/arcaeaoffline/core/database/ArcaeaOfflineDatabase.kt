@@ -18,6 +18,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
@@ -78,6 +79,8 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
     ArcaeaLanguageConverters::class,
 )
 abstract class ArcaeaOfflineDatabase : RoomDatabase() {
+    abstract fun metaDao(): MetaDao
+
     abstract fun propertyDao(): PropertyDao
 
     abstract fun packDao(): PackDao

@@ -10,6 +10,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
@@ -27,6 +28,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRe
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
@@ -54,6 +57,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 
 internal fun createArcaeaOfflineDatabase(context: Context) = ArcaeaOfflineDatabase.getDatabase(context)
+
+internal fun metaDao(db: ArcaeaOfflineDatabase) = db.metaDao()
 
 internal fun propertyDao(db: ArcaeaOfflineDatabase) = db.propertyDao()
 
@@ -83,6 +88,7 @@ val coreModule =
     module {
         single<ArcaeaOfflineDatabase> { create(::createArcaeaOfflineDatabase) }
 
+        single<MetaDao> { create(::metaDao) }
         single<PropertyDao> { create(::propertyDao) }
         single<PackDao> { create(::packDao) }
         single<PackLocalizedDao> { create(::packLocalizedDao) }
@@ -96,6 +102,7 @@ val coreModule =
         single<R30EntryDao> { create(::r30EntryDao) }
         single<ChartDao> { create(::chartDao) }
 
+        single<MetaRepositoryImpl>().bind(MetaRepository::class)
         single<PropertyRepositoryImpl>().bind(PropertyRepository::class)
         single<PackRepositoryImpl>().bind(PackRepository::class)
         single<PackLocalizedRepositoryImpl>().bind(PackLocalizedRepository::class)
