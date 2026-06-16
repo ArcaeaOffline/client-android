@@ -22,6 +22,9 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE deleted_in_game = 1")
     fun findDeletedInGame(): Flow<List<Song>>
 
+    @Query("SELECT * FROM songs WHERE LOWER(title) LIKE '%' || LOWER(:input) || '%'")
+    fun searchByTitle(input: String): Flow<List<Song>>
+
     @Query("SELECT COUNT(*) FROM songs")
     fun count(): Flow<Int>
 

@@ -234,6 +234,7 @@ CC BY-SA 3.0
     </plurals>
 
     <!-- components -->
+    <string name="song_id_selector_quick_search">Quick Search…</string>
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
 

@@ -16,6 +16,9 @@ interface PackDao {
     @Query("SELECT * FROM packs")
     fun findAll(): Flow<List<Pack>>
 
+    @Query("SELECT * FROM packs WHERE LOWER(name) LIKE '%' || LOWER(:input) || '%'")
+    fun searchByName(input: String): Flow<List<Pack>>
+
     @Query("SELECT COUNT(*) FROM packs")
     fun count(): Flow<Int>
 

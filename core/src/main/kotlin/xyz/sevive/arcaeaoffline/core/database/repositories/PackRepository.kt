@@ -13,6 +13,8 @@ interface PackRepository {
 
     fun findBasePack(id: String): Flow<Pack?>
 
+    fun searchByName(input: String): Flow<List<Pack>>
+
     fun count(): Flow<Int>
 
     suspend fun upsert(item: Pack): Long
@@ -27,19 +29,21 @@ interface PackRepository {
 class PackRepositoryImpl(
     private val dao: PackDao,
 ) : PackRepository {
+    private val basePackIdRegex = """_append_.*$""".toRegex()
+
     override fun find(id: String): Flow<Pack?> = dao.find(id)
 
     override fun findAll(): Flow<List<Pack>> = dao.findAll()
 
-    override fun findBasePack(id: String): Flow<Pack?> {
-        val re = """_append_.*$""".toRegex()
-        return if (re.find(id) != null) {
-            val baseId = re.replace(id, "")
+    override fun findBasePack(id: String): Flow<Pack?> =
+        if (basePackIdRegex.find(id) != null) {
+            val baseId = basePackIdRegex.replace(id, "")
             dao.find(baseId)
         } else {
             MutableStateFlow(null).asStateFlow()
         }
-    }
+
+    override fun searchByName(input: String) = dao.searchByName(input)
 
     override fun count() = dao.count()
 

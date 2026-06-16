@@ -16,6 +16,8 @@ interface SongRepository {
 
     fun findDeletedInGame(): Flow<List<Song>>
 
+    fun searchByTitle(input: String): Flow<List<Song>>
+
     fun count(): Flow<Int>
 
     fun countDeletedInGame(): Flow<Int>
@@ -39,6 +41,8 @@ class SongRepositoryImpl(
     override fun findAll(): Flow<List<Song>> = dao.findAll()
 
     override fun findDeletedInGame(): Flow<List<Song>> = dao.findDeletedInGame()
+
+    override fun searchByTitle(input: String) = dao.searchByTitle(input)
 
     override fun count() = dao.count()
 
