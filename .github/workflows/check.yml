@@ -10,6 +10,8 @@ jobs:
   general:
     name: General Checks
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
 
     steps:
       - name: Checkout Repository
