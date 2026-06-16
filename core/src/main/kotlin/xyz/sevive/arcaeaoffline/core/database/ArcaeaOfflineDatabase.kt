@@ -108,7 +108,10 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"
 
-        fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
+        @Volatile
+        private var instance: ArcaeaOfflineDatabase? = null
+
+        private fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
             val appContext = context.applicationContext
             val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
             return Room.databaseBuilder<ArcaeaOfflineDatabase>(
@@ -117,13 +120,18 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
             )
         }
 
-        fun getDatabase(context: Context): ArcaeaOfflineDatabase =
-            getDatabaseBuilder(context)
-                .setDriver(BundledSQLiteDriver())
-                .setQueryCoroutineContext(Dispatchers.IO)
-                .addMigrations(
-                    Migration_6_7,
-                    Migration_7_8,
-                ).build()
+        fun getDatabase(context: Context): ArcaeaOfflineDatabase {
+            // If the instance is not null, return it, otherwise create a new database instance.
+            return instance ?: synchronized(this) {
+                getDatabaseBuilder(context)
+                    .setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.IO)
+                    .addMigrations(
+                        Migration_6_7,
+                        Migration_7_8,
+                    ).build()
+                    .also { instance = it }
+            }
+        }
     }
 }
