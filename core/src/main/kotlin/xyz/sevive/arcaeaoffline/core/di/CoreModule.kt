@@ -19,7 +19,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
@@ -52,9 +51,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedReposito
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.ocr.ImageHashers
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
-import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 
 internal fun createArcaeaOfflineDatabase(context: Context) = ArcaeaOfflineDatabase.getDatabase(context)
 
@@ -118,10 +114,4 @@ val coreModule =
         single<R30EntryRepositoryImpl>().bind(R30EntryRepository::class)
         single<RelationshipsRepositoryImpl>().bind(RelationshipsRepository::class)
         single<PotentialRepositoryImpl>().bind(PotentialRepository::class)
-
-        // TODO: evaluate these usages
-        single { ChartFactory }
-        single { DeviceOcrOnnxHelper }
-        single { ImageHashers }
-        single { ScreenshotDetect }
     }

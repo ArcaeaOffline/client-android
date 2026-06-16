@@ -8,8 +8,6 @@ import org.koin.plugin.module.dsl.single
 import org.koin.plugin.module.dsl.viewModel
 import org.koin.plugin.module.dsl.worker
 import xyz.sevive.arcaeaoffline.core.di.coreModule
-import xyz.sevive.arcaeaoffline.data.BuildFlavor
-import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
@@ -23,11 +21,6 @@ import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.UnstableFlavorPreferencesRepository
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
-import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
-import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
-import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
@@ -77,15 +70,6 @@ val appModule =
         single<EmergencyModePreferencesRepository>()
         single<OcrQueuePreferencesRepository>()
         single<UnstableFlavorPreferencesRepository>()
-
-        // TODO: evaluate these usages
-        single { ArcaeaResourcesStateHolder }
-        single { Notifications }
-        single { OcrDependencyLoader }
-        single { ArcaeaPlayResultValidator }
-        single { DeviceOcrHelper }
-        single { OcrQueueHelper }
-        single { BuildFlavor }
 
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()
