@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.datastore
 
+import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -40,8 +40,9 @@ object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
 }
 
 class OcrQueuePreferencesRepository(
-    private val dataStore: DataStore<OcrQueuePreferences>,
+    context: Context,
 ) {
+    private val dataStore = AppDataStoreProvider.ocrQueuePreferences(context)
     val preferencesFlow = dataStore.data
 
     suspend fun setCheckIsImage(value: Boolean) {

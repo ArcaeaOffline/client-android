@@ -33,9 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
@@ -46,7 +45,7 @@ import kotlin.math.round
 @Composable
 fun DatabaseB30ListScreen(
     onNavigateUp: () -> Unit,
-    viewModel: DatabaseB30ListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabaseB30ListViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

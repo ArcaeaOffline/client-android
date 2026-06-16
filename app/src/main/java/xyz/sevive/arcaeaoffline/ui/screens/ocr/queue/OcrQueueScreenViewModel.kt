@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,29 +24,37 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
-import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
 class OcrQueueScreenViewModel(
-    private val workManager: WorkManager,
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    ocrQueueRepos: OcrQueueDatabaseRepositoryContainer,
+    context: Context,
+    private val chartInfoRepo: ChartInfoRepository,
+    private val playResultRepo: PlayResultRepository,
+    private val songRepo: SongRepository,
+    private val difficultyRepo: DifficultyRepository,
+    private val chartRepo: ChartRepository,
+    private val ocrQueueTaskRepo: OcrQueueTaskRepositoryImpl,
     preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
     companion object {
         const val LOG_TAG = "OcrQueueScreenViewModel"
     }
 
-    private val ocrQueueTaskRepo = ocrQueueRepos.ocrQueueTaskRepo
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(
@@ -167,13 +176,13 @@ class OcrQueueScreenViewModel(
         playResult: PlayResult,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.updatePlayResult(taskId, playResult, repositoryContainer.chartInfoRepo)
+            ocrQueueTaskRepo.updatePlayResult(taskId, playResult, chartInfoRepo)
         }
     }
 
     fun saveTaskPlayResult(taskId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.save(taskId, repositoryContainer.playResultRepo)
+            ocrQueueTaskRepo.save(taskId, playResultRepo)
         }
     }
 
@@ -181,7 +190,7 @@ class OcrQueueScreenViewModel(
         if (queueRunning.value) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.saveAll(repositoryContainer.playResultRepo)
+            ocrQueueTaskRepo.saveAll(playResultRepo)
         }
     }
 
@@ -220,7 +229,7 @@ class OcrQueueScreenViewModel(
 
     private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
         val chartCacheHolder = UiDisplayChartCacheHolder()
-        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, repositoryContainer)
+        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, songRepo, difficultyRepo, chartRepo)
 
         return dbItems.map {
             if (it.playResult == null) {

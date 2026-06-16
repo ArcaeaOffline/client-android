@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.IntentCompat
@@ -17,15 +16,15 @@ import io.github.vinceglb.filekit.dialogs.init
 import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.helpers.activity.getSourcePackageName
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareScreen
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 class OcrFromShareActivity : ComponentActivity() {
-    private val viewModel by viewModels<OcrFromShareViewModel>(factoryProducer = { AppViewModelProvider.Factory })
+    private val viewModel by viewModel<OcrFromShareViewModel>()
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {

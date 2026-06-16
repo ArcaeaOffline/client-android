@@ -31,10 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
@@ -84,7 +83,7 @@ private fun DatabaseR30RebuildConfirmDialog(
 @Composable
 internal fun DatabaseR30ListScreen(
     onNavigateUp: () -> Unit,
-    viewModel: DatabaseR30ListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabaseR30ListViewModel = koinViewModel(),
 ) {
     val updateProgress by viewModel.updateProgress.collectAsStateWithLifecycle()
     val isUpdating by remember { derivedStateOf { updateProgress.second > -1 } }

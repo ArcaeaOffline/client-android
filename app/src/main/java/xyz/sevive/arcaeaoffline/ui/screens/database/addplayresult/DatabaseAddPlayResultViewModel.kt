@@ -13,13 +13,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseAddPlayResultViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
+    private val chartInfoRepo: ChartInfoRepository,
+    private val playResultRepo: PlayResultRepository,
 ) : ViewModel() {
     data class UiState(
         val chart: Chart? = null,
@@ -36,7 +38,7 @@ class DatabaseAddPlayResultViewModel(
     private suspend fun getPlayResultWarnings(playResult: PlayResult?): List<ArcaeaPlayResultValidatorWarning> {
         if (playResult == null) return emptyList()
 
-        val chartInfo = repositoryContainer.chartInfoRepo.find(playResult).firstOrNull()
+        val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
         return ArcaeaPlayResultValidator.validate(playResult, chartInfo)
     }
 
@@ -85,7 +87,7 @@ class DatabaseAddPlayResultViewModel(
         savePlayResultJob =
             viewModelScope.launch(Dispatchers.IO) {
                 playResult.value?.let {
-                    repositoryContainer.playResultRepo.upsert(it)
+                    playResultRepo.upsert(it)
                     reset()
                 }
             }

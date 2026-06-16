@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.koin.compiler) apply false
 
     alias(libs.plugins.compose.compiler) apply false
 

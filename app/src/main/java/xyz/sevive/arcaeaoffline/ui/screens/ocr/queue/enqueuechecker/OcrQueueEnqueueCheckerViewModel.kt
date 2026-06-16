@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,19 +21,19 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueEnqueueCheckerJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
-import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
 class OcrQueueEnqueueCheckerViewModel(
-    private val workManager: WorkManager,
-    ocrQueueRepos: OcrQueueDatabaseRepositoryContainer,
+    context: Context,
+    private val bufferRepo: OcrQueueEnqueueBufferRepository,
     preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
-    private val bufferRepo = ocrQueueRepos.ocrQueueEnqueueBufferRepo
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(
@@ -65,12 +66,10 @@ class OcrQueueEnqueueCheckerViewModel(
             bufferRepo.countChecked(),
             bufferRepo.count(),
         ) { workInfo, p, t ->
-            if (workInfo?.state == WorkInfo.State.RUNNING && t > 0) {
-                Pair(p, t)
-            } else if (workInfo?.state == WorkInfo.State.ENQUEUED) {
-                Pair(0, -1)
-            } else {
-                null
+            when (workInfo?.state) {
+                WorkInfo.State.RUNNING if (t > 0) -> Pair(p, t)
+                WorkInfo.State.ENQUEUED -> Pair(0, -1)
+                else -> null
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 

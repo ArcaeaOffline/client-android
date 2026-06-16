@@ -16,14 +16,18 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.threeten.bp.Instant
-import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
+import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 
 private fun PlayResult.matchesR30Condition(): Boolean {
     // score >= EX
@@ -42,6 +46,11 @@ private fun List<R30EntryCombined>.minPotentialItem(): R30EntryCombined? =
 class R30UpdateJob(
     context: Context,
     params: WorkerParameters,
+    private val r30EntryRepo: R30EntryRepository,
+    private val propertyRepo: PropertyRepository,
+    private val songRepo: SongRepository,
+    private val playResultRepo: PlayResultRepository,
+    private val chartInfoRepo: ChartInfoRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "R30UpdateJob"
@@ -73,14 +82,6 @@ class R30UpdateJob(
                     it.value == inputData.getInt(DATA_RUN_MODE, 0)
                 } ?: RunMode.NORMAL,
         )
-
-    private val repoContainer =
-        (applicationContext as ArcaeaOfflineApplication).arcaeaOfflineDatabaseRepositoryContainer
-    private val r30EntryRepo = repoContainer.r30EntryRepo
-    private val propertyRepo = repoContainer.propertyRepo
-    private val songRepo = repoContainer.songRepo
-    private val playResultRepo = repoContainer.playResultRepo
-    private val chartInfoRepo = repoContainer.chartInfoRepo
 
     private val progress = MutableStateFlow(0)
     private val progressTotal = MutableStateFlow(-1)

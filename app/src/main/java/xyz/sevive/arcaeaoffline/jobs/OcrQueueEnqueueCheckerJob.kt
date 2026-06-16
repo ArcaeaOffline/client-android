@@ -34,13 +34,15 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
-import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
 class OcrQueueEnqueueCheckerJob(
     context: Context,
     params: WorkerParameters,
+    private val repo: OcrQueueEnqueueBufferRepository,
+    private val taskRepo: OcrQueueTaskRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "OcrQueueEnqCheckerJob"
@@ -76,10 +78,6 @@ class OcrQueueEnqueueCheckerJob(
                     Runtime.getRuntime().availableProcessors() / 2,
                 ),
         )
-
-    private val repoContainer = OcrQueueDatabaseRepositoryContainer(applicationContext)
-    private val repo = repoContainer.ocrQueueEnqueueBufferRepo
-    private val taskRepo = repoContainer.ocrQueueTaskRepo
 
     private suspend fun cleanup() {
         logger.i { "Cleaning up" }

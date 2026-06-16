@@ -15,20 +15,25 @@ import io.sentry.android.core.SentryAndroid
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.context.startKoin
+import org.koin.mp.KoinPlatform.getKoin
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
+import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
+import xyz.sevive.arcaeaoffline.datastore.UnstableFlavorPreferencesRepository
+import xyz.sevive.arcaeaoffline.di.appModule
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
-import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
-import xyz.sevive.arcaeaoffline.ui.containers.DataStoreRepositoryContainerImpl
-import xyz.sevive.arcaeaoffline.ui.containers.OcrQueueDatabaseRepositoryContainer
 
 class ArcaeaOfflineApplication : Application() {
     companion object {
@@ -38,26 +43,7 @@ class ArcaeaOfflineApplication : Application() {
     private val logger = Logger.withTag(LOG_TAG)
 
     private val appScope =
-        CoroutineScope(Dispatchers.Default) + CoroutineName("ArcaeaOfflineApplication")
-
-    val arcaeaOfflineDatabaseRepositoryContainer by lazy {
-        ArcaeaOfflineDatabaseRepositoryContainerImpl(this)
-    }
-    val appDatabaseRepositoryContainer by lazy { AppDatabaseRepositoryContainer(this) }
-    val ocrQueueDatabaseRepositoryContainer by lazy { OcrQueueDatabaseRepositoryContainer(this) }
-    val dataStoreRepositoryContainer = DataStoreRepositoryContainerImpl(this)
-
-    private val autoSendCrashReports =
-        dataStoreRepositoryContainer.appPreferences.preferencesFlow
-            .map {
-                it.autoSendCrashReports
-            }.stateIn(appScope, SharingStarted.Eagerly, false)
-
-    private val unstableAlertRead =
-        dataStoreRepositoryContainer.unstableFlavorPreferences.preferencesFlow
-            .map {
-                it.unstableAlertRead
-            }.stateIn(appScope, SharingStarted.Eagerly, null)
+        CoroutineScope(Dispatchers.Default + SupervisorJob()) + CoroutineName("ArcaeaOfflineApplication")
 
     private fun addEmergencyModeShortcut() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
@@ -101,9 +87,29 @@ class ArcaeaOfflineApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        startKoin {
+            androidLogger()
+            androidContext(this@ArcaeaOfflineApplication)
+            workManagerFactory()
+            modules(appModule)
+        }
+
         addEmergencyModeShortcut()
 
         AndroidThreeTen.init(this)
+
+        val appPreferencesRepo by lazy { getKoin().get<AppPreferencesRepository>() }
+        val unstableFlavorRepo by lazy { getKoin().get<UnstableFlavorPreferencesRepository>() }
+
+        val autoSendCrashReports =
+            appPreferencesRepo.preferencesFlow
+                .map { it.autoSendCrashReports }
+                .stateIn(appScope, SharingStarted.Eagerly, false)
+
+        val unstableAlertRead =
+            unstableFlavorRepo.preferencesFlow
+                .map { it.unstableAlertRead }
+                .stateIn(appScope, SharingStarted.Eagerly, null)
 
         SentryAndroid.init(this) {
             it.beforeSend =

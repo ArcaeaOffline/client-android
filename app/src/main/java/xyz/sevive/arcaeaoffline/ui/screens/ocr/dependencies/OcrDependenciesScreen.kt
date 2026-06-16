@@ -13,11 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
@@ -30,7 +29,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 fun OcrDependenciesScreen(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: OcrDependenciesScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: OcrDependenciesScreenViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
 

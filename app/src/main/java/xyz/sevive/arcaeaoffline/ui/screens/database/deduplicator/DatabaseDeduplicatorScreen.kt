@@ -27,9 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
@@ -39,7 +38,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayR
 @Composable
 fun DatabaseDeduplicatorScreen(
     onNavigateUp: () -> Unit,
-    vm: DatabaseDeduplicatorViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: DatabaseDeduplicatorViewModel = koinViewModel(),
 ) {
     val groupByValues by vm.groupByValues.collectAsStateWithLifecycle()
     val selectedUuids by vm.selectedUuids.collectAsStateWithLifecycle()

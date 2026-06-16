@@ -10,7 +10,6 @@ import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import kotlin.time.measureTime
 
 class UiDisplayChartCacheHolder {
@@ -28,7 +27,7 @@ class UiDisplayChartCacheHolder {
 
     private val cache = mutableMapOf<Pair<String, ArcaeaRatingClass>, Chart>()
 
-    private suspend fun updateCache(
+    suspend fun updateCache(
         playResults: List<PlayResult>,
         songRepo: SongRepository,
         difficultyRepo: DifficultyRepository,
@@ -72,16 +71,6 @@ class UiDisplayChartCacheHolder {
             }
         }.let { logger.d { "updateCache took $it" } }
     }
-
-    suspend fun updateCache(
-        playResults: List<PlayResult>,
-        repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    ) = updateCache(
-        playResults,
-        repositoryContainer.songRepo,
-        repositoryContainer.difficultyRepo,
-        repositoryContainer.chartRepo,
-    )
 
     fun get(playResult: PlayResult): Chart? = cache[playResult.siRcKey()]
 }

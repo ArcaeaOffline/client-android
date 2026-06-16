@@ -9,14 +9,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 
 @Composable
 fun OverviewScreen(
     modifier: Modifier = Modifier,
-    viewModel: OverviewViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: OverviewViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

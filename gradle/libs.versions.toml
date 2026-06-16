@@ -4,6 +4,8 @@ androidGradlePlugin = "9.2.1"
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
 ksp = "2.3.9"
+koin = "4.2.1"
+koin-plugin = "1.0.1"
 
 opencv = "4.13.0"
 
@@ -26,6 +28,12 @@ dependencyAnalysis = "3.15.0"
 
 [libraries]
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-annotations = { module = "io.insert-koin:koin-annotations" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
+koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "4.31.1" }
@@ -56,6 +64,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

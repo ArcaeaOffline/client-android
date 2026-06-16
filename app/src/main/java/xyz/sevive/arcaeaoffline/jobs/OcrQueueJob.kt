@@ -34,7 +34,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.opencv.ml.KNearest
 import org.threeten.bp.Instant
-import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
@@ -50,6 +49,8 @@ import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 class OcrQueueJob(
     context: Context,
     params: WorkerParameters,
+    private val ocrQueueTaskRepo: OcrQueueTaskRepository,
+    private val chartInfoRepo: ChartInfoRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
         private const val LOG_TAG = "OcrQueueJob"
@@ -155,12 +156,6 @@ class OcrQueueJob(
         }
     }
 
-    private val repo =
-        (applicationContext as ArcaeaOfflineApplication).ocrQueueDatabaseRepositoryContainer.ocrQueueTaskRepo
-
-    private val chartInfoRepo =
-        (applicationContext as ArcaeaOfflineApplication).arcaeaOfflineDatabaseRepositoryContainer.chartInfoRepo
-
     @androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
         setForeground(createForegroundInfo())
@@ -189,8 +184,8 @@ class OcrQueueJob(
             withContext(NonCancellable + Dispatchers.IO) {
                 channelScope
                     .async {
-                        repo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
-                            repo.update(it.copy(status = OcrQueueTaskStatus.ERROR, exception = e))
+                        ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
+                            ocrQueueTaskRepo.update(it.copy(status = OcrQueueTaskStatus.ERROR, exception = e))
                         }
                     }.await()
             }
@@ -297,7 +292,7 @@ class OcrQueueJob(
                                 processTask(
                                     scope = channelScope,
                                     task = it,
-                                    taskRepo = repo,
+                                    taskRepo = ocrQueueTaskRepo,
                                     chartInfoRepo = chartInfoRepo,
                                     ortSession = ortSession,
                                     kNearestModel = kNearestModel,
@@ -314,7 +309,7 @@ class OcrQueueJob(
 
     private suspend fun runNormal() {
         val tasks =
-            repo
+            ocrQueueTaskRepo
                 .findByStatus(
                     OcrQueueTaskStatus.IDLE,
                     OcrQueueTaskStatus.PROCESSING,
@@ -324,7 +319,7 @@ class OcrQueueJob(
     }
 
     private suspend fun runAll() {
-        val tasks = repo.findAll().firstOrNull() ?: return
+        val tasks = ocrQueueTaskRepo.findAll().firstOrNull() ?: return
         processTasks(tasks)
     }
 
@@ -340,14 +335,14 @@ class OcrQueueJob(
 
             val newPlayResult = task.playResult.copy(songId = songId)
             if (ArcaeaPlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
-                repo.update(task.copy(playResult = newPlayResult, warnings = null))
+                ocrQueueTaskRepo.update(task.copy(playResult = newPlayResult, warnings = null))
                 return
             }
         }
     }
 
     private suspend fun runSmartFix() {
-        val taskWithWarnings = repo.findDoneWithWarning().firstOrNull() ?: return
+        val taskWithWarnings = ocrQueueTaskRepo.findDoneWithWarning().firstOrNull() ?: return
         taskWithWarnings.forEach { tryFixTask(it) }
     }
 }

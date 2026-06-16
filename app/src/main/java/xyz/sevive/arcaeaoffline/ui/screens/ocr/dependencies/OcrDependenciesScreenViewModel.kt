@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,6 @@ import kotlinx.coroutines.launch
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.ArcaeaOfflineApplication
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
@@ -37,7 +37,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStat
 import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
-    application: ArcaeaOfflineApplication,
+    context: Context,
 ) : ViewModel() {
     companion object {
         private const val STOP_TIME_MILLIS = 5000L
@@ -46,8 +46,7 @@ class OcrDependenciesScreenViewModel(
     }
 
     private val logger = Logger.withTag(LOG_TAG)
-
-    private val workManager = WorkManager.getInstance(application)
+    private val workManager = WorkManager.getInstance(context.applicationContext)
 
     private val _kNearestModelUiState =
         MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
@@ -91,7 +90,7 @@ class OcrDependenciesScreenViewModel(
     val crnnModelUiState = _crnnModelUiState.asStateFlow()
 
     init {
-        reloadAll(application)
+        reloadAll(context)
     }
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean =
@@ -210,6 +209,16 @@ class OcrDependenciesScreenViewModel(
                 ExistingWorkPolicy.REPLACE,
                 workRequest,
             )
+
+            workManager.getWorkInfoByIdFlow(workRequest.id).collect {
+                when (it?.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        reloadImageHashesDatabaseStatusDetailUiState()
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 

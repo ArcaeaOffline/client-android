@@ -32,9 +32,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
@@ -85,7 +84,7 @@ private fun DatabasePlayResultListAppBarActions(
 @Composable
 fun DatabasePlayResultListScreen(
     onNavigateUp: () -> Unit,
-    viewModel: DatabasePlayResultListViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: DatabasePlayResultListViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
 

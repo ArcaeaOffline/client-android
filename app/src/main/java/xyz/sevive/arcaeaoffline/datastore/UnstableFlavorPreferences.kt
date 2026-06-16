@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.datastore
 
+import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
@@ -26,8 +26,9 @@ object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreference
 }
 
 class UnstableFlavorPreferencesRepository(
-    private val dataStore: DataStore<UnstableFlavorPreferences>,
+    context: Context,
 ) {
+    private val dataStore = AppDataStoreProvider.unstableFlavorPreferences(context)
     val preferencesFlow = dataStore.data
 
     suspend fun setAlertRead(value: Boolean) {

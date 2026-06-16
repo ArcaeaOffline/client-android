@@ -26,10 +26,13 @@ import kotlinx.io.files.SystemFileSystem
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
+import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
@@ -37,12 +40,11 @@ import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
-import xyz.sevive.arcaeaoffline.ui.containers.AppDatabaseRepositoryContainer
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 
 class OcrFromShareViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
-    private val appDatabaseRepositoryContainer: AppDatabaseRepositoryContainer,
+    private val playResultRepo: PlayResultRepository,
+    private val chartRepo: ChartRepository,
+    private val ocrHistoryRepo: OcrHistoryRepository,
 ) : ViewModel() {
     class OcrDependencyViewersUiState(
         val kNearestModel: OcrDependencyKNearestModelStatusUiState = OcrDependencyKNearestModelStatusUiState(),
@@ -147,7 +149,7 @@ class OcrFromShareViewModel(
 
     suspend fun saveScore() {
         if (playResult.value != null) {
-            repositoryContainer.playResultRepo.upsert(playResult.value!!)
+            playResultRepo.upsert(playResult.value!!)
             _scoreSaved.value = true
         }
     }
@@ -173,7 +175,7 @@ class OcrFromShareViewModel(
         val score = playResult.value
         if (score != null) {
             val ocrHistory = OcrHistory.fromArcaeaScore(score, shareSourceAppPackageName.value)
-            val id = appDatabaseRepositoryContainer.ocrHistoryRepo.insert(ocrHistory)
+            val id = ocrHistoryRepo.insert(ocrHistory)
 
             val bitmap = bitmap.value
             if (bitmap != null) {
@@ -228,7 +230,7 @@ class OcrFromShareViewModel(
                 _playResult.value = playResult
                 _exception.value = null
 
-                _chart.value = repositoryContainer.chartRepo.find(playResult).firstOrNull()
+                _chart.value = chartRepo.find(playResult).firstOrNull()
             } catch (e: Exception) {
                 _playResult.value = null
                 _exception.value = e

@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.r30list
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
@@ -17,21 +18,31 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseR30ListViewModel(
-    private val workManager: WorkManager,
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
+    context: Context,
+    r30EntryRepo: R30EntryRepository,
+    private val propertyRepo: PropertyRepository,
+    private val chartRepo: ChartRepository,
+    private val songRepo: SongRepository,
+    private val difficultyRepo: DifficultyRepository,
 ) : ViewModel() {
+    private val workManager = WorkManager.getInstance(context.applicationContext)
+
     private suspend fun getUiItemChart(playResult: PlayResult): Chart? {
-        val chart = repositoryContainer.chartRepo.find(playResult).firstOrNull()
+        val chart = chartRepo.find(playResult).firstOrNull()
         if (chart != null) return chart
 
-        val song = repositoryContainer.songRepo.find(playResult).firstOrNull() ?: return null
+        val song = songRepo.find(playResult).firstOrNull() ?: return null
         val difficulty =
-            repositoryContainer.difficultyRepo.find(playResult).firstOrNull() ?: return null
+            difficultyRepo.find(playResult).firstOrNull() ?: return null
         return ChartFactory.fakeChart(song, difficulty)
     }
 
@@ -52,7 +63,7 @@ class DatabaseR30ListViewModel(
     )
 
     val uiState =
-        repositoryContainer.r30EntryRepo
+        r30EntryRepo
             .findAllCombined()
             .transform { dbItems ->
                 emit(UiState(isLoading = true))
@@ -72,7 +83,7 @@ class DatabaseR30ListViewModel(
                         }.sortedByDescending { it.potential }
                         .mapIndexed { i, uiItem -> uiItem.copy(index = i) }
 
-                val lastUpdatedAt = repositoryContainer.propertyRepo.r30LastUpdatedAt()
+                val lastUpdatedAt = propertyRepo.r30LastUpdatedAt()
 
                 emit(
                     UiState(isLoading = false, lastUpdatedAt = lastUpdatedAt, listItems = listItems),

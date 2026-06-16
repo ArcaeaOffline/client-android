@@ -9,21 +9,19 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.firstOrNull
+import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainerImpl
 
 private const val LOG_TAG = "PackAndSongSelector"
 private val logger = Logger.withTag(LOG_TAG)
@@ -67,18 +65,16 @@ fun ArcaeaPackAndSongSelector(
     modifier: Modifier = Modifier,
     chartOnly: Boolean = false,
 ) {
-    val context = LocalContext.current
-    val repositoryContainer =
-        remember {
-            ArcaeaOfflineDatabaseRepositoryContainerImpl(context)
-        }
+    val packRepo = koinInject<PackRepository>()
+    val songRepo = koinInject<SongRepository>()
+    val chartInfoRepo = koinInject<ChartInfoRepository>()
 
-    val packs by rememberArcaeaPacks(packRepo = repositoryContainer.packRepo)
+    val packs by rememberArcaeaPacks(packRepo = packRepo)
     var selectedPackIndex by rememberSaveable { mutableIntStateOf(-1) }
 
     val songs by rememberArcaeaSongs(
-        songRepo = repositoryContainer.songRepo,
-        chartInfoRepo = repositoryContainer.chartInfoRepo,
+        songRepo = songRepo,
+        chartInfoRepo = chartInfoRepo,
         packId = packs.getOrNull(selectedPackIndex)?.id,
         chartOnly = chartOnly,
     )

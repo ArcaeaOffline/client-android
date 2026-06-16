@@ -32,23 +32,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.roundToInt
 
 @Composable
 internal fun OcrQueueEnqueueCheckerFloatingActionButton(
     modifier: Modifier = Modifier,
-    vm: OcrQueueEnqueueCheckerViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: OcrQueueEnqueueCheckerViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
 

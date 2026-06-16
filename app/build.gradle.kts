@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.appVersioning)
@@ -190,8 +191,8 @@ dependencies {
     implementation(androidx.compose.material3.adaptive.layout)
     implementation(androidx.compose.material3.adaptive.navigation)
 
-    implementation(androidx.lifecycle.lifecycleViewmodelCompose)
-    implementation(androidx.lifecycle.lifecycleRuntimeCompose)
+    implementation(androidx.lifecycle.runtime.compose)
+    implementation(androidx.lifecycle.viewmodel.compose)
 
     implementation(androidx.exifinterface)
 
@@ -204,6 +205,12 @@ dependencies {
     implementation(libs.kermit)
 
     implementation(libs.kotlinx.serialization)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.annotations)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
 
     implementation(libs.io.sentry.sentryAndroid)
 

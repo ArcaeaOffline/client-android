@@ -14,19 +14,18 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mikepenz.markdown.compose.LazyMarkdownSuccess
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.model.rememberMarkdownState
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
 @Composable
 internal fun SettingsUnstableAlertScreen(
     onNavigateUp: () -> Unit,
-    vm: SettingsUnstableAlertScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: SettingsUnstableAlertScreenViewModel = koinViewModel(),
 ) {
     val unstableAlertRead by vm.unstableAlertRead.collectAsStateWithLifecycle()
     LaunchedEffect(unstableAlertRead) {

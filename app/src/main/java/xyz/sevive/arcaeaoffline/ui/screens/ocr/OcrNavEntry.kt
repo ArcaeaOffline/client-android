@@ -18,8 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
@@ -34,7 +33,7 @@ fun OcrNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val vm = viewModel<OcrDependenciesScreenViewModel>(factory = AppViewModelProvider.Factory)
+    val vm = koinViewModel<OcrDependenciesScreenViewModel>()
     val kNearestModelUiState by vm.kNearestModelUiState.collectAsStateWithLifecycle()
     val imageHashesDatabaseUiState by vm.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
     val crnnModelUiState by vm.crnnModelUiState.collectAsStateWithLifecycle()

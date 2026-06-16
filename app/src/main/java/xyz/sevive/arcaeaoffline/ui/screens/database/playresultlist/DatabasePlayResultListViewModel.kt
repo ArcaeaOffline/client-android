@@ -21,15 +21,21 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.ui.containers.ArcaeaOfflineDatabaseRepositoryContainer
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class DatabasePlayResultListViewModel(
-    private val repositoryContainer: ArcaeaOfflineDatabaseRepositoryContainer,
+    private val playResultRepo: PlayResultRepository,
+    private val songRepo: SongRepository,
+    private val difficultyRepo: DifficultyRepository,
+    private val chartRepo: ChartRepository,
 ) : ViewModel() {
     enum class SortOrder {
         ASC,
@@ -79,14 +85,14 @@ class DatabasePlayResultListViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rawListItems =
-        repositoryContainer.playResultRepo.findAll().transformLatest { dbItems ->
+        playResultRepo.findAll().transformLatest { dbItems ->
             isLoading.value = true
 
             val chartCache = UiDisplayChartCacheHolder()
-            chartCache.updateCache(dbItems, repositoryContainer)
+            chartCache.updateCache(dbItems, songRepo, difficultyRepo, chartRepo)
 
             val deletedSongIds =
-                repositoryContainer.songRepo
+                songRepo
                     .findDeletedInGame()
                     .firstOrNull()
                     ?.map { it.id }
@@ -168,11 +174,11 @@ class DatabasePlayResultListViewModel(
     fun deleteSelectedItemsInDatabase() {
         viewModelScope.launch(Dispatchers.IO) {
             val playResults =
-                repositoryContainer.playResultRepo
+                playResultRepo
                     .findAllByUUID(selectedItemUuids.value)
                     .firstOrNull() ?: emptyList()
 
-            repositoryContainer.playResultRepo.deleteBatch(*playResults.toTypedArray())
+            playResultRepo.deleteBatch(*playResults.toTypedArray())
             clearSelectedItems()
         }
     }
@@ -190,7 +196,7 @@ class DatabasePlayResultListViewModel(
         snackbarHostState: SnackbarHostState? = null,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            repositoryContainer.playResultRepo.upsert(playResult)
+            playResultRepo.upsert(playResult)
 
             if (context != null && snackbarHostState != null) {
                 snackbarHostState.showSnackbar(

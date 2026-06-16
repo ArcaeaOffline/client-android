@@ -54,7 +54,7 @@ abstract class OcrQueueDatabase : RoomDatabase() {
         }
 
         fun getDatabase(context: Context): OcrQueueDatabase {
-            // if the Instance is not null, return it, otherwise create a new database instance.
+            // If the instance is not null, return it, otherwise create a new database instance.
             return instance ?: synchronized(this) {
                 getDatabaseBuilder(context)
                     .setDriver(BundledSQLiteDriver())

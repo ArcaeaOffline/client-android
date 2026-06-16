@@ -23,9 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.AppViewModelProvider
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
@@ -35,7 +34,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 fun DatabaseNavEntry(
     onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
-    vm: DatabaseNavEntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    vm: DatabaseNavEntryViewModel = koinViewModel(),
 ) {
     val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
 
