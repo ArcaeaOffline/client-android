@@ -79,7 +79,7 @@ private fun rememberCandidates(
             if (song.id in addedSongIds) return
 
             val pack = packsMap[song.set] ?: packRepo.find(song.set).firstOrNull() ?: return
-            packsMap[song.id] = pack
+            packsMap[song.set] = pack
             addedSongIds.add(song.id)
             candidates.add(Candidate(pack = pack, song = song))
         }
