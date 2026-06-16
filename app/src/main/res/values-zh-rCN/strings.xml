@@ -203,6 +203,7 @@
     </plurals>
 
     <!-- components -->
+    <string name="song_id_selector_quick_search">快速搜索</string>
     <string name="song_id_selector_select_pack">选择曲包</string>
     <string name="song_id_selector_select_song">选择歌曲</string>
 
