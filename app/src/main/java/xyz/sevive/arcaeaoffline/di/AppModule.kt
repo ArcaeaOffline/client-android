@@ -1,9 +1,6 @@
 package xyz.sevive.arcaeaoffline.di
 
 import android.content.Context
-import android.content.res.AssetManager
-import android.content.res.Resources
-import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
@@ -80,10 +77,6 @@ val appModule =
         single<EmergencyModePreferencesRepository>()
         single<OcrQueuePreferencesRepository>()
         single<UnstableFlavorPreferencesRepository>()
-
-        // TODO: evaluate these usages
-        single<Resources> { androidContext().applicationContext.resources }
-        single<AssetManager> { androidContext().applicationContext.assets }
 
         // TODO: evaluate these usages
         single { ArcaeaResourcesStateHolder }

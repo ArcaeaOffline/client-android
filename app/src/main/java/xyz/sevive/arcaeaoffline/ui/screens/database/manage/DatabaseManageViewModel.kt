@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import android.content.Context
-import android.content.res.AssetManager
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -29,7 +28,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
-import org.koin.core.annotation.Provided
 import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
@@ -57,9 +55,6 @@ import java.util.zip.ZipInputStream
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseManageViewModel(
-    // TODO: evaluate these usages
-    @Provided private val res: Resources,
-    @Provided private val assets: AssetManager,
     private val packRepo: PackRepository,
     private val packLocalizedRepo: PackLocalizedRepository,
     private val songRepo: SongRepository,
@@ -154,7 +149,10 @@ class DatabaseManageViewModel(
         }
     }
 
-    private suspend fun importPacklistTask(packlistContent: String) {
+    private suspend fun importPacklistTask(
+        packlistContent: String,
+        resources: Resources,
+    ) {
         val importer = ArcaeaPacklistImporter(packlistContent)
 
         val packs = importer.packs().toTypedArray()
@@ -162,7 +160,7 @@ class DatabaseManageViewModel(
         logger.i { "$packsAffectedRows packs updated" }
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_packs_imported,
                 packsAffectedRows,
                 packsAffectedRows,
@@ -175,7 +173,7 @@ class DatabaseManageViewModel(
         logger.i { "$packsLocalizedAffectedRows packs localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_PACKLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_packs_localized_imported,
                 packsLocalizedAffectedRows,
                 packsLocalizedAffectedRows,
@@ -183,19 +181,26 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importPacklist(uri: Uri) {
+    fun importPacklist(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val packlistContent = PlatformFile(uri).readBytes().decodeToString()
-                importPacklistTask(packlistContent)
+                val resources = context.resources
+                importPacklistTask(packlistContent, resources)
             }
         }
     }
 
-    private suspend fun importSonglistTask(songlistContent: String) {
-        val supplementSonglistContent = assets.open("songlist.json").use { it.readText() }
+    private suspend fun importSonglistTask(
+        primarySonglistContent: String,
+        supplementSonglistContent: String,
+        resources: Resources,
+    ) {
         val supplementImporter = ArcaeaSonglistImporter(supplementSonglistContent)
-        val importer = ArcaeaSonglistImporter(songlistContent)
+        val importer = ArcaeaSonglistImporter(primarySonglistContent)
 
         val deletedSongIds = importer.deletedSongIds()
         val supplementSongs =
@@ -209,7 +214,7 @@ class DatabaseManageViewModel(
         logger.i { "$songsAffectedRows songs updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_songs_imported,
                 songsAffectedRows,
                 songsAffectedRows,
@@ -226,7 +231,7 @@ class DatabaseManageViewModel(
         logger.i { "$difficultiesAffectedRows difficulties updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_difficulties_imported,
                 difficultiesAffectedRows,
                 difficultiesAffectedRows,
@@ -243,7 +248,7 @@ class DatabaseManageViewModel(
         logger.i { "$songsLocalizedAffectedRows songs localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_songs_localized_imported,
                 songsLocalizedAffectedRows,
                 songsLocalizedAffectedRows,
@@ -261,7 +266,7 @@ class DatabaseManageViewModel(
         logger.i { "$difficultiesLocalizedAffectedRows difficulties localized updated" }
         appendUiLog(
             LOG_TAG_IMPORT_SONGLIST,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_difficulties_localized_imported,
                 difficultiesLocalizedAffectedRows,
                 difficultiesLocalizedAffectedRows,
@@ -269,19 +274,28 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importSonglist(uri: Uri) {
+    fun importSonglist(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val songlistContent = PlatformFile(uri).readBytes().decodeToString()
-                importSonglistTask(songlistContent)
+                val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
+                val resources = context.resources
+                importSonglistTask(songlistContent, supplementSonglistContent, resources)
             }
         }
     }
 
-    private suspend fun importArcaeaApkFromSelectedTask(zipInputStream: ZipInputStream) {
+    private suspend fun importArcaeaApkFromSelectedTask(
+        zipInputStream: ZipInputStream,
+        supplementSonglistContent: String,
+        resources: Resources,
+    ) {
         appendUiLog(
             LOG_TAG_IMPORT_ARCAEA_APK,
-            res.getString(R.string.database_manage_import_reading_apk),
+            resources.getString(R.string.database_manage_import_reading_apk),
         )
 
         var entry = zipInputStream.nextEntry
@@ -292,12 +306,12 @@ class DatabaseManageViewModel(
         while (entry != null) {
             if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
                 packlistFound = true
-                importPacklistTask(zipInputStream.readText())
+                importPacklistTask(zipInputStream.readText(), resources)
             }
 
             if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
                 songlistFound = true
-                importSonglistTask(zipInputStream.readText())
+                importSonglistTask(zipInputStream.readText(), supplementSonglistContent, resources)
             }
 
             entry = zipInputStream.nextEntry
@@ -307,13 +321,18 @@ class DatabaseManageViewModel(
         if (!songlistFound) appendUiLog(LOG_TAG_IMPORT_ARCAEA_APK, "songlist not found!")
     }
 
-    fun importArcaeaApkFromSelected(uri: Uri) {
+    fun importArcaeaApkFromSelected(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
+                val resources = context.resources
                 PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
                     ZipInputStream(inputStream).use { zis ->
                         // TODO: change to work manager task, weird `java.io.IOException: Stream closed` inspected
-                        importArcaeaApkFromSelectedTask(zis)
+                        importArcaeaApkFromSelectedTask(zis, supplementSonglistContent, resources)
                     }
                 }
             }
@@ -325,6 +344,8 @@ class DatabaseManageViewModel(
     fun importArcaeaApkFromInstalled(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
+                val resources = context.resources
                 val packageHelper = ArcaeaPackageHelper(context)
 
                 packageHelper.getApkZipFile()?.use {
@@ -335,14 +356,14 @@ class DatabaseManageViewModel(
 
                     if (packlistEntry != null) {
                         val inputStream = it.getInputStream(packlistEntry)
-                        importPacklistTask(inputStream.use { inputStream.readText() })
+                        importPacklistTask(inputStream.use { inputStream.readText() }, resources)
                     } else {
                         appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "packlist not found!")
                     }
 
                     if (songlistEntry != null) {
                         val inputStream = it.getInputStream(songlistEntry)
-                        importSonglistTask(inputStream.use { inputStream.readText() })
+                        importSonglistTask(inputStream.use { inputStream.readText() }, supplementSonglistContent, resources)
                     } else {
                         appendUiLog(LOG_TAG_IMPORT_ARCAEA_INSTALLED, "songlist not found!")
                     }
@@ -351,14 +372,17 @@ class DatabaseManageViewModel(
         }
     }
 
-    private suspend fun importChartsInfoDatabase(conn: SQLiteConnection) {
+    private suspend fun importChartsInfoDatabase(
+        conn: SQLiteConnection,
+        resources: Resources,
+    ) {
         val chartInfo = ChartInfoDatabaseImporter.chartInfo(conn)
         val affectedRows =
             chartInfoRepo.insertBatch(*chartInfo.toTypedArray()).size
         logger.i { "$affectedRows chart info imported" }
         appendUiLog(
             LOG_TAG_IMPORT_CHART_INFO_DATABASE,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_chart_info_imported,
                 affectedRows,
                 affectedRows,
@@ -372,26 +396,30 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                val resources = context.resources
                 val databaseCopied =
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
                 BundledSQLiteDriver()
                     .open(databaseCopied.toString(), SQLITE_OPEN_READONLY)
-                    .use { conn -> importChartsInfoDatabase(conn) }
+                    .use { conn -> importChartsInfoDatabase(conn, resources) }
 
                 SystemFileSystem.delete(databaseCopied)
             }
         }
     }
 
-    private suspend fun importSt3(conn: SQLiteConnection) {
+    private suspend fun importSt3(
+        conn: SQLiteConnection,
+        resources: Resources,
+    ) {
         val playResults = ArcaeaSt3PlayResultImporter.playResults(conn)
         val affectedRows =
             playResultRepo.upsertBatch(*playResults.toTypedArray()).size
 
         appendUiLog(
             LOG_TAG_IMPORT_ST3,
-            res.getQuantityString(
+            resources.getQuantityString(
                 R.plurals.database_play_results_imported,
                 affectedRows,
                 affectedRows,
@@ -405,25 +433,29 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                val resources = context.resources
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
                 BundledSQLiteDriver()
                     .open(dbCacheFile.toString(), SQLITE_OPEN_READONLY)
-                    .use { conn -> importSt3(conn) }
+                    .use { conn -> importSt3(conn, resources) }
 
                 SystemFileSystem.delete(dbCacheFile)
             }
         }
     }
 
-    private suspend fun exportPlayResults(outputStream: OutputStream) {
+    private suspend fun exportPlayResults(
+        outputStream: OutputStream,
+        resources: Resources,
+    ) {
         val playResults = playResultRepo.findAll().firstOrNull() ?: return
 
         ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
             outputStream.write(ArcaeaOfflineDEFv2Exporter.playResults(it).toByteArray())
             appendUiLog(
                 LOG_TAG_EXPORT_PLAY_RESULTS,
-                res.getQuantityString(
+                resources.getQuantityString(
                     R.plurals.database_play_results_exported,
                     it.playResults.size,
                     it.playResults.size,
@@ -438,8 +470,9 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                val resources = context.resources
                 context.contentResolver.openOutputStream(uri)?.use {
-                    exportPlayResults(it)
+                    exportPlayResults(it, resources)
                 }
             }
         }
