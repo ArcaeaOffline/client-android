@@ -41,6 +41,7 @@ class ListDetailNavigationContext(
 
     fun navigateToDetail(route: String) {
         setDetailRoute(route)
+        setExtraRoute(null)
         coroutineScope.launch {
             navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, route)
         }
