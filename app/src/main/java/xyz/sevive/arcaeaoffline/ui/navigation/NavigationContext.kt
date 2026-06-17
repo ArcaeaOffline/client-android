@@ -12,20 +12,44 @@ import kotlinx.coroutines.launch
  * amortizing the coroutine scope so callers don't need to
  * launch coroutines themselves.
  *
+ * [setDetailRoute] and [setExtraRoute] keep pane-specific route state
+ * independent of the navigator's global `currentDestination`.
+ * Without this separation, navigating the Extra pane would corrupt
+ * the Detail pane's content key.
+ *
  * Provided via [LocalListDetailNavigationContext] by `AdaptiveEntryScreen`.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class ListDetailNavigationContext(
     private val navigator: ThreePaneScaffoldNavigator<String>,
     private val coroutineScope: CoroutineScope,
+    private val setDetailRoute: (String?) -> Unit = {},
+    private val setExtraRoute: (String?) -> Unit = {},
 ) {
+    /**
+     * Navigates back within the scaffold, then syncs both pane routes.
+     * The Extra pane route is always cleared on back - navigating away
+     * from Extra means its content should be dismissed.
+     */
     fun navigateBack() {
-        coroutineScope.launch { navigator.navigateBack() }
+        coroutineScope.launch {
+            navigator.navigateBack()
+            setDetailRoute(navigator.currentDestination?.contentKey)
+            setExtraRoute(null)
+        }
     }
 
     fun navigateToDetail(route: String) {
+        setDetailRoute(route)
         coroutineScope.launch {
             navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, route)
+        }
+    }
+
+    fun navigateToExtra(route: String) {
+        setExtraRoute(route)
+        coroutineScope.launch {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, route)
         }
     }
 }

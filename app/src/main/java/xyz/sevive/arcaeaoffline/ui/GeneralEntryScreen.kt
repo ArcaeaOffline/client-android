@@ -22,15 +22,20 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import kotlin.math.round
 
 /**
  * Wraps [ListDetailPaneScaffold] with a system-back [BackHandler] and animated pane transitions.
+ *
+ * [detailPaneRoute] and [extraPaneRoute] are managed externally (by [AdaptiveEntryScreen])
+ * and replace the navigator's global `currentDestination` as the animation key.
+ * The navigator's value is unified across all panes - it changes regardless of which
+ * pane was navigated, so each pane needs its own tracked route to avoid false animations.
+ *
  * Does not provide navigation state - use [AdaptiveEntryScreen] for the full setup.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -39,12 +44,15 @@ fun <T> GeneralEntryScreen(
     navigator: ThreePaneScaffoldNavigator<T>,
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     detailPane: @Composable ThreePaneScaffoldScope.(T) -> Unit,
+    detailPaneRoute: T? = null,
+    extraPane: (@Composable ThreePaneScaffoldScope.(T) -> Unit)? = null,
+    extraPaneRoute: T? = null,
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    val navContext = LocalListDetailNavigationContext.current
 
     Box(Modifier.fillMaxSize()) {
         BackHandler(navigator.canNavigateBack()) {
-            coroutineScope.launch { navigator.navigateBack() }
+            navContext.navigateBack()
         }
 
         ListDetailPaneScaffold(
@@ -58,7 +66,7 @@ fun <T> GeneralEntryScreen(
             detailPane = {
                 AnimatedPane(Modifier.fillMaxSize()) {
                     AnimatedContent(
-                        targetState = navigator.currentDestination?.contentKey,
+                        targetState = detailPaneRoute,
                         transitionSpec = {
                             (
                                 slideInVertically {
@@ -95,6 +103,49 @@ fun <T> GeneralEntryScreen(
                     }
                 }
             },
+            extraPane =
+                extraPane?.let { fn ->
+                    {
+                        AnimatedPane(Modifier.fillMaxSize()) {
+                            AnimatedContent(
+                                targetState = extraPaneRoute,
+                                transitionSpec = {
+                                    (
+                                        slideInVertically {
+                                            round(EaseOutCubic.transform(it * 0.025f)).toInt()
+                                        } +
+                                            fadeIn(
+                                                animationSpec = tween(easing = EaseOutCubic),
+                                            )
+                                    ).togetherWith(
+                                        slideOutVertically {
+                                            round(EaseInCubic.transform(it * 0.025f)).toInt()
+                                        } +
+                                            fadeOut(
+                                                animationSpec = tween(easing = EaseInCubic),
+                                            ),
+                                    )
+                                },
+                                modifier = Modifier.fillMaxSize(),
+                                label = "extraPaneTransition",
+                            ) {
+                                if (it != null) {
+                                    fn(it)
+                                } else {
+                                    Box(Modifier.fillMaxSize()) {
+                                        Icon(
+                                            Icons.AutoMirrored.Default.MenuOpen,
+                                            contentDescription = null,
+                                            Modifier
+                                                .size(75.dp)
+                                                .align(Alignment.Center),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
         )
     }
 }

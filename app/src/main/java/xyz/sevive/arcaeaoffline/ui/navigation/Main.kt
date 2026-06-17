@@ -17,13 +17,15 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
 
+const val OVERVIEW_NAV_ROUTE_ROOT = "overview"
+
 enum class MainScreenDestinations(
     val route: String,
     val icon: @Composable () -> ImageVector,
     @StringRes val title: Int,
 ) {
     Overview(
-        "overview",
+        OVERVIEW_NAV_ROUTE_ROOT,
         { Icons.Filled.Dashboard },
         R.string.nav_overview,
     ),
@@ -38,7 +40,7 @@ enum class MainScreenDestinations(
         R.string.nav_ocr,
     ),
     Settings(
-        "settings",
+        SETTINGS_NAV_ROUTE_ROOT,
         { Icons.Filled.Settings },
         R.string.nav_settings,
     ),

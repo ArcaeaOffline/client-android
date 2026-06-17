@@ -42,17 +42,21 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                 SettingsScreenDestination.About.route -> {
                     SettingsAboutScreen(
                         onNavigateToLicenseScreen = {
-                            navContext.navigateToDetail(SettingsScreenDestination.License.route)
+                            navContext.navigateToExtra(SettingsScreenDestination.License.route)
                         },
                         onNavigateToAboutlibrariesScreen = {
-                            navContext.navigateToDetail(SettingsScreenDestination.Aboutlibraries.route)
+                            navContext.navigateToExtra(SettingsScreenDestination.Aboutlibraries.route)
                         },
                     )
                 }
 
+                SettingsScreenDestination.UnstableAlert.route -> SettingsUnstableAlertScreen()
+            }
+        },
+        extraPane = { route ->
+            when (route) {
                 SettingsScreenDestination.License.route -> SettingsLicenseScreen()
                 SettingsScreenDestination.Aboutlibraries.route -> SettingsAboutlibrariesScreen()
-                SettingsScreenDestination.UnstableAlert.route -> SettingsUnstableAlertScreen()
             }
         },
     )
