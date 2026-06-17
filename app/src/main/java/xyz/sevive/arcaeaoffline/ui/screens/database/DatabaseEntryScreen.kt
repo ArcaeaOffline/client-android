@@ -1,12 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database
 
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
+import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListScreen
@@ -15,46 +10,17 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListScreen
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun DatabaseEntryScreen() {
-    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
-    val coroutineScope = rememberCoroutineScope()
-
-    GeneralEntryScreen(
-        navigator = navigator,
-        listPane = {
-            DatabaseNavEntry(onNavigateToSubRoute = {
-                coroutineScope.launch {
-                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
-                }
-            })
-        },
-    ) { route, navigateBack ->
+fun DatabaseEntryScreen() = AdaptiveEntryScreen(
+    listPane = { DatabaseNavEntry() },
+    detailPane = { route ->
         when (route) {
-            DatabaseScreenDestinations.Manage.route -> {
-                DatabaseManageScreen(onNavigateUp = navigateBack)
-            }
-
-            DatabaseScreenDestinations.AddPlayResult.route -> {
-                DatabaseAddPlayResultScreen(onNavigateUp = navigateBack)
-            }
-
-            DatabaseScreenDestinations.ScoreList.route -> {
-                DatabasePlayResultListScreen(onNavigateUp = navigateBack)
-            }
-
-            DatabaseScreenDestinations.B30.route -> {
-                DatabaseB30ListScreen(onNavigateUp = navigateBack)
-            }
-
-            DatabaseScreenDestinations.R30.route -> {
-                DatabaseR30ListScreen(onNavigateUp = navigateBack)
-            }
-
-            DatabaseScreenDestinations.Deduplicator.route -> {
-                DatabaseDeduplicatorScreen(onNavigateUp = navigateBack)
-            }
+            DatabaseScreenDestinations.Manage.route -> DatabaseManageScreen()
+            DatabaseScreenDestinations.AddPlayResult.route -> DatabaseAddPlayResultScreen()
+            DatabaseScreenDestinations.ScoreList.route -> DatabasePlayResultListScreen()
+            DatabaseScreenDestinations.B30.route -> DatabaseB30ListScreen()
+            DatabaseScreenDestinations.R30.route -> DatabaseR30ListScreen()
+            DatabaseScreenDestinations.Deduplicator.route -> DatabaseDeduplicatorScreen()
         }
-    }
-}
+    },
+)

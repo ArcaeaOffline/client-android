@@ -25,6 +25,7 @@ import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
@@ -33,10 +34,11 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildA
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsNavEntry(
-    onNavigateToSubRoute: (String) -> Unit,
     onNavigateToEmergencyModeActivity: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val navContext = LocalListDetailNavigationContext.current
+
     Scaffold(
         modifier,
         topBar = {
@@ -52,7 +54,7 @@ internal fun SettingsNavEntry(
             if (IS_UNSTABLE_VERSION) {
                 item {
                     UnstableBuildAlertCard(
-                        onClick = { onNavigateToSubRoute(SettingsScreenDestination.UnstableAlert.route) },
+                        onClick = { navContext.navigateToDetail(SettingsScreenDestination.UnstableAlert.route) },
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -67,7 +69,7 @@ internal fun SettingsNavEntry(
                     titleResId = SettingsScreenDestination.General.title,
                     icon = Icons.Default.Apps,
                 ) {
-                    onNavigateToSubRoute(SettingsScreenDestination.General.route)
+                    navContext.navigateToDetail(SettingsScreenDestination.General.route)
                 }
             }
 
@@ -76,7 +78,7 @@ internal fun SettingsNavEntry(
                     titleResId = SettingsScreenDestination.About.title,
                     icon = Icons.Outlined.Info,
                 ) {
-                    onNavigateToSubRoute(SettingsScreenDestination.About.route)
+                    navContext.navigateToDetail(SettingsScreenDestination.About.route)
                 }
             }
 

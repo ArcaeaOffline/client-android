@@ -24,7 +24,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
 @Composable
 internal fun SettingsUnstableAlertScreen(
-    onNavigateUp: () -> Unit,
     vm: SettingsUnstableAlertScreenViewModel = koinViewModel(),
 ) {
     val unstableAlertRead by vm.unstableAlertRead.collectAsStateWithLifecycle()
@@ -44,7 +43,6 @@ internal fun SettingsUnstableAlertScreen(
     val markdownState = rememberMarkdownState(unstableAlertContent)
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.UnstableAlert.title),
         Modifier.fillMaxSize(),
     ) {

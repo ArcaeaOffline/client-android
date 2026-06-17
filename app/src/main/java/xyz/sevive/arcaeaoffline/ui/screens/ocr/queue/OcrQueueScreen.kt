@@ -32,7 +32,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OcrQueueScreen(
-    onNavigateUp: () -> Unit,
     viewModel: OcrQueueScreenViewModel = koinViewModel(),
 ) {
     val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
@@ -54,7 +53,6 @@ fun OcrQueueScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
                 title = { Text(stringResource(R.string.ocr_queue_title)) },
                 actions = {
                     IconButton(onClick = { showPreferencesDialog = true }) {

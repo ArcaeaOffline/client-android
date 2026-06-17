@@ -83,7 +83,6 @@ private fun DatabasePlayResultListAppBarActions(
 
 @Composable
 fun DatabasePlayResultListScreen(
-    onNavigateUp: () -> Unit,
     viewModel: DatabasePlayResultListViewModel = koinViewModel(),
 ) {
     val context = LocalContext.current
@@ -124,7 +123,6 @@ fun DatabasePlayResultListScreen(
     }
 
     SubScreenContainer(
-        onNavigateUp = { onNavigateUp() },
         title = stringResource(R.string.database_play_result_list_title),
         actions = {
             DatabasePlayResultListAppBarActions(

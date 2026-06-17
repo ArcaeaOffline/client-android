@@ -44,7 +44,6 @@ import kotlin.math.round
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseB30ListScreen(
-    onNavigateUp: () -> Unit,
     viewModel: DatabaseB30ListViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,7 +82,6 @@ fun DatabaseB30ListScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
                 title = { Text(stringResource(DatabaseScreenDestinations.B30.title)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {

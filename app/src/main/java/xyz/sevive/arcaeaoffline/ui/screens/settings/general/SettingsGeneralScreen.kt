@@ -14,13 +14,11 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
 @Composable
 internal fun SettingsGeneralScreen(
-    onNavigateUp: () -> Unit,
     uiState: SettingsViewModel.AppPreferencesUiState,
     onSetAutoSendCrashReports: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.General.title),
     ) {
         LazyColumn(modifier) {

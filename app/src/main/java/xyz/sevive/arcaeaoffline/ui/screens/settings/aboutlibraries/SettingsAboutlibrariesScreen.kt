@@ -12,11 +12,10 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
 
 @Composable
-internal fun SettingsAboutlibrariesScreen(onNavigateUp: () -> Unit) {
+internal fun SettingsAboutlibrariesScreen() {
     val libraries by produceLibraries(R.raw.aboutlibraries)
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.Aboutlibraries.title),
     ) {
         LibrariesContainer(libraries, Modifier.fillMaxSize())

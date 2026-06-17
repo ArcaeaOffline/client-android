@@ -1,40 +1,18 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr
 
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
+import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreen
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun OcrEntryScreen() {
-    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
-    val coroutineScope = rememberCoroutineScope()
-
-    GeneralEntryScreen(
-        navigator = navigator,
-        listPane = {
-            OcrNavEntry(onNavigateToSubRoute = {
-                coroutineScope.launch {
-                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
-                }
-            })
-        },
-    ) { route, navigateBack ->
+fun OcrEntryScreen() = AdaptiveEntryScreen(
+    listPane = { OcrNavEntry() },
+    detailPane = { route ->
         when (route) {
-            OcrScreenDestinations.Dependencies.route -> {
-                OcrDependenciesScreen(onNavigateUp = navigateBack)
-            }
-
-            OcrScreenDestinations.Queue.route -> {
-                OcrQueueScreen(onNavigateUp = navigateBack)
-            }
+            OcrScreenDestinations.Dependencies.route -> OcrDependenciesScreen()
+            OcrScreenDestinations.Queue.route -> OcrQueueScreen()
         }
-    }
-}
+    },
+)

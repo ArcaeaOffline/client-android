@@ -22,6 +22,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
@@ -30,9 +31,9 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScree
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OcrNavEntry(
-    onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val navContext = LocalListDetailNavigationContext.current
     val vm = koinViewModel<OcrDependenciesScreenViewModel>()
     val kNearestModelUiState by vm.kNearestModelUiState.collectAsStateWithLifecycle()
     val imageHashesDatabaseUiState by vm.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
@@ -68,7 +69,7 @@ fun OcrNavEntry(
                     titleResId = OcrScreenDestinations.Dependencies.title,
                     icon = Icons.Default.Api,
                 ) {
-                    onNavigateToSubRoute(OcrScreenDestinations.Dependencies.route)
+                    navContext.navigateToDetail(OcrScreenDestinations.Dependencies.route)
                 }
             }
 
@@ -77,7 +78,7 @@ fun OcrNavEntry(
                     titleResId = OcrScreenDestinations.Queue.title,
                     icon = Icons.Default.Queue,
                 ) {
-                    onNavigateToSubRoute(OcrScreenDestinations.Queue.route)
+                    navContext.navigateToDetail(OcrScreenDestinations.Queue.route)
                 }
             }
         }

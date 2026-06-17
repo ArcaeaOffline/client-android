@@ -22,7 +22,6 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,20 +30,17 @@ import kotlinx.coroutines.launch
 import kotlin.math.round
 
 /**
- * Simple wrapper of ListDetailPaneScaffold.
+ * Wraps [ListDetailPaneScaffold] with a system-back [BackHandler] and animated pane transitions.
+ * Does not provide navigation state - use [AdaptiveEntryScreen] for the full setup.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun <T> GeneralEntryScreen(
     navigator: ThreePaneScaffoldNavigator<T>,
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    detailPane: @Composable ThreePaneScaffoldScope.(T, navigateBack: () -> Unit) -> Unit,
+    detailPane: @Composable ThreePaneScaffoldScope.(T) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val navigateBack: () -> Unit =
-        remember(coroutineScope) {
-            { coroutineScope.launch { navigator.navigateBack() } }
-        }
 
     Box(Modifier.fillMaxSize()) {
         BackHandler(navigator.canNavigateBack()) {
@@ -60,7 +56,6 @@ fun <T> GeneralEntryScreen(
                 }
             },
             detailPane = {
-                val listDetailScope = this
                 AnimatedPane(Modifier.fillMaxSize()) {
                     AnimatedContent(
                         targetState = navigator.currentDestination?.contentKey,
@@ -85,9 +80,7 @@ fun <T> GeneralEntryScreen(
                         label = "detailPaneTransition",
                     ) {
                         if (it != null) {
-                            with(listDetailScope) {
-                                detailPane(it, navigateBack)
-                            }
+                            detailPane(it)
                         } else {
                             Box(Modifier.fillMaxSize()) {
                                 Icon(

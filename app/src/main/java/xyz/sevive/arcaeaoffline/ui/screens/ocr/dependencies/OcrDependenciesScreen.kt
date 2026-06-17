@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
 
 @Composable
 fun OcrDependenciesScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OcrDependenciesScreenViewModel = koinViewModel(),
 ) {
@@ -50,7 +49,6 @@ fun OcrDependenciesScreen(
         }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(OcrScreenDestinations.Dependencies.title),
         actions = {
             IconButton(onClick = { viewModel.reloadAll(context) }) {

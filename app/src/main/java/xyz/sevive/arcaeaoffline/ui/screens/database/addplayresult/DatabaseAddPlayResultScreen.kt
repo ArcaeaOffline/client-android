@@ -66,7 +66,6 @@ internal fun BottomActionsBar(
 
 @Composable
 internal fun DatabaseAddPlayResultScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DatabaseAddPlayResultViewModel = koinViewModel(),
 ) {
@@ -74,7 +73,6 @@ internal fun DatabaseAddPlayResultScreen(
     val playResultEditEnabled by remember { derivedStateOf { uiState.playResult != null } }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         modifier = modifier,
         title = stringResource(DatabaseScreenDestinations.AddPlayResult.title),
     ) {

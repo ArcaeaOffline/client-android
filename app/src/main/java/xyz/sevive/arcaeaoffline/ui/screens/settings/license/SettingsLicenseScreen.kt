@@ -25,7 +25,6 @@ private const val LICENSE_FILENAME = "gpl-3.0.md"
 
 @Composable
 internal fun SettingsLicenseScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -45,7 +44,6 @@ internal fun SettingsLicenseScreen(
     val markdownState = rememberMarkdownState(licenseText ?: "")
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.License.title),
         modifier = modifier,
     ) {

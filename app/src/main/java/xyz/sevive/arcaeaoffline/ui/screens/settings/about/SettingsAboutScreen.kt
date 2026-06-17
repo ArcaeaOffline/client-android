@@ -49,7 +49,6 @@ private fun AppIcon(modifier: Modifier = Modifier) {
 
 @Composable
 internal fun SettingsAboutScreen(
-    onNavigateUp: () -> Unit,
     onNavigateToLicenseScreen: () -> Unit,
     onNavigateToAboutlibrariesScreen: () -> Unit,
 ) {
@@ -68,7 +67,6 @@ internal fun SettingsAboutScreen(
         }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(SettingsScreenDestination.About.title),
     ) {
         LazyColumn {

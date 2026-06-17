@@ -82,7 +82,6 @@ private fun DatabaseR30RebuildConfirmDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DatabaseR30ListScreen(
-    onNavigateUp: () -> Unit,
     viewModel: DatabaseR30ListViewModel = koinViewModel(),
 ) {
     val updateProgress by viewModel.updateProgress.collectAsStateWithLifecycle()
@@ -110,7 +109,6 @@ internal fun DatabaseR30ListScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
                 title = {
                     Column {
                         Text(stringResource(DatabaseScreenDestinations.R30.title))

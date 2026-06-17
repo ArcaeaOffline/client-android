@@ -30,7 +30,6 @@ import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 
 @Composable
 fun DatabaseManageScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DatabaseManageViewModel = koinViewModel(),
 ) {
@@ -49,7 +48,6 @@ fun DatabaseManageScreen(
     }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         title = stringResource(R.string.database_manage_title),
         actions = {
             Box(contentAlignment = Alignment.Center) {

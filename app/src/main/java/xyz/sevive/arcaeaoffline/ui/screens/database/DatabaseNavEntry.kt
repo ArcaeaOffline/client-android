@@ -26,16 +26,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseNavEntry(
-    onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
     vm: DatabaseNavEntryViewModel = koinViewModel(),
 ) {
+    val navContext = LocalListDetailNavigationContext.current
     val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -65,7 +66,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.Manage.title,
                     icon = Icons.Default.Build,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.Manage.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.Manage.route)
                 }
             }
 
@@ -74,7 +75,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.AddPlayResult.title,
                     icon = Icons.Default.Add,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.AddPlayResult.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.AddPlayResult.route)
                 }
             }
 
@@ -83,7 +84,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.ScoreList.title,
                     icon = Icons.AutoMirrored.Default.List,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.ScoreList.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.ScoreList.route)
                 }
             }
 
@@ -92,7 +93,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.B30.title,
                     icon = Icons.Default.Star,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.B30.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.B30.route)
                 }
             }
 
@@ -101,7 +102,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.R30.title,
                     icon = Icons.Default.History,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.R30.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.R30.route)
                 }
             }
 
@@ -110,7 +111,7 @@ fun DatabaseNavEntry(
                     titleResId = DatabaseScreenDestinations.Deduplicator.title,
                     icon = Icons.Default.CopyAll,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.Deduplicator.route)
+                    navContext.navigateToDetail(DatabaseScreenDestinations.Deduplicator.route)
                 }
             }
         }

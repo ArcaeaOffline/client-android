@@ -37,7 +37,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayR
 
 @Composable
 fun DatabaseDeduplicatorScreen(
-    onNavigateUp: () -> Unit,
     vm: DatabaseDeduplicatorViewModel = koinViewModel(),
 ) {
     val groupByValues by vm.groupByValues.collectAsStateWithLifecycle()
@@ -86,7 +85,6 @@ fun DatabaseDeduplicatorScreen(
     }
 
     SubScreenContainer(
-        onNavigateUp = { onNavigateUp() },
         title = stringResource(DatabaseScreenDestinations.Deduplicator.title),
         actions = {
             IconButton(
