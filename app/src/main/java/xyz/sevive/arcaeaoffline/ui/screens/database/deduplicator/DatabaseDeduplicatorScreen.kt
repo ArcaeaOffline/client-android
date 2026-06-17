@@ -36,9 +36,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultDeleteConfirmDialog
 
 @Composable
-fun DatabaseDeduplicatorScreen(
-    vm: DatabaseDeduplicatorViewModel = koinViewModel(),
-) {
+fun DatabaseDeduplicatorScreen(vm: DatabaseDeduplicatorViewModel = koinViewModel()) {
     val groupByValues by vm.groupByValues.collectAsStateWithLifecycle()
     val selectedUuids by vm.selectedUuids.collectAsStateWithLifecycle()
     val uiState by vm.uiState.collectAsStateWithLifecycle()

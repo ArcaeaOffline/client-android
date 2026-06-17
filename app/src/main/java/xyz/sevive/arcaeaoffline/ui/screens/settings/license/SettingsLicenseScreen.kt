@@ -24,9 +24,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 private const val LICENSE_FILENAME = "gpl-3.0.md"
 
 @Composable
-internal fun SettingsLicenseScreen(
-    modifier: Modifier = Modifier,
-) {
+internal fun SettingsLicenseScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val licenseText by produceState<String?>(initialValue = null) {
         launch(Dispatchers.IO) {

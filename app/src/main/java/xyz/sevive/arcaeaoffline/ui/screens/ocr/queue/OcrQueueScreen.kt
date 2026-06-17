@@ -31,9 +31,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OcrQueueScreen(
-    viewModel: OcrQueueScreenViewModel = koinViewModel(),
-) {
+fun OcrQueueScreen(viewModel: OcrQueueScreenViewModel = koinViewModel()) {
     val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
     val queueTaskCounts by viewModel.queueTaskCounts.collectAsStateWithLifecycle()
 

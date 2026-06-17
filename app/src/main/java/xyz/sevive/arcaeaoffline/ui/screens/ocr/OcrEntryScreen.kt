@@ -7,12 +7,13 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScree
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreen
 
 @Composable
-fun OcrEntryScreen() = AdaptiveEntryScreen(
-    listPane = { OcrNavEntry() },
-    detailPane = { route ->
-        when (route) {
-            OcrSubScreen.Dependencies.route -> OcrDependenciesScreen()
-            OcrSubScreen.Queue.route -> OcrQueueScreen()
-        }
-    },
-)
+fun OcrEntryScreen() =
+    AdaptiveEntryScreen(
+        listPane = { OcrNavEntry() },
+        detailPane = { route ->
+            when (route) {
+                OcrSubScreen.Dependencies.route -> OcrDependenciesScreen()
+                OcrSubScreen.Queue.route -> OcrQueueScreen()
+            }
+        },
+    )

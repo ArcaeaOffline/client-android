@@ -82,9 +82,7 @@ private fun DatabasePlayResultListAppBarActions(
 }
 
 @Composable
-fun DatabasePlayResultListScreen(
-    viewModel: DatabasePlayResultListViewModel = koinViewModel(),
-) {
+fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = koinViewModel()) {
     val context = LocalContext.current
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

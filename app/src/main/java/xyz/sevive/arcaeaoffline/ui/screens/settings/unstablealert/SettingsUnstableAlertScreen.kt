@@ -23,9 +23,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 @Composable
-internal fun SettingsUnstableAlertScreen(
-    vm: SettingsUnstableAlertScreenViewModel = koinViewModel(),
-) {
+internal fun SettingsUnstableAlertScreen(vm: SettingsUnstableAlertScreenViewModel = koinViewModel()) {
     val unstableAlertRead by vm.unstableAlertRead.collectAsStateWithLifecycle()
     LaunchedEffect(unstableAlertRead) {
         if (unstableAlertRead == false) vm.setUnstableAlertRead(value = true)

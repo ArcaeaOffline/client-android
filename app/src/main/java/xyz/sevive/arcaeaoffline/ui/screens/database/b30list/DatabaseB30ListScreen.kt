@@ -43,9 +43,7 @@ import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatabaseB30ListScreen(
-    viewModel: DatabaseB30ListViewModel = koinViewModel(),
-) {
+fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var showOptions by rememberSaveable { mutableStateOf(false) }

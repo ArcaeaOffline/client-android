@@ -30,9 +30,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScree
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OcrNavEntry(
-    modifier: Modifier = Modifier,
-) {
+fun OcrNavEntry(modifier: Modifier = Modifier) {
     val navContext = LocalListDetailNavigationContext.current
     val vm = koinViewModel<OcrDependenciesScreenViewModel>()
     val kNearestModelUiState by vm.kNearestModelUiState.collectAsStateWithLifecycle()

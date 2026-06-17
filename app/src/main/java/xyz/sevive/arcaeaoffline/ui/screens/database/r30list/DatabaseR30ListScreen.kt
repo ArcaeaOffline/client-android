@@ -81,9 +81,7 @@ private fun DatabaseR30RebuildConfirmDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DatabaseR30ListScreen(
-    viewModel: DatabaseR30ListViewModel = koinViewModel(),
-) {
+internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinViewModel()) {
     val updateProgress by viewModel.updateProgress.collectAsStateWithLifecycle()
     val isUpdating by remember { derivedStateOf { updateProgress.second > -1 } }
 

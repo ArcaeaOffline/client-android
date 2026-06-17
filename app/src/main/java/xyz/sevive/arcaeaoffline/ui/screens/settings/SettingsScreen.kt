@@ -50,7 +50,9 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     )
                 }
 
-                SettingsSubScreen.UnstableAlert.route -> SettingsUnstableAlertScreen()
+                SettingsSubScreen.UnstableAlert.route -> {
+                    SettingsUnstableAlertScreen()
+                }
             }
         },
         extraPane = { route ->
