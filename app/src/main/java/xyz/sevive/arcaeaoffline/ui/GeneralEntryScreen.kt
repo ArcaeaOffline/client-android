@@ -22,6 +22,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +38,13 @@ import kotlin.math.round
 fun <T> GeneralEntryScreen(
     navigator: ThreePaneScaffoldNavigator<T>,
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
-    detailPane: @Composable ThreePaneScaffoldScope.(T) -> Unit,
+    detailPane: @Composable ThreePaneScaffoldScope.(T, navigateBack: () -> Unit) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val navigateBack: () -> Unit =
+        remember(coroutineScope) {
+            { coroutineScope.launch { navigator.navigateBack() } }
+        }
 
     Box(Modifier.fillMaxSize()) {
         BackHandler(navigator.canNavigateBack()) {
@@ -55,6 +60,7 @@ fun <T> GeneralEntryScreen(
                 }
             },
             detailPane = {
+                val listDetailScope = this
                 AnimatedPane(Modifier.fillMaxSize()) {
                     AnimatedContent(
                         targetState = navigator.currentDestination?.contentKey,
@@ -79,7 +85,9 @@ fun <T> GeneralEntryScreen(
                         label = "detailPaneTransition",
                     ) {
                         if (it != null) {
-                            detailPane(it)
+                            with(listDetailScope) {
+                                detailPane(it, navigateBack)
+                            }
                         } else {
                             Box(Modifier.fillMaxSize()) {
                                 Icon(

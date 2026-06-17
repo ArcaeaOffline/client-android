@@ -1,11 +1,9 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database
 
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
@@ -23,12 +21,6 @@ fun DatabaseEntryScreen() {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
 
-    val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val onNavigateUp =
-        remember {
-            { backPressedDispatcher?.onBackPressed() ?: Unit }
-        }
-
     GeneralEntryScreen(
         navigator = navigator,
         listPane = {
@@ -38,30 +30,30 @@ fun DatabaseEntryScreen() {
                 }
             })
         },
-    ) {
-        when (it) {
+    ) { route, navigateBack ->
+        when (route) {
             DatabaseScreenDestinations.Manage.route -> {
-                DatabaseManageScreen(onNavigateUp = onNavigateUp)
+                DatabaseManageScreen(onNavigateUp = navigateBack)
             }
 
             DatabaseScreenDestinations.AddPlayResult.route -> {
-                DatabaseAddPlayResultScreen(onNavigateUp = onNavigateUp)
+                DatabaseAddPlayResultScreen(onNavigateUp = navigateBack)
             }
 
             DatabaseScreenDestinations.ScoreList.route -> {
-                DatabasePlayResultListScreen(onNavigateUp = onNavigateUp)
+                DatabasePlayResultListScreen(onNavigateUp = navigateBack)
             }
 
             DatabaseScreenDestinations.B30.route -> {
-                DatabaseB30ListScreen(onNavigateUp = onNavigateUp)
+                DatabaseB30ListScreen(onNavigateUp = navigateBack)
             }
 
             DatabaseScreenDestinations.R30.route -> {
-                DatabaseR30ListScreen(onNavigateUp = onNavigateUp)
+                DatabaseR30ListScreen(onNavigateUp = navigateBack)
             }
 
             DatabaseScreenDestinations.Deduplicator.route -> {
-                DatabaseDeduplicatorScreen(onNavigateUp = onNavigateUp)
+                DatabaseDeduplicatorScreen(onNavigateUp = navigateBack)
             }
         }
     }

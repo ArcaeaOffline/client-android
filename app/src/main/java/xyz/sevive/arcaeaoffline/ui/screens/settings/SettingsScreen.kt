@@ -1,13 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings
 
 import android.content.Intent
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,12 +27,6 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
 
-    val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val onNavigateUp =
-        remember {
-            { backPressedDispatcher?.onBackPressed() }
-        }
-
     val generalUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
 
     GeneralEntryScreen(
@@ -51,11 +43,11 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                 },
             )
         },
-    ) { route ->
+    ) { route, navigateBack ->
         when (route) {
             SettingsScreenDestination.General.route -> {
                 SettingsGeneralScreen(
-                    onNavigateUp = { onNavigateUp() },
+                    onNavigateUp = navigateBack,
                     uiState = generalUiState,
                     onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
                 )
@@ -63,7 +55,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
 
             SettingsScreenDestination.About.route -> {
                 SettingsAboutScreen(
-                    onNavigateUp = { onNavigateUp() },
+                    onNavigateUp = navigateBack,
                     onNavigateToLicenseScreen = {
                         coroutineScope.launch {
                             navigator.navigateTo(
@@ -84,15 +76,15 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
             }
 
             SettingsScreenDestination.License.route -> {
-                SettingsLicenseScreen(onNavigateUp = { onNavigateUp() })
+                SettingsLicenseScreen(onNavigateUp = navigateBack)
             }
 
             SettingsScreenDestination.Aboutlibraries.route -> {
-                SettingsAboutlibrariesScreen(onNavigateUp = { onNavigateUp() })
+                SettingsAboutlibrariesScreen(onNavigateUp = navigateBack)
             }
 
             SettingsScreenDestination.UnstableAlert.route -> {
-                SettingsUnstableAlertScreen(onNavigateUp = { onNavigateUp() })
+                SettingsUnstableAlertScreen(onNavigateUp = navigateBack)
             }
         }
     }
