@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import xyz.sevive.arcaeaoffline.ui.navigation.MainNavigationGraph
-import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 
 internal fun mainNavControllerNavigateToRoute(
     navController: NavController,
@@ -46,7 +46,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            MainScreenDestinations.entries.forEach {
+            MainScreen.entries.forEach {
                 item(
                     icon = { Icon(it.icon(), contentDescription = null) },
                     label = { Text(stringResource(it.title)) },

@@ -19,15 +19,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 private const val LICENSE_FILENAME = "gpl-3.0.md"
 
 @Composable
-internal fun SettingsLicenseScreen(
-    onNavigateUp: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun SettingsLicenseScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val licenseText by produceState<String?>(initialValue = null) {
         launch(Dispatchers.IO) {
@@ -45,8 +42,7 @@ internal fun SettingsLicenseScreen(
     val markdownState = rememberMarkdownState(licenseText ?: "")
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.License.title),
+        title = stringResource(SettingsSubScreen.License.title),
         modifier = modifier,
     ) {
         Markdown(

@@ -9,15 +9,14 @@ import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 @Composable
-internal fun SettingsAboutlibrariesScreen(onNavigateUp: () -> Unit) {
+internal fun SettingsAboutlibrariesScreen() {
     val libraries by produceLibraries(R.raw.aboutlibraries)
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.Aboutlibraries.title),
+        title = stringResource(SettingsSubScreen.Aboutlibraries.title),
     ) {
         LibrariesContainer(libraries, Modifier.fillMaxSize())
     }

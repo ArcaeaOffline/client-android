@@ -1,99 +1,65 @@
 package xyz.sevive.arcaeaoffline.ui.screens.settings
 
 import android.content.Intent
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.EmergencyModeActivity
-import xyz.sevive.arcaeaoffline.ui.GeneralEntryScreen
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.aboutlibraries.SettingsAboutlibrariesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreen
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
     val context = LocalContext.current
-    val navigator = rememberListDetailPaneScaffoldNavigator<String>()
-    val coroutineScope = rememberCoroutineScope()
-
-    val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val onNavigateUp =
-        remember {
-            { backPressedDispatcher?.onBackPressed() }
-        }
-
     val generalUiState by vm.appPreferencesUiState.collectAsStateWithLifecycle()
 
-    GeneralEntryScreen(
-        navigator = navigator,
+    AdaptiveEntryScreen(
         listPane = {
             SettingsNavEntry(
-                onNavigateToSubRoute = {
-                    coroutineScope.launch {
-                        navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
-                    }
-                },
                 onNavigateToEmergencyModeActivity = {
                     context.startActivity(Intent(context, EmergencyModeActivity::class.java))
                 },
             )
         },
-    ) { route ->
-        when (route) {
-            SettingsScreenDestination.General.route -> {
-                SettingsGeneralScreen(
-                    onNavigateUp = { onNavigateUp() },
-                    uiState = generalUiState,
-                    onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
-                )
-            }
+        detailPane = { route ->
+            val navContext = LocalListDetailNavigationContext.current
+            when (route) {
+                SettingsSubScreen.General.route -> {
+                    SettingsGeneralScreen(
+                        uiState = generalUiState,
+                        onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
+                    )
+                }
 
-            SettingsScreenDestination.About.route -> {
-                SettingsAboutScreen(
-                    onNavigateUp = { onNavigateUp() },
-                    onNavigateToLicenseScreen = {
-                        coroutineScope.launch {
-                            navigator.navigateTo(
-                                ListDetailPaneScaffoldRole.Detail,
-                                SettingsScreenDestination.License.route,
-                            )
-                        }
-                    },
-                    onNavigateToAboutlibrariesScreen = {
-                        coroutineScope.launch {
-                            navigator.navigateTo(
-                                ListDetailPaneScaffoldRole.Detail,
-                                SettingsScreenDestination.Aboutlibraries.route,
-                            )
-                        }
-                    },
-                )
-            }
+                SettingsSubScreen.About.route -> {
+                    SettingsAboutScreen(
+                        onNavigateToLicenseScreen = {
+                            navContext.navigateToExtra(SettingsSubScreen.License.route)
+                        },
+                        onNavigateToAboutlibrariesScreen = {
+                            navContext.navigateToExtra(SettingsSubScreen.Aboutlibraries.route)
+                        },
+                    )
+                }
 
-            SettingsScreenDestination.License.route -> {
-                SettingsLicenseScreen(onNavigateUp = { onNavigateUp() })
+                SettingsSubScreen.UnstableAlert.route -> {
+                    SettingsUnstableAlertScreen()
+                }
             }
-
-            SettingsScreenDestination.Aboutlibraries.route -> {
-                SettingsAboutlibrariesScreen(onNavigateUp = { onNavigateUp() })
+        },
+        extraPane = { route ->
+            when (route) {
+                SettingsSubScreen.License.route -> SettingsLicenseScreen()
+                SettingsSubScreen.Aboutlibraries.route -> SettingsAboutlibrariesScreen()
             }
-
-            SettingsScreenDestination.UnstableAlert.route -> {
-                SettingsUnstableAlertScreen(onNavigateUp = { onNavigateUp() })
-            }
-        }
-    }
+        },
+    )
 }

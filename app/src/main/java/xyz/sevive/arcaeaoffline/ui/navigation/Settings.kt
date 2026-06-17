@@ -5,7 +5,7 @@ import xyz.sevive.arcaeaoffline.R
 
 const val SETTINGS_NAV_ROUTE_ROOT = "settings"
 
-enum class SettingsScreenDestination(
+enum class SettingsSubScreen(
     val route: String,
     @StringRes val title: Int,
 ) {

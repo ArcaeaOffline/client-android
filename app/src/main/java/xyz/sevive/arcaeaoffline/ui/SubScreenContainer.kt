@@ -18,12 +18,15 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.navigation.ListDetailNavigationContext
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 
 @Composable
-fun SubScreenContainer(
+private fun SubScreenContainerImpl(
     topBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     floatingActionButton: @Composable () -> Unit = {},
@@ -47,10 +50,13 @@ fun SubScreenContainer(
     }
 }
 
+/**
+ * A [TopAppBar] with a back-arrow that reads [ListDetailNavigationContext.navigateBack] from
+ * [LocalListDetailNavigationContext].
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubScreenTopAppBar(
-    onNavigateUp: () -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
@@ -58,11 +64,14 @@ fun SubScreenTopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
+    val navContext = LocalListDetailNavigationContext.current
+    val navigateBack = remember(navContext) { { navContext.navigateBack() } }
+
     TopAppBar(
         title = { title() },
         modifier = modifier,
         navigationIcon = {
-            IconButton(onClick = onNavigateUp) {
+            IconButton(onClick = navigateBack) {
                 Icon(
                     Icons.AutoMirrored.Default.ArrowBack,
                     stringResource(R.string.icon_desc_navigate_back),
@@ -76,18 +85,20 @@ fun SubScreenTopAppBar(
     )
 }
 
+/**
+ * Convenience scaffold with a [SubScreenTopAppBar] and optional actions.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubScreenContainer(
-    onNavigateUp: () -> Unit,
     title: String,
     modifier: Modifier = Modifier,
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    SubScreenContainer(
+    SubScreenContainerImpl(
         modifier = modifier,
-        topBar = { SubScreenTopAppBar(onNavigateUp = onNavigateUp, title = { Text(title) }) },
+        topBar = { SubScreenTopAppBar(title = { Text(title) }) },
         snackbarHost = snackbarHost,
         content = content,
     )
@@ -96,22 +107,37 @@ fun SubScreenContainer(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubScreenContainer(
-    onNavigateUp: () -> Unit,
     title: String,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    SubScreenContainer(
+    SubScreenContainerImpl(
         modifier = modifier,
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
                 title = { Text(title) },
                 actions = actions,
             )
         },
+        snackbarHost = snackbarHost,
+        content = content,
+    )
+}
+
+@Composable
+fun SubScreenContainer(
+    topBar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    floatingActionButton: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    SubScreenContainerImpl(
+        topBar = topBar,
+        modifier = modifier,
+        floatingActionButton = floatingActionButton,
         snackbarHost = snackbarHost,
         content = content,
     )

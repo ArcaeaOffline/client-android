@@ -37,16 +37,13 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatabaseB30ListScreen(
-    onNavigateUp: () -> Unit,
-    viewModel: DatabaseB30ListViewModel = koinViewModel(),
-) {
+fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
@@ -83,8 +80,7 @@ fun DatabaseB30ListScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
-                title = { Text(stringResource(DatabaseScreenDestinations.B30.title)) },
+                title = { Text(stringResource(DatabaseSubScreen.B30.title)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {
                         Icon(Icons.Default.Refresh, null)

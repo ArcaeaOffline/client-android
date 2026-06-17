@@ -26,7 +26,7 @@ import androidx.core.graphics.drawable.toBitmap
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
 class AppIconBeingClickedTooManyTimesSoEmbarrassingException : Exception() {
@@ -49,7 +49,6 @@ private fun AppIcon(modifier: Modifier = Modifier) {
 
 @Composable
 internal fun SettingsAboutScreen(
-    onNavigateUp: () -> Unit,
     onNavigateToLicenseScreen: () -> Unit,
     onNavigateToAboutlibrariesScreen: () -> Unit,
 ) {
@@ -68,8 +67,7 @@ internal fun SettingsAboutScreen(
         }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.About.title),
+        title = stringResource(SettingsSubScreen.About.title),
     ) {
         LazyColumn {
             item {
@@ -107,7 +105,7 @@ internal fun SettingsAboutScreen(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = SettingsScreenDestination.Aboutlibraries.title,
+                    titleResId = SettingsSubScreen.Aboutlibraries.title,
                     icon = Icons.Default.DataObject,
                 ) {
                     onNavigateToAboutlibrariesScreen()

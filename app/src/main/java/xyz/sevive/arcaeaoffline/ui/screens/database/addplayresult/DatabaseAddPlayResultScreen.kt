@@ -33,7 +33,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 
 @Composable
 internal fun BottomActionsBar(
@@ -66,7 +66,6 @@ internal fun BottomActionsBar(
 
 @Composable
 internal fun DatabaseAddPlayResultScreen(
-    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DatabaseAddPlayResultViewModel = koinViewModel(),
 ) {
@@ -74,9 +73,8 @@ internal fun DatabaseAddPlayResultScreen(
     val playResultEditEnabled by remember { derivedStateOf { uiState.playResult != null } }
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
         modifier = modifier,
-        title = stringResource(DatabaseScreenDestinations.AddPlayResult.title),
+        title = stringResource(DatabaseSubScreen.AddPlayResult.title),
     ) {
         Scaffold(
             contentWindowInsets = WindowInsets.safeDrawing,

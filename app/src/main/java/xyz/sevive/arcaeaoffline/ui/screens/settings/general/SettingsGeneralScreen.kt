@@ -9,19 +9,17 @@ import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
 @Composable
 internal fun SettingsGeneralScreen(
-    onNavigateUp: () -> Unit,
     uiState: SettingsViewModel.AppPreferencesUiState,
     onSetAutoSendCrashReports: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.General.title),
+        title = stringResource(SettingsSubScreen.General.title),
     ) {
         LazyColumn(modifier) {
             item {

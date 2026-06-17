@@ -40,7 +40,7 @@ import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
@@ -81,10 +81,7 @@ private fun DatabaseR30RebuildConfirmDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun DatabaseR30ListScreen(
-    onNavigateUp: () -> Unit,
-    viewModel: DatabaseR30ListViewModel = koinViewModel(),
-) {
+internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinViewModel()) {
     val updateProgress by viewModel.updateProgress.collectAsStateWithLifecycle()
     val isUpdating by remember { derivedStateOf { updateProgress.second > -1 } }
 
@@ -110,10 +107,9 @@ internal fun DatabaseR30ListScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                onNavigateUp = onNavigateUp,
                 title = {
                     Column {
-                        Text(stringResource(DatabaseScreenDestinations.R30.title))
+                        Text(stringResource(DatabaseSubScreen.R30.title))
                         Text(
                             stringResource(R.string.general_updated_at, lastUpdatedAtText),
                             style = MaterialTheme.typography.labelMedium,

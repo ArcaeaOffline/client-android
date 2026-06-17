@@ -25,23 +25,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
-import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatabaseNavEntry(
-    onNavigateToSubRoute: (String) -> Unit,
     modifier: Modifier = Modifier,
     vm: DatabaseNavEntryViewModel = koinViewModel(),
 ) {
+    val navContext = LocalListDetailNavigationContext.current
     val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier,
         topBar = {
-            TopAppBar(title = { Text(stringResource(MainScreenDestinations.Database.title)) })
+            TopAppBar(title = { Text(stringResource(MainScreen.Database.title)) })
         },
         containerColor = Color.Transparent,
     ) {
@@ -62,55 +63,55 @@ fun DatabaseNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.Manage.title,
+                    titleResId = DatabaseSubScreen.Manage.title,
                     icon = Icons.Default.Build,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.Manage.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.Manage.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.AddPlayResult.title,
+                    titleResId = DatabaseSubScreen.AddPlayResult.title,
                     icon = Icons.Default.Add,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.AddPlayResult.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.AddPlayResult.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.ScoreList.title,
+                    titleResId = DatabaseSubScreen.ScoreList.title,
                     icon = Icons.AutoMirrored.Default.List,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.ScoreList.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.ScoreList.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.B30.title,
+                    titleResId = DatabaseSubScreen.B30.title,
                     icon = Icons.Default.Star,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.B30.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.B30.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.R30.title,
+                    titleResId = DatabaseSubScreen.R30.title,
                     icon = Icons.Default.History,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.R30.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.R30.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseScreenDestinations.Deduplicator.title,
+                    titleResId = DatabaseSubScreen.Deduplicator.title,
                     icon = Icons.Default.CopyAll,
                 ) {
-                    onNavigateToSubRoute(DatabaseScreenDestinations.Deduplicator.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.Deduplicator.route)
                 }
             }
         }

@@ -20,13 +20,10 @@ import com.mikepenz.markdown.model.rememberMarkdownState
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 @Composable
-internal fun SettingsUnstableAlertScreen(
-    onNavigateUp: () -> Unit,
-    vm: SettingsUnstableAlertScreenViewModel = koinViewModel(),
-) {
+internal fun SettingsUnstableAlertScreen(vm: SettingsUnstableAlertScreenViewModel = koinViewModel()) {
     val unstableAlertRead by vm.unstableAlertRead.collectAsStateWithLifecycle()
     LaunchedEffect(unstableAlertRead) {
         if (unstableAlertRead == false) vm.setUnstableAlertRead(value = true)
@@ -44,8 +41,7 @@ internal fun SettingsUnstableAlertScreen(
     val markdownState = rememberMarkdownState(unstableAlertContent)
 
     SubScreenContainer(
-        onNavigateUp = onNavigateUp,
-        title = stringResource(SettingsScreenDestination.UnstableAlert.title),
+        title = stringResource(SettingsSubScreen.UnstableAlert.title),
         Modifier.fillMaxSize(),
     ) {
         Markdown(
