@@ -37,7 +37,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import kotlin.math.round
 
@@ -82,7 +82,7 @@ fun DatabaseB30ListScreen(
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                title = { Text(stringResource(DatabaseScreenDestinations.B30.title)) },
+                title = { Text(stringResource(DatabaseSubScreen.B30.title)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {
                         Icon(Icons.Default.Refresh, null)

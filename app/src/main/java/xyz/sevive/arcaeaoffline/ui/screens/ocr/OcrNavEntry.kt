@@ -23,8 +23,8 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusVi
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
-import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
-import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
 
@@ -42,7 +42,7 @@ fun OcrNavEntry(
     Scaffold(
         modifier,
         topBar = {
-            TopAppBar(title = { Text(stringResource(MainScreenDestinations.Ocr.title)) })
+            TopAppBar(title = { Text(stringResource(MainScreen.Ocr.title)) })
         },
         containerColor = Color.Transparent,
     ) {
@@ -66,19 +66,19 @@ fun OcrNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = OcrScreenDestinations.Dependencies.title,
+                    titleResId = OcrSubScreen.Dependencies.title,
                     icon = Icons.Default.Api,
                 ) {
-                    navContext.navigateToDetail(OcrScreenDestinations.Dependencies.route)
+                    navContext.navigateToDetail(OcrSubScreen.Dependencies.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = OcrScreenDestinations.Queue.title,
+                    titleResId = OcrSubScreen.Queue.title,
                     icon = Icons.Default.Queue,
                 ) {
-                    navContext.navigateToDetail(OcrScreenDestinations.Queue.route)
+                    navContext.navigateToDetail(OcrSubScreen.Queue.route)
                 }
             }
         }

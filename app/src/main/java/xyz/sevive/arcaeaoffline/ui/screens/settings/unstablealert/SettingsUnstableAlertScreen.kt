@@ -20,7 +20,7 @@ import com.mikepenz.markdown.model.rememberMarkdownState
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 @Composable
 internal fun SettingsUnstableAlertScreen(
@@ -43,7 +43,7 @@ internal fun SettingsUnstableAlertScreen(
     val markdownState = rememberMarkdownState(unstableAlertContent)
 
     SubScreenContainer(
-        title = stringResource(SettingsScreenDestination.UnstableAlert.title),
+        title = stringResource(SettingsSubScreen.UnstableAlert.title),
         Modifier.fillMaxSize(),
     ) {
         Markdown(

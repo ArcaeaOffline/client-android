@@ -23,7 +23,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusVi
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.navigation.OcrScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 
 @Composable
 fun OcrDependenciesScreen(
@@ -49,7 +49,7 @@ fun OcrDependenciesScreen(
         }
 
     SubScreenContainer(
-        title = stringResource(OcrScreenDestinations.Dependencies.title),
+        title = stringResource(OcrSubScreen.Dependencies.title),
         actions = {
             IconButton(onClick = { viewModel.reloadAll(context) }) {
                 Icon(Icons.Default.Refresh, contentDescription = null)

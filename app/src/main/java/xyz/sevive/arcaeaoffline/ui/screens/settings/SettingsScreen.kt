@@ -9,7 +9,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.EmergencyModeActivity
 import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.aboutlibraries.SettingsAboutlibrariesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.general.SettingsGeneralScreen
@@ -32,31 +32,31 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
         detailPane = { route ->
             val navContext = LocalListDetailNavigationContext.current
             when (route) {
-                SettingsScreenDestination.General.route -> {
+                SettingsSubScreen.General.route -> {
                     SettingsGeneralScreen(
                         uiState = generalUiState,
                         onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
                     )
                 }
 
-                SettingsScreenDestination.About.route -> {
+                SettingsSubScreen.About.route -> {
                     SettingsAboutScreen(
                         onNavigateToLicenseScreen = {
-                            navContext.navigateToExtra(SettingsScreenDestination.License.route)
+                            navContext.navigateToExtra(SettingsSubScreen.License.route)
                         },
                         onNavigateToAboutlibrariesScreen = {
-                            navContext.navigateToExtra(SettingsScreenDestination.Aboutlibraries.route)
+                            navContext.navigateToExtra(SettingsSubScreen.Aboutlibraries.route)
                         },
                     )
                 }
 
-                SettingsScreenDestination.UnstableAlert.route -> SettingsUnstableAlertScreen()
+                SettingsSubScreen.UnstableAlert.route -> SettingsUnstableAlertScreen()
             }
         },
         extraPane = { route ->
             when (route) {
-                SettingsScreenDestination.License.route -> SettingsLicenseScreen()
-                SettingsScreenDestination.Aboutlibraries.route -> SettingsAboutlibrariesScreen()
+                SettingsSubScreen.License.route -> SettingsLicenseScreen()
+                SettingsSubScreen.Aboutlibraries.route -> SettingsAboutlibrariesScreen()
             }
         },
     )

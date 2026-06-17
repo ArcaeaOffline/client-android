@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 
 private const val LICENSE_FILENAME = "gpl-3.0.md"
 
@@ -44,7 +44,7 @@ internal fun SettingsLicenseScreen(
     val markdownState = rememberMarkdownState(licenseText ?: "")
 
     SubScreenContainer(
-        title = stringResource(SettingsScreenDestination.License.title),
+        title = stringResource(SettingsSubScreen.License.title),
         modifier = modifier,
     ) {
         Markdown(

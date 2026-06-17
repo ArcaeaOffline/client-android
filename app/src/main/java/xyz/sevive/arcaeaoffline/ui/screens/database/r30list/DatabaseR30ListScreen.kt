@@ -40,7 +40,7 @@ import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
@@ -111,7 +111,7 @@ internal fun DatabaseR30ListScreen(
             SubScreenTopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(DatabaseScreenDestinations.R30.title))
+                        Text(stringResource(DatabaseSubScreen.R30.title))
                         Text(
                             stringResource(R.string.general_updated_at, lastUpdatedAtText),
                             style = MaterialTheme.typography.labelMedium,

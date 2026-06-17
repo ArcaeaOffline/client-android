@@ -5,7 +5,7 @@ import xyz.sevive.arcaeaoffline.R
 
 const val DATABASE_NAV_ROUTE_ROOT = "database"
 
-enum class DatabaseScreenDestinations(
+enum class DatabaseSubScreen(
     val route: String,
     @StringRes val title: Int,
 ) {

@@ -31,7 +31,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
-import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseScreenDestinations
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultDeleteConfirmDialog
 
@@ -85,7 +85,7 @@ fun DatabaseDeduplicatorScreen(
     }
 
     SubScreenContainer(
-        title = stringResource(DatabaseScreenDestinations.Deduplicator.title),
+        title = stringResource(DatabaseSubScreen.Deduplicator.title),
         actions = {
             IconButton(
                 onClick = { vm.buildDuplicateGroups(groupByValues) },

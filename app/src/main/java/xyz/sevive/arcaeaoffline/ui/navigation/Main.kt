@@ -19,7 +19,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
 
 const val OVERVIEW_NAV_ROUTE_ROOT = "overview"
 
-enum class MainScreenDestinations(
+enum class MainScreen(
     val route: String,
     val icon: @Composable () -> ImageVector,
     @StringRes val title: Int,
@@ -53,22 +53,22 @@ fun MainNavigationGraph(
 ) {
     NavHost(
         mainNavController,
-        startDestination = MainScreenDestinations.Overview.route,
+        startDestination = MainScreen.Overview.route,
         modifier = modifier,
     ) {
-        composable(MainScreenDestinations.Overview.route) {
+        composable(MainScreen.Overview.route) {
             OverviewScreen()
         }
 
-        composable(MainScreenDestinations.Database.route) {
+        composable(MainScreen.Database.route) {
             DatabaseEntryScreen()
         }
 
-        composable(MainScreenDestinations.Ocr.route) {
+        composable(MainScreen.Ocr.route) {
             OcrEntryScreen()
         }
 
-        composable(MainScreenDestinations.Settings.route) {
+        composable(MainScreen.Settings.route) {
             SettingsScreen()
         }
     }

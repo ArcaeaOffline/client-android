@@ -5,7 +5,7 @@ import xyz.sevive.arcaeaoffline.R
 
 const val OCR_NAV_ROUTE_ROOT = "ocr"
 
-enum class OcrScreenDestinations(
+enum class OcrSubScreen(
     val route: String,
     @StringRes val title: Int,
 ) {

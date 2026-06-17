@@ -26,8 +26,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
-import xyz.sevive.arcaeaoffline.ui.navigation.MainScreenDestinations
-import xyz.sevive.arcaeaoffline.ui.navigation.SettingsScreenDestination
+import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildAlertCard
 
@@ -42,7 +42,7 @@ internal fun SettingsNavEntry(
     Scaffold(
         modifier,
         topBar = {
-            TopAppBar(title = { Text(stringResource(MainScreenDestinations.Settings.title)) })
+            TopAppBar(title = { Text(stringResource(MainScreen.Settings.title)) })
         },
     ) {
         LazyColumn(
@@ -54,7 +54,7 @@ internal fun SettingsNavEntry(
             if (IS_UNSTABLE_VERSION) {
                 item {
                     UnstableBuildAlertCard(
-                        onClick = { navContext.navigateToDetail(SettingsScreenDestination.UnstableAlert.route) },
+                        onClick = { navContext.navigateToDetail(SettingsSubScreen.UnstableAlert.route) },
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -66,19 +66,19 @@ internal fun SettingsNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = SettingsScreenDestination.General.title,
+                    titleResId = SettingsSubScreen.General.title,
                     icon = Icons.Default.Apps,
                 ) {
-                    navContext.navigateToDetail(SettingsScreenDestination.General.route)
+                    navContext.navigateToDetail(SettingsSubScreen.General.route)
                 }
             }
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = SettingsScreenDestination.About.title,
+                    titleResId = SettingsSubScreen.About.title,
                     icon = Icons.Outlined.Info,
                 ) {
-                    navContext.navigateToDetail(SettingsScreenDestination.About.route)
+                    navContext.navigateToDetail(SettingsSubScreen.About.route)
                 }
             }
 
