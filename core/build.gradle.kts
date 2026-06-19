@@ -55,6 +55,7 @@ android {
 dependencies {
     implementation(libs.kotlinx.io)
     implementation(libs.kotlinx.serialization)
+    implementation(libs.ktoml.core)
     implementation(libs.kotlinx.datetime)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)

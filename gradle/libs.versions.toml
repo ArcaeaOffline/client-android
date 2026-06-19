@@ -4,6 +4,7 @@ desugarJdkLibs = "2.1.5"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
+ktoml = "0.7.1"
 kotlinx-datetime = "0.8.0"
 ksp = "2.3.9"
 koin = "4.2.1"
@@ -31,6 +32,7 @@ dependencyAnalysis = "3.15.0"
 desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+ktoml-core = { module = "com.akuleshov7:ktoml-core", version.ref = "ktoml" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
@@ -40,7 +42,6 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-protobuf-protobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version = "4.31.1" }
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
@@ -72,7 +73,6 @@ koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plu
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-protobuf = { id = "com.google.protobuf", version = "0.10.0" }
 
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version = "2.0.1" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }

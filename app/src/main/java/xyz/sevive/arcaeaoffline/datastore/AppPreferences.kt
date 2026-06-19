@@ -3,34 +3,40 @@ package xyz.sevive.arcaeaoffline.datastore
 import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.google.protobuf.InvalidProtocolBufferException
+import com.akuleshov7.ktoml.Toml
+import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.io.InputStream
 import java.io.OutputStream
 
+@Serializable
+data class AppPreferences(
+    val metadata: PreferencesMetadata = PreferencesMetadata(),
+    @SerialName("auto_send_crash_reports")
+    val autoSendCrashReports: Boolean = false,
+)
+
 object AppPreferencesSerializer : Serializer<AppPreferences> {
-    private fun applyDefaultValues(preferences: AppPreferences): AppPreferences {
-        val builder = preferences.toBuilder()
+    override val defaultValue: AppPreferences = AppPreferences()
 
-        if (!builder.hasAutoSendCrashReports()) builder.autoSendCrashReports = true
-
-        return builder.build()
-    }
-
-    override val defaultValue: AppPreferences =
-        this.applyDefaultValues(AppPreferences.getDefaultInstance())
-
-    override suspend fun readFrom(input: InputStream): AppPreferences {
+    override suspend fun readFrom(input: InputStream): AppPreferences =
         try {
-            return AppPreferences.parseFrom(input)
-        } catch (exception: InvalidProtocolBufferException) {
-            throw CorruptionException("Cannot read proto.", exception)
+            val tomlString = input.readBytes().decodeToString()
+            Toml.decodeFromString<AppPreferences>(tomlString)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (exception: Exception) {
+            throw CorruptionException("Cannot read AppPreferences from TOML file", exception)
         }
-    }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun writeTo(
         t: AppPreferences,
         output: OutputStream,
-    ) = t.writeTo(output)
+    ) = output.write(Toml.encodeToString<AppPreferences>(t).encodeToByteArray())
 }
 
 class AppPreferencesRepository(
@@ -41,7 +47,7 @@ class AppPreferencesRepository(
 
     suspend fun setAutoSendCrashReports(value: Boolean) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setAutoSendCrashReports(value).build()
+            preferences.copy(autoSendCrashReports = value)
         }
     }
 }

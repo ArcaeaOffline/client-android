@@ -43,14 +43,11 @@ class EmergencyModeActivityViewModel(
     fun reloadPreferencesOnStartUp() {
         viewModelScope.launch {
             val preferences = preferencesRepository.preferencesFlow.firstOrNull() ?: return@launch
+            val lastOutputDirectory = preferences.lastOutputDirectory ?: return@launch
+            if (lastOutputDirectory.isEmpty()) return@launch
 
-            if (preferences.hasLastOutputDirectory()) {
-                val lastOutputDirectory = preferences.lastOutputDirectory
-                if (lastOutputDirectory.isNotEmpty()) {
-                    val savedDir = PlatformFile(lastOutputDirectory)
-                    setOutputDirectory(savedDir)
-                }
-            }
+            val savedDir = PlatformFile(lastOutputDirectory)
+            setOutputDirectory(savedDir)
         }
     }
 

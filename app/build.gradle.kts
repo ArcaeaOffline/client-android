@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.secrets.gradle.plugin)
-    alias(libs.plugins.protobuf)
     alias(libs.plugins.appVersioning)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.aboutlibraries.android)
@@ -26,25 +25,6 @@ secrets {
             "SIGNING_KEY_ALIAS",
             "SIGNING_KEY_PASSWORD",
         )
-}
-
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:4.27.1"
-    }
-
-    // Generates the java Protobuf-lite code for the Protobufs in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
-    generateProtoTasks {
-        all().forEach { task ->
-            task.plugins {
-                create("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
 }
 
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
@@ -209,6 +189,7 @@ dependencies {
     implementation(libs.kermit)
 
     implementation(libs.kotlinx.serialization)
+    implementation(libs.ktoml.core)
     implementation(libs.kotlinx.datetime)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
@@ -225,8 +206,6 @@ dependencies {
     implementation(libs.opencv)
 
     implementation(libs.onnxruntime.android)
-
-    implementation(libs.protobuf.protobufJavalite)
 
     implementation(libs.markdown.renderer)
     implementation(libs.markdown.renderer.m3)
