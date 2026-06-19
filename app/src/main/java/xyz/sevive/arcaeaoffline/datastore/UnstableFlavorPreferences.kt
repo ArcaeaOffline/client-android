@@ -5,8 +5,6 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.akuleshov7.ktoml.Toml
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -34,15 +32,11 @@ object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreference
             throw CorruptionException("Cannot read UnstableFlavorPreferences from TOML file", exception)
         }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun writeTo(
         t: UnstableFlavorPreferences,
         output: OutputStream,
-    ) {
-        val tomlString = Toml.encodeToString<UnstableFlavorPreferences>(t)
-        withContext(Dispatchers.IO) {
-            output.write(tomlString.encodeToByteArray())
-        }
-    }
+    ) = output.write(Toml.encodeToString<UnstableFlavorPreferences>(t).encodeToByteArray())
 }
 
 class UnstableFlavorPreferencesRepository(

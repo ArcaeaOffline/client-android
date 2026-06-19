@@ -3,8 +3,6 @@ package xyz.sevive.arcaeaoffline.data.maintenance
 import android.content.Context
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.data.maintenance.tasks.ProtoDataStoreCleanUpTask
 
 class AppDataMaintenanceManager(
@@ -18,16 +16,14 @@ class AppDataMaintenanceManager(
         )
 
     suspend fun runAllTasks() =
-        withContext(Dispatchers.Default) {
-            tasks.forEach { task ->
-                try {
-                    logger.d { "Executing task: ${task.id} (${task.version})" }
-                    task.execute()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    logger.e(e) { "Error executing task: ${task.id}" }
-                }
+        tasks.forEach { task ->
+            try {
+                logger.d { "Executing task: ${task.id} (${task.version})" }
+                task.execute()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(e) { "Error executing task: ${task.id}" }
             }
         }
 }
