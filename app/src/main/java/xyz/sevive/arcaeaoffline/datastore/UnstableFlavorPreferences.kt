@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.akuleshov7.ktoml.Toml
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -27,6 +28,8 @@ object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreference
         try {
             val tomlString = input.readBytes().decodeToString()
             Toml.decodeFromString<UnstableFlavorPreferences>(tomlString)
+        } catch (e: CancellationException) {
+            throw e
         } catch (exception: Exception) {
             throw CorruptionException("Cannot read UnstableFlavorPreferences from TOML file", exception)
         }

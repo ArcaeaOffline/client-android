@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.akuleshov7.ktoml.Toml
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -31,6 +32,8 @@ object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
         try {
             val tomlString = input.readBytes().decodeToString()
             Toml.decodeFromString<OcrQueuePreferences>(tomlString)
+        } catch (e: CancellationException) {
+            throw e
         } catch (exception: Exception) {
             throw CorruptionException("Cannot read OcrQueuePreferences from TOML file", exception)
         }
