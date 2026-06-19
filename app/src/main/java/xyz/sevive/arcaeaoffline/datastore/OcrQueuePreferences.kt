@@ -22,7 +22,7 @@ data class OcrQueuePreferences(
     @SerialName("check_is_arcaea_image")
     val checkIsArcaeaImage: Boolean = true,
     @SerialName("parallel_count")
-    val parallelCount: Int = 4,
+    val parallelCount: Int = Runtime.getRuntime().availableProcessors() / 2,
 )
 
 object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
