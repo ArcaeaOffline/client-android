@@ -15,7 +15,9 @@ import java.io.OutputStream
 
 @Serializable
 data class UnstableFlavorPreferences(
-    @SerialName("unstable_alert_read") val unstableAlertRead: Boolean = false,
+    val metadata: PreferencesMetadata = PreferencesMetadata(),
+    @SerialName("unstable_alert_read")
+    val unstableAlertRead: Boolean = false,
 )
 
 object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreferences> {

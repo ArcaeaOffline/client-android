@@ -15,7 +15,9 @@ import java.io.OutputStream
 
 @Serializable
 data class EmergencyModePreferences(
-    @SerialName("last_output_directory") val lastOutputDirectory: String? = null,
+    val metadata: PreferencesMetadata = PreferencesMetadata(),
+    @SerialName("last_output_directory")
+    val lastOutputDirectory: String? = null,
 )
 
 object EmergencyModePreferencesSerializer : Serializer<EmergencyModePreferences> {

@@ -15,6 +15,7 @@ import java.io.OutputStream
 
 @Serializable
 data class OcrQueuePreferences(
+    val metadata: PreferencesMetadata = PreferencesMetadata(),
     @SerialName("check_is_image")
     val checkIsImage: Boolean = true,
     @SerialName("check_is_arcaea_image")

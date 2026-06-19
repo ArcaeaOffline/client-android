@@ -15,7 +15,9 @@ import java.io.OutputStream
 
 @Serializable
 data class AppPreferences(
-    @SerialName("auto_send_crash_reports") val autoSendCrashReports: Boolean = false,
+    val metadata: PreferencesMetadata = PreferencesMetadata(),
+    @SerialName("auto_send_crash_reports")
+    val autoSendCrashReports: Boolean = false,
 )
 
 object AppPreferencesSerializer : Serializer<AppPreferences> {
