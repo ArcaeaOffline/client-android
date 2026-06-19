@@ -28,6 +28,7 @@ import org.koin.core.context.startKoin
 import org.koin.mp.KoinPlatform.getKoin
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.data.maintenance.AppDataMaintenanceManager
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
@@ -124,6 +125,7 @@ class ArcaeaOfflineApplication : Application() {
         }
 
         appScope.launch(Dispatchers.IO) {
+            AppDataMaintenanceManager(this@ArcaeaOfflineApplication).runAllTasks()
             DeviceOcrOnnxHelper.loadModelInfo(this@ArcaeaOfflineApplication)
             Notifications.createChannels(this@ArcaeaOfflineApplication)
             ArcaeaResourcesStateHolder.reloadStatus(this@ArcaeaOfflineApplication)

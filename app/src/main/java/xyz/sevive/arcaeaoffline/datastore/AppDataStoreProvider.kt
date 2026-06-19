@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.datastore.dataStoreFile
 import co.touchlab.kermit.Logger
 
 object AppDataStoreProvider {
@@ -23,7 +23,7 @@ object AppDataStoreProvider {
                     logCorrupt("AppPreferences")
                     AppPreferencesSerializer.defaultValue
                 },
-            produceFile = { context.preferencesDataStoreFile("app_prefs") },
+            produceFile = { context.dataStoreFile("app_preferences.toml") },
         )
 
     fun emergencyModePreferences(context: Context): DataStore<EmergencyModePreferences> =
@@ -34,7 +34,7 @@ object AppDataStoreProvider {
                     logCorrupt("EmergencyModePreferences")
                     EmergencyModePreferencesSerializer.defaultValue
                 },
-            produceFile = { context.preferencesDataStoreFile("emergency_mode_activity_prefs.pb") },
+            produceFile = { context.dataStoreFile("emergency_mode_preferences.toml") },
         )
 
     fun ocrQueuePreferences(context: Context): DataStore<OcrQueuePreferences> =
@@ -45,7 +45,7 @@ object AppDataStoreProvider {
                     logCorrupt("OcrQueuePreferences")
                     OcrQueuePreferencesSerializer.defaultValue
                 },
-            produceFile = { context.preferencesDataStoreFile("ocr_queue_prefs.pb") },
+            produceFile = { context.dataStoreFile("ocr_queue_preferences.toml") },
         )
 
     fun unstableFlavorPreferences(context: Context): DataStore<UnstableFlavorPreferences> =
@@ -56,6 +56,6 @@ object AppDataStoreProvider {
                     logCorrupt("UnstableFlavorPreferences")
                     UnstableFlavorPreferencesSerializer.defaultValue
                 },
-            produceFile = { context.preferencesDataStoreFile("unstable_flavor_prefs") },
+            produceFile = { context.dataStoreFile("unstable_flavor_preferences.toml") },
         )
 }
