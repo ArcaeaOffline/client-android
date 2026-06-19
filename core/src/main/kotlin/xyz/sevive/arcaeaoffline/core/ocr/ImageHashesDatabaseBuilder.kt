@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.io.files.Path
 import org.opencv.core.Mat
-import org.threeten.bp.Instant
+import java.time.Instant
 
 class ImageHashesDatabaseBuilder(
     private val conn: SQLiteConnection,

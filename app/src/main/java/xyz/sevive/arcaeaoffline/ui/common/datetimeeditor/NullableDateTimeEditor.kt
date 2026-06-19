@@ -17,16 +17,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.jakewharton.threetenabp.AndroidThreeTen
-import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Composable
 internal fun NullableDateTimeEditor(
@@ -84,7 +82,6 @@ internal fun NullableDateTimeEditor(
 @Preview
 @Composable
 private fun NullableDateTimeEditorPreview() {
-    AndroidThreeTen.init(LocalContext.current)
     var dateTime by remember { mutableStateOf(LocalDateTime.now()) }
 
     ArcaeaOfflineTheme {

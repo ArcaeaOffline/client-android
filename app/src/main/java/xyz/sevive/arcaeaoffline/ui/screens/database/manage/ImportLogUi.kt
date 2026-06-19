@@ -41,9 +41,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.launch
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
@@ -52,6 +50,7 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import java.time.Instant
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -166,7 +165,6 @@ internal fun ImportLogBottomSheet(
 @Preview
 @Composable
 private fun ImportLogObjectUiPreview() {
-    AndroidThreeTen.init(LocalContext.current)
     val log =
         remember {
             ImportLogObject(

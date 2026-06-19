@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.core.ocr
 
 import androidx.sqlite.SQLiteConnection
 import org.opencv.core.Mat
-import org.threeten.bp.Instant
+import java.time.Instant
 import kotlin.math.pow
 import kotlin.properties.Delegates
 

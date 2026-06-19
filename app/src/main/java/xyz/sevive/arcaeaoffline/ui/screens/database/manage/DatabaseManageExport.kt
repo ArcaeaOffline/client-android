@@ -9,9 +9,9 @@ import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import java.time.Instant
 
 private class CreateJsonDocument : ActivityResultContracts.CreateDocument("application/json")
 

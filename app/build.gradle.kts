@@ -59,7 +59,7 @@ room {
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
+        jvmTarget = JvmTarget.JVM_1_8
         freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
@@ -141,8 +141,10 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
+
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     buildFeatures {
         buildConfig = true
@@ -163,6 +165,8 @@ android {
 
 dependencies {
     // android & androidx
+    coreLibraryDesugaring(libs.desugarJdkLibs)
+
     api(androidx.room.runtime)
     ksp(androidx.room.compiler)
     implementation(androidx.room.ktx)
@@ -222,8 +226,6 @@ dependencies {
     implementation(libs.onnxruntime.android)
 
     implementation(libs.protobuf.protobufJavalite)
-
-    implementation(libs.threetenabp)
 
     implementation(libs.markdown.renderer)
     implementation(libs.markdown.renderer.m3)

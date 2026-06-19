@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalTime
-import org.threeten.bp.ZoneOffset
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneOffset
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

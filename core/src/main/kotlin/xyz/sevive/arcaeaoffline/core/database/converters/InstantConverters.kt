@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.converters
 
 import androidx.room.TypeConverter
-import org.threeten.bp.Instant
+import java.time.Instant
 
 object InstantConverters {
     @TypeConverter

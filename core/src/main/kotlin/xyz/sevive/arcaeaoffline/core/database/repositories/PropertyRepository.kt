@@ -3,9 +3,9 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
+import java.time.Instant
 
 interface PropertyRepository {
     fun find(key: String): Flow<Property?>

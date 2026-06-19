@@ -1,5 +1,6 @@
 [versions]
 androidGradlePlugin = "9.2.1"
+desugarJdkLibs = "2.1.5"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
@@ -11,7 +12,6 @@ opencv = "4.13.0"
 
 io-sentry-sentryAndroid = "8.17.0"
 
-threetenabp = "1.4.9"
 markdown-renderer = "0.41.0"
 github-jvziyaoyao-scale = "1.1.1-beta.3"
 github-cheonjaeung-gridlayout = "2.7.4"
@@ -27,6 +27,8 @@ dependencyAnalysis = "3.15.0"
 
 
 [libraries]
+desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
@@ -42,7 +44,6 @@ io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "
 
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.26.0" }
 
-threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdown-renderer" }
 markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
 markdown-renderer-android = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "markdown-renderer" }

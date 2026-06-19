@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.helpers
 
 import ai.onnxruntime.OnnxModelMetadata
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import java.time.Instant
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
 

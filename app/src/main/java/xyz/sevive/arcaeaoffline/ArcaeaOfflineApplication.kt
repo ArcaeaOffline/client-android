@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
 import co.touchlab.kermit.Logger
-import com.jakewharton.threetenabp.AndroidThreeTen
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import kotlinx.coroutines.CoroutineName
@@ -95,8 +94,6 @@ class ArcaeaOfflineApplication : Application() {
         }
 
         addEmergencyModeShortcut()
-
-        AndroidThreeTen.init(this)
 
         val appPreferencesRepo by lazy { getKoin().get<AppPreferencesRepository>() }
         val unstableFlavorRepo by lazy { getKoin().get<UnstableFlavorPreferencesRepository>() }
