@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-option java_package = "xyz.sevive.arcaeaoffline.datastore";
-option java_multiple_files = true;
-
-message AppPreferences {
-    optional bool auto_send_crash_reports = 2;
-}

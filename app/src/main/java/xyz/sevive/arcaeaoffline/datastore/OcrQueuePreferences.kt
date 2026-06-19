@@ -3,40 +3,46 @@ package xyz.sevive.arcaeaoffline.datastore
 import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.google.protobuf.InvalidProtocolBufferException
+import com.akuleshov7.ktoml.Toml
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.io.InputStream
 import java.io.OutputStream
 
+@Serializable
+data class OcrQueuePreferences(
+    @SerialName("check_is_image")
+    val checkIsImage: Boolean = true,
+    @SerialName("check_is_arcaea_image")
+    val checkIsArcaeaImage: Boolean = true,
+    @SerialName("parallel_count")
+    val parallelCount: Int = 4,
+)
+
 object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
-    private fun applyDefaultValues(preferences: OcrQueuePreferences): OcrQueuePreferences {
-        val builder = preferences.toBuilder()
+    override val defaultValue: OcrQueuePreferences = OcrQueuePreferences()
 
-        if (!builder.hasCheckIsImage()) builder.setCheckIsImage(true)
-        if (!builder.hasCheckIsArcaeaImage()) builder.setCheckIsArcaeaImage(true)
-        if (!builder.hasParallelCount()) {
-            builder.setParallelCount(
-                Runtime.getRuntime().availableProcessors() / 2,
-            )
-        }
-
-        return builder.build()
-    }
-
-    override val defaultValue: OcrQueuePreferences
-        get() = applyDefaultValues(OcrQueuePreferences.getDefaultInstance())
-
-    override suspend fun readFrom(input: InputStream): OcrQueuePreferences {
+    override suspend fun readFrom(input: InputStream): OcrQueuePreferences =
         try {
-            return applyDefaultValues(OcrQueuePreferences.parseFrom(input))
-        } catch (exception: InvalidProtocolBufferException) {
-            throw CorruptionException("Cannot read proto.", exception)
+            val tomlString = input.readBytes().decodeToString()
+            Toml.decodeFromString<OcrQueuePreferences>(tomlString)
+        } catch (exception: Exception) {
+            throw CorruptionException("Cannot read OcrQueuePreferences from TOML file", exception)
         }
-    }
 
     override suspend fun writeTo(
         t: OcrQueuePreferences,
         output: OutputStream,
-    ) = t.writeTo(output)
+    ) {
+        val tomlString = Toml.encodeToString<OcrQueuePreferences>(t)
+        withContext(Dispatchers.IO) {
+            output.write(tomlString.encodeToByteArray())
+        }
+    }
 }
 
 class OcrQueuePreferencesRepository(
@@ -47,19 +53,19 @@ class OcrQueuePreferencesRepository(
 
     suspend fun setCheckIsImage(value: Boolean) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setCheckIsImage(value).build()
+            preferences.copy(checkIsImage = value)
         }
     }
 
     suspend fun setCheckIsArcaeaImage(value: Boolean) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setCheckIsArcaeaImage(value).build()
+            preferences.copy(checkIsArcaeaImage = value)
         }
     }
 
     suspend fun setParallelCount(value: Int) {
         dataStore.updateData { preferences ->
-            preferences.toBuilder().setParallelCount(value).build()
+            preferences.copy(parallelCount = value)
         }
     }
 }

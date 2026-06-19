@@ -205,6 +205,7 @@ dependencies {
     implementation(libs.kermit)
 
     implementation(libs.kotlinx.serialization)
+    implementation(libs.ktoml.core)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.annotations)

@@ -3,6 +3,7 @@ androidGradlePlugin = "9.2.1"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
+ktoml = "0.7.1"
 ksp = "2.3.9"
 koin = "4.2.1"
 koin-plugin = "1.0.1"
@@ -28,6 +29,7 @@ dependencyAnalysis = "3.15.0"
 
 [libraries]
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+ktoml-core = { module = "com.akuleshov7:ktoml-core", version.ref = "ktoml" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-annotations = { module = "io.insert-koin:koin-annotations" }
