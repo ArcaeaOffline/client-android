@@ -2,9 +2,9 @@ package xyz.sevive.arcaeaoffline.core.ocr
 
 import androidx.sqlite.SQLiteConnection
 import org.opencv.core.Mat
-import java.time.Instant
 import kotlin.math.pow
 import kotlin.properties.Delegates
+import kotlin.time.Instant
 
 private fun hammingDistance(
     byteArray1: ByteArray,
@@ -53,7 +53,7 @@ class ImageHashesDatabase(
                 when (key) {
                     PROP_HASH_SIZE_KEY -> hashSize = value.toInt()
                     PROP_HIGH_FREQ_FACTOR_KEY -> highFreqFactor = value.toInt()
-                    PROP_BUILT_TIMESTAMP_KEY -> builtTime = Instant.ofEpochMilli(value.toLong())
+                    PROP_BUILT_TIMESTAMP_KEY -> builtTime = Instant.fromEpochMilliseconds(value.toLong())
                 }
             }
         }

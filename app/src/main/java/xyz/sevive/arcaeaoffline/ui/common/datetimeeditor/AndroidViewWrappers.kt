@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.number
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -25,22 +27,16 @@ internal fun AndroidViewDatePickerDialog(
         modifier = Modifier.wrapContentSize(),
         factory = { context -> DatePicker(context) },
         update = { view ->
-            view.updateDate(date.year, date.monthValue - 1, date.dayOfMonth)
+            view.updateDate(date.year, date.month.number - 1, date.day)
             minDate?.let {
-                view.minDate = it.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                view.minDate = it.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
             }
             maxDate?.let {
-                view.maxDate = it.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                view.maxDate = it.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
             }
 
             view.setOnDateChangedListener { _, year, monthOfYear, dayOfMonth ->
-                onDateSelect(
-                    LocalDate
-                        .now()
-                        .withMonth(monthOfYear + 1)
-                        .withYear(year)
-                        .withDayOfMonth(dayOfMonth),
-                )
+                onDateSelect(LocalDate(year, monthOfYear + 1, dayOfMonth))
             }
         },
     )
@@ -57,22 +53,16 @@ internal fun AndroidViewCalendar(
         modifier = Modifier.wrapContentSize(),
         factory = { context -> CalendarView(context) },
         update = { view ->
-            view.date = date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+            view.date = date.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
             minDate?.let {
-                view.minDate = it.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                view.minDate = it.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
             }
             maxDate?.let {
-                view.maxDate = it.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                view.maxDate = it.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
             }
 
             view.setOnDateChangeListener { _, year, month, dayOfMonth ->
-                onDateSelect(
-                    LocalDate
-                        .now()
-                        .withMonth(month + 1)
-                        .withYear(year)
-                        .withDayOfMonth(dayOfMonth),
-                )
+                onDateSelect(LocalDate(year, month + 1, dayOfMonth))
             }
         },
     )
@@ -91,7 +81,7 @@ internal fun AndroidViewTimePicker(
             view.minute = time.minute
 
             view.setOnTimeChangedListener { _, hourOfDay, minute ->
-                onTimeSelect(LocalTime.of(hourOfDay, minute))
+                onTimeSelect(LocalTime(hourOfDay, minute))
             }
         },
     )

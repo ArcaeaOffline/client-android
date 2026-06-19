@@ -209,6 +209,7 @@ dependencies {
     implementation(libs.kermit)
 
     implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlinx.datetime)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.annotations)

@@ -8,8 +8,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 @Entity(tableName = "ocr_history")
 data class OcrHistory(
@@ -52,7 +52,7 @@ data class OcrHistory(
                     "" -> {
                         val stringArr = mutableListOf("From OCR cache")
                         if (sourcePackageName != null) stringArr.add("source `$sourcePackageName`")
-                        stringArr.add(Instant.ofEpochSecond(storeDate).formatAsLocalizedDateTime())
+                        stringArr.add(Instant.fromEpochSeconds(storeDate).formatAsLocalizedDateTime())
 
                         stringArr.joinToString(", ")
                     }
@@ -68,12 +68,12 @@ data class OcrHistory(
         fun fromArcaeaScore(
             playResult: PlayResult,
             sourcePackageName: String? = null,
-            storeDate: Long = Instant.now().epochSecond,
+            storeDate: Instant,
         ): OcrHistory =
             OcrHistory(
                 id = 0,
                 sourcePackageName = sourcePackageName,
-                storeDate = storeDate,
+                storeDate = storeDate.epochSeconds,
                 songId = playResult.songId,
                 ratingClass = playResult.ratingClass,
                 score = playResult.score,

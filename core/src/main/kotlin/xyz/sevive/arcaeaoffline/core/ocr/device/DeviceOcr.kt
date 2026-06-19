@@ -23,8 +23,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 @Serializable
 data class DeviceOcrResult(

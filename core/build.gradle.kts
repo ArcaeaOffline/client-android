@@ -53,7 +53,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.io)
     implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlinx.datetime)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.annotations)
@@ -71,8 +73,6 @@ dependencies {
 
     // 3rd party
     implementation(libs.kermit)
-
-    implementation(libs.kotlinx.io)
 
     implementation(libs.opencv)
     implementation(libs.onnxruntime.android)

@@ -29,8 +29,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 @Composable
 internal fun DatabaseB30ListItem(
@@ -106,7 +106,7 @@ private fun DatabaseB30ListItemPreview() {
                             pure = null,
                             far = null,
                             lost = null,
-                            date = Instant.ofEpochMilli(0),
+                            date = Instant.fromEpochMilliseconds(0),
                             maxRecall = null,
                             modifier = null,
                             clearType = null,

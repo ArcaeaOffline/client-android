@@ -1,15 +1,18 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
 import androidx.sqlite.SQLiteConnection
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.toLocalDateTime
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.extensions.getIntOrNull
 import xyz.sevive.arcaeaoffline.core.database.extensions.getLongOrNull
-import java.time.Instant
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Some of the `date` column in st3 are unexpectedly truncated. For example,
@@ -28,7 +31,7 @@ import java.time.format.DateTimeFormatter
  *
  * @param [ts] The `date` value from st3
  */
-private fun fixTimestamp(ts: Long?): Long? {
+private fun fixSt3Timestamp(ts: Long?): Long? {
     if (ts == null || ts > 1489017600) return ts
 
     val isFixable = (ts in 1489..9999) || ts > 14889
@@ -60,8 +63,8 @@ private data class St3PlayResult(
             return true
         }
 
-    fun toPlayResult(importDate: LocalDate? = null): PlayResult {
-        val commentDateString = (importDate ?: LocalDate.now()).format(DateTimeFormatter.ISO_DATE)
+    fun toPlayResult(importDate: LocalDate): PlayResult {
+        val commentDateString = importDate.format(LocalDate.Formats.ISO)
 
         return PlayResult(
             songId = songId,
@@ -70,7 +73,7 @@ private data class St3PlayResult(
             pure = pure,
             far = far,
             lost = lost,
-            date = date?.let { Instant.ofEpochSecond(date) },
+            date = date?.let { Instant.fromEpochSeconds(date) },
             modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
             clearType =
                 if (!isClearTypeReliable) {
@@ -88,7 +91,11 @@ private data class St3PlayResult(
 object ArcaeaSt3PlayResultImporter {
     fun playResults(conn: SQLiteConnection): List<PlayResult> {
         val items = mutableListOf<PlayResult>()
-        val importDate = LocalDate.now()
+        val importDate =
+            Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
 
         conn
             .prepare(
@@ -116,7 +123,7 @@ FROM
                             pure = stmt.getIntOrNull(3),
                             far = stmt.getIntOrNull(4),
                             lost = stmt.getIntOrNull(5),
-                            date = fixTimestamp(stmt.getLongOrNull(6)),
+                            date = fixSt3Timestamp(stmt.getLongOrNull(6)),
                             modifier = stmt.getIntOrNull(7),
                             clearType = stmt.getIntOrNull(8),
                         )

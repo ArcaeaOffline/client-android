@@ -13,8 +13,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 object PlayResultSerializer : KSerializer<PlayResult> {
     override val descriptor: SerialDescriptor =
@@ -46,7 +46,7 @@ object PlayResultSerializer : KSerializer<PlayResult> {
         value.pure?.let { encodeIntElement(descriptor, 5, it) }
         value.far?.let { encodeIntElement(descriptor, 6, it) }
         value.lost?.let { encodeIntElement(descriptor, 7, it) }
-        value.date?.let { encodeLongElement(descriptor, 8, it.toEpochMilli()) }
+        value.date?.let { encodeLongElement(descriptor, 8, it.toEpochMilliseconds()) }
         value.maxRecall?.let { encodeIntElement(descriptor, 9, it) }
         value.modifier?.let { encodeIntElement(descriptor, 10, it.value) }
         value.clearType?.let { encodeIntElement(descriptor, 11, it.value) }
@@ -101,7 +101,7 @@ object PlayResultSerializer : KSerializer<PlayResult> {
                                     decodeLongElement(
                                         descriptor,
                                         8,
-                                    ).let { Instant.ofEpochMilli(it) },
+                                    ).let { Instant.fromEpochMilliseconds(it) },
                             )
                     }
 

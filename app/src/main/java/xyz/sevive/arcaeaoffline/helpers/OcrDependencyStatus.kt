@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.helpers
 
 import ai.onnxruntime.OnnxModelMetadata
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
-import java.time.Instant
+import kotlin.time.Instant
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
 
@@ -95,7 +95,7 @@ data class CrnnModelStatusDetail(
     }
 
     private val builtTimestampRaw get() = modelMetadata?.customMetadata?.get("built_timestamp")
-    private val builtTimestamp = builtTimestampRaw?.let { Instant.ofEpochSecond(it.toLong()) }
+    private val builtTimestamp = builtTimestampRaw?.let { Instant.fromEpochSeconds(it.toLong()) }
     private val builtTimestampReadable = builtTimestamp?.formatAsLocalizedDateTime()
 
     override fun summary(): String? {

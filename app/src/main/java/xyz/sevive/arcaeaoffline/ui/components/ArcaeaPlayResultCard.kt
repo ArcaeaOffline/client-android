@@ -65,7 +65,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
-import java.time.Instant
+import kotlin.time.Instant
 
 @Composable
 private fun pflAnnotatedString(
@@ -421,7 +421,7 @@ private fun previewPlayResults(): Array<PlayResult> {
             pure = pure,
             far = far,
             lost = lost,
-            date = Instant.ofEpochSecond(123456),
+            date = Instant.fromEpochSeconds(123456),
             maxRecall = 75,
             modifier = ArcaeaPlayResultModifier.NORMAL,
             clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,

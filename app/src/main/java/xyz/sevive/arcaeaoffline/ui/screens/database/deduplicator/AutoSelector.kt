@@ -11,7 +11,7 @@ internal object AutoSelector {
             append(pure)
             append(far)
             append(lost)
-            append(date?.toEpochMilli())
+            append(date?.toEpochMilliseconds())
             append(maxRecall)
             append(clearType?.value)
             append(modifier?.value)

@@ -6,8 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 internal sealed interface ImportLogEvent {
     data class Plural(
@@ -41,7 +42,7 @@ internal class ImportLogManager {
         event: ImportLogEvent,
     ) {
         lock.withLock {
-            _logs.value += ImportLogObject(timestamp = Instant.now(), tag = tag, event = event)
+            _logs.value += ImportLogObject(timestamp = Clock.System.now(), tag = tag, event = event)
         }
     }
 }

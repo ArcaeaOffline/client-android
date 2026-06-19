@@ -9,8 +9,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.extensions.PlayResultSerializer
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 @Serializable(with = PlayResultSerializer::class)
 @Entity(

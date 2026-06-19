@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import co.touchlab.kermit.Logger
 import java.io.File
 import java.io.FileOutputStream
-import java.time.Instant
+import kotlin.time.Clock
 
 private fun checkSaveToGalleryPermission(context: Context): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
@@ -92,7 +92,7 @@ class SaveBitmapToGallery(
         return true
     }
 
-    private fun getDefaultFileBaseName(): String = "arcaea-offline-${Instant.now().toEpochMilli()}"
+    private fun getDefaultFileBaseName(): String = "arcaea-offline-${Clock.System.now().toEpochMilliseconds()}"
 
     fun saveJpg(
         context: Context,

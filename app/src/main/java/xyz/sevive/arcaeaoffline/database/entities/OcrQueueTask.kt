@@ -11,7 +11,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
-import java.time.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 enum class OcrQueueTaskStatus(
     val value: Int,
@@ -39,7 +40,7 @@ data class OcrQueueTask(
 ) {
     constructor(uri: Uri, context: Context? = null) : this(
         fileUri = uri,
-        insertedAt = Instant.now(),
+        insertedAt = Clock.System.now(),
         fileName = context?.getFilename(uri),
     )
 

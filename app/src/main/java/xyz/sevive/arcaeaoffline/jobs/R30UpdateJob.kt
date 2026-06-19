@@ -27,7 +27,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
-import java.time.Instant
+import kotlin.time.Clock
 
 private fun PlayResult.matchesR30Condition(): Boolean {
     // score >= EX
@@ -130,7 +130,7 @@ class R30UpdateJob(
                 r30EntryRepo.deleteAll()
                 r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-                propertyRepo.setR30LastUpdatedAt(Instant.now())
+                propertyRepo.setR30LastUpdatedAt(Clock.System.now())
             }
 
             return Result.success()
@@ -222,7 +222,7 @@ class R30UpdateJob(
     ): List<R30EntryCombined> {
         val oldestR30Entry =
             oldR30List.minByOrNull {
-                it.playResult.date?.toEpochMilli() ?: Long.MAX_VALUE
+                it.playResult.date?.toEpochMilliseconds() ?: Long.MAX_VALUE
             } ?: return oldR30List
 
         val newR30Entries = oldR30List.toMutableList()

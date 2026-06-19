@@ -44,7 +44,7 @@ import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
-import java.time.Instant
+import kotlin.time.Clock
 
 class OcrQueueJob(
     context: Context,
@@ -238,7 +238,7 @@ class OcrQueueJob(
                     uri,
                     applicationContext,
                     ocrResult,
-                    fallbackDate = Instant.now(),
+                    fallbackDate = Clock.System.now(),
                 )
 
             val warnings =

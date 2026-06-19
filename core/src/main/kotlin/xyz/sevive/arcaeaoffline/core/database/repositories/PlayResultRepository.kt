@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import java.time.Instant
 import java.util.UUID
+import kotlin.time.Instant
 
 interface PlayResultRepository {
     fun find(

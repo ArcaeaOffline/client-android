@@ -23,8 +23,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
-import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 class DatabaseR30ListViewModel(
     context: Context,
