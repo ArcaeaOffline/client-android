@@ -23,7 +23,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.asOutputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
@@ -40,6 +39,7 @@ import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
+import kotlin.time.Clock
 
 class OcrFromShareViewModel(
     private val playResultRepo: PlayResultRepository,
@@ -163,7 +163,7 @@ class OcrFromShareViewModel(
             _imageSaved.value =
                 SaveBitmapToGallery(bitmap).saveJpg(
                     context,
-                    "ocr-from-share-${Instant.now().toEpochMilli()}",
+                    "ocr-from-share-${Clock.System.now().toEpochMilliseconds()}",
                 )
         }
     }
@@ -174,7 +174,12 @@ class OcrFromShareViewModel(
     suspend fun cacheScore(context: Context) {
         val score = playResult.value
         if (score != null) {
-            val ocrHistory = OcrHistory.fromArcaeaScore(score, shareSourceAppPackageName.value)
+            val ocrHistory =
+                OcrHistory.fromArcaeaScore(
+                    playResult = score,
+                    sourcePackageName = shareSourceAppPackageName.value,
+                    storeDate = Clock.System.now(),
+                )
             val id = ocrHistoryRepo.insert(ocrHistory)
 
             val bitmap = bitmap.value
@@ -224,7 +229,7 @@ class OcrFromShareViewModel(
                         imageUri,
                         context,
                         ocrResult,
-                        fallbackDate = Instant.now(),
+                        fallbackDate = Clock.System.now(),
                     )
 
                 _playResult.value = playResult

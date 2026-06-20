@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.exporters
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.externals.ArcaeaOfflineDEFv2PlayResultItem
@@ -26,7 +25,7 @@ object ArcaeaOfflineDEFv2Exporter {
                     pure = it.pure,
                     far = it.far,
                     lost = it.lost,
-                    date = it.date?.toEpochMilli(),
+                    date = it.date?.toEpochMilliseconds(),
                     maxRecall = it.maxRecall,
                     modifier = it.modifier?.value,
                     clearType = it.clearType?.value,

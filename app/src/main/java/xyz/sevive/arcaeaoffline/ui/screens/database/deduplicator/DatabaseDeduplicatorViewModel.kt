@@ -58,7 +58,7 @@ class DatabaseDeduplicatorViewModel(
         if (GroupByValue.FAR in groupByValues) addKey("f", far)
         if (GroupByValue.LOST in groupByValues) addKey("l", lost)
         if (GroupByValue.MAX_RECALL in groupByValues) addKey("mr", maxRecall)
-        if (GroupByValue.DATE in groupByValues) addKey("d", date?.toEpochMilli()?.toString())
+        if (GroupByValue.DATE in groupByValues) addKey("d", date?.toEpochMilliseconds()?.toString())
         if (GroupByValue.CLEAR_TYPE in groupByValues) addKey("ct", clearType?.value)
         if (GroupByValue.MODIFIER in groupByValues) addKey("md", modifier?.value)
 

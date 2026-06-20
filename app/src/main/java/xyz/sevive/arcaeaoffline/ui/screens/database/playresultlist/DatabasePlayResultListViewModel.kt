@@ -120,7 +120,7 @@ class DatabasePlayResultListViewModel(
                     SortByValue.ID -> items.sortedBy { it.playResult.id }
                     SortByValue.SCORE -> items.sortedBy { it.playResult.score }
                     SortByValue.POTENTIAL -> items.sortedBy { it.potential }
-                    SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilli() }
+                    SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilliseconds() }
                 }
 
             if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()

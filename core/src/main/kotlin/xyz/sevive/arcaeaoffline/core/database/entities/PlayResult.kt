@@ -5,12 +5,12 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.extensions.PlayResultSerializer
 import java.util.UUID
+import kotlin.time.Instant
 
 @Serializable(with = PlayResultSerializer::class)
 @Entity(

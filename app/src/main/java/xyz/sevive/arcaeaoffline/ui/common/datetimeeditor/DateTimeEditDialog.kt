@@ -35,14 +35,22 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.format
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalTime
+import kotlinx.datetime.toLocalDateTime
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import kotlin.time.Clock
 
 @Composable
 private fun SecondEditor(
@@ -89,14 +97,14 @@ internal fun DateTimeEditDialog(
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
     val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM) }
 
-    var date by rememberSaveable { mutableStateOf(dateTime.toLocalDate()) }
+    var date by rememberSaveable { mutableStateOf(dateTime.date) }
     var selectedTime by rememberSaveable {
-        mutableStateOf(dateTime.toLocalTime().withSecond(0).withNano(0))
+        mutableStateOf(LocalTime(dateTime.time.hour, dateTime.time.minute))
     }
-    var second by rememberSaveable { mutableIntStateOf(dateTime.toLocalTime().second) }
-    val time = remember(selectedTime, second) { selectedTime.withSecond(second) }
-    val dateText = remember(date) { dateFormatter.format(date) }
-    val timeText = remember(time) { timeFormatter.format(time) }
+    var second by rememberSaveable { mutableIntStateOf(dateTime.time.second) }
+    val time = remember(selectedTime, second) { LocalTime(selectedTime.hour, selectedTime.minute, second) }
+    val dateText = remember(date) { dateFormatter.format(date.toJavaLocalDate()) }
+    val timeText = remember(time) { timeFormatter.format(time.toJavaLocalTime()) }
 
     var showDateEditDialog by rememberSaveable { mutableStateOf(false) }
     var showTimeEditDialog by rememberSaveable { mutableStateOf(false) }
@@ -174,7 +182,7 @@ internal fun DateTimeEditDialog(
 @Preview
 @Composable
 private fun DateTimeEditDialogRealDevicePreview() {
-    var dateTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var dateTime by remember { mutableStateOf(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())) }
     var showDialog by remember { mutableStateOf(true) }
 
     ArcaeaOfflineTheme {
@@ -183,13 +191,13 @@ private fun DateTimeEditDialogRealDevicePreview() {
                 DateTimeEditDialog(
                     onDismissRequest = { showDialog = false },
                     dateTime = dateTime,
-                    minDate = LocalDate.of(2017, 6, 16),
+                    minDate = LocalDate(2017, 6, 16),
                     onDateTimeChange = { dateTime = it },
                 )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                Text(text = dateTime.format(LocalDateTime.Formats.ISO))
 
                 Button(onClick = { showDialog = true }) {
                     Text("Open dialog")

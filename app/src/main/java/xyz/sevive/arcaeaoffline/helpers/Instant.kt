@@ -1,31 +1,25 @@
 package xyz.sevive.arcaeaoffline.helpers
 
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
-import org.threeten.bp.format.FormatStyle
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toJavaLocalTime
+import kotlinx.datetime.toLocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import kotlin.time.Instant as KotlinInstant
 
-fun Instant.formatAsLocalizedDateTime(
-    formatStyle: FormatStyle = FormatStyle.MEDIUM,
-    zone: ZoneId = ZoneId.systemDefault(),
-): String =
-    DateTimeFormatter.ofLocalizedDateTime(formatStyle).format(
-        LocalDateTime.ofInstant(this, zone),
+fun KotlinInstant.formatAsLocalizedDateTime(): String =
+    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+        this.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime(),
     )
 
-fun Instant.formatAsLocalizedDate(
-    formatStyle: FormatStyle = FormatStyle.MEDIUM,
-    zone: ZoneId = ZoneId.systemDefault(),
-): String =
-    DateTimeFormatter.ofLocalizedDate(formatStyle).format(
-        LocalDateTime.ofInstant(this, zone).toLocalDate(),
+fun KotlinInstant.formatAsLocalizedDate(): String =
+    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(
+        this.toLocalDateTime(TimeZone.currentSystemDefault()).date.toJavaLocalDate(),
     )
 
-fun Instant.formatAsLocalizedTime(
-    formatStyle: FormatStyle = FormatStyle.MEDIUM,
-    zone: ZoneId = ZoneId.systemDefault(),
-): String =
-    DateTimeFormatter.ofLocalizedTime(formatStyle).format(
-        LocalDateTime.ofInstant(this, zone).toLocalTime(),
+fun KotlinInstant.formatAsLocalizedTime(): String =
+    DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).format(
+        this.toLocalDateTime(TimeZone.currentSystemDefault()).time.toJavaLocalTime(),
     )

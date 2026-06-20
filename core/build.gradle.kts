@@ -41,6 +41,8 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -51,14 +53,18 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.io)
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)
+    implementation(libs.kotlinx.datetime)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.annotations)
     implementation(libs.koin.android)
 
     // android & androidx
+    coreLibraryDesugaring(libs.desugarJdkLibs)
+
     implementation(androidx.core.ktx)
 
     api(androidx.room.runtime)
@@ -68,9 +74,6 @@ dependencies {
 
     // 3rd party
     implementation(libs.kermit)
-
-    implementation(libs.kotlinx.io)
-    implementation(libs.threetenabp)
 
     implementation(libs.opencv)
     implementation(libs.onnxruntime.android)

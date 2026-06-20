@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.io.files.Path
 import org.opencv.core.Mat
-import org.threeten.bp.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 class ImageHashesDatabaseBuilder(
     private val conn: SQLiteConnection,
@@ -62,7 +63,7 @@ class ImageHashesDatabaseBuilder(
                 ImageHashesDatabase.PROP_HIGH_FREQ_FACTOR_KEY to highFreqFactor.toString(),
                 ImageHashesDatabase.PROP_BUILT_TIMESTAMP_KEY to
                     builtTimestamp
-                        .toEpochMilli()
+                        .toEpochMilliseconds()
                         .toString(),
             ).forEach { (key, value) ->
                 stmt.bindText(1, key)
@@ -128,7 +129,7 @@ class ImageHashesDatabaseBuilder(
             insertProperties(
                 hashSize = hashSize,
                 highFreqFactor = highFreqFactor,
-                builtTimestamp = Instant.now(),
+                builtTimestamp = Clock.System.now(),
             )
 
             conn.execSQL("COMMIT")

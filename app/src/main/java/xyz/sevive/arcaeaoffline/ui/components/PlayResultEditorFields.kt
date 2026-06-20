@@ -28,15 +28,17 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneId
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
 import kotlin.math.max
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 // TODO: make this work
 internal class ArcaeaPlayResultScoreVisualTransformation(
@@ -248,18 +250,18 @@ internal fun PlayResultEditorDateTimeField(
     modifier: Modifier = Modifier,
 ) {
     // The initial release date of Arcaea
-    val minDate = remember { LocalDate.of(2017, 3, 7) }
+    val minDate = remember { LocalDate(2017, 3, 7) }
 
     GeneralNullableFieldWrapper(
         value = instant,
-        defaultValueConstructor = { Instant.now() },
+        defaultValueConstructor = { Clock.System.now() },
         onValueChange = onInstantChange,
         modifier = modifier,
     ) {
         NullableDateTimeEditor(
-            dateTime = instant?.let { LocalDateTime.ofInstant(it, ZoneId.systemDefault()) },
+            dateTime = instant?.toLocalDateTime(TimeZone.currentSystemDefault()),
             onDateTimeChange = {
-                onInstantChange(it.toInstant(ZoneId.systemDefault().rules.getOffset(it)))
+                onInstantChange(it.toInstant(TimeZone.currentSystemDefault()))
             },
             modifier = Modifier.weight(1f),
             minDate = minDate,

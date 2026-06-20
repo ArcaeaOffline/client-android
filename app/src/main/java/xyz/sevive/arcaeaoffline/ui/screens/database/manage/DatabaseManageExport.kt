@@ -9,9 +9,9 @@ import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import kotlin.time.Clock
 
 private class CreateJsonDocument : ActivityResultContracts.CreateDocument("application/json")
 
@@ -29,7 +29,7 @@ fun DatabaseManageExport(
         TextPreferencesWidget(
             onClick = {
                 exportPlayResultsHandler.launch(
-                    "arcaea-offline-data-exchange-${Instant.now().toEpochMilli()}",
+                    "arcaea-offline-data-exchange-${Clock.System.now().toEpochMilliseconds()}",
                 )
             },
             title = stringResource(R.string.database_manage_export_play_results),

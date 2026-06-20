@@ -9,7 +9,6 @@ import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import org.opencv.ml.KNearest
-import org.threeten.bp.Instant
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.clearStatusToClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -25,6 +24,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
 import java.util.UUID
+import kotlin.time.Instant
 
 @Serializable
 data class DeviceOcrResult(

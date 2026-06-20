@@ -1,0 +1,93 @@
+name: connectedAndroidTest
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Run Connected Android Tests (unstableDebug)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api-level: 24
+            target: default
+          - api-level: 36
+            target: google_apis
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Toolchain
+        uses: ./.github/actions/setup-toolchain
+
+      - name: Release local.properties file
+        run: cp local.defaults.properties local.properties
+
+      - name: Ensure CRNN OCR Model Assets Folder Exists
+        run: mkdir -p app/src/main/assets/ocr
+
+      - name: Download CRNN OCR Model
+        run: |
+          curl -L -o app/src/main/assets/ocr/model_patched.onnx https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model-early_stop_patched.onnx
+          curl -L -o app/src/main/assets/ocr/model_info.json https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model_info.json
+
+      - name: Set up Gradle
+        run: |
+          chmod +x ./gradlew
+          echo "" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" >> gradle.properties
+
+      # Avoid building the application when AVD is running, so Gradle can use more RAM
+      - name: Build Application
+        run: ./gradlew assembleUnstableDebug assembleUnstableDebugAndroidTest --stacktrace
+
+      # android-emulator-runner configurations start here
+      # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run UI Tests
+        uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            # Disable auto-rotation and lock device to landscape
+            adb shell settings put system accelerometer_rotation 0
+            # Lock device to portrait
+            adb shell settings put system user_rotation 0
+            
+            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
+            
+            mkdir -p app/build/reports/portrait-tests
+            cp -r app/build/reports/androidTests/connected/* app/build/reports/portrait-tests/ || true
+            
+            # Lock device to landscape
+            adb shell settings put system user_rotation 1
+            
+            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
+            
+            mkdir -p app/build/reports/landscape-tests
+            cp -r app/build/reports/androidTests/connected/* app/build/reports/landscape-tests/ || true
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}  # run this step even if previous step failed
+        with:
+          name: test-results-api${{ matrix.api-level }}-${{ matrix.target }}
+          path: |
+            **/build/reports/

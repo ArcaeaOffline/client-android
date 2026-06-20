@@ -1,9 +1,11 @@
 [versions]
 androidGradlePlugin = "9.2.1"
+desugarJdkLibs = "2.1.5"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
 ktoml = "0.7.1"
+kotlinx-datetime = "0.8.0"
 ksp = "2.3.9"
 koin = "4.2.1"
 koin-plugin = "1.0.1"
@@ -12,7 +14,6 @@ opencv = "4.13.0"
 
 io-sentry-sentryAndroid = "8.17.0"
 
-threetenabp = "1.4.9"
 markdown-renderer = "0.41.0"
 github-jvziyaoyao-scale = "1.1.1-beta.3"
 github-cheonjaeung-gridlayout = "2.7.4"
@@ -23,13 +24,17 @@ kermit = "2.1.0"
 filekit = "0.14.2"
 kotlinx-io = "0.9.0"
 junit = "4.13.2"
+robolectric = "4.16.1"
 
 dependencyAnalysis = "3.15.0"
 
 
 [libraries]
+desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktoml-core = { module = "com.akuleshov7:ktoml-core", version.ref = "ktoml" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-annotations = { module = "io.insert-koin:koin-annotations" }
@@ -43,7 +48,6 @@ io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "
 
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.26.0" }
 
-threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 markdown-renderer = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdown-renderer" }
 markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
 markdown-renderer-android = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "markdown-renderer" }
@@ -59,6 +63,7 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 
 [plugins]
