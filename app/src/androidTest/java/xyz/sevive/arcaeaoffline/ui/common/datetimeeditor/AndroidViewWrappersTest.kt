@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.common.datetimeeditor
 
+import android.os.Build
 import android.widget.CalendarView
 import android.widget.DatePicker
 import android.widget.TimePicker
@@ -12,6 +13,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -28,6 +30,7 @@ class AndroidViewWrappersTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun datePicker_initializationAndSelectionAreCorrect() {
         var capturedDate: LocalDate? = null
