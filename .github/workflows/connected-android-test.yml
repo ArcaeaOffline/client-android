@@ -13,7 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [ 24, 35 ]
+        include:
+          - api-level: 24
+            target: default
+          - api-level: 36
+            target: google_apis
 
     steps:
       - name: Checkout Repository
@@ -27,6 +31,9 @@ jobs:
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 
+      - name: Grant Execute Permission to Gradlew
+        run: chmod +x ./gradlew
+
       # android-emulater-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
       - name: Enable KVM
@@ -39,12 +46,10 @@ jobs:
         uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
+          target: ${{ matrix.target }}
           emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
           script: |
-            chmod +x ./gradlew
-            
             # Disable auto-rotation and lock device to landscape
             adb shell settings put system accelerometer_rotation 0
             # Lock device to portrait
