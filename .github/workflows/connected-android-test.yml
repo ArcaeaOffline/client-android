@@ -44,7 +44,7 @@ jobs:
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
       - name: Build Application
-        run: ./gradlew assembleUnstableDebug assembleUnstableDebugAndroidTest
+        run: ./gradlew assembleUnstableDebug assembleUnstableDebugAndroidTest --stacktrace
 
       # android-emulater-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
