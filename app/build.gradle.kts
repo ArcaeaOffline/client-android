@@ -220,6 +220,7 @@ dependencies {
 
     // test & debug
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     androidTestImplementation(androidx.test.ext.junit)
     androidTestImplementation(androidx.test.espresso.core)
     androidTestImplementation(androidx.test.espresso.contrib)
