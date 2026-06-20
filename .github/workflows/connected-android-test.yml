@@ -47,6 +47,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
+          arch: x86_64
           emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
           script: |
@@ -55,7 +56,7 @@ jobs:
             # Lock device to portrait
             adb shell settings put system user_rotation 0
             
-            ./gradlew connectedCheck
+            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
             
             mkdir -p app/build/reports/portrait-tests
             cp -r app/build/reports/androidTests/connected/* app/build/reports/portrait-tests/ || true
@@ -63,7 +64,7 @@ jobs:
             # Lock device to landscape
             adb shell settings put system user_rotation 1
             
-            ./gradlew connectedCheck
+            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
             
             mkdir -p app/build/reports/landscape-tests
             cp -r app/build/reports/androidTests/connected/* app/build/reports/landscape-tests/ || true
