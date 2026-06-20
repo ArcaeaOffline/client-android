@@ -15,11 +15,11 @@ fun KotlinInstant.formatAsLocalizedDateTime(): String =
     )
 
 fun KotlinInstant.formatAsLocalizedDate(): String =
-    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(
         this.toLocalDateTime(TimeZone.currentSystemDefault()).date.toJavaLocalDate(),
     )
 
 fun KotlinInstant.formatAsLocalizedTime(): String =
-    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).format(
+    DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).format(
         this.toLocalDateTime(TimeZone.currentSystemDefault()).time.toJavaLocalTime(),
     )

@@ -73,7 +73,7 @@ private data class St3PlayResult(
             pure = pure,
             far = far,
             lost = lost,
-            date = date?.let { Instant.fromEpochSeconds(date) },
+            date = date?.let { Instant.fromEpochSeconds(it) },
             modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
             clearType =
                 if (!isClearTypeReliable) {
