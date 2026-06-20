@@ -88,7 +88,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}  # run this step even if previous step failed
         with:
-          name: test-results
+          name: test-results-api${{ matrix.api-level }}-${{ matrix.target }}
           path: |
-            **/build/reports/portrait-tests
-            **/build/reports/landscape-tests
+            **/build/reports/
