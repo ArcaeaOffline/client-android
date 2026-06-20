@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1920"
+   height="1080"
+   viewBox="0 0 1920 1080"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="exif.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   inkscape:export-filename="exif.jpg"
+   inkscape:export-xdpi="16"
+   inkscape:export-ydpi="16"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="0.36435185"
+     inkscape:cx="1118.4244"
+     inkscape:cy="424.04066"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showguides="false" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="layer1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#0172aa;fill-opacity:1;fill-rule:evenodd"
+       id="rect1"
+       width="1920"
+       height="1080"
+       x="0"
+       y="0"
+       inkscape:label="bg"
+       sodipodi:insensitive="true" />
+    <path
+       id="rect2"
+       style="fill:#0296df;fill-opacity:1;fill-rule:evenodd"
+       inkscape:label="shape-1"
+       d="M 1689.0148,663.20508 A 2722.3982,995.24915 0 0 1 -230.98517,952.875 v 84.75 H 1689.0148 Z"
+       sodipodi:insensitive="true" />
+    <path
+       id="rect3"
+       style="fill:#0faefd;fill-opacity:1;fill-rule:evenodd"
+       inkscape:label="shape-2"
+       d="M 1920,795.42383 A 3194.4692,995.24915 0 0 1 0,995.25 V 1080 h 1920 z"
+       sodipodi:insensitive="true" />
+    <text
+       xml:space="preserve"
+       style="font-size:120px;font-family:'Sarasa Gothic SC';-inkscape-font-specification:'Sarasa Gothic SC';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;white-space:pre;fill:#0172aa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="1300.3737"
+       y="1042.0718"
+       id="text3"
+       sodipodi:insensitive="true"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         x="1300.3737"
+         y="1042.0718"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:120px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display';fill:#0172aa;fill-opacity:1">SeviveOSS</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:150px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;white-space:pre;fill:#cceeff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="91.870117"
+       y="210.88867"
+       id="text4"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         x="91.870117"
+         y="210.88867"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:150px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display Bold';fill:#cceeff;fill-opacity:1">EXIF Sample Image</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:64px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display Bold';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;text-align:end;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:end;white-space:pre;fill:#0172aa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="722.41602"
+       y="450.24402"
+       id="text5"><tspan
+         sodipodi:role="line"
+         id="tspan5"
+         x="722.41602"
+         y="450.24402"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:64px;font-family:'Sarasa Mono SC';-inkscape-font-specification:'Sarasa Mono SC';fill:#85d6fe;fill-opacity:1">DateTimeOriginal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:64px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display Bold';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;text-align:end;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:end;white-space:pre;fill:#0172aa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="722.41602"
+       y="612.13879"
+       id="text6"><tspan
+         sodipodi:role="line"
+         id="tspan6"
+         x="722.41602"
+         y="612.13879"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:64px;font-family:'Sarasa Mono SC';-inkscape-font-specification:'Sarasa Mono SC';fill:#85d6fe;fill-opacity:1">OffsetTimeOriginal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:108px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display Bold';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;fill:#b4e6fe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="768.33594"
+       y="450.24402"
+       id="text7"><tspan
+         sodipodi:role="line"
+         id="tspan7"
+         x="768.33594"
+         y="450.24402"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:108px;font-family:'Sarasa Mono SC';-inkscape-font-specification:'Sarasa Mono SC';fill:#b4e6fe;fill-opacity:1">2075:07:05 07:05</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:108px;font-family:'Inter Display';-inkscape-font-specification:'Inter Display Bold';font-feature-settings:'cv02' 1, 'cv04' 1, 'cv10' 1;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;white-space:pre;fill:#b4e6fe;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:70;stroke-linecap:square;stroke-miterlimit:70"
+       x="768.33594"
+       y="615.104"
+       id="text8"><tspan
+         sodipodi:role="line"
+         id="tspan8"
+         x="768.33594"
+         y="615.104"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:108px;font-family:'Sarasa Mono SC';-inkscape-font-specification:'Sarasa Mono SC';fill:#b4e6fe;fill-opacity:1">+08:00</tspan></text>
+  </g>
+</svg>
