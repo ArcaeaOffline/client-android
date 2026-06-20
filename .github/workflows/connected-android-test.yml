@@ -49,7 +49,7 @@ jobs:
       - name: Build Application
         run: ./gradlew assembleUnstableDebug assembleUnstableDebugAndroidTest --stacktrace
 
-      # android-emulater-runner configurations start here
+      # android-emulator-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
       - name: Enable KVM
         run: |
