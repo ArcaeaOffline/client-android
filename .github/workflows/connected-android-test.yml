@@ -31,9 +31,6 @@ jobs:
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 
-      - name: Grant Execute Permission to Gradlew
-        run: chmod +x ./gradlew
-
       - name: Ensure CRNN OCR Model Assets Folder Exists
         run: mkdir -p app/src/main/assets/ocr
 
@@ -41,6 +38,12 @@ jobs:
         run: |
           curl -L -o app/src/main/assets/ocr/model_patched.onnx https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model-early_stop_patched.onnx
           curl -L -o app/src/main/assets/ocr/model_info.json https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model_info.json
+
+      - name: Set up Gradle
+        run: |
+          chmod +x ./gradlew
+          echo "" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" >> gradle.properties
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
       - name: Build Application
