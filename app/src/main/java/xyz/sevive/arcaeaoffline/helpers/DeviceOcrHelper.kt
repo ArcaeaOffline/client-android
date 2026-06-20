@@ -6,12 +6,16 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.source
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.format.char
+import kotlinx.datetime.parseOrNull
 import kotlinx.datetime.toInstant
+import kotlinx.io.asInputStream
+import kotlinx.io.buffered
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
@@ -30,6 +34,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
+import java.io.InputStream
 import kotlin.time.Instant
 
 object DeviceOcrHelper {
@@ -91,32 +96,56 @@ object DeviceOcrHelper {
         ).ocr()
     }
 
-    // TODO: test this
-    suspend fun readImageDateFromExif(
-        imageUri: Uri,
+    fun readImageDateFromExif(
+        imageInputStream: InputStream,
         fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
+        defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
     ): Instant? {
         if (overrideDate != null) return overrideDate
 
-        val byteArray = PlatformFile(imageUri).readBytes()
-
-        val imgExif = ExifInterface(byteArray.inputStream())
+        val imgExif = ExifInterface(imageInputStream)
         val imgExifDateTimeOriginal =
             imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL) ?: return fallbackDate
 
-        val localDateTime = exifTagLocalDateTimeFormat.parse(imgExifDateTimeOriginal)
+        val localDateTime = exifTagLocalDateTimeFormat.parseOrNull(imgExifDateTimeOriginal) ?: return null
 
         val exifTimeZone =
             imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)?.let {
-                val zoneOffset = UtcOffset.parse(it)
-                zoneOffset.asTimeZone()
+                val zoneOffset = UtcOffset.parseOrNull(it)
+                zoneOffset?.asTimeZone()
             }
 
-        return localDateTime.toInstant(exifTimeZone ?: TimeZone.currentSystemDefault())
+        return localDateTime.toInstant(exifTimeZone ?: defaultTimeZoneProvider())
     }
 
-    suspend fun ocrResultToPlayResult(
+    fun readImageDateFromExif(
+        imageFile: PlatformFile,
+        fallbackDate: Instant? = null,
+        overrideDate: Instant? = null,
+        defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
+    ): Instant? =
+        readImageDateFromExif(
+            imageInputStream = imageFile.source().buffered().asInputStream(),
+            fallbackDate = fallbackDate,
+            overrideDate = overrideDate,
+            defaultTimeZoneProvider = defaultTimeZoneProvider,
+        )
+
+    fun readImageDateFromExif(
+        imageUri: Uri,
+        fallbackDate: Instant? = null,
+        overrideDate: Instant? = null,
+        defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
+    ): Instant? =
+        readImageDateFromExif(
+            imageFile = PlatformFile(imageUri),
+            fallbackDate = fallbackDate,
+            overrideDate = overrideDate,
+            defaultTimeZoneProvider = defaultTimeZoneProvider,
+        )
+
+    fun ocrResultToPlayResult(
         imageUri: Uri,
         context: Context,
         ocrResult: DeviceOcrResult,
