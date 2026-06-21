@@ -11,6 +11,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -115,6 +119,92 @@ class AdaptiveEntryScreenTest {
         composeTestRule.waitForIdle()
 
         // Detail pane route must have survived the extra round-trip
+        composeTestRule.onNodeWithText(DETAIL_LABEL_PREFIX + TEST_ROUTE).assertIsDisplayed()
+    }
+
+    /**
+     * Regression: detail pane state must survive a NavBackStackEntry save/restore
+     * cycle, which occurs when the user switches tabs via the bottom navigation bar.
+     *
+     * This test simulates the exact navigation pattern used by `mainNavControllerNavigateToRoute`:
+     *   popUpTo(startDestination) { saveState = true }
+     *   + launchSingleTop = true
+     *   + restoreState = true
+     *
+     * Without the fix (rememberSaveable + LaunchedEffect re-navigation), the composable
+     * would be fully disposed on tab switch and the detail pane route would reset to null,
+     * showing the placeholder icon instead of the expected detail content.
+     */
+    @Test
+    fun detail_pane_state_survives_tab_switch() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "home") {
+                composable("home") { Text("Home") }
+
+                composable("tab_a") {
+                    AdaptiveEntryScreen(
+                        listPane = { TestListPane() },
+                        detailPane = { route ->
+                            Text(DETAIL_LABEL_PREFIX + route)
+                        },
+                    )
+                }
+
+                composable("tab_b") {
+                    AdaptiveEntryScreen(
+                        listPane = { Text("TabBList") },
+                        detailPane = { route ->
+                            Text("TabBDetail: $route")
+                        },
+                    )
+                }
+            }
+        }
+
+        // 1. Navigate to tab_a
+        composeTestRule.runOnIdle {
+            navController.navigate("tab_a") {
+                popUpTo(navController.graph.startDestinationRoute!!) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // 2. Navigate list → detail on tab_a
+        composeTestRule.onNodeWithText("Go to $TEST_ROUTE").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(DETAIL_LABEL_PREFIX + TEST_ROUTE).assertIsDisplayed()
+
+        // 3. Switch to tab_b — this pops tab_a's NavBackStackEntry,
+        //    destroying its composable and all remember state.
+        composeTestRule.runOnIdle {
+            navController.navigate("tab_b") {
+                popUpTo(navController.graph.startDestinationRoute!!) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("TabBList").assertIsDisplayed()
+        composeTestRule.onNodeWithText(DETAIL_LABEL_PREFIX + TEST_ROUTE).assertDoesNotExist()
+
+        // 4. Switch back to tab_a — restores the saved NavBackStackEntry.
+        //    With rememberSaveable + LaunchedEffect, the detail pane route
+        //    and navigator state should both be restored.
+        composeTestRule.runOnIdle {
+            navController.navigate("tab_a") {
+                popUpTo(navController.graph.startDestinationRoute!!) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // 5. Detail pane must still show the expected content
         composeTestRule.onNodeWithText(DETAIL_LABEL_PREFIX + TEST_ROUTE).assertIsDisplayed()
     }
 }

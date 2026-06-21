@@ -1,14 +1,17 @@
 package xyz.sevive.arcaeaoffline.ui
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import xyz.sevive.arcaeaoffline.ui.navigation.ListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
@@ -30,8 +33,16 @@ fun AdaptiveEntryScreen(
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
-    var detailPaneRoute by remember { mutableStateOf<String?>(null) }
-    var extraPaneRoute by remember { mutableStateOf<String?>(null) }
+    var detailPaneRoute by rememberSaveable { mutableStateOf<String?>(null) }
+    var extraPaneRoute by rememberSaveable { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        if (detailPaneRoute != null) {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, detailPaneRoute!!)
+        } else if (extraPaneRoute != null) {
+            navigator.navigateTo(ListDetailPaneScaffoldRole.Extra, extraPaneRoute!!)
+        }
+    }
 
     val navContext =
         remember {
