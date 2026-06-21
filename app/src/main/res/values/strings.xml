@@ -111,6 +111,7 @@ CC BY-SA 3.0
     <!-- Bottom navigation -->
     <string name="nav_overview">Overview</string>
     <string name="nav_database">Database</string>
+    <string name="nav_utilities">Utilities</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
@@ -248,6 +249,9 @@ CC BY-SA 3.0
     <string name="datetime_picker_label">Date</string>
     <string name="datetime_picker_date_tab">Date</string>
     <string name="datetime_picker_time_tab">Time</string>
+
+    <!-- Utilities -->
+    <string name="utilities_calculator_title">Play Rating Calculator</string>
 
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR Queue</string>

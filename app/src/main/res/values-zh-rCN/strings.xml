@@ -95,6 +95,7 @@
     <!-- Bottom navigation -->
     <string name="nav_overview">概览</string>
     <string name="nav_database">数据库</string>
+    <string name="nav_utilities">小工具</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">设置</string>
 
@@ -217,6 +218,9 @@
     <string name="datetime_picker_label">日期</string>
     <string name="datetime_picker_date_tab">日期</string>
     <string name="datetime_picker_time_tab">时间</string>
+
+    <!-- Utilities -->
+    <string name="utilities_calculator_title">单曲潜力值计算</string>
 
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR 队列</string>
