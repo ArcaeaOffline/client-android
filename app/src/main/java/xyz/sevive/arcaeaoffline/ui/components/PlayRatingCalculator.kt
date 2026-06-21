@@ -40,7 +40,7 @@ fun PlayRatingCalculator(
     }
 
     LaunchedEffect(constant) {
-        constantTextFieldState.commitValue(constant.toBigDecimal())
+        constantTextFieldState.commitValue((constant / 10.0).toBigDecimal())
     }
 
     val scoreValue by remember {
