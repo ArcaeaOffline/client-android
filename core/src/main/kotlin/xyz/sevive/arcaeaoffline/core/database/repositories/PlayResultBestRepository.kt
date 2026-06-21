@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.mapLatest
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import xyz.sevive.arcaeaoffline.core.database.entities.calculatePotential
+import xyz.sevive.arcaeaoffline.core.database.entities.calculatePlayRating
 
 interface PlayResultBestRepository {
     fun find(
@@ -31,7 +31,7 @@ class PlayResultBestRepositoryImpl(
         playResultCalculatedRepo
             .findAllBySongIdAndRatingClass(songId, ratingClass)
             .mapLatest { list ->
-                list.maxByOrNull { it.potential }
+                list.maxByOrNull { it.playRating }
             }
 
     override fun orderDescWithLimit(limit: Int): Flow<List<PlayResultCalculated>> =
@@ -41,19 +41,19 @@ class PlayResultBestRepositoryImpl(
                     .groupBy { it.songId to it.ratingClass }
                     .values
                     .map { group ->
-                        // Calculate potential once and find the best
+                        // Calculate play rating once and find the best
                         group
-                            .map { it to calculatePotential(it.score, it.constant) }
+                            .map { it to calculatePlayRating(it.score, it.constant) }
                             .maxBy { it.second }
                     }
-                    // Sort all best results by potential
+                    // Sort all best results by play rating
                     .sortedByDescending { it.second }
                     .take(limit)
                     .map { it.first.uuid }
 
             playResultCalculatedRepo.findAllByUUID(topUuids).map { list ->
                 // Re-sort because the DB might return them in a different order
-                list.sortedByDescending { it.potential }
+                list.sortedByDescending { it.playRating }
             }
         }
 }

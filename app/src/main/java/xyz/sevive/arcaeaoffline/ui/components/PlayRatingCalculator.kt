@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.calculatePotential
+import xyz.sevive.arcaeaoffline.core.database.entities.calculatePlayRating
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
@@ -59,7 +59,7 @@ fun PlayRatingCalculator(
             scoreValue ?: return@derivedStateOf null
             constantValue ?: return@derivedStateOf null
 
-            calculatePotential(scoreValue!!, constantValue!!)
+            calculatePlayRating(scoreValue!!, constantValue!!)
         }
     }
 

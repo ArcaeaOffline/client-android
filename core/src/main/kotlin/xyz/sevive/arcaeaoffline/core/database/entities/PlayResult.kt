@@ -36,8 +36,8 @@ data class PlayResult(
     val comment: String? = null,
 )
 
-fun PlayResult.potential(constant: Int): Double = calculatePotential(this.score, constant)
+fun PlayResult.playRating(constant: Int): Double = calculatePlayRating(this.score, constant)
 
-fun PlayResult.potential(chartInfo: ChartInfo) = potential(chartInfo.constant)
+fun PlayResult.playRating(chartInfo: ChartInfo) = playRating(chartInfo.constant)
 
-fun PlayResult.potential(chart: Chart) = potential(chart.constant)
+fun PlayResult.playRating(chart: Chart) = playRating(chart.constant)

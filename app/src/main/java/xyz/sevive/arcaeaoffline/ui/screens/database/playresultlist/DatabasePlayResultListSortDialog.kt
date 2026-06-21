@@ -116,8 +116,8 @@ private fun DatabasePlayResultListSortDialogContent(
 
         item {
             SortByValueWidgetWrapper(
-                label = stringResource(R.string.arcaea_potential),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.POTENTIAL,
+                label = stringResource(R.string.arcaea_play_rating),
+                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.PLAY_RATING,
                 Modifier.fillMaxWidth(),
             )
         }
@@ -162,7 +162,7 @@ private fun DatabasePlayResultListSortDialogContentPreview() {
         mutableStateOf(DatabasePlayResultListViewModel.SortOrder.ASC)
     }
     var sortByValue by rememberSaveable {
-        mutableStateOf(DatabasePlayResultListViewModel.SortByValue.POTENTIAL)
+        mutableStateOf(DatabasePlayResultListViewModel.SortByValue.PLAY_RATING)
     }
 
     ArcaeaOfflineTheme {

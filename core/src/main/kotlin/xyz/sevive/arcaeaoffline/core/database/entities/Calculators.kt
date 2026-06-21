@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import kotlin.math.max
 
-fun calculatePotential(
+fun calculatePlayRating(
     score: Int,
     constant: Int,
 ): Double {

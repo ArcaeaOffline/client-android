@@ -49,9 +49,9 @@ internal fun DatabaseR30ListItem(
             }
         }
 
-    val potentialText =
-        remember(item.potential) {
-            ArcaeaFormatters.potentialToText(item.potential)
+    val playRatingText =
+        remember(item.playRating) {
+            ArcaeaFormatters.potentialToText(item.playRating)
         }
 
     Row(
@@ -76,7 +76,7 @@ internal fun DatabaseR30ListItem(
             Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
-            Text(potentialText, style = MaterialTheme.typography.labelMedium)
+            Text(playRatingText, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

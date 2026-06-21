@@ -21,7 +21,7 @@ class DatabaseB30ListViewModel(
         val index: Int,
         val playResultBest: PlayResultCalculated,
         val chart: Chart?,
-        val potentialText: String = ArcaeaFormatters.potentialToText(playResultBest.potential),
+        val playRatingText: String = ArcaeaFormatters.potentialToText(playResultBest.playRating),
     )
 
     data class UiState(
