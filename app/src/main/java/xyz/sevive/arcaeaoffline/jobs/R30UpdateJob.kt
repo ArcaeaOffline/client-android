@@ -1,7 +1,8 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import androidx.room.withTransaction
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -46,6 +47,7 @@ private fun List<R30EntryCombined>.minPotentialItem(): R30EntryCombined? =
 class R30UpdateJob(
     context: Context,
     params: WorkerParameters,
+    private val db: ArcaeaOfflineDatabase,
     private val r30EntryRepo: R30EntryRepository,
     private val propertyRepo: PropertyRepository,
     private val songRepo: SongRepository,
@@ -126,11 +128,15 @@ class R30UpdateJob(
                 progress.value += 1
             }
 
-            ArcaeaOfflineDatabase.getDatabase(applicationContext).withTransaction {
-                r30EntryRepo.deleteAll()
-                r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
+            // Room3 possibly has a convenient extension function for this
+            // see https://issuetracker.google.com/issues/416306996
+            db.useWriterConnection { transactor ->
+                transactor.immediateTransaction {
+                    r30EntryRepo.deleteAll()
+                    r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-                propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                    propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                }
             }
 
             return Result.success()
