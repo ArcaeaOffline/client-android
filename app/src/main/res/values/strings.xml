@@ -97,6 +97,8 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_comment">Comment</string>
     <string name="arcaea_st3" translatable="false">st3</string>
     <string name="arcaea_potential">Potential</string>
+    <string name="arcaea_constant">Constant</string>
+    <string name="arcaea_play_rating">Play Rating</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>

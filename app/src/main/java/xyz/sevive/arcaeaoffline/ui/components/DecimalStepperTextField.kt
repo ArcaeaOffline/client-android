@@ -201,6 +201,16 @@ fun rememberDecimalStepperTextFieldState(
 )
 
 @Composable
+fun rememberArcaeaConstantStepperTextFieldState(initialValue: Double) =
+    rememberDecimalStepperTextFieldState(
+        initialValue = initialValue,
+        maxDecimalPlaces = 1,
+        step = 0.1,
+        minValue = 0.0,
+        maxValue = 99.0,
+    )
+
+@Composable
 private fun RepeatingIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
