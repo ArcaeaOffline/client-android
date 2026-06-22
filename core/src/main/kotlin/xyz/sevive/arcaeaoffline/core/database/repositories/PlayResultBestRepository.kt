@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 
 interface PlayResultBestRepository {
     fun find(
