@@ -19,11 +19,11 @@ fun calculatePlayRating(
 ): Double {
     if (constant < 0) return 0.0
 
-    return if (score >= 100000000) {
+    return if (score >= 10_000_000) {
         constant / 10.0 + 2
-    } else if (score >= 9800000) {
-        constant / 10.0 + 1 + (score - 9800000) / 200000.0
+    } else if (score >= 9_800_000) {
+        constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0
     } else {
-        max(0.0, constant / 10.0 + (score - 9500000) / 300000.0)
+        max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0)
     }
 }
