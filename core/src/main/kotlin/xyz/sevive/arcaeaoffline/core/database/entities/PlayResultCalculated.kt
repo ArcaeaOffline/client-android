@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
+import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import kotlin.math.floor
 
 data class PlayResultCalculated(

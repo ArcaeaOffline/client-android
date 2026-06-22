@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.mapLatest
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import xyz.sevive.arcaeaoffline.core.database.entities.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 
 interface PlayResultBestRepository {
     fun find(
