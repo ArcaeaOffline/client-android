@@ -4,12 +4,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -147,11 +147,16 @@ class ArcaeaScoreTextFieldState(
 }
 
 @Composable
-fun rememberArcaeaScoreTextFieldState(initialValue: Int = 0): ArcaeaScoreTextFieldState {
+fun rememberArcaeaScoreTextFieldState(
+    initialValue: Int = 0,
+    initialSelectAll: Boolean = false,
+): ArcaeaScoreTextFieldState {
+    val initialText = ArcaeaScoreInputTransformation.createInitialText(initialValue)
     val textFieldState =
-        rememberSaveable(saver = TextFieldState.Saver) {
-            TextFieldState(ArcaeaScoreInputTransformation.createInitialText(initialValue))
-        }
+        rememberTextFieldState(
+            initialText = initialText,
+            initialSelection = if (initialSelectAll) TextRange(0, initialText.length) else TextRange(initialText.length),
+        )
 
     return remember(textFieldState) {
         ArcaeaScoreTextFieldState(textFieldState)
