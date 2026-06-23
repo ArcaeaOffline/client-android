@@ -171,7 +171,7 @@ fun rememberDecimalStepperTextFieldState(
     initialValue: BigDecimal,
     maxDecimalPlaces: Int = 2,
     step: BigDecimal = BigDecimal.parseString("0.5"),
-    minValue: BigDecimal = BigDecimal.fromDouble(Double.MIN_VALUE),
+    minValue: BigDecimal = BigDecimal.fromDouble(-Double.MAX_VALUE),
     maxValue: BigDecimal = BigDecimal.fromDouble(Double.MAX_VALUE),
 ): DecimalStepperTextFieldState {
     val textFieldState =
@@ -198,7 +198,7 @@ fun rememberDecimalStepperTextFieldState(
     initialValue: Double,
     maxDecimalPlaces: Int = 2,
     step: Double = 0.5,
-    minValue: Double = Double.MIN_VALUE,
+    minValue: Double = -Double.MAX_VALUE,
     maxValue: Double = Double.MAX_VALUE,
 ) = rememberDecimalStepperTextFieldState(
     initialValue = initialValue.toBigDecimal(),
