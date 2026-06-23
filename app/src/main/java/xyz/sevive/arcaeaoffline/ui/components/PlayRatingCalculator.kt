@@ -17,6 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,8 +33,15 @@ fun PlayRatingCalculator(
     score: Int = 0,
     constant: Int = 0,
     isConstantReadonly: Boolean = true,
+    initialFocusScoreTextField: Boolean = false,
 ) {
-    val scoreTextFieldState = rememberArcaeaScoreTextFieldState(score)
+    val scoreTextFieldFocusRequester = remember { FocusRequester() }
+
+    val scoreTextFieldState =
+        rememberArcaeaScoreTextFieldState(
+            initialValue = score,
+            initialSelectAll = initialFocusScoreTextField,
+        )
     val constantTextFieldState = rememberArcaeaConstantStepperTextFieldState(constant / 10.0)
 
     LaunchedEffect(score) {
@@ -41,6 +50,10 @@ fun PlayRatingCalculator(
 
     LaunchedEffect(constant) {
         constantTextFieldState.commitValue((constant / 10.0).toBigDecimal())
+    }
+
+    LaunchedEffect(initialFocusScoreTextField) {
+        if (initialFocusScoreTextField) scoreTextFieldFocusRequester.requestFocus()
     }
 
     val scoreValue by remember {
@@ -70,7 +83,9 @@ fun PlayRatingCalculator(
         ) {
             OutlinedArcaeaScoreTextField(
                 scoreTextFieldState,
-                Modifier.weight(1f),
+                Modifier
+                    .weight(1f)
+                    .focusRequester(scoreTextFieldFocusRequester),
             )
 
             DecimalStepperTextField(
@@ -82,7 +97,7 @@ fun PlayRatingCalculator(
         }
 
         Row(
-            Modifier.padding(vertical = 16.dp),
+            Modifier.padding(top = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
