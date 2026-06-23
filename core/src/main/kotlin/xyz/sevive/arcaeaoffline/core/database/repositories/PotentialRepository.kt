@@ -20,7 +20,7 @@ class PotentialRepositoryImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun r10Entries(): Flow<List<R30EntryCombined>> =
         r30EntryRepo.findAllCombined().mapLatest {
-            it.sortedByDescending { it.potential() ?: -1.0 }.take(10)
+            it.sortedByDescending { it.playRating() ?: -1.0 }.take(10)
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,7 +29,7 @@ class PotentialRepositoryImpl(
             if (entries.isEmpty()) {
                 0.0
             } else {
-                entries.sumOf { it.potential } / entries.size
+                entries.sumOf { it.playRating } / entries.size
             }
         }
 
@@ -39,7 +39,7 @@ class PotentialRepositoryImpl(
             if (entries.isEmpty()) {
                 0.0
             } else {
-                entries.sumOf { it.potential() ?: 0.0 } / entries.size
+                entries.sumOf { it.playRating() ?: 0.0 } / entries.size
             }
         }
 }

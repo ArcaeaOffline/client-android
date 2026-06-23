@@ -97,6 +97,8 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_comment">Comment</string>
     <string name="arcaea_st3" translatable="false">st3</string>
     <string name="arcaea_potential">Potential</string>
+    <string name="arcaea_constant">Constant</string>
+    <string name="arcaea_play_rating">Play Rating</string>
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
@@ -109,6 +111,7 @@ CC BY-SA 3.0
     <!-- Bottom navigation -->
     <string name="nav_overview">Overview</string>
     <string name="nav_database">Database</string>
+    <string name="nav_utilities">Utilities</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
@@ -246,6 +249,15 @@ CC BY-SA 3.0
     <string name="datetime_picker_label">Date</string>
     <string name="datetime_picker_date_tab">Date</string>
     <string name="datetime_picker_time_tab">Time</string>
+
+    <!-- Utilities -->
+    <string name="utilities_calculator_title">Play Rating Calculator</string>
+    <string name="utilities_recommend_title">Recommend Charts</string>
+    <string name="utilities_recommend_minimum_score">Minimum Score</string>
+    <string name="utilities_recommend_maximum_score">Maximum Score</string>
+    <string name="utilities_recommend_target_play_rating">Target Play Rating</string>
+    <string name="utilities_recommend_input">Input</string>
+    <string name="utilities_recommend_results">Results</string>
 
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR Queue</string>

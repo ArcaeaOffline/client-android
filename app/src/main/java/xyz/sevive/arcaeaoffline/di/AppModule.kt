@@ -41,6 +41,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
 
 internal fun createAppDatabase(context: Context): AppDatabase = AppDatabase.getDatabase(context)
 
@@ -87,6 +88,7 @@ val appModule =
         viewModel<OcrFromShareViewModel>()
         viewModel<SettingsViewModel>()
         viewModel<SettingsUnstableAlertScreenViewModel>()
+        viewModel<UtilitiesChartRecommendScreenViewModel>()
 
         worker<R30UpdateJob>()
         worker<OcrQueueJob>()

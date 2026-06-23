@@ -51,7 +51,7 @@ class DatabaseR30ListViewModel(
         val r30Entry: R30Entry,
         val playResult: PlayResult,
         val chart: Chart?,
-        val potential: Double?,
+        val playRating: Double?,
     ) {
         val id get() = playResult.id
     }
@@ -71,16 +71,14 @@ class DatabaseR30ListViewModel(
                 val listItems =
                     dbItems
                         .map { dbItem ->
-                            val potential = dbItem.potential()
-
                             ListItem(
                                 index = -1,
                                 r30Entry = dbItem.entry,
                                 playResult = dbItem.playResult,
                                 chart = getUiItemChart(dbItem.playResult),
-                                potential = potential,
+                                playRating = dbItem.playRating(),
                             )
-                        }.sortedByDescending { it.potential }
+                        }.sortedByDescending { it.playRating }
                         .mapIndexed { i, uiItem -> uiItem.copy(index = i) }
 
                 val lastUpdatedAt = propertyRepo.r30LastUpdatedAt()

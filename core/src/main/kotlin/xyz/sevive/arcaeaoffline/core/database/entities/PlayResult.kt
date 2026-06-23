@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
+import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -36,8 +37,8 @@ data class PlayResult(
     val comment: String? = null,
 )
 
-fun PlayResult.potential(constant: Int): Double = calculatePotential(this.score, constant)
+fun PlayResult.playRating(constant: Int): Double = calculatePlayRating(this.score, constant)
 
-fun PlayResult.potential(chartInfo: ChartInfo) = potential(chartInfo.constant)
+fun PlayResult.playRating(chartInfo: ChartInfo) = playRating(chartInfo.constant)
 
-fun PlayResult.potential(chart: Chart) = potential(chart.constant)
+fun PlayResult.playRating(chart: Chart) = playRating(chart.constant)

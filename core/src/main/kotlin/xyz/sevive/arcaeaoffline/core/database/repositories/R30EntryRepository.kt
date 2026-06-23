@@ -10,14 +10,14 @@ import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
-import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 
 data class R30EntryCombined(
     val entry: R30Entry,
     val playResult: PlayResult,
     val chartInfo: ChartInfo?,
 ) {
-    fun potential(): Double? = if (chartInfo == null) null else playResult.potential(chartInfo)
+    fun playRating(): Double? = if (chartInfo == null) null else playResult.playRating(chartInfo)
 
     companion object {
         fun build(

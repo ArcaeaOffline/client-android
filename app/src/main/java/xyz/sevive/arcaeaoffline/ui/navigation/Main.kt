@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.navigation
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
+import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesEntryScreen
 
 const val OVERVIEW_NAV_ROUTE_ROOT = "overview"
 
@@ -33,6 +35,11 @@ enum class MainScreen(
         DATABASE_NAV_ROUTE_ROOT,
         { ImageVector.vectorResource(R.drawable.ic_database) },
         R.string.nav_database,
+    ),
+    Utilities(
+        UTILITIES_NAV_ROUTE_ROOT,
+        { Icons.Filled.HomeRepairService },
+        R.string.nav_utilities,
     ),
     Ocr(
         OCR_NAV_ROUTE_ROOT,
@@ -62,6 +69,10 @@ fun MainNavigationGraph(
 
         composable(MainScreen.Database.route) {
             DatabaseEntryScreen()
+        }
+
+        composable(MainScreen.Utilities.route) {
+            UtilitiesEntryScreen()
         }
 
         composable(MainScreen.Ocr.route) {

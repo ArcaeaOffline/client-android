@@ -80,7 +80,7 @@ internal fun DatabaseB30ListItem(
             Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
-            Text(item.potentialText, style = MaterialTheme.typography.labelMedium)
+            Text(item.playRatingText, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

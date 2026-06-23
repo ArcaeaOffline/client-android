@@ -187,6 +187,7 @@ dependencies {
 
     // 3rd party
     implementation(libs.kermit)
+    implementation(libs.bignum)
 
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)

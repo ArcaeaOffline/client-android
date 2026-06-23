@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
+import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import kotlin.math.floor
 
 data class PlayResultCalculated(
@@ -20,7 +21,7 @@ data class PlayResultCalculated(
     val clearType = playResult.clearType
     val comment = playResult.comment
 
-    val potential = calculatePotential(score = score, constant = chartInfo.constant)
+    val playRating = calculatePlayRating(score = score, constant = chartInfo.constant)
     val shinyPure =
         if (chartInfo.notes == null || chartInfo.notes == 0 || pure == null || far == null || lost == null) {
             null

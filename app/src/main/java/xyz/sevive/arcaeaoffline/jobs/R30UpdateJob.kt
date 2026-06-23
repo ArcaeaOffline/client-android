@@ -21,7 +21,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
@@ -39,9 +39,9 @@ private fun PlayResult.matchesR30Condition(): Boolean {
     return false
 }
 
-private fun List<R30EntryCombined>.minPotentialItem(): R30EntryCombined? =
+private fun List<R30EntryCombined>.minPlayRatingItem(): R30EntryCombined? =
     this.minByOrNull { entry ->
-        entry.chartInfo?.let { entry.playResult.potential(it) } ?: Double.MAX_VALUE
+        entry.chartInfo?.let { entry.playResult.playRating(it) } ?: Double.MAX_VALUE
     }
 
 class R30UpdateJob(
@@ -163,7 +163,7 @@ class R30UpdateJob(
 
         val newR30Entries =
             if (playResult.matchesR30Condition()) {
-                // now check if the play result potential is higher than the lowest potential r30 entry
+                // now check if the play result play rating is higher than the lowest play rating r30 entry
                 // if any chart info is missing, return the old r30 entries directly
                 val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30List
                 updateR30ListByPotential(playResult, chartInfo, oldR30List)
@@ -188,7 +188,7 @@ class R30UpdateJob(
     /**
      * Update the R30 entries under the "conditional" circumstance.
      *
-     * This will replace the lowest potential entry with the new play result.
+     * This will replace the lowest play rating entry with the new play result.
      *
      * @param playResult The play result to be inserted
      * @param chartInfo The [ChartInfo] of [playResult]
@@ -200,15 +200,15 @@ class R30UpdateJob(
         chartInfo: ChartInfo,
         oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {
-        // try getting the min potential item in old list
+        // try getting the min play rating item in old list
         // otherwise leave the old list untouched
-        val minPotentialEntry = oldR30List.minPotentialItem() ?: return oldR30List
-        val minPotentialEntryPotential = minPotentialEntry.potential() ?: return oldR30List
+        val minRatingEntry = oldR30List.minPlayRatingItem() ?: return oldR30List
+        val minRatingEntryRating = minRatingEntry.playRating() ?: return oldR30List
 
-        if (playResult.potential(chartInfo) < minPotentialEntryPotential) return oldR30List
+        if (playResult.playRating(chartInfo) < minRatingEntryRating) return oldR30List
 
         val newR30Entries = oldR30List.toMutableList()
-        newR30Entries.remove(minPotentialEntry)
+        newR30Entries.remove(minRatingEntry)
         newR30Entries.add(R30EntryCombined.build(playResult, chartInfo))
         return newR30Entries
     }

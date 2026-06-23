@@ -19,15 +19,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -36,81 +29,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
-import kotlin.math.max
 import kotlin.time.Clock
 import kotlin.time.Instant
-
-// TODO: make this work
-internal class ArcaeaPlayResultScoreVisualTransformation(
-    private val score: Int,
-    private val fontColor: Color,
-) : VisualTransformation {
-    class ScoreOffsetMapping(
-        score: Int,
-    ) : OffsetMapping {
-        private val size = score.toString().length
-
-        private fun splits(): Int = max(0, (size - 1) / 3)
-
-        override fun originalToTransformed(offset: Int): Int {
-            if (offset <= 10) return 10
-            return offset + splits()
-        }
-
-        override fun transformedToOriginal(offset: Int): Int = 0
-    }
-
-    override fun filter(text: AnnotatedString): TransformedText {
-        val scoreString = score.toString().padStart(8, '0')
-
-        var nonZeroMet = false
-        val transformedAnnotatedString =
-            buildAnnotatedString {
-                for (i in scoreString.indices) {
-                    val char = scoreString[i]
-
-                    if (i != 0 && (scoreString.length - i) % 3 == 0) {
-                        append('\'')
-                    }
-
-                    if (i == scoreString.length - 1) nonZeroMet = true
-
-                    if (char == '0' && !nonZeroMet) {
-                        withStyle(SpanStyle(color = fontColor.copy(alpha = 0.38f))) {
-                            append(char)
-                        }
-                        continue
-                    } else {
-                        nonZeroMet = true
-                    }
-
-                    append(char)
-                }
-            }
-
-        return TransformedText(transformedAnnotatedString, ScoreOffsetMapping(score))
-    }
-}
-
-@Composable
-internal fun PlayResultEditorScoreField(
-    score: Int?,
-    onScoreChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-//    val fontColor = LocalContentColor.current
-//    val visualTransformation = score?.let {
-//        ArcaeaPlayResultScoreVisualTransformation(it, fontColor)
-//    } ?: VisualTransformation { TransformedText(it, OffsetMapping.Identity) }
-
-    NullableNumberInput(
-        value = score,
-        onValueChange = { onScoreChange(it) },
-        label = { Text(stringResource(R.string.arcaea_play_result_score)) },
-        maximum = Int.MAX_VALUE,
-        modifier = modifier,
-    )
-}
 
 @Composable
 internal fun <T : Any> rememberLastNotNullValue(

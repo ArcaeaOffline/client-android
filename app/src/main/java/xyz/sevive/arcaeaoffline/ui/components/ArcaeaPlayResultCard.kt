@@ -132,16 +132,7 @@ fun ArcaeaPlayResultCard(
 
     val cardColors = colors ?: CardDefaults.cardColors()
 
-    val scoreText =
-        remember(playResult.score) {
-            playResult.score
-                .toString()
-                .padStart(8, '0')
-                .reversed()
-                .chunked(3)
-                .joinToString("'")
-                .reversed()
-        }
+    val scoreText = remember(playResult.score) { ArcaeaFormatters.score(playResult.score) }
     val dateText =
         remember(playResult.date) {
             playResult.date?.formatAsLocalizedDateTime()

@@ -3,7 +3,7 @@ package xyz.sevive.arcaeaoffline.helpers
 import android.content.Context
 import androidx.core.content.res.ResourcesCompat
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.calculators.calculateArcaeaScoreRange
+import xyz.sevive.arcaeaoffline.core.calculators.calculateScoreRange
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -74,8 +74,7 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
             return false
         }
 
-        val scoreRange =
-            calculateArcaeaScoreRange(chartInfo.notes!!, playResult.pure!!, playResult.far!!)
+        val scoreRange = calculateScoreRange(chartInfo.notes!!, playResult.pure!!, playResult.far!!)
         return !scoreRange.contains(playResult.score)
     }
 }

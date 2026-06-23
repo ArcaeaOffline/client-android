@@ -15,6 +15,18 @@ object ArcaeaFormatters {
     private val RATING_PLUS_CONSTANTS = listOf(78, 79, 89, 97, 98, 99, 107, 108, 109)
 
     /**
+     * Format a score.
+     *
+     * For example 9_876_543 > "09'876'543"
+     */
+    fun score(score: Int): String {
+        if (score >= 99_999_999) return score.toString()
+
+        val padded = score.toString().padStart(8, '0')
+        return "${padded.substring(0, 2)}'${padded.substring(2, 5)}'${padded.substring(5, 8)}"
+    }
+
+    /**
      * Format the given potential to text.
      * If the potential is null, return "-.--" instead.
      *

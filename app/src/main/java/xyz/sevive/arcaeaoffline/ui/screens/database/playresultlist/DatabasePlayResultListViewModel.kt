@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.potential
+import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
@@ -45,7 +45,7 @@ class DatabasePlayResultListViewModel(
         fun reverse() = if (this == ASC) DESC else ASC
     }
 
-    enum class SortByValue { ID, SCORE, POTENTIAL, DATE }
+    enum class SortByValue { ID, SCORE, PLAY_RATING, DATE }
 
     data class ListItem(
         val playResult: PlayResult,
@@ -53,10 +53,10 @@ class DatabasePlayResultListViewModel(
         val isDeletedInGame: Boolean = false,
     ) {
         val uuid = playResult.uuid
-        val potential = chart?.let { playResult.potential(it) }
+        val playRating = chart?.let { playResult.playRating(it) }
         val potentialText =
             buildAnnotatedString {
-                val baseText = ArcaeaFormatters.potentialToText(potential)
+                val baseText = ArcaeaFormatters.potentialToText(playRating)
 
                 if (isDeletedInGame) {
                     pushStyle(
@@ -119,7 +119,7 @@ class DatabasePlayResultListViewModel(
                 when (sortBy) {
                     SortByValue.ID -> items.sortedBy { it.playResult.id }
                     SortByValue.SCORE -> items.sortedBy { it.playResult.score }
-                    SortByValue.POTENTIAL -> items.sortedBy { it.potential }
+                    SortByValue.PLAY_RATING -> items.sortedBy { it.playRating }
                     SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilliseconds() }
                 }
 

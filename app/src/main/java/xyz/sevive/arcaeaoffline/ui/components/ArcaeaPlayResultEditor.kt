@@ -7,6 +7,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,13 @@ fun ArcaeaPlayResultEditorContent(
             R.string.play_result_editor_other_fields,
         )
 
+    val playResultScoreTextFieldState = rememberArcaeaScoreTextFieldState(playResult.score)
+    LaunchedEffect(playResultScoreTextFieldState.intValue) {
+        playResultScoreTextFieldState.intValue?.let {
+            onPlayResultChange(playResult.copy(score = it))
+        }
+    }
+
     Column(modifier = modifier) {
         PrimaryTabRow(selectedTabIndex = tabIndex, containerColor = Color.Transparent) {
             tabs.forEachIndexed { index, titleRId ->
@@ -55,10 +63,9 @@ fun ArcaeaPlayResultEditorContent(
 
         when (tabIndex) {
             0 -> {
-                PlayResultEditorScoreField(
-                    score = playResult.score,
-                    onScoreChange = { onPlayResultChange(playResult.copy(score = it)) },
-                    modifier = Modifier.fillMaxWidth(),
+                OutlinedArcaeaScoreTextField(
+                    playResultScoreTextFieldState,
+                    Modifier.fillMaxWidth(),
                 )
 
                 PlayResultEditorPureField(
