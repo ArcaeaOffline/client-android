@@ -55,7 +55,7 @@ class DecimalStepperTextFieldState(
     val textFieldState: TextFieldState,
     val maxDecimalPlaces: Int = 2,
     val step: BigDecimal = BigDecimal.ONE,
-    val minValue: BigDecimal = BigDecimal.fromDouble(Double.MIN_VALUE),
+    val minValue: BigDecimal = BigDecimal.fromDouble(-Double.MAX_VALUE),
     val maxValue: BigDecimal = BigDecimal.fromDouble(Double.MAX_VALUE),
 ) {
     companion object {
@@ -147,7 +147,12 @@ class DecimalInputTransformation(
         }
 
         // Verify maxValue when input is valid
-        val parsedNumber = runCatching { text.toBigDecimal() }.getOrNull()
+        val parsedNumber =
+            try {
+                BigDecimal.parseString(text)
+            } catch (_: ArithmeticException) {
+                null
+            }
         if (parsedNumber != null) {
             if (parsedNumber > maxValue) {
                 this.revertAllChanges()
@@ -275,7 +280,7 @@ fun DecimalStepperTextField(
                 // Normalize input when focus is lost
                 .onFocusChanged { focusState ->
                     if (focusState.isFocused) return@onFocusChanged
-                    state.commitValue(state.value ?: BigDecimal.ZERO)
+                    state.value?.let { state.commitValue(it) }
                 },
         inputTransformation = inputTransformation,
         lineLimits = TextFieldLineLimits.SingleLine,

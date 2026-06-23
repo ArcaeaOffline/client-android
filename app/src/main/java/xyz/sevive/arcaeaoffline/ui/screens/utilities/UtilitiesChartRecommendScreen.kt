@@ -288,7 +288,7 @@ fun UtilitiesChartRecommendScreen(
                             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("${scoreRange.first} ~ ${scoreRange.last}")
+                            Text("${ArcaeaFormatters.score(scoreRange.first)} ~ ${ArcaeaFormatters.score(scoreRange.last)}")
 
                             Icon(
                                 Icons.Default.Link,
@@ -298,7 +298,7 @@ fun UtilitiesChartRecommendScreen(
                                     .rotate(-45f),
                             )
 
-                            Text(targetPlayRating.toString())
+                            Text(targetPlayRating.toString(), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
