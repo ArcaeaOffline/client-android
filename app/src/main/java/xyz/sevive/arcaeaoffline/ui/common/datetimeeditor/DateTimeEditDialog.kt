@@ -34,7 +34,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -44,6 +43,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toLocalDateTime
+import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
@@ -110,29 +110,25 @@ internal fun DateTimeEditDialog(
     var showTimeEditDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showDateEditDialog) {
-        Dialog(onDismissRequest = { showDateEditDialog = false }) {
-            Surface {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    AndroidViewDatePickerDialog(
-                        date = date,
-                        minDate = minDate,
-                        onDateSelect = { date = it },
-                    )
-                } else {
-                    AndroidViewCalendar(
-                        date = date,
-                        minDate = minDate,
-                        onDateSelect = { date = it },
-                    )
-                }
+        BasicAlertDialogSurface(onDismissRequest = { showDateEditDialog = false }) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                AndroidViewDatePickerDialog(
+                    date = date,
+                    minDate = minDate,
+                    onDateSelect = { date = it },
+                )
+            } else {
+                AndroidViewCalendar(
+                    date = date,
+                    minDate = minDate,
+                    onDateSelect = { date = it },
+                )
             }
         }
     }
     if (showTimeEditDialog) {
-        Dialog(onDismissRequest = { showTimeEditDialog = false }) {
-            Surface {
-                AndroidViewTimePicker(time = selectedTime, onTimeSelect = { selectedTime = it })
-            }
+        BasicAlertDialogSurface(onDismissRequest = { showTimeEditDialog = false }) {
+            AndroidViewTimePicker(time = selectedTime, onTimeSelect = { selectedTime = it })
         }
     }
 

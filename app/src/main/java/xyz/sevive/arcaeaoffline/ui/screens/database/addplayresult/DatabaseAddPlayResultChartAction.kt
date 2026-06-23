@@ -25,12 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.window.Dialog
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
+import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -40,14 +40,12 @@ private fun SelectChartDialog(
     chart: Chart?,
     onChartChange: (Chart?) -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface {
-            ArcaeaChartSelector(
-                chart = chart,
-                onChartChange = onChartChange,
-                allowFakeChart = true,
-            )
-        }
+    BasicAlertDialogSurface(onDismissRequest = onDismiss) {
+        ArcaeaChartSelector(
+            chart = chart,
+            onChartChange = onChartChange,
+            allowFakeChart = true,
+        )
     }
 }
 
