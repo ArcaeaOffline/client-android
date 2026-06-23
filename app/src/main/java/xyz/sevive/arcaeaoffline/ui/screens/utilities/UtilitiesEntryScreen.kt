@@ -11,6 +11,7 @@ fun UtilitiesEntryScreen() {
         detailPane = { route ->
             when (route) {
                 UtilitiesSubScreen.Calculator.route -> UtilitiesCalculatorScreen()
+                UtilitiesSubScreen.Recommend.route -> UtilitiesChartRecommendScreen()
             }
         },
     )

@@ -252,6 +252,12 @@ CC BY-SA 3.0
 
     <!-- Utilities -->
     <string name="utilities_calculator_title">Play Rating Calculator</string>
+    <string name="utilities_recommend_title">Recommend Charts</string>
+    <string name="utilities_recommend_minimum_score">Minimum Score</string>
+    <string name="utilities_recommend_maximum_score">Maximum Score</string>
+    <string name="utilities_recommend_target_play_rating">Target Play Rating</string>
+    <string name="utilities_recommend_input">Input</string>
+    <string name="utilities_recommend_results">Results</string>
 
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR Queue</string>

@@ -10,4 +10,5 @@ enum class UtilitiesSubScreen(
     @StringRes val title: Int,
 ) {
     Calculator("$UTILITIES_NAV_ROUTE_ROOT/calculator", R.string.utilities_calculator_title),
+    Recommend("$UTILITIES_NAV_ROUTE_ROOT/recommend", R.string.utilities_recommend_title),
 }

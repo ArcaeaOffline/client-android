@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assistant
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -40,6 +41,15 @@ internal fun UtilitiesNavEntry(modifier: Modifier = Modifier) {
                     icon = Icons.Default.Calculate,
                 ) {
                     navContext.navigateToDetail(UtilitiesSubScreen.Calculator.route)
+                }
+            }
+
+            item {
+                NavEntryNavigateButton(
+                    titleResId = UtilitiesSubScreen.Recommend.title,
+                    icon = Icons.Default.Assistant,
+                ) {
+                    navContext.navigateToDetail(UtilitiesSubScreen.Recommend.route)
                 }
             }
         }

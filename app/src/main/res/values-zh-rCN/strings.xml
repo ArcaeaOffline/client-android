@@ -221,6 +221,12 @@
 
     <!-- Utilities -->
     <string name="utilities_calculator_title">单曲潜力值计算</string>
+    <string name="utilities_recommend_title">推荐谱面</string>
+    <string name="utilities_recommend_minimum_score">分数下界</string>
+    <string name="utilities_recommend_maximum_score">分数上界</string>
+    <string name="utilities_recommend_target_play_rating">期望单曲潜力值</string>
+    <string name="utilities_recommend_input">参数</string>
+    <string name="utilities_recommend_results">结果</string>
 
     <!-- Ocr queue screen -->
     <string name="ocr_queue_title">OCR 队列</string>
