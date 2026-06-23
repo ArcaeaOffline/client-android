@@ -252,7 +252,7 @@ class DecimalStepperTextFieldTest {
 
         // We cannot really ensure the value since you cannot rely on device clocks...
         // So we just assume the number is larger than a reasonable value
-        val valueAfterLongPress = state.value?.doubleValue() ?: 0.0
+        val valueAfterLongPress = state.doubleValue ?: 0.0
         assert(valueAfterLongPress >= 6.0)
 
         // Stop long press
@@ -263,7 +263,7 @@ class DecimalStepperTextFieldTest {
         // it might be slightly off 1~2 step. We just tolerate that since user should be able to adjust
         // this by themselves...
         composeTestRule.mainClock.advanceTimeBy(500)
-        val stoppedValue = state.value?.doubleValue() ?: 0.0
+        val stoppedValue = state.doubleValue ?: 0.0
         assert(valueAfterLongPress <= stoppedValue && stoppedValue <= valueAfterLongPress + (step * 2))
 
         // Reset clock

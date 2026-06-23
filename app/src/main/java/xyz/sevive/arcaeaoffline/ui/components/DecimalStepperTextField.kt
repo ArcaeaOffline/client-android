@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -24,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
@@ -73,6 +73,9 @@ class DecimalStepperTextFieldState(
     val value: BigDecimal?
         get() = runCatching { textFieldState.text.toString().toBigDecimal() }.getOrNull()
 
+    val doubleValue
+        get() = value?.doubleValue(exactRequired = false)
+
     fun stepUp() {
         val current = value ?: BigDecimal.ZERO
         commitValue(current + step)
@@ -98,6 +101,8 @@ class DecimalStepperTextFieldState(
             textFieldState.edit { replace(0, length, newText) }
         }
     }
+
+    fun commitValue(newValue: Double) = commitValue(newValue.toBigDecimal())
 }
 
 /**
@@ -165,11 +170,9 @@ fun rememberDecimalStepperTextFieldState(
     maxValue: BigDecimal = BigDecimal.fromDouble(Double.MAX_VALUE),
 ): DecimalStepperTextFieldState {
     val textFieldState =
-        rememberSaveable(saver = TextFieldState.Saver) {
-            TextFieldState(
-                initialText = DecimalStepperTextFieldState.normalizeValue(initialValue, maxDecimalPlaces).toPlainString(),
-            )
-        }
+        rememberTextFieldState(
+            initialText = DecimalStepperTextFieldState.normalizeValue(initialValue, maxDecimalPlaces).toPlainString(),
+        )
 
     val state =
         remember(textFieldState, maxDecimalPlaces, step, minValue, maxValue) {

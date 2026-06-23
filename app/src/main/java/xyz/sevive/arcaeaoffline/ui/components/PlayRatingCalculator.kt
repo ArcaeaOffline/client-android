@@ -22,7 +22,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -49,7 +48,7 @@ fun PlayRatingCalculator(
     }
 
     LaunchedEffect(constant) {
-        constantTextFieldState.commitValue((constant / 10.0).toBigDecimal())
+        constantTextFieldState.commitValue(constant / 10.0)
     }
 
     LaunchedEffect(initialFocusScoreTextField) {
