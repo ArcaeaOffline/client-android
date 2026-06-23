@@ -292,24 +292,32 @@ fun DecimalStepperTextField(
             focusManager.clearFocus()
         },
         label = label,
-        leadingIcon = {
-            RepeatingIconButton(
-                onClick = { state.stepDown() },
-                enabled = isSteppingEnabled,
-                modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON),
-            ) {
-                Icon(Icons.Default.Remove, contentDescription = "Decrease")
-            }
-        },
-        trailingIcon = {
-            RepeatingIconButton(
-                onClick = { state.stepUp() },
-                enabled = isSteppingEnabled,
-                modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON),
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Increase")
-            }
-        },
+        leadingIcon =
+            if (isSteppingEnabled) {
+                {
+                    RepeatingIconButton(
+                        onClick = { state.stepDown() },
+                        modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON),
+                    ) {
+                        Icon(Icons.Default.Remove, contentDescription = "Decrease")
+                    }
+                }
+            } else {
+                null
+            },
+        trailingIcon =
+            if (isSteppingEnabled) {
+                {
+                    RepeatingIconButton(
+                        onClick = { state.stepUp() },
+                        modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON),
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Increase")
+                    }
+                }
+            } else {
+                null
+            },
     )
 }
 

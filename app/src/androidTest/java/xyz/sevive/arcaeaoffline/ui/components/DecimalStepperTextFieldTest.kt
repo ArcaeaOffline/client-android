@@ -193,11 +193,8 @@ class DecimalStepperTextFieldTest {
             )
         }
 
-        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON).performClick()
-        assertEquals(BigDecimal.parseString("5.00"), state.value)
-
-        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON).performClick()
-        assertEquals(BigDecimal.parseString("5.00"), state.value)
+        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON).assertDoesNotExist()
 
         composeTestRule
             .onNodeWithTag(DecimalStepperTextFieldTestTags.TEXT_FIELD)
@@ -215,11 +212,8 @@ class DecimalStepperTextFieldTest {
             )
         }
 
-        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON).performClick()
-        assertEquals(BigDecimal.parseString("5.00"), state.value)
-
-        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON).performClick()
-        assertEquals(BigDecimal.parseString("5.00"), state.value)
+        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON).assertDoesNotExist()
 
         composeTestRule
             .onNodeWithTag(DecimalStepperTextFieldTestTags.TEXT_FIELD)
