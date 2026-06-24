@@ -9,7 +9,6 @@ compose-ui = "1.11.2"
 compose-material3 = "1.4.0"
 compose-material3-adaptive = "1.2.0"
 lifecycle = "2.10.0"
-exifinterface = "1.4.2"
 navigation = "2.9.8"
 work = "2.11.2"
 
@@ -46,8 +45,6 @@ compose-material3-adaptive-navigation = { group = "androidx.compose.material3.ad
 
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-
-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 
 navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 

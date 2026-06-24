@@ -178,8 +178,6 @@ dependencies {
     implementation(androidx.lifecycle.runtime.compose)
     implementation(androidx.lifecycle.viewmodel.compose)
 
-    implementation(androidx.exifinterface)
-
     implementation(androidx.navigation.compose)
 
     implementation(androidx.work.workRuntime)
@@ -188,6 +186,7 @@ dependencies {
     // 3rd party
     implementation(libs.kermit)
     implementation(libs.bignum)
+    implementation(libs.kim)
 
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)

@@ -3,9 +3,13 @@ package xyz.sevive.arcaeaoffline.helpers
 import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.net.Uri
-import androidx.exifinterface.media.ExifInterface
+import de.stefan_oltmann.kim.Kim
+import de.stefan_oltmann.kim.format.tiff.constant.ExifTag
+import de.stefan_oltmann.kim.input.ByteReader
+import de.stefan_oltmann.kim.input.KotlinIoSourceByteReader
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -14,7 +18,6 @@ import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.format.char
 import kotlinx.datetime.parseOrNull
 import kotlinx.datetime.toInstant
-import kotlinx.io.asInputStream
 import kotlinx.io.buffered
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
@@ -34,7 +37,6 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
-import java.io.InputStream
 import kotlin.time.Instant
 
 object DeviceOcrHelper {
@@ -97,21 +99,18 @@ object DeviceOcrHelper {
     }
 
     fun readImageDateFromExif(
-        imageInputStream: InputStream,
-        fallbackDate: Instant? = null,
+        byteReader: ByteReader,
         overrideDate: Instant? = null,
         defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
     ): Instant? {
         if (overrideDate != null) return overrideDate
 
-        val imgExif = ExifInterface(imageInputStream)
-        val imgExifDateTimeOriginal =
-            imgExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL) ?: return fallbackDate
+        val metadata = Kim.readMetadata(byteReader) ?: return null
 
-        val localDateTime = exifTagLocalDateTimeFormat.parseOrNull(imgExifDateTimeOriginal) ?: return null
-
+        val dateTimeOriginal = metadata.findStringValue(ExifTag.EXIF_TAG_DATE_TIME_ORIGINAL) ?: return null
+        val localDateTime = exifTagLocalDateTimeFormat.parseOrNull(dateTimeOriginal) ?: return null
         val exifTimeZone =
-            imgExif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL)?.let {
+            metadata.findStringValue(ExifTag.EXIF_TAG_OFFSET_TIME_ORIGINAL)?.let {
                 val zoneOffset = UtcOffset.parseOrNull(it)
                 zoneOffset?.asTimeZone()
             }
@@ -121,26 +120,22 @@ object DeviceOcrHelper {
 
     fun readImageDateFromExif(
         imageFile: PlatformFile,
-        fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
         defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
     ): Instant? =
         readImageDateFromExif(
-            imageInputStream = imageFile.source().buffered().asInputStream(),
-            fallbackDate = fallbackDate,
+            byteReader = KotlinIoSourceByteReader(imageFile.source().buffered(), imageFile.size()),
             overrideDate = overrideDate,
             defaultTimeZoneProvider = defaultTimeZoneProvider,
         )
 
     fun readImageDateFromExif(
         imageUri: Uri,
-        fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
         defaultTimeZoneProvider: () -> TimeZone = { TimeZone.currentSystemDefault() },
     ): Instant? =
         readImageDateFromExif(
             imageFile = PlatformFile(imageUri),
-            fallbackDate = fallbackDate,
             overrideDate = overrideDate,
             defaultTimeZoneProvider = defaultTimeZoneProvider,
         )
@@ -156,7 +151,7 @@ object DeviceOcrHelper {
         val arcaeaPartnerModifiers =
             customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
 
-        val date = readImageDateFromExif(imageUri, fallbackDate, overrideDate)
+        val date = readImageDateFromExif(imageUri, overrideDate) ?: fallbackDate
         val imgFilename = context.getFilename(imageUri)
 
         return ocrResult.toPlayResult(
