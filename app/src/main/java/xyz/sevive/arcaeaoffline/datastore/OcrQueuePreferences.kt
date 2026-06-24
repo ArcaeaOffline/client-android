@@ -2,15 +2,15 @@ package xyz.sevive.arcaeaoffline.datastore
 
 import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.Serializer
+import androidx.datastore.core.okio.OkioSerializer
 import com.akuleshov7.ktoml.Toml
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import java.io.InputStream
-import java.io.OutputStream
+import okio.BufferedSink
+import okio.BufferedSource
 
 @Serializable
 data class OcrQueuePreferences(
@@ -23,24 +23,24 @@ data class OcrQueuePreferences(
     val parallelCount: Int = Runtime.getRuntime().availableProcessors() / 2,
 )
 
-object OcrQueuePreferencesSerializer : Serializer<OcrQueuePreferences> {
+object OcrQueuePreferencesSerializer : OkioSerializer<OcrQueuePreferences> {
     override val defaultValue: OcrQueuePreferences = OcrQueuePreferences()
 
-    override suspend fun readFrom(input: InputStream): OcrQueuePreferences =
+    override suspend fun readFrom(source: BufferedSource): OcrQueuePreferences =
         try {
-            val tomlString = input.readBytes().decodeToString()
-            Toml.decodeFromString<OcrQueuePreferences>(tomlString)
+            Toml.decodeFromString<OcrQueuePreferences>(source.readUtf8())
         } catch (e: CancellationException) {
             throw e
         } catch (exception: Exception) {
             throw CorruptionException("Cannot read OcrQueuePreferences from TOML file", exception)
         }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun writeTo(
         t: OcrQueuePreferences,
-        output: OutputStream,
-    ) = output.write(Toml.encodeToString<OcrQueuePreferences>(t).encodeToByteArray())
+        sink: BufferedSink,
+    ) {
+        sink.writeUtf8(Toml.encodeToString<OcrQueuePreferences>(t))
+    }
 }
 
 class OcrQueuePreferencesRepository(
