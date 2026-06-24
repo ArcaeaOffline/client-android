@@ -22,7 +22,7 @@ internal fun OcrQueueTaskListItemResult(
                 uiItem.playResult?.let {
                     ArcaeaPlayResultCard(
                         playResult = uiItem.playResult,
-                        warnings = uiItem.warnings,
+                        warnings = uiItem.warnings.orEmpty(),
                         chart = uiItem.chart,
                         modifier = modifier,
                     )
@@ -30,14 +30,12 @@ internal fun OcrQueueTaskListItemResult(
             }
 
             OcrQueueTaskStatus.ERROR -> {
-                val exception = uiItem.exception ?: Exception("uiItem exception is null!")
-
                 Text(
                     buildAnnotatedString {
                         withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
-                            appendLine(exception::class.qualifiedName)
+                            appendLine(uiItem.errorType ?: "No errorType")
                         }
-                        append(exception.message)
+                        append(uiItem.errorMessage ?: "No errorMessage")
                     },
                     color = MaterialTheme.colorScheme.error,
                     modifier = modifier,

@@ -8,9 +8,7 @@ import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
-import xyz.sevive.arcaeaoffline.database.converters.ArcaeaPlayResultValidatorWarningsConverters
 import xyz.sevive.arcaeaoffline.database.converters.DeviceOcrResultConverters
-import xyz.sevive.arcaeaoffline.database.converters.ExceptionConverters
 import xyz.sevive.arcaeaoffline.database.converters.OcrQueueTaskStatusConverters
 import xyz.sevive.arcaeaoffline.database.converters.PlayResultConverters
 import xyz.sevive.arcaeaoffline.database.converters.UriConverters
@@ -21,7 +19,7 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 
 @Database(
     entities = [OcrQueueTask::class, OcrQueueEnqueueBuffer::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(
@@ -30,8 +28,6 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
     OcrQueueTaskStatusConverters::class,
     DeviceOcrResultConverters::class,
     PlayResultConverters::class,
-    ArcaeaPlayResultValidatorWarningsConverters::class,
-    ExceptionConverters::class,
 )
 abstract class OcrQueueDatabase : RoomDatabase() {
     abstract fun ocrQueueTaskDao(): OcrQueueTaskDao

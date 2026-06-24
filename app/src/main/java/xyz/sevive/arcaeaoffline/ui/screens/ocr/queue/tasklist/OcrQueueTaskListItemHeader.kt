@@ -40,11 +40,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import kotlin.time.Clock
 
 @Composable
 private fun TaskDetailsDialog(
@@ -195,13 +197,14 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                 OcrQueueTaskListItemHeader(
                     uiItem =
                         OcrQueueScreenViewModel.TaskUiItem(
-                            id = 123,
-                            fileUri = "file:///preview.png".toUri(),
-                            status = OcrQueueTaskStatus.DONE,
-                            ocrResult = null,
-                            playResult = null,
+                            dbItem =
+                                OcrQueueTask(
+                                    id = 123,
+                                    fileUri = "file:///preview.png".toUri(),
+                                    status = OcrQueueTaskStatus.DONE,
+                                    insertedAt = Clock.System.now(),
+                                ),
                             chart = null,
-                            exception = null,
                         ),
                     onShowImagePreview = {},
                     onSaveTask = {},

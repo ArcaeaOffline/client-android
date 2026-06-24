@@ -35,7 +35,7 @@ fun OcrQueueScreen(viewModel: OcrQueueScreenViewModel = koinViewModel()) {
     val queueStatus by viewModel.queueStatusUiState.collectAsStateWithLifecycle()
     val queueTaskCounts by viewModel.queueTaskCounts.collectAsStateWithLifecycle()
 
-    val taskUiItems by viewModel.taskUiItems.collectAsStateWithLifecycle()
+    val taskUiItems by viewModel.currentScreenUiItems.collectAsStateWithLifecycle()
     val isTaskUiItemsLoading by viewModel.isTaskUiItemsLoading.collectAsStateWithLifecycle()
 
     val category by viewModel.currentScreenCategory.collectAsStateWithLifecycle()

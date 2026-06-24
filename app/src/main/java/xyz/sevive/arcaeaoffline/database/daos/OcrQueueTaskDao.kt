@@ -21,17 +21,11 @@ interface OcrQueueTaskDao {
     @Query("SELECT * FROM ocr_queue_tasks WHERE status IN (:statuses)")
     fun findByStatus(statuses: List<OcrQueueTaskStatus>): Flow<List<OcrQueueTask>>
 
-    @Query("SELECT * FROM ocr_queue_tasks WHERE status = 3 AND warnings IS NOT NULL")
-    fun findDoneWithWarning(): Flow<List<OcrQueueTask>>
-
     @Query("SELECT COUNT(*) FROM ocr_queue_tasks")
     fun count(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM ocr_queue_tasks WHERE status IN (:statuses)")
     fun countByStatus(statuses: List<OcrQueueTaskStatus>): Flow<Int>
-
-    @Query("SELECT COUNT(*) FROM ocr_queue_tasks WHERE status = 3 AND warnings IS NOT NULL")
-    fun countDoneWithWarning(): Flow<Int>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: OcrQueueTask): Long

@@ -46,6 +46,13 @@ import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import kotlin.time.Clock
 
+private fun OcrQueueTask.copyWithException(exception: Exception) =
+    this.copy(
+        status = OcrQueueTaskStatus.ERROR,
+        errorType = exception::class.qualifiedName,
+        errorMessage = exception.message,
+    )
+
 class OcrQueueJob(
     context: Context,
     params: WorkerParameters,
@@ -148,8 +155,7 @@ class OcrQueueJob(
     ) {
         NORMAL(0),
         ALL(1),
-        SMART_FIX(2),
-        ;
+        SMART_FIX(2), ;
 
         companion object {
             fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: NORMAL
@@ -185,7 +191,7 @@ class OcrQueueJob(
                 channelScope
                     .async {
                         ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
-                            ocrQueueTaskRepo.update(it.copy(status = OcrQueueTaskStatus.ERROR, exception = e))
+                            ocrQueueTaskRepo.update(it.copyWithException(e))
                         }
                     }.await()
             }
@@ -205,10 +211,8 @@ class OcrQueueJob(
     }
 
     private suspend fun processTask(
-        scope: CoroutineScope,
         task: OcrQueueTask,
         taskRepo: OcrQueueTaskRepository,
-        chartInfoRepo: ChartInfoRepository,
         ortSession: OrtSession,
         kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
@@ -241,30 +245,19 @@ class OcrQueueJob(
                     fallbackDate = Clock.System.now(),
                 )
 
-            val warnings =
-                scope
-                    .async {
-                        val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
-                        ArcaeaPlayResultValidator.validate(playResult, chartInfo)
-                    }.await()
-
             task =
                 task.copy(
                     status = OcrQueueTaskStatus.DONE,
                     result = ocrResult,
                     playResult = playResult,
-                    warnings = warnings,
-                    exception = null,
+                    errorType = null,
+                    errorMessage = null,
                 )
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             logger.i { "Job (${task.id}) CancellationException caught" }
             shouldUpdateTask = false
         } catch (e: Exception) {
-            task =
-                task.copy(
-                    status = OcrQueueTaskStatus.ERROR,
-                    exception = e,
-                )
+            task = task.copyWithException(e)
 
             logger.e(e) { "Error occurred at task ${task.id} ${task.fileUri}" }
             Sentry.captureException(e)
@@ -290,10 +283,8 @@ class OcrQueueJob(
                         launch {
                             channel.consumeEach {
                                 processTask(
-                                    scope = channelScope,
                                     task = it,
                                     taskRepo = ocrQueueTaskRepo,
-                                    chartInfoRepo = chartInfoRepo,
                                     ortSession = ortSession,
                                     kNearestModel = kNearestModel,
                                     imageHashesDatabase = imageHashesDatabase,
@@ -335,14 +326,20 @@ class OcrQueueJob(
 
             val newPlayResult = task.playResult.copy(songId = songId)
             if (ArcaeaPlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
-                ocrQueueTaskRepo.update(task.copy(playResult = newPlayResult, warnings = null))
+                ocrQueueTaskRepo.update(task.copy(playResult = newPlayResult))
                 return
             }
         }
     }
 
     private suspend fun runSmartFix() {
-        val taskWithWarnings = ocrQueueTaskRepo.findDoneWithWarning().firstOrNull() ?: return
+        val taskWithWarnings =
+            ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
+                task.playResult?.let { playResult ->
+                    val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return@let false
+                    ArcaeaPlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
+                } == true
+            }
         taskWithWarnings.forEach { tryFixTask(it) }
     }
 }
