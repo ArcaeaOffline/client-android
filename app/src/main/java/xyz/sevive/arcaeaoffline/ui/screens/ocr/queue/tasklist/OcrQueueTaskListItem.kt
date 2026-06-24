@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,17 +30,17 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
 @Composable
 private fun OcrQueueTaskListItemImagePreviewDialog(
-    uiItem: OcrQueueScreenViewModel.TaskUiItem,
+    fileUri: Uri,
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
 
-    val filename = context.getFilename(uiItem.fileUri) ?: "-"
+    val filename = context.getFilename(fileUri) ?: "-"
     var showFileUri by rememberSaveable { mutableStateOf(false) }
-    val displayText = if (showFileUri) uiItem.fileUri.toString() else filename
+    val displayText = if (showFileUri) fileUri.toString() else filename
 
     ImagePreviewDialog(
-        inputStream = PlatformFile(uiItem.fileUri).source().buffered().asInputStream(),
+        inputStream = PlatformFile(fileUri).source().buffered().asInputStream(),
         onDismiss = onDismissRequest,
         topBarContent = {
             Text(
@@ -63,7 +64,7 @@ internal fun OcrQueueTaskListItem(
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     if (showImagePreview) {
         OcrQueueTaskListItemImagePreviewDialog(
-            uiItem,
+            uiItem.dbItem.fileUri,
             onDismissRequest = { showImagePreview = false },
         )
     }
@@ -79,7 +80,7 @@ internal fun OcrQueueTaskListItem(
         }
     }
 
-    val playResult = uiItem.playResult
+    val playResult = uiItem.dbItem.playResult
     var showPlayResultEditor by rememberSaveable { mutableStateOf(false) }
     if (showPlayResultEditor && playResult != null) {
         ArcaeaPlayResultEditorDialog(

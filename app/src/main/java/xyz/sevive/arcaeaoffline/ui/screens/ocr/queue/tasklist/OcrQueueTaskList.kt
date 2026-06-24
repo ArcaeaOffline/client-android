@@ -25,13 +25,13 @@ internal fun OcrQueueTaskList(
         modifier.padding(horizontal = dimensionResource(R.dimen.page_padding)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
     ) {
-        items(uiItems, key = { it.id }) {
+        items(uiItems, key = { it.dbItem.id }) {
             OcrQueueTaskListItem(
                 uiItem = it,
-                onDelete = { onDeleteTask(it.id) },
-                onEditChart = { chart -> onEditChart(it.id, chart) },
-                onEditPlayResult = { playResult -> onEditPlayResult(it.id, playResult) },
-                onSaveTask = { onSaveTask(it.id) },
+                onDelete = { onDeleteTask(it.dbItem.id) },
+                onEditChart = { chart -> onEditChart(it.dbItem.id, chart) },
+                onEditPlayResult = { playResult -> onEditPlayResult(it.dbItem.id, playResult) },
+                onSaveTask = { onSaveTask(it.dbItem.id) },
             )
         }
     }

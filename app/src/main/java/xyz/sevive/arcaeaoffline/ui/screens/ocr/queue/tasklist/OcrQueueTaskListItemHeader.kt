@@ -50,7 +50,7 @@ import kotlin.time.Clock
 
 @Composable
 private fun TaskDetailsDialog(
-    uiItem: OcrQueueScreenViewModel.TaskUiItem,
+    dbItem: OcrQueueTask,
     onDismissRequest: () -> Unit,
 ) {
     AlertDialog(
@@ -62,14 +62,14 @@ private fun TaskDetailsDialog(
                 item {
                     TextPreferencesWidget(
                         title = "ID",
-                        content = uiItem.id.toString(),
+                        content = dbItem.id.toString(),
                     )
                 }
 
                 item {
                     TextPreferencesWidget(
                         title = "Uri",
-                        content = uiItem.fileUri.toString(),
+                        content = dbItem.fileUri.toString(),
                     )
                 }
             }
@@ -88,14 +88,14 @@ internal fun OcrQueueTaskListItemHeader(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val filename = remember(uiItem.fileUri) { context.getFilename(uiItem.fileUri) ?: "-" }
+    val filename = remember(uiItem.dbItem.fileUri) { context.getFilename(uiItem.dbItem.fileUri) ?: "-" }
 
     var showEditPopup by rememberSaveable { mutableStateOf(false) }
 
     var showDetailsDialog by rememberSaveable { mutableStateOf(false) }
     if (showDetailsDialog) {
         TaskDetailsDialog(
-            uiItem = uiItem,
+            dbItem = uiItem.dbItem,
             onDismissRequest = { showDetailsDialog = false },
         )
     }
@@ -106,7 +106,7 @@ internal fun OcrQueueTaskListItemHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.minimumInteractiveComponentSize()) {
-                OcrQueueTaskListItemStatus(uiItem.status)
+                OcrQueueTaskListItemStatus(uiItem.dbItem.status)
             }
 
             Text(
@@ -176,7 +176,7 @@ internal fun OcrQueueTaskListItemHeader(
 
             IconButton(
                 onClick = onSaveTask,
-                enabled = uiItem.status == OcrQueueTaskStatus.DONE,
+                enabled = uiItem.dbItem.status == OcrQueueTaskStatus.DONE,
                 colors =
                     IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary,

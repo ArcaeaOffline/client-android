@@ -17,11 +17,11 @@ internal fun OcrQueueTaskListItemResult(
     modifier: Modifier = Modifier,
 ) {
     Box {
-        when (uiItem.status) {
+        when (uiItem.dbItem.status) {
             OcrQueueTaskStatus.DONE -> {
-                uiItem.playResult?.let {
+                uiItem.dbItem.playResult?.let { playResult ->
                     ArcaeaPlayResultCard(
-                        playResult = uiItem.playResult,
+                        playResult = playResult,
                         warnings = uiItem.warnings.orEmpty(),
                         chart = uiItem.chart,
                         modifier = modifier,
@@ -33,9 +33,9 @@ internal fun OcrQueueTaskListItemResult(
                 Text(
                     buildAnnotatedString {
                         withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
-                            appendLine(uiItem.errorType ?: "No errorType")
+                            appendLine(uiItem.dbItem.errorType ?: "No errorType")
                         }
-                        append(uiItem.errorMessage ?: "No errorMessage")
+                        append(uiItem.dbItem.errorMessage ?: "No errorMessage")
                     },
                     color = MaterialTheme.colorScheme.error,
                     modifier = modifier,

@@ -61,20 +61,12 @@ class OcrQueueScreenViewModel(
         val dbItem: OcrQueueTask,
         val chart: Chart? = null,
     ) {
-        // TODO: Legacy UI compatibility, consider removing these
-        val id = dbItem.id
-        val fileUri = dbItem.fileUri
-        val status = dbItem.status
-        val playResult = dbItem.playResult
-        val errorType = dbItem.errorType
-        val errorMessage = dbItem.errorMessage
-
-        val warnings = playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chart = chart) }
+        val warnings = dbItem.playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chart = chart) }
         val hasWarnings = warnings?.isNotEmpty() == true
 
-        val canEditChart = status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
-        val canEditPlayResult = status == OcrQueueTaskStatus.DONE
-        val canSave = status == OcrQueueTaskStatus.DONE && warnings != null && !hasWarnings
+        val canEditChart = dbItem.status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
+        val canEditPlayResult = dbItem.status == OcrQueueTaskStatus.DONE
+        val canSave = dbItem.status == OcrQueueTaskStatus.DONE && warnings != null && !hasWarnings
     }
 
     data class QueueTaskCounts(
@@ -119,11 +111,11 @@ class OcrQueueScreenViewModel(
             .mapLatest { tasks ->
                 QueueTaskCounts(
                     total = tasks.size,
-                    idle = tasks.count { it.status == OcrQueueTaskStatus.IDLE },
-                    processing = tasks.count { it.status == OcrQueueTaskStatus.PROCESSING },
-                    done = tasks.count { it.status == OcrQueueTaskStatus.DONE },
-                    doneWithWarning = tasks.count { it.status == OcrQueueTaskStatus.DONE && it.hasWarnings },
-                    error = tasks.count { it.status == OcrQueueTaskStatus.ERROR },
+                    idle = tasks.count { it.dbItem.status == OcrQueueTaskStatus.IDLE },
+                    processing = tasks.count { it.dbItem.status == OcrQueueTaskStatus.PROCESSING },
+                    done = tasks.count { it.dbItem.status == OcrQueueTaskStatus.DONE },
+                    doneWithWarning = tasks.count { it.dbItem.status == OcrQueueTaskStatus.DONE && it.hasWarnings },
+                    error = tasks.count { it.dbItem.status == OcrQueueTaskStatus.ERROR },
                 )
             }.stateIn(
                 viewModelScope,
@@ -158,25 +150,25 @@ class OcrQueueScreenViewModel(
                     val uiItemsFiltered =
                         when (category) {
                             OcrQueueScreenCategory.IDLE -> {
-                                items.filter { it.status == OcrQueueTaskStatus.IDLE }
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.IDLE }
                             }
 
                             OcrQueueScreenCategory.PROCESSING -> {
-                                items.filter { it.status == OcrQueueTaskStatus.PROCESSING }
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.PROCESSING }
                             }
 
                             OcrQueueScreenCategory.DONE -> {
-                                items.filter { it.status == OcrQueueTaskStatus.DONE }
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.DONE }
                             }
 
                             OcrQueueScreenCategory.DONE_WITH_WARNING -> {
                                 items.filter {
-                                    it.status == OcrQueueTaskStatus.DONE && it.hasWarnings
+                                    it.dbItem.status == OcrQueueTaskStatus.DONE && it.hasWarnings
                                 }
                             }
 
                             OcrQueueScreenCategory.ERROR -> {
-                                items.filter { it.status == OcrQueueTaskStatus.ERROR }
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.ERROR }
                             }
 
                             OcrQueueScreenCategory.NULL -> {
@@ -235,7 +227,7 @@ class OcrQueueScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val task = uiItems.firstOrNull().orEmpty().firstOrNull { it.dbItem.id == taskId }
             if (task == null) return@launch
-            ocrQueueTaskRepo.save(task.id)
+            ocrQueueTaskRepo.save(task.dbItem.id)
         }
     }
 
