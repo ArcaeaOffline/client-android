@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.jobs
 
-import ai.onnxruntime.OrtSession
 import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo
@@ -13,45 +12,25 @@ import androidx.work.WorkerParameters
 import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
-import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
-import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
-import kotlin.time.Clock
-
-private fun OcrQueueTask.copyWithException(exception: Exception) =
-    this.copy(
-        status = OcrQueueTaskStatus.ERROR,
-        errorType = exception::class.qualifiedName,
-        errorMessage = exception.message,
-    )
 
 class OcrQueueJob(
     context: Context,
@@ -72,6 +51,24 @@ class OcrQueueJob(
 
     private val logger = Logger.withTag(LOG_TAG)
 
+    enum class RunMode(
+        val value: Int,
+    ) {
+        /** Only process [OcrQueueTaskStatus.IDLE] and [OcrQueueTaskStatus.ERROR] tasks. */
+        NORMAL(0),
+
+        /** Process all tasks, no matter what their status is. */
+        ALL(1),
+
+        /** Try fixing those [OcrQueueTaskStatus.DONE] tasks with warnings. */
+        SMART_FIX(2),
+        ;
+
+        companion object {
+            fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: NORMAL
+        }
+    }
+
     private data class WorkOptions(
         val runMode: RunMode,
         val parallelCount: Int,
@@ -87,12 +84,7 @@ class OcrQueueJob(
                 ),
         )
 
-    private val workOptions = getWorkOptions()
-
     private val notificationManager = NotificationManagerCompat.from(applicationContext)
-
-    private val channelScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val channel = Channel<OcrQueueTask>()
 
     private val progressCurrent = MutableStateFlow(0)
     private val progressTotal = MutableStateFlow(-1)
@@ -100,8 +92,7 @@ class OcrQueueJob(
     private val progress =
         combine(progressCurrent, progressTotal) { p, t ->
             if (t > -1) p to t else null
-        }.stateIn(channelScope, SharingStarted.WhileSubscribed(2500L), null)
-    private var progressListenJob: Job? = null
+        }
 
     private fun createNotification(progress: Pair<Int, Int>?): Notification {
         val builder =
@@ -129,8 +120,8 @@ class OcrQueueJob(
         return builder.build()
     }
 
-    private fun createForegroundInfo(): ForegroundInfo {
-        val notification = createNotification(progress.value)
+    private suspend fun createForegroundInfo(): ForegroundInfo {
+        val notification = createNotification(progress.firstOrNull() ?: (0 to -1))
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(
@@ -145,58 +136,97 @@ class OcrQueueJob(
 
     override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
 
-    /**
-     * * [RunMode.NORMAL]: Only process [OcrQueueTaskStatus.IDLE] and [OcrQueueTaskStatus.ERROR] tasks.
-     * * [RunMode.ALL]: Process all tasks, no matter what their status is.
-     * * [RunMode.SMART_FIX]: Try fixing those [OcrQueueTaskStatus.DONE] tasks with warnings.
-     */
-    enum class RunMode(
-        val value: Int,
-    ) {
-        NORMAL(0),
-        ALL(1),
-        SMART_FIX(2), ;
+    private suspend fun fetchTasks(runMode: RunMode): List<OcrQueueTask> =
+        when (runMode) {
+            RunMode.NORMAL -> {
+                ocrQueueTaskRepo
+                    .findByStatus(
+                        OcrQueueTaskStatus.IDLE,
+                        OcrQueueTaskStatus.PROCESSING,
+                        OcrQueueTaskStatus.ERROR,
+                    ).firstOrNull()
+                    .orEmpty()
+            }
 
-        companion object {
-            fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: NORMAL
+            RunMode.ALL -> {
+                ocrQueueTaskRepo.findAll().firstOrNull().orEmpty()
+            }
+
+            RunMode.SMART_FIX -> {
+                ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
+                    task.playResult?.let { playResult ->
+                        val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return@let false
+                        ArcaeaPlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
+                    } == true
+                }
+            }
         }
-    }
+
+    private fun createTaskExecutor(runMode: RunMode): OcrQueueJobTaskExecutor =
+        when (runMode) {
+            RunMode.SMART_FIX -> {
+                OcrQueueFixTaskExecutor(
+                    chartInfoRepo,
+                    ocrQueueTaskRepo,
+                )
+            }
+
+            RunMode.NORMAL,
+            RunMode.ALL,
+            -> {
+                OcrQueueOcrImageTaskExecutor(
+                    applicationContext,
+                    ocrQueueTaskRepo,
+                )
+            }
+        }
 
     @androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun doWork(): Result {
-        setForeground(createForegroundInfo())
-
         val workOptions = getWorkOptions()
+        val tasks = fetchTasks(workOptions.runMode)
 
-        progressListenJob =
-            channelScope.launch {
-                progress.collectLatest {
-                    notificationManager.notify(NOTIFICATION_ID, createNotification(it))
-                }
-            }
+        if (tasks.isEmpty()) return Result.success()
+
+        progressTotal.value = tasks.size
+        setForeground(getForegroundInfo())
 
         try {
-            when (workOptions.runMode) {
-                RunMode.NORMAL -> runNormal()
-                RunMode.ALL -> runAll()
-                RunMode.SMART_FIX -> runSmartFix()
+            // coroutineScope inherits the worker's cancellation context natively
+            coroutineScope {
+                val progressJob =
+                    launch {
+                        progress.collectLatest {
+                            notificationManager.notify(NOTIFICATION_ID, createNotification(it))
+                        }
+                    }
+
+                try {
+                    createTaskExecutor(workOptions.runMode).use { executor ->
+                        processTasks(
+                            tasks,
+                            executor,
+                            workOptions.parallelCount,
+                        )
+                    }
+                } finally {
+                    progressJob.cancel()
+                }
             }
 
             return Result.success()
         } catch (e: CancellationException) {
             logger.i { "CancellationException caught" }
-            channelScope.coroutineContext.cancelChildren()
 
+            // Database cleaning up
             withContext(NonCancellable + Dispatchers.IO) {
-                channelScope
-                    .async {
-                        ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()?.forEach {
-                            ocrQueueTaskRepo.update(it.copyWithException(e))
-                        }
-                    }.await()
+                val processingTasks = ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()
+                processingTasks?.forEach {
+                    ocrQueueTaskRepo.update(it.copyWithException(e))
+                }
             }
 
-            return Result.failure()
+            throw e
         } catch (e: Throwable) {
             logger.e(e) { "Uncaught error during doWork()" }
             Sentry.configureScope {
@@ -205,141 +235,38 @@ class OcrQueueJob(
             }
             return Result.failure()
         } finally {
-            progressListenJob?.cancel()
             notificationManager.cancel(NOTIFICATION_ID)
+
+            // Reset progress for future runs if this worker instance is reused
+            progressCurrent.value = 0
+            progressTotal.value = -1
         }
     }
 
-    private suspend fun processTask(
-        task: OcrQueueTask,
-        taskRepo: OcrQueueTaskRepository,
-        ortSession: OrtSession,
-        kNearestModel: KNearest,
-        imageHashesDatabase: ImageHashesDatabase,
-    ) {
-        if (isStopped) return
+    private suspend fun processTasks(
+        tasks: List<OcrQueueTask>,
+        executor: OcrQueueJobTaskExecutor,
+        parallelCount: Int,
+    ) = coroutineScope {
+        val channel = Channel<OcrQueueTask>(Channel.UNLIMITED)
 
-        @Suppress("NAME_SHADOWING")
-        var task = task.copy()
-        task = task.copy(status = OcrQueueTaskStatus.PROCESSING)
-        taskRepo.update(task)
-        logger.v { "Processing task ${task.id}" }
-        var shouldUpdateTask = true
-
-        try {
-            val uri = task.fileUri
-
-            val ocrResult =
-                DeviceOcrHelper.ocrImage(
-                    uri,
-                    kNearestModel,
-                    imageHashesDatabase,
-                    ortSession = ortSession,
-                )
-
-            val playResult =
-                DeviceOcrHelper.ocrResultToPlayResult(
-                    uri,
-                    applicationContext,
-                    ocrResult,
-                    fallbackDate = Clock.System.now(),
-                )
-
-            task =
-                task.copy(
-                    status = OcrQueueTaskStatus.DONE,
-                    result = ocrResult,
-                    playResult = playResult,
-                    errorType = null,
-                    errorMessage = null,
-                )
-        } catch (_: CancellationException) {
-            logger.i { "Job (${task.id}) CancellationException caught" }
-            shouldUpdateTask = false
-        } catch (e: Exception) {
-            task = task.copyWithException(e)
-
-            logger.e(e) { "Error occurred at task ${task.id} ${task.fileUri}" }
-            Sentry.captureException(e)
+        launch {
+            tasks.forEach { channel.send(it) }
+            channel.close()
         }
 
-        if (shouldUpdateTask) taskRepo.update(task)
-    }
-
-    private suspend fun processTasks(tasks: List<OcrQueueTask>) {
-        DeviceOcrOnnxHelper.createOrtSession(applicationContext).use { ortSession ->
-            OcrDependencyLoader.imageHashesSQLiteDatabase().use { sqliteDb ->
-                val kNearestModel = OcrDependencyLoader.kNearestModel()
-                val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
-
-                withContext(Dispatchers.IO) {
-                    launch {
-                        progressTotal.value = tasks.size
-                        tasks.forEach { channel.send(it) }
-                        channel.close()
-                    }
-
-                    repeat(workOptions.parallelCount) {
-                        launch {
-                            channel.consumeEach {
-                                processTask(
-                                    task = it,
-                                    taskRepo = ocrQueueTaskRepo,
-                                    ortSession = ortSession,
-                                    kNearestModel = kNearestModel,
-                                    imageHashesDatabase = imageHashesDatabase,
-                                )
-                                progressLock.withLock { progressCurrent.value += 1 }
-                            }
+        repeat(parallelCount) {
+            launch(Dispatchers.IO) {
+                for (task in channel) {
+                    try {
+                        executor.execute(task)
+                    } finally {
+                        progressLock.withLock {
+                            progressCurrent.value += 1
                         }
                     }
                 }
             }
         }
-    }
-
-    private suspend fun runNormal() {
-        val tasks =
-            ocrQueueTaskRepo
-                .findByStatus(
-                    OcrQueueTaskStatus.IDLE,
-                    OcrQueueTaskStatus.PROCESSING,
-                    OcrQueueTaskStatus.ERROR,
-                ).firstOrNull() ?: return
-        processTasks(tasks)
-    }
-
-    private suspend fun runAll() {
-        val tasks = ocrQueueTaskRepo.findAll().firstOrNull() ?: return
-        processTasks(tasks)
-    }
-
-    private suspend fun tryFixTask(task: OcrQueueTask) {
-        if (task.result == null || task.playResult == null) return
-
-        // this is all possible songIds
-        val hashResultLabels = task.result.songIdResults.map { it.label }
-        val ratingClass = task.result.ratingClass
-
-        for (songId in hashResultLabels) {
-            val chartInfo = chartInfoRepo.find(songId, ratingClass).firstOrNull() ?: continue
-
-            val newPlayResult = task.playResult.copy(songId = songId)
-            if (ArcaeaPlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
-                ocrQueueTaskRepo.update(task.copy(playResult = newPlayResult))
-                return
-            }
-        }
-    }
-
-    private suspend fun runSmartFix() {
-        val taskWithWarnings =
-            ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
-                task.playResult?.let { playResult ->
-                    val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return@let false
-                    ArcaeaPlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
-                } == true
-            }
-        taskWithWarnings.forEach { tryFixTask(it) }
     }
 }
