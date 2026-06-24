@@ -10,7 +10,6 @@ import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
-import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,9 +21,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.io.asInputStream
-import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
+import org.apache.commons.compress.archivers.zip.ZipFile
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaPacklistImporter
@@ -42,11 +40,11 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
+import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.util.zip.ZipInputStream
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -238,39 +236,20 @@ class DatabaseManageViewModel(
     }
 
     private suspend fun importArcaeaApkFromSelectedTask(
-        zipInputStream: ZipInputStream,
+        zipFile: ZipFile,
         supplementSonglistContent: String,
     ) {
-        importLogManager.append(
-            LOG_TAG_IMPORT_ARCAEA_APK,
-            ImportLogEvent.SimpleString(R.string.database_manage_import_reading_apk),
-        )
-
-        var entry = zipInputStream.nextEntry
-
-        var packlistFound = false
-        var songlistFound = false
-
-        while (entry != null) {
-            if (entry.name == ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME) {
-                packlistFound = true
-                importPacklistTask(zipInputStream.readText())
+        zipFile.getEntry(ArcaeaPackageHelper.APK_PACKLIST_FILE_ENTRY_NAME)?.let { packlistEntry ->
+            zipFile.getInputStream(packlistEntry).use {
+                importPacklistTask(it.readText())
             }
+        } ?: importLogManager.append(LOG_TAG_IMPORT_ARCAEA_APK, ImportLogEvent.Raw("packlist not found!"))
 
-            if (entry.name == ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME) {
-                songlistFound = true
-                importSonglistTask(zipInputStream.readText(), supplementSonglistContent)
+        zipFile.getEntry(ArcaeaPackageHelper.APK_SONGLIST_FILE_ENTRY_NAME)?.let { songlistEntry ->
+            zipFile.getInputStream(songlistEntry).use {
+                importSonglistTask(it.readText(), supplementSonglistContent)
             }
-
-            entry = zipInputStream.nextEntry
-        }
-
-        if (!packlistFound) {
-            importLogManager.append(LOG_TAG_IMPORT_ARCAEA_APK, ImportLogEvent.Raw("packlist not found!"))
-        }
-        if (!songlistFound) {
-            importLogManager.append(LOG_TAG_IMPORT_ARCAEA_APK, ImportLogEvent.Raw("songlist not found!"))
-        }
+        } ?: importLogManager.append(LOG_TAG_IMPORT_ARCAEA_APK, ImportLogEvent.Raw("songlist not found!"))
     }
 
     fun importArcaeaApkFromSelected(
@@ -280,10 +259,21 @@ class DatabaseManageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
                 val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
-                PlatformFile(uri).source().buffered().asInputStream().use { inputStream ->
-                    ZipInputStream(inputStream).use { zis ->
-                        // TODO: change to work manager task, weird `java.io.IOException: Stream closed` inspected
-                        importArcaeaApkFromSelectedTask(zis, supplementSonglistContent)
+
+                importLogManager.append(
+                    LOG_TAG_IMPORT_ARCAEA_APK,
+                    ImportLogEvent.SimpleString(R.string.database_manage_import_reading_apk),
+                )
+
+                context.contentResolver.openFileDescriptor(uri, "r").use { pfd ->
+                    val fd = pfd?.fileDescriptor ?: return@sendTask
+
+                    FileInputStream(fd).use { fis ->
+                        val fileChannel = fis.channel
+
+                        ZipFile.builder().setSeekableByteChannel(fileChannel).get().use { zipFile ->
+                            importArcaeaApkFromSelectedTask(zipFile, supplementSonglistContent)
+                        }
                     }
                 }
             }

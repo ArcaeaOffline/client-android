@@ -205,6 +205,7 @@ dependencies {
     implementation(libs.filekit.dialogs.compose)
 
     implementation(libs.opencv)
+    implementation(libs.apache.commons.compress)
 
     implementation(libs.onnxruntime.android)
 

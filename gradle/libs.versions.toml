@@ -11,6 +11,7 @@ koin = "4.2.1"
 koin-plugin = "1.0.1"
 
 opencv = "4.13.0"
+apache-commons-compress = "1.28.0"
 
 io-sentry-sentryAndroid = "8.17.0"
 
@@ -18,12 +19,11 @@ markdown-renderer = "0.41.0"
 github-jvziyaoyao-scale = "1.1.1-beta.3"
 github-cheonjaeung-gridlayout = "2.7.4"
 aboutlibraries = "14.2.1"
-
 kermit = "2.1.0"
-
 filekit = "0.14.2"
 kotlinx-io = "0.9.0"
 bignum = "0.3.10"
+
 junit = "4.13.2"
 robolectric = "4.16.1"
 
@@ -44,6 +44,7 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
+apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress" }
 
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
@@ -56,9 +57,7 @@ github-jvziyaoyao-scale-imageViewer = { module = "com.jvziyaoyao.scale:image-vie
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
-
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
-
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
