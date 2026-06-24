@@ -1,12 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
-val appendPackRegexPattern: Pattern = Pattern.compile("""(.*)_append_.*${'$'}""")
+val appendPackRegexPattern = """(.*)_append_.*$""".toRegex()
 
 @Entity(tableName = "packs")
 data class Pack(
@@ -14,15 +11,7 @@ data class Pack(
     val name: String,
     val description: String? = null,
 ) {
-    @Ignore
-    private val appendPackRegexMatcher: Matcher = appendPackRegexPattern.matcher(this.id)
-
-    fun basePackId(): String? =
-        if (appendPackRegexMatcher.matches()) {
-            appendPackRegexMatcher.group(1)
-        } else {
-            null
-        }
+    fun basePackId(): String? = appendPackRegexPattern.matchEntire(this.id)?.groupValues?.getOrNull(1)
 
     fun isAppendPack(): Boolean = basePackId() != null
 }
