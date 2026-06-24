@@ -50,8 +50,8 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -168,7 +168,7 @@ private fun ImportLogObjectUiPreview() {
     val log =
         remember {
             ImportLogObject(
-                uuid = UUID.randomUUID(),
+                uuid = Uuid.generateV4(),
                 timestamp = Instant.fromEpochMilliseconds(0),
                 tag = "P-VIEW",
                 event = ImportLogEvent.Raw("Wow this is a log wow"),

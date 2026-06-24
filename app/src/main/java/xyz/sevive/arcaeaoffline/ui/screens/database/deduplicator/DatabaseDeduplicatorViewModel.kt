@@ -22,8 +22,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
-import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.Uuid
 
 class DatabaseDeduplicatorViewModel(
     private val playResultRepo: PlayResultRepository,
@@ -69,13 +69,9 @@ class DatabaseDeduplicatorViewModel(
     private val groups = MutableStateFlow(mapOf<String, List<PlayResult>>())
 
     private suspend fun buildDuplicateGroupsTask(values: Set<GroupByValue>): Map<String, List<PlayResult>> {
-        val playResults =
-            playResultRepo.findAll().firstOrNull() ?: return emptyMap()
+        val playResults = playResultRepo.findAll().firstOrNull() ?: return emptyMap()
 
-        return playResults
-            .sortedBy { it.id }
-            .groupBy { it.groupByKey(values) }
-            .filter { it.value.size >= 2 }
+        return playResults.sortedBy { it.id }.groupBy { it.groupByKey(values) }.filter { it.value.size >= 2 }
     }
 
     private var buildDuplicateGroupsJob: Job? = null
@@ -92,14 +88,14 @@ class DatabaseDeduplicatorViewModel(
     // #endregion
 
     // #region Selections
-    private val _selectedUuids = MutableStateFlow(setOf<UUID>())
+    private val _selectedUuids = MutableStateFlow(setOf<Uuid>())
     val selectedUuids = _selectedUuids.asStateFlow()
 
     private val autoSelectSemaphore = Semaphore(1)
     private val autoSelectRunning = MutableStateFlow(false)
 
     fun setPlayResultSelected(
-        uuid: UUID,
+        uuid: Uuid,
         selected: Boolean,
     ) {
         if (selected) _selectedUuids.value += uuid else _selectedUuids.value -= uuid
@@ -136,11 +132,9 @@ class DatabaseDeduplicatorViewModel(
         }
     }
 
-    fun deleteSelectedItemsInDatabase(uuids: Set<UUID>) {
+    fun deleteSelectedItemsInDatabase(uuids: Set<Uuid>) {
         viewModelScope.launch(Dispatchers.IO) {
-            val playResults =
-                playResultRepo.findAllByUUID(uuids.toList()).firstOrNull()
-                    ?: emptyList()
+            val playResults = playResultRepo.findAllByUuid(uuids.toList()).firstOrNull() ?: emptyList()
 
             playResultRepo.deleteBatch(*playResults.toTypedArray())
             clearSelectedItems()

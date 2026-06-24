@@ -29,8 +29,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun DatabaseB30ListItem(
@@ -99,7 +99,7 @@ private fun DatabaseB30ListItemPreview() {
                     playResult =
                         PlayResult(
                             id = 1,
-                            uuid = UUID.randomUUID(),
+                            uuid = Uuid.generateV4(),
                             songId = "test",
                             ratingClass = ArcaeaRatingClass.FUTURE,
                             score = 9950000,

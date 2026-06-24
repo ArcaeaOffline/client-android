@@ -2,7 +2,7 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 
 import androidx.room.ColumnInfo
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 data class PlayResultWithChart(
     val playResult: PlayResult,
@@ -15,7 +15,7 @@ data class PlayResultBestWithChart(
 )
 
 data class MinimumPlayResultPotentialFields(
-    val uuid: UUID,
+    val uuid: Uuid,
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,

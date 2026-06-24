@@ -46,9 +46,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.util.UUID
 import java.util.zip.ZipInputStream
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.Uuid
 
 class DatabaseManageViewModel(
     private val packRepo: PackRepository,
@@ -80,7 +80,7 @@ class DatabaseManageViewModel(
     )
 
     data class Task(
-        val uuid: UUID = UUID.randomUUID(),
+        val uuid: Uuid = Uuid.generateV4(),
         val action: suspend CoroutineScope.() -> Unit,
     )
 

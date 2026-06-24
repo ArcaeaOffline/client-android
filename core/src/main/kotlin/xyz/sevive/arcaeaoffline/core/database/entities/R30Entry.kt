@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Entity(
     tableName = "r30_entries",
@@ -22,7 +22,7 @@ import java.util.UUID
 )
 data class R30Entry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val uuid: UUID,
+    val uuid: Uuid,
 ) {
     companion object
 }

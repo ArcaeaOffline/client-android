@@ -9,8 +9,7 @@ import xyz.sevive.arcaeaoffline.core.database.extensions.bindTextOrNull
 import xyz.sevive.arcaeaoffline.core.database.extensions.getIntOrNull
 import xyz.sevive.arcaeaoffline.core.database.extensions.getLongOrNull
 import xyz.sevive.arcaeaoffline.core.database.extensions.getTextOrNull
-import java.nio.ByteBuffer
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 private const val CREATE_TABLE_PLAY_RESULTS_7 =
     "CREATE TABLE play_results (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uuid` BLOB NOT NULL, `song_id` TEXT NOT NULL, `rating_class` TEXT NOT NULL, `score` INTEGER NOT NULL, `pure` INTEGER, `far` INTEGER, `lost` INTEGER, `date` INTEGER, `max_recall` INTEGER, `modifier` TEXT, `clear_type` TEXT, `comment` TEXT)"
@@ -22,7 +21,7 @@ private const val CREATE_VIEW_PLAY_RESULTS_BEST_7 =
     "CREATE VIEW `play_results_best` AS SELECT\n            prc.id, prc.uuid, prc.song_id, prc.rating_class, prc.score,\n            prc.pure, prc.shiny_pure, prc.far, prc.lost,\n            prc.date, prc.max_recall, prc.modifier, prc.clear_type,\n            MAX(prc.potential) AS potential,\n            prc.comment\n        FROM play_results_calculated prc\n        GROUP BY prc.song_id, prc.rating_class\n        ORDER BY prc.potential DESC"
 
 private data class PlayResultIntermediate(
-    val uuid: UUID,
+    val uuid: Uuid,
     val id: Int,
     val songId: String,
     val ratingClass: String,
@@ -36,13 +35,7 @@ private data class PlayResultIntermediate(
     val clearType: String?,
     val comment: String?,
 ) {
-    val uuidByteArray: ByteArray =
-        uuid.let {
-            val bb = ByteBuffer.wrap(ByteArray(16))
-            bb.putLong(it.mostSignificantBits)
-            bb.putLong(it.leastSignificantBits)
-            bb.array()
-        }
+    val uuidByteArray: ByteArray = uuid.toByteArray()
 }
 
 object Migration_6_7 : Migration(6, 7) {
@@ -56,7 +49,7 @@ object Migration_6_7 : Migration(6, 7) {
                 while (it.step()) {
                     playResults.add(
                         PlayResultIntermediate(
-                            uuid = UUID.randomUUID(), // the only real logic bro
+                            uuid = Uuid.generateV4(), // the only real logic bro
                             id = it.getInt(0),
                             songId = it.getText(1),
                             ratingClass = it.getText(2),

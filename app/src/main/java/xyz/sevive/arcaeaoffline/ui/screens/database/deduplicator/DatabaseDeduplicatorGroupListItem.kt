@@ -31,13 +31,13 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun DatabaseDeduplicatorGroupListItem(
     item: DatabaseDeduplicatorViewModel.GroupListUiItem,
-    selectedUuids: Set<UUID>,
-    onPlayResultSelectedChange: (UUID, Boolean) -> Unit,
+    selectedUuids: Set<Uuid>,
+    onPlayResultSelectedChange: (Uuid, Boolean) -> Unit,
     onMergeConfirm: (PlayResult) -> Unit,
 ) {
     var mergedPlayResult by remember { mutableStateOf<PlayResult?>(null) }

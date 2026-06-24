@@ -24,4 +24,10 @@ plugins {
 
 subprojects {
     apply(plugin = "org.jmailen.kotlinter")
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+        compilerOptions {
+            optIn.add("kotlin.uuid.ExperimentalUuidApi")
+        }
+    }
 }

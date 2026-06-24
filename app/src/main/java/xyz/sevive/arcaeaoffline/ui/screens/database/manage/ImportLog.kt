@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.UUID
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 internal sealed interface ImportLogEvent {
     data class Plural(
@@ -26,7 +26,7 @@ internal sealed interface ImportLogEvent {
 }
 
 internal data class ImportLogObject(
-    val uuid: UUID = UUID.randomUUID(),
+    val uuid: Uuid = Uuid.generateV4(),
     val timestamp: Instant,
     val tag: String? = null,
     val event: ImportLogEvent,

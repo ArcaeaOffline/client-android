@@ -8,8 +8,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @Entity(tableName = "ocr_history")
 data class OcrHistory(
@@ -32,7 +32,7 @@ data class OcrHistory(
 
         return PlayResult(
             id = 0,
-            uuid = UUID.randomUUID(),
+            uuid = Uuid.generateV4(),
             songId = songId,
             ratingClass = ratingClass,
             score = score,
