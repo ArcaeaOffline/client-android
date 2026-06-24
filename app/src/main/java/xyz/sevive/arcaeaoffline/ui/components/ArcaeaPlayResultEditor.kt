@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -61,52 +62,72 @@ fun ArcaeaPlayResultEditorContent(
             }
         }
 
-        when (tabIndex) {
-            0 -> {
-                OutlinedArcaeaScoreTextField(
-                    playResultScoreTextFieldState,
-                    Modifier.fillMaxWidth(),
-                )
+        LazyColumn {
+            when (tabIndex) {
+                0 -> {
+                    item {
+                        OutlinedArcaeaScoreTextField(
+                            playResultScoreTextFieldState,
+                            Modifier.fillMaxWidth(),
+                        )
+                    }
 
-                PlayResultEditorPureField(
-                    pure = playResult.pure,
-                    onPureChange = { onPlayResultChange(playResult.copy(pure = it)) },
-                )
-                PlayResultEditorFarField(
-                    far = playResult.far,
-                    onFarChange = { onPlayResultChange(playResult.copy(far = it)) },
-                )
-                PlayResultEditorLostField(
-                    lost = playResult.lost,
-                    onLostChange = { onPlayResultChange(playResult.copy(lost = it)) },
-                )
+                    item {
+                        PlayResultEditorPureField(
+                            pure = playResult.pure,
+                            onPureChange = { onPlayResultChange(playResult.copy(pure = it)) },
+                        )
+                    }
+                    item {
+                        PlayResultEditorFarField(
+                            far = playResult.far,
+                            onFarChange = { onPlayResultChange(playResult.copy(far = it)) },
+                        )
+                    }
+                    item {
+                        PlayResultEditorLostField(
+                            lost = playResult.lost,
+                            onLostChange = { onPlayResultChange(playResult.copy(lost = it)) },
+                        )
+                    }
 
-                PlayResultEditorDateTimeField(
-                    instant = playResult.date,
-                    onInstantChange = { onPlayResultChange(playResult.copy(date = it)) },
-                )
+                    item {
+                        PlayResultEditorDateTimeField(
+                            instant = playResult.date,
+                            onInstantChange = { onPlayResultChange(playResult.copy(date = it)) },
+                        )
+                    }
 
-                PlayResultEditorMaxRecallField(
-                    maxRecall = playResult.maxRecall,
-                    onMaxRecallChange = { onPlayResultChange(playResult.copy(maxRecall = it)) },
-                )
-            }
+                    item {
+                        PlayResultEditorMaxRecallField(
+                            maxRecall = playResult.maxRecall,
+                            onMaxRecallChange = { onPlayResultChange(playResult.copy(maxRecall = it)) },
+                        )
+                    }
+                }
 
-            1 -> {
-                PlayResultEditorModifierField(
-                    arcaeaModifier = playResult.modifier,
-                    onArcaeaModifierChange = { onPlayResultChange(playResult.copy(modifier = it)) },
-                )
+                1 -> {
+                    item {
+                        PlayResultEditorModifierField(
+                            arcaeaModifier = playResult.modifier,
+                            onArcaeaModifierChange = { onPlayResultChange(playResult.copy(modifier = it)) },
+                        )
+                    }
 
-                PlayResultEditorClearTypeField(
-                    clearType = playResult.clearType,
-                    onClearTypeChange = { onPlayResultChange(playResult.copy(clearType = it)) },
-                )
+                    item {
+                        PlayResultEditorClearTypeField(
+                            clearType = playResult.clearType,
+                            onClearTypeChange = { onPlayResultChange(playResult.copy(clearType = it)) },
+                        )
+                    }
 
-                PlayResultEditorCommentField(
-                    comment = playResult.comment,
-                    onCommentChange = { onPlayResultChange(playResult.copy(comment = it)) },
-                )
+                    item {
+                        PlayResultEditorCommentField(
+                            comment = playResult.comment,
+                            onCommentChange = { onPlayResultChange(playResult.copy(comment = it)) },
+                        )
+                    }
+                }
             }
         }
     }
