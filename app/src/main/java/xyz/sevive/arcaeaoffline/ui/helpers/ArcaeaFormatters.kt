@@ -11,7 +11,6 @@ import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
-import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters.constantToRatingClassText
 
 object ArcaeaFormatters {
     /**
