@@ -20,6 +20,8 @@ class ArcaeaFormattersTest {
         assertEquals("12.05", ArcaeaFormatters.potentialToText(12.05))
         assertEquals("12.05", ArcaeaFormatters.potentialToText(12.054))
         assertEquals("12.05", ArcaeaFormatters.potentialToText(12.055))
+        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.056))
+        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.057))
         assertEquals("-.--", ArcaeaFormatters.potentialToText(null))
     }
 

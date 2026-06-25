@@ -32,7 +32,7 @@ object ArcaeaFormatters {
      */
     fun potentialToText(
         potential: Double?,
-        decimalMode: DecimalMode = DecimalMode(roundingMode = RoundingMode.ROUND_HALF_TOWARDS_ZERO, scale = 2),
+        decimalMode: DecimalMode = DecimalMode(roundingMode = RoundingMode.TOWARDS_ZERO, scale = 2),
     ): String =
         potential
             ?.toBigDecimal()
