@@ -57,6 +57,7 @@ markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-
 markdown-renderer-android = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "markdown-renderer" }
 panpf-sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "panpf-sketch" }
 panpf-sketch-compose-koin = { module = "io.github.panpf.sketch4:sketch-compose-koin", version.ref = "panpf-sketch" }
+panpf-sketch-extensions-appicon = { module = "io.github.panpf.sketch4:sketch-extensions-appicon", version.ref = "panpf-sketch" }
 panpf-zoomimage-sketch-koin = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch4-koin", version.ref = "panpf-zoomimage" }
 github-cheonjaeung-gridlayout = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "github-cheonjaeung-gridlayout" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }

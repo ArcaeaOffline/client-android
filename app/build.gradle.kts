@@ -218,6 +218,7 @@ dependencies {
 
     implementation(libs.panpf.sketch.compose)
     implementation(libs.panpf.sketch.compose.koin)
+    implementation(libs.panpf.sketch.extensions.appicon)
     implementation(libs.panpf.zoomimage.sketch.koin)
 
     implementation(libs.github.cheonjaeung.gridlayout)
