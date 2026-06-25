@@ -28,3 +28,8 @@
 -keep class * extends androidx.room.RoomDatabase { <init>(); }
 
 -dontwarn javax.annotation.processing.*
+
+# Apache Commons compress unused components
+-dontwarn org.brotli.dec.**
+-dontwarn com.github.luben.zstd.**
+-dontwarn org.tukaani.xz.**
