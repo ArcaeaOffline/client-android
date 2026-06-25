@@ -10,6 +10,8 @@ jobs:
   test:
     name: Run Connected Android Tests (unstableDebug)
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: -Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
     strategy:
       fail-fast: false
       matrix:
@@ -31,19 +33,8 @@ jobs:
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 
-      - name: Ensure CRNN OCR Model Assets Folder Exists
-        run: mkdir -p app/src/main/assets/ocr
-
-      - name: Download CRNN OCR Model
-        run: |
-          curl -L -o app/src/main/assets/ocr/model_patched.onnx https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model-early_stop_patched.onnx
-          curl -L -o app/src/main/assets/ocr/model_info.json https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model_info.json
-
-      - name: Set up Gradle
-        run: |
-          chmod +x ./gradlew
-          echo "" >> gradle.properties
-          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" >> gradle.properties
+      - name: Setup OCR Model
+        uses: ./.github/actions/setup-ocr-model
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
       - name: Build Application

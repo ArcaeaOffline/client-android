@@ -13,6 +13,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: -Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
 
     steps:
       - name: Check out repository
@@ -24,25 +26,16 @@ jobs:
         uses: ./.github/actions/setup-toolchain
 
       - name: Release keystore file
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > arcaea_offline.jks
-          ls -l arcaea_offline.jks
+        run: base64 -d <<< "${{ secrets.KEYSTORE_FILE_BASE64 }}" > arcaea_offline.jks
 
       - name: Release local.properties file
-        run: |
-          echo "${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}" | base64 --decode > local.properties
-          ls -l local.properties
+        run: base64 -d <<< "${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}" > local.properties
 
-      - name: Ensure CRNN OCR model asset folder exists
-        run: mkdir -p app/src/main/assets/ocr
-
-      - name: Download CRNN OCR model to assets
-        run: |
-          curl -L -o app/src/main/assets/ocr/model_patched.onnx https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model-early_stop_patched.onnx
-          curl -L -o app/src/main/assets/ocr/model_info.json https://huggingface.co/ArcaeaOffline/crnn-pytorch/resolve/main/model_info.json
+      - name: Setup OCR Model
+        uses: ./.github/actions/setup-ocr-model
 
       - name: Build APK using gradle
-        run: gradle assembleUnstableRelease
+        run: ./gradlew assembleUnstableRelease
 
       - name: Verify APK signing
         run: |
@@ -92,14 +85,15 @@ jobs:
           path: app/build/outputs/apk/unstable/release/app-unstable-universal-release.apk
           archive: false
 
-      - name: Upload mappings
+      - name: Zip mappings for release
+        run: zip app/build/outputs/mappings.zip -j app/build/outputs/mapping/unstableRelease/*
+
+      - name: Upload mappings to artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: proguard-mappings
-          path: app/build/outputs/mapping/unstableRelease/*
-
-      - name: Zip mappings for release
-        run: zip app/build/outputs/mappings.zip -j app/build/outputs/mapping/unstableRelease/*
+          path: app/build/outputs/mappings.zip
+          archive: false
 
       - name: Draft a release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
