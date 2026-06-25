@@ -10,12 +10,12 @@ import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 interface PlayResultCalculatedRepository {
-    fun find(uuid: UUID): Flow<PlayResultCalculated?>
+    fun find(uuid: Uuid): Flow<PlayResultCalculated?>
 
-    fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResultCalculated>>
+    fun findAllByUuid(uuids: List<Uuid>): Flow<List<PlayResultCalculated>>
 
     fun findAllBySongIdAndRatingClass(
         songId: String,
@@ -45,10 +45,10 @@ class PlayResultCalculatedRepositoryImpl(
 
     private suspend fun mapPlayResults(playResults: List<PlayResult>) = playResults.mapNotNull { calculatePlayResult(it) }
 
-    override fun find(uuid: UUID): Flow<PlayResultCalculated?> = playResultDao.findByUUID(uuid).mapLatest { calculatePlayResult(it) }
+    override fun find(uuid: Uuid): Flow<PlayResultCalculated?> = playResultDao.findByUuid(uuid).mapLatest { calculatePlayResult(it) }
 
-    override fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResultCalculated>> =
-        playResultDao.findAllByUUID(uuids).mapLatest { mapPlayResults(it) }
+    override fun findAllByUuid(uuids: List<Uuid>): Flow<List<PlayResultCalculated>> =
+        playResultDao.findAllByUuid(uuids).mapLatest { mapPlayResults(it) }
 
     override fun findAllBySongIdAndRatingClass(
         songId: String,

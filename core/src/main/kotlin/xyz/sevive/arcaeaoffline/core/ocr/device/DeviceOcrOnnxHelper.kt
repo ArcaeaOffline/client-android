@@ -14,7 +14,6 @@ import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import kotlin.jvm.optionals.getOrElse
 import kotlin.properties.Delegates
 
@@ -69,15 +68,10 @@ object DeviceOcrOnnxHelper {
      * @return arrayOf(major, minor, patch)
      */
     fun modelVersion(version: Long): List<Int> {
-        val buffer = ByteBuffer.allocate(Long.SIZE_BYTES).order(ByteOrder.BIG_ENDIAN)
-        buffer.putLong(version)
-        buffer.flip()
-
-        val major = buffer.short.toInt() shl 16
-        val minor = buffer.short.toInt() shl 8
-        val patch = buffer.int
-
-        return listOf(major shr 16, minor shr 8, patch)
+        val major = ((version shr 48) and 0xFFFF).toInt()
+        val minor = ((version shr 32) and 0xFFFF).toInt()
+        val patch = (version and 0xFFFFFFFF).toInt()
+        return listOf(major, minor, patch)
     }
 
     fun modelVersionString(version: Long): String = "v" + modelVersion(version).joinToString(".")

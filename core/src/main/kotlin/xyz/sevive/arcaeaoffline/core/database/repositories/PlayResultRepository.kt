@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 interface PlayResultRepository {
     fun find(
@@ -13,7 +13,7 @@ interface PlayResultRepository {
         ratingClass: ArcaeaRatingClass,
     ): Flow<PlayResult?>
 
-    fun findByUUID(uuid: UUID): Flow<PlayResult?>
+    fun findByUuid(uuid: Uuid): Flow<PlayResult?>
 
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
 
@@ -21,7 +21,7 @@ interface PlayResultRepository {
 
     fun findAllBySongId(songId: String): Flow<List<PlayResult>>
 
-    fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>>
+    fun findAllByUuid(uuids: List<Uuid>): Flow<List<PlayResult>>
 
     fun count(): Flow<Int>
 
@@ -42,7 +42,7 @@ class PlayResultRepositoryImpl(
         ratingClass: ArcaeaRatingClass,
     ): Flow<PlayResult?> = dao.find(songId, ratingClass)
 
-    override fun findByUUID(uuid: UUID): Flow<PlayResult?> = dao.findByUUID(uuid)
+    override fun findByUuid(uuid: Uuid): Flow<PlayResult?> = dao.findByUuid(uuid)
 
     override fun findLaterThan(date: Instant): Flow<List<PlayResult>> = dao.findLaterThan(date)
 
@@ -50,7 +50,7 @@ class PlayResultRepositoryImpl(
 
     override fun findAllBySongId(songId: String): Flow<List<PlayResult>> = dao.findAllBySongId(songId)
 
-    override fun findAllByUUID(uuids: List<UUID>): Flow<List<PlayResult>> = dao.findAllByUUID(uuids)
+    override fun findAllByUuid(uuids: List<Uuid>): Flow<List<PlayResult>> = dao.findAllByUuid(uuids)
 
     override fun count(): Flow<Int> = dao.count()
 

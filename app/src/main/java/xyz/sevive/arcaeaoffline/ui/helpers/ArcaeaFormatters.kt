@@ -5,15 +5,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
+import com.ionspin.kotlin.bignum.decimal.DecimalMode
+import com.ionspin.kotlin.bignum.decimal.RoundingMode
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 object ArcaeaFormatters {
-    private val RATING_PLUS_CONSTANTS = listOf(78, 79, 89, 97, 98, 99, 107, 108, 109)
-
     /**
      * Format a score.
      *
@@ -29,21 +28,16 @@ object ArcaeaFormatters {
     /**
      * Format the given potential to text.
      * If the potential is null, return "-.--" instead.
-     *
-     * @param pattern The pattern to use for the formatting, will be passed to [java.text.DecimalFormat].
      */
     fun potentialToText(
         potential: Double?,
-        pattern: String = "0.00",
-        roundingMode: RoundingMode = RoundingMode.DOWN,
+        decimalMode: DecimalMode = DecimalMode(roundingMode = RoundingMode.TOWARDS_ZERO, scale = 2),
     ): String =
-        if (potential != null) {
-            val decimalFormat = DecimalFormat(pattern)
-            decimalFormat.roundingMode = roundingMode
-            decimalFormat.format(potential)
-        } else {
-            "-.--"
-        }
+        potential
+            ?.toBigDecimal()
+            ?.roundToDigitPositionAfterDecimalPoint(decimalMode.scale, decimalMode.roundingMode)
+            ?.scale(decimalMode.scale)
+            ?.toPlainString() ?: "-.--"
 
     /**
      * Format the given playResult to a level text.
@@ -52,12 +46,12 @@ object ArcaeaFormatters {
      */
     fun scoreToLevelText(score: Int): String =
         when {
-            score >= 9900000 -> "EX+"
-            score >= 9800000 -> "EX"
-            score >= 9500000 -> "AA"
-            score >= 9200000 -> "A"
-            score >= 8900000 -> "B"
-            score >= 8600000 -> "C"
+            score >= 9_900_000 -> "EX+"
+            score >= 9_800_000 -> "EX"
+            score >= 9_500_000 -> "AA"
+            score >= 9_200_000 -> "A"
+            score >= 8_900_000 -> "B"
+            score >= 8_600_000 -> "C"
             else -> "D"
         }
 
@@ -67,16 +61,16 @@ object ArcaeaFormatters {
      *
      * If the constant is null, return "?" instead.
      */
-    private fun constantToRatingClassText(constant: Int?): String {
+    internal fun constantToRatingClassText(constant: Int?): String {
         if (constant == null) return "?"
 
-        var text = (constant / 10).toString()
+        val base = constant / 10
+        val remainder = constant % 10
 
-        if (RATING_PLUS_CONSTANTS.contains(constant)) {
-            text += "+"
+        return buildString {
+            append(base)
+            if (base >= 7 && remainder >= 7) append('+')
         }
-
-        return text
     }
 
     /**
@@ -101,26 +95,23 @@ object ArcaeaFormatters {
         }
     }
 
-    private fun ratingText(
+    internal fun ratingText(
         ratingClass: ArcaeaRatingClass,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int = 0,
-    ): String {
-        var text = ratingClass.toString()
-        text += ' '
+    ) = buildString {
+        append(ratingClass.toString())
+        append(' ')
 
         if (constant > 0) {
-            val decimalFormat = DecimalFormat("0.0")
-            text += decimalFormat.format(constant / 10.0)
+            append((constant.toBigDecimal() / 10.toBigDecimal()).toPlainString())
         } else {
-            text += rating.toString()
+            append(rating.toString())
             if (ratingPlus) {
-                text += '+'
+                append('+')
             }
         }
-
-        return text
     }
 
     /**

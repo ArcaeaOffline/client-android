@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
@@ -15,8 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -24,26 +22,22 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class OcrQueueScreenViewModel(
     context: Context,
-    private val chartInfoRepo: ChartInfoRepository,
-    private val playResultRepo: PlayResultRepository,
     private val songRepo: SongRepository,
     private val difficultyRepo: DifficultyRepository,
     private val chartRepo: ChartRepository,
@@ -64,31 +58,15 @@ class OcrQueueScreenViewModel(
         )
 
     data class TaskUiItem(
-        val id: Long,
-        val fileUri: Uri,
-        val status: OcrQueueTaskStatus,
-        val ocrResult: DeviceOcrResult? = null,
-        val playResult: PlayResult? = null,
+        val dbItem: OcrQueueTask,
         val chart: Chart? = null,
-        val exception: Exception? = null,
-        val warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
     ) {
-        val canEditChart = status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
-        val canEditPlayResult = status == OcrQueueTaskStatus.DONE
+        val warnings = dbItem.playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chart = chart) }
+        val hasWarnings = warnings?.isNotEmpty() == true
 
-        constructor(
-            dbItem: OcrQueueTask,
-            chart: Chart? = null,
-        ) : this(
-            id = dbItem.id,
-            fileUri = dbItem.fileUri,
-            status = dbItem.status,
-            ocrResult = dbItem.result,
-            playResult = dbItem.playResult,
-            chart = chart,
-            exception = dbItem.exception,
-            warnings = dbItem.warnings ?: emptyList(),
-        )
+        val canEditChart = dbItem.status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
+        val canEditPlayResult = dbItem.status == OcrQueueTaskStatus.DONE
+        val canSave = dbItem.status == OcrQueueTaskStatus.DONE && warnings != null && !hasWarnings
     }
 
     data class QueueTaskCounts(
@@ -104,30 +82,47 @@ class OcrQueueScreenViewModel(
         val isRunning: Boolean = true,
     )
 
-    val queueTaskCounts =
-        combine(
-            ocrQueueTaskRepo.count(),
-            ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.IDLE),
-            ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.PROCESSING),
-            ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.DONE),
-            ocrQueueTaskRepo.countDoneWithWarning(),
-            ocrQueueTaskRepo.countByStatus(OcrQueueTaskStatus.ERROR),
-        ) {
-            QueueTaskCounts(
-                total = it[0],
-                idle = it[1],
-                processing = it[2],
-                done = it[3],
-                doneWithWarning = it[4],
-                error = it[5],
-            )
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            QueueTaskCounts(),
-        )
+    internal val currentScreenCategory = MutableStateFlow(OcrQueueScreenCategory.NULL)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    internal fun setCurrentScreenCategory(category: OcrQueueScreenCategory) {
+        currentScreenCategory.value = category
+    }
+
+    private val _isTaskUiItemsLoading = MutableStateFlow(true)
+    val isTaskUiItemsLoading = _isTaskUiItemsLoading.asStateFlow()
+
+    private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
+        val chartCacheHolder = UiDisplayChartCacheHolder()
+        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, songRepo, difficultyRepo, chartRepo)
+
+        return dbItems.map {
+            if (it.playResult == null) {
+                TaskUiItem(dbItem = it)
+            } else {
+                TaskUiItem(dbItem = it, chart = chartCacheHolder.get(it.playResult))
+            }
+        }
+    }
+
+    val uiItems = ocrQueueTaskRepo.findAll().mapLatest(::mapDbItemsToUiItems)
+
+    val queueTaskCounts =
+        uiItems
+            .mapLatest { tasks ->
+                QueueTaskCounts(
+                    total = tasks.size,
+                    idle = tasks.count { it.dbItem.status == OcrQueueTaskStatus.IDLE },
+                    processing = tasks.count { it.dbItem.status == OcrQueueTaskStatus.PROCESSING },
+                    done = tasks.count { it.dbItem.status == OcrQueueTaskStatus.DONE },
+                    doneWithWarning = tasks.count { it.dbItem.status == OcrQueueTaskStatus.DONE && it.hasWarnings },
+                    error = tasks.count { it.dbItem.status == OcrQueueTaskStatus.ERROR },
+                )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                QueueTaskCounts(),
+            )
+
     val queueStatusUiState =
         workManager
             .getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME)
@@ -141,6 +136,54 @@ class OcrQueueScreenViewModel(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
                 QueueStatusUiState(),
+            )
+
+    val currentScreenUiItems =
+        combine(currentScreenCategory, uiItems) { category, items -> category to items }
+            .transformLatest { (category, items) ->
+                _isTaskUiItemsLoading.value = true
+                try {
+                    // clear previous items when category changed
+                    emit(emptyList())
+
+                    // filter from ui items
+                    val uiItemsFiltered =
+                        when (category) {
+                            OcrQueueScreenCategory.IDLE -> {
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.IDLE }
+                            }
+
+                            OcrQueueScreenCategory.PROCESSING -> {
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.PROCESSING }
+                            }
+
+                            OcrQueueScreenCategory.DONE -> {
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.DONE }
+                            }
+
+                            OcrQueueScreenCategory.DONE_WITH_WARNING -> {
+                                items.filter {
+                                    it.dbItem.status == OcrQueueTaskStatus.DONE && it.hasWarnings
+                                }
+                            }
+
+                            OcrQueueScreenCategory.ERROR -> {
+                                items.filter { it.dbItem.status == OcrQueueTaskStatus.ERROR }
+                            }
+
+                            OcrQueueScreenCategory.NULL -> {
+                                emptyList()
+                            }
+                        }
+
+                    emit(uiItemsFiltered)
+                } finally {
+                    _isTaskUiItemsLoading.value = false
+                }
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                emptyList(),
             )
 
     private val queueRunning =
@@ -176,13 +219,15 @@ class OcrQueueScreenViewModel(
         playResult: PlayResult,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.updatePlayResult(taskId, playResult, chartInfoRepo)
+            ocrQueueTaskRepo.updatePlayResult(taskId, playResult)
         }
     }
 
     fun saveTaskPlayResult(taskId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.save(taskId, playResultRepo)
+            val task = uiItems.firstOrNull().orEmpty().firstOrNull { it.dbItem.id == taskId }
+            if (task == null) return@launch
+            ocrQueueTaskRepo.save(task.dbItem.id)
         }
     }
 
@@ -190,7 +235,13 @@ class OcrQueueScreenViewModel(
         if (queueRunning.value) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            ocrQueueTaskRepo.saveAll(playResultRepo)
+            ocrQueueTaskRepo.saveBatch(
+                uiItems
+                    .firstOrNull()
+                    .orEmpty()
+                    .filter { it.canSave }
+                    .map { it.dbItem },
+            )
         }
     }
 
@@ -217,66 +268,4 @@ class OcrQueueScreenViewModel(
             )
         }
     }
-
-    internal val currentScreenCategory = MutableStateFlow(OcrQueueScreenCategory.NULL)
-
-    internal fun setCurrentScreenCategory(category: OcrQueueScreenCategory) {
-        currentScreenCategory.value = category
-    }
-
-    private val _isTaskUiItemsLoading = MutableStateFlow(true)
-    val isTaskUiItemsLoading = _isTaskUiItemsLoading.asStateFlow()
-
-    private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
-        val chartCacheHolder = UiDisplayChartCacheHolder()
-        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, songRepo, difficultyRepo, chartRepo)
-
-        return dbItems.map {
-            if (it.playResult == null) {
-                TaskUiItem(dbItem = it)
-            } else {
-                TaskUiItem(dbItem = it, chart = chartCacheHolder.get(it.playResult))
-            }
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val taskUiItems =
-        currentScreenCategory
-            .transformLatest {
-                // clear previous items when category changed
-                emit(emptyList())
-
-                // map category to db items
-                emitAll(
-                    when (it) {
-                        OcrQueueScreenCategory.NULL -> {
-                            emptyFlow()
-                        }
-
-                        OcrQueueScreenCategory.DONE_WITH_WARNING -> {
-                            ocrQueueTaskRepo.findDoneWithWarning()
-                        }
-
-                        else -> {
-                            val taskStatus =
-                                when (it) {
-                                    OcrQueueScreenCategory.IDLE -> OcrQueueTaskStatus.IDLE
-                                    OcrQueueScreenCategory.PROCESSING -> OcrQueueTaskStatus.PROCESSING
-                                    OcrQueueScreenCategory.DONE -> OcrQueueTaskStatus.DONE
-                                    OcrQueueScreenCategory.ERROR -> OcrQueueTaskStatus.ERROR
-                                }
-                            ocrQueueTaskRepo.findByStatus(taskStatus)
-                        }
-                    },
-                )
-            }.transformLatest {
-                _isTaskUiItemsLoading.value = true
-                emit(mapDbItemsToUiItems(it))
-                _isTaskUiItemsLoading.value = false
-            }.stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-                emptyList(),
-            )
 }

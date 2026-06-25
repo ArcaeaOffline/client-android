@@ -10,8 +10,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.extensions.PlayResultSerializer
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @Serializable(with = PlayResultSerializer::class)
 @Entity(
@@ -23,7 +23,7 @@ import kotlin.time.Instant
 )
 data class PlayResult(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val uuid: UUID = UUID.randomUUID(),
+    val uuid: Uuid = Uuid.generateV4(),
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,

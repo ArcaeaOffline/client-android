@@ -28,8 +28,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
-import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.Uuid
 
 class DatabasePlayResultListViewModel(
     private val playResultRepo: PlayResultRepository,
@@ -81,7 +81,7 @@ class DatabasePlayResultListViewModel(
     private val isLoading = MutableStateFlow(false)
     private val sortOrder = MutableStateFlow(SortOrder.ASC)
     private val sortByValue = MutableStateFlow(SortByValue.ID)
-    val selectedItemUuids = MutableStateFlow(emptyList<UUID>())
+    val selectedItemUuids = MutableStateFlow(emptyList<Uuid>())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rawListItems =
@@ -175,7 +175,7 @@ class DatabasePlayResultListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val playResults =
                 playResultRepo
-                    .findAllByUUID(selectedItemUuids.value)
+                    .findAllByUuid(selectedItemUuids.value)
                     .firstOrNull() ?: emptyList()
 
             playResultRepo.deleteBatch(*playResults.toTypedArray())

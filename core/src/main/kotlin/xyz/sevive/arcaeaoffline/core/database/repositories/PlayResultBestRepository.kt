@@ -51,7 +51,7 @@ class PlayResultBestRepositoryImpl(
                     .take(limit)
                     .map { it.first.uuid }
 
-            playResultCalculatedRepo.findAllByUUID(topUuids).map { list ->
+            playResultCalculatedRepo.findAllByUuid(topUuids).map { list ->
                 // Re-sort because the DB might return them in a different order
                 list.sortedByDescending { it.playRating }
             }

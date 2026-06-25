@@ -2,15 +2,15 @@ package xyz.sevive.arcaeaoffline.datastore
 
 import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.Serializer
+import androidx.datastore.core.okio.OkioSerializer
 import com.akuleshov7.ktoml.Toml
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import java.io.InputStream
-import java.io.OutputStream
+import okio.BufferedSink
+import okio.BufferedSource
 
 @Serializable
 data class UnstableFlavorPreferences(
@@ -19,24 +19,24 @@ data class UnstableFlavorPreferences(
     val unstableAlertRead: Boolean = false,
 )
 
-object UnstableFlavorPreferencesSerializer : Serializer<UnstableFlavorPreferences> {
+object UnstableFlavorPreferencesSerializer : OkioSerializer<UnstableFlavorPreferences> {
     override val defaultValue = UnstableFlavorPreferences()
 
-    override suspend fun readFrom(input: InputStream): UnstableFlavorPreferences =
+    override suspend fun readFrom(source: BufferedSource): UnstableFlavorPreferences =
         try {
-            val tomlString = input.readBytes().decodeToString()
-            Toml.decodeFromString<UnstableFlavorPreferences>(tomlString)
+            Toml.decodeFromString<UnstableFlavorPreferences>(source.readUtf8())
         } catch (e: CancellationException) {
             throw e
         } catch (exception: Exception) {
             throw CorruptionException("Cannot read UnstableFlavorPreferences from TOML file", exception)
         }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun writeTo(
         t: UnstableFlavorPreferences,
-        output: OutputStream,
-    ) = output.write(Toml.encodeToString<UnstableFlavorPreferences>(t).encodeToByteArray())
+        sink: BufferedSink,
+    ) {
+        sink.writeUtf8(Toml.encodeToString<UnstableFlavorPreferences>(t))
+    }
 }
 
 class UnstableFlavorPreferencesRepository(

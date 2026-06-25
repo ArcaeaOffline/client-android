@@ -13,7 +13,7 @@ import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultClearTy
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifierConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaRatingClassConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
-import xyz.sevive.arcaeaoffline.core.database.converters.UUIDByteArrayConverters
+import xyz.sevive.arcaeaoffline.core.database.converters.UuidByteArrayConverters
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
@@ -72,7 +72,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 )
 @TypeConverters(
     InstantConverters::class,
-    UUIDByteArrayConverters::class,
+    UuidByteArrayConverters::class,
     ArcaeaRatingClassConverters::class,
     ArcaeaPlayResultClearTypeConverters::class,
     ArcaeaPlayResultModifierConverters::class,

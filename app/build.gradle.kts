@@ -58,9 +58,13 @@ appVersioning {
     }
 }
 
+composeCompiler {
+    stabilityConfigurationFiles.add(project.layout.projectDirectory.file("stability_config.conf"))
+}
+
 android {
     namespace = "xyz.sevive.arcaeaoffline"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "xyz.sevive.arcaeaoffline"
@@ -178,8 +182,6 @@ dependencies {
     implementation(androidx.lifecycle.runtime.compose)
     implementation(androidx.lifecycle.viewmodel.compose)
 
-    implementation(androidx.exifinterface)
-
     implementation(androidx.navigation.compose)
 
     implementation(androidx.work.workRuntime)
@@ -188,6 +190,7 @@ dependencies {
     // 3rd party
     implementation(libs.kermit)
     implementation(libs.bignum)
+    implementation(libs.kim)
 
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)
@@ -205,6 +208,7 @@ dependencies {
     implementation(libs.filekit.dialogs.compose)
 
     implementation(libs.opencv)
+    implementation(libs.apache.commons.compress)
 
     implementation(libs.onnxruntime.android)
 
@@ -212,7 +216,10 @@ dependencies {
     implementation(libs.markdown.renderer.m3)
     implementation(libs.markdown.renderer.android)
 
-    implementation(libs.github.jvziyaoyao.scale.imageViewer)
+    implementation(libs.panpf.sketch.compose)
+    implementation(libs.panpf.sketch.compose.koin)
+    implementation(libs.panpf.sketch.extensions.appicon)
+    implementation(libs.panpf.zoomimage.sketch.koin)
 
     implementation(libs.github.cheonjaeung.gridlayout)
 

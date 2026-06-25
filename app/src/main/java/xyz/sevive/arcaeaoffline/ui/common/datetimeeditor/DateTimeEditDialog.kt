@@ -1,9 +1,9 @@
 package xyz.sevive.arcaeaoffline.ui.common.datetimeeditor
 
-import android.os.Build
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.icons.Icons
@@ -15,13 +15,22 @@ import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -38,12 +48,13 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.atTime
 import kotlinx.datetime.format
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toLocalDateTime
-import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
@@ -51,6 +62,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 @Composable
 private fun SecondEditor(
@@ -87,6 +99,7 @@ private fun SecondEditor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateTimeEditDialog(
     onDismissRequest: () -> Unit,
@@ -97,38 +110,77 @@ internal fun DateTimeEditDialog(
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG) }
     val timeFormatter = remember { DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM) }
 
+    val minDateMillis = remember(minDate) { minDate?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds() }
+    val datePickerState =
+        @SuppressLint("NewApi") // coreLibraryDesugaring will handle the compatibility
+        rememberDatePickerState(
+            initialSelectedDate = dateTime.date.toJavaLocalDate(),
+            selectableDates =
+                object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = minDateMillis?.let { utcTimeMillis >= it } ?: true
+                },
+        )
+    val timePickerState =
+        rememberTimePickerState(
+            initialHour = dateTime.time.hour,
+            initialMinute = dateTime.time.minute,
+        )
+
     var date by rememberSaveable { mutableStateOf(dateTime.date) }
-    var selectedTime by rememberSaveable {
-        mutableStateOf(LocalTime(dateTime.time.hour, dateTime.time.minute))
-    }
+    var hour by rememberSaveable { mutableIntStateOf(dateTime.time.hour) }
+    var minute by rememberSaveable { mutableIntStateOf(dateTime.time.minute) }
     var second by rememberSaveable { mutableIntStateOf(dateTime.time.second) }
-    val time = remember(selectedTime, second) { LocalTime(selectedTime.hour, selectedTime.minute, second) }
-    val dateText = remember(date) { dateFormatter.format(date.toJavaLocalDate()) }
-    val timeText = remember(time) { timeFormatter.format(time.toJavaLocalTime()) }
+    val selectedDateTime by remember {
+        derivedStateOf { date.atTime(LocalTime(hour, minute, second)) }
+    }
+    val dateText by remember {
+        derivedStateOf { dateFormatter.format(selectedDateTime.date.toJavaLocalDate()) }
+    }
+    val timeText by remember {
+        derivedStateOf { timeFormatter.format(selectedDateTime.time.toJavaLocalTime()) }
+    }
 
     var showDateEditDialog by rememberSaveable { mutableStateOf(false) }
     var showTimeEditDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showDateEditDialog) {
-        BasicAlertDialogSurface(onDismissRequest = { showDateEditDialog = false }) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                AndroidViewDatePickerDialog(
-                    date = date,
-                    minDate = minDate,
-                    onDateSelect = { date = it },
-                )
-            } else {
-                AndroidViewCalendar(
-                    date = date,
-                    minDate = minDate,
-                    onDateSelect = { date = it },
-                )
-            }
+        val onDatePickerDismiss = { showDateEditDialog = false }
+        DatePickerDialog(
+            onDismissRequest = onDatePickerDismiss,
+            confirmButton = {
+                DialogConfirmButton(onClick = {
+                    datePickerState.selectedDateMillis?.let {
+                        date = Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date
+                    }
+                    onDatePickerDismiss()
+                })
+            },
+            dismissButton = {
+                DialogDismissTextButton(onClick = onDatePickerDismiss)
+            },
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
     if (showTimeEditDialog) {
-        BasicAlertDialogSurface(onDismissRequest = { showTimeEditDialog = false }) {
-            AndroidViewTimePicker(time = selectedTime, onTimeSelect = { selectedTime = it })
+        val onTimePickerDismiss = { showTimeEditDialog = false }
+        TimePickerDialog(
+            onDismissRequest = onTimePickerDismiss,
+            title = {},
+            confirmButton = {
+                DialogConfirmButton(onClick = {
+                    hour = timePickerState.hour
+                    minute = timePickerState.minute
+                    onTimePickerDismiss()
+                })
+            },
+            dismissButton = {
+                DialogDismissTextButton(onClick = onTimePickerDismiss)
+            },
+        ) {
+            TimePicker(
+                state = timePickerState,
+            )
         }
     }
 
@@ -137,7 +189,7 @@ internal fun DateTimeEditDialog(
         confirmButton = {
             DialogConfirmButton(
                 onClick = {
-                    onDateTimeChange(date.atTime(time))
+                    onDateTimeChange(selectedDateTime)
                     onDismissRequest()
                 },
             )
@@ -145,29 +197,33 @@ internal fun DateTimeEditDialog(
         dismissButton = { DialogDismissTextButton(onClick = onDismissRequest) },
         icon = { Icon(Icons.Default.EditCalendar, contentDescription = null) },
         text = {
-            Column {
-                TextPreferencesWidget(
-                    onClick = { showDateEditDialog = true },
-                    leadingIcon = Icons.Default.CalendarMonth,
-                    leadingIconTint = MaterialTheme.colorScheme.secondary,
-                    trailingIcon = Icons.Default.Edit,
-                    title = dateText,
-                )
+            LazyColumn {
+                item {
+                    TextPreferencesWidget(
+                        onClick = { showDateEditDialog = true },
+                        leadingIcon = Icons.Default.CalendarMonth,
+                        leadingIconTint = MaterialTheme.colorScheme.secondary,
+                        trailingIcon = Icons.Default.Edit,
+                        title = dateText,
+                        content = stringResource(R.string.datetime_picker_date),
+                    )
+                }
 
-                Row {
+                item {
                     TextPreferencesWidget(
                         onClick = { showTimeEditDialog = true },
                         leadingIcon = Icons.Default.AccessTime,
                         leadingIconTint = MaterialTheme.colorScheme.secondary,
                         trailingIcon = Icons.Default.Edit,
                         title = timeText,
-                        modifier = Modifier.weight(2f),
+                        content = stringResource(R.string.datetime_picker_time),
                     )
+                }
 
+                item {
                     SecondEditor(
                         second = second,
                         onSecondChange = { second = it },
-                        modifier = Modifier.weight(1f),
                     )
                 }
             }

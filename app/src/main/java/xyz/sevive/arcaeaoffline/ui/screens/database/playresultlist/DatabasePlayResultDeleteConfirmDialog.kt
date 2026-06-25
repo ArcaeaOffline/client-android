@@ -16,13 +16,13 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Composable
 internal fun DatabasePlayResultDeleteConfirmDialog(
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
-    selectedItemUuids: List<UUID>,
+    selectedItemUuids: List<Uuid>,
     modifier: Modifier = Modifier,
 ) {
     val selectedItemsCount = selectedItemUuids.size

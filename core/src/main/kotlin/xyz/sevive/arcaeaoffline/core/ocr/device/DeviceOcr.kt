@@ -23,8 +23,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitSamplesKnn
 import xyz.sevive.arcaeaoffline.core.ocr.ocrDigitsByContourKnn
 import xyz.sevive.arcaeaoffline.core.ocr.preprocessHog
 import xyz.sevive.arcaeaoffline.core.ocr.resizeFillSquare
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @Serializable
 data class DeviceOcrResult(
@@ -73,7 +73,7 @@ fun DeviceOcrResult.toPlayResult(
 
     return PlayResult(
         id = 0,
-        uuid = UUID.randomUUID(),
+        uuid = Uuid.generateV4(),
         songId = this.songId,
         ratingClass = this.ratingClass,
         score = this.score,

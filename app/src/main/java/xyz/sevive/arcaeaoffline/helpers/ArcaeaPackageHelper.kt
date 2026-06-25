@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.helpers
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.absolutePath
@@ -37,13 +36,6 @@ class ArcaeaPackageHelper(
     fun getPackageInfo(): PackageInfo? =
         try {
             packageManager.getPackageInfo(ARCAEA_PACKAGE_NAME, 0)
-        } catch (_: PackageManager.NameNotFoundException) {
-            null
-        }
-
-    fun getIcon(): Drawable? =
-        try {
-            packageManager.getApplicationIcon(ARCAEA_PACKAGE_NAME)
         } catch (_: PackageManager.NameNotFoundException) {
             null
         }

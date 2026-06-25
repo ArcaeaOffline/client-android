@@ -83,7 +83,7 @@ class OcrQueueEnqueueCheckerJob(
         logger.i { "Cleaning up" }
 
         val urisToEnqueue = repo.findShouldInsertUris().firstOrNull() ?: emptyList()
-        taskRepo.insertBatch(urisToEnqueue, applicationContext)
+        taskRepo.insertBatch(urisToEnqueue)
         repo.deleteChecked()
     }
 
@@ -184,7 +184,7 @@ class OcrQueueEnqueueCheckerJob(
             }
 
             return Result.success()
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             logger.i { "CancellationException caught" }
             withContext(NonCancellable) {
                 cleanup()

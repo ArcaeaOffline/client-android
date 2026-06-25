@@ -40,15 +40,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.core.net.toUri
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import kotlin.time.Clock
 
 @Composable
 private fun TaskDetailsDialog(
-    uiItem: OcrQueueScreenViewModel.TaskUiItem,
+    dbItem: OcrQueueTask,
     onDismissRequest: () -> Unit,
 ) {
     AlertDialog(
@@ -60,14 +62,14 @@ private fun TaskDetailsDialog(
                 item {
                     TextPreferencesWidget(
                         title = "ID",
-                        content = uiItem.id.toString(),
+                        content = dbItem.id.toString(),
                     )
                 }
 
                 item {
                     TextPreferencesWidget(
                         title = "Uri",
-                        content = uiItem.fileUri.toString(),
+                        content = dbItem.fileUri.toString(),
                     )
                 }
             }
@@ -86,14 +88,14 @@ internal fun OcrQueueTaskListItemHeader(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val filename = remember(uiItem.fileUri) { context.getFilename(uiItem.fileUri) ?: "-" }
+    val filename = remember(uiItem.dbItem.fileUri) { context.getFilename(uiItem.dbItem.fileUri) ?: "-" }
 
     var showEditPopup by rememberSaveable { mutableStateOf(false) }
 
     var showDetailsDialog by rememberSaveable { mutableStateOf(false) }
     if (showDetailsDialog) {
         TaskDetailsDialog(
-            uiItem = uiItem,
+            dbItem = uiItem.dbItem,
             onDismissRequest = { showDetailsDialog = false },
         )
     }
@@ -104,7 +106,7 @@ internal fun OcrQueueTaskListItemHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.minimumInteractiveComponentSize()) {
-                OcrQueueTaskListItemStatus(uiItem.status)
+                OcrQueueTaskListItemStatus(uiItem.dbItem.status)
             }
 
             Text(
@@ -174,7 +176,7 @@ internal fun OcrQueueTaskListItemHeader(
 
             IconButton(
                 onClick = onSaveTask,
-                enabled = uiItem.status == OcrQueueTaskStatus.DONE,
+                enabled = uiItem.dbItem.status == OcrQueueTaskStatus.DONE,
                 colors =
                     IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -195,13 +197,14 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                 OcrQueueTaskListItemHeader(
                     uiItem =
                         OcrQueueScreenViewModel.TaskUiItem(
-                            id = 123,
-                            fileUri = "file:///preview.png".toUri(),
-                            status = OcrQueueTaskStatus.DONE,
-                            ocrResult = null,
-                            playResult = null,
+                            dbItem =
+                                OcrQueueTask(
+                                    id = 123,
+                                    fileUri = "file:///preview.png".toUri(),
+                                    status = OcrQueueTaskStatus.DONE,
+                                    insertedAt = Clock.System.now(),
+                                ),
                             chart = null,
-                            exception = null,
                         ),
                     onShowImagePreview = {},
                     onSaveTask = {},

@@ -13,8 +13,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import java.util.UUID
 import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 object PlayResultSerializer : KSerializer<PlayResult> {
     override val descriptor: SerialDescriptor =
@@ -64,7 +64,7 @@ object PlayResultSerializer : KSerializer<PlayResult> {
                     }
 
                     1 -> {
-                        cls = cls.copy(uuid = UUID.fromString(decodeStringElement(descriptor, 1)))
+                        cls = cls.copy(uuid = Uuid.parse(decodeStringElement(descriptor, 1)))
                     }
 
                     2 -> {
