@@ -16,7 +16,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
-import java.text.NumberFormat
+import kotlin.math.roundToInt
+
+typealias PercentageFormatter = (Double) -> String
 
 @Composable
 private fun rememberIsIndeterminate(
@@ -37,7 +39,7 @@ private fun rememberPercentage(
 private fun rememberProgressLabel(
     current: Int,
     total: Int,
-    formatter: NumberFormat,
+    formatter: PercentageFormatter,
 ): AnnotatedString {
     val isIndeterminate = rememberIsIndeterminate(current, total)
     val percentage = rememberPercentage(current, total)
@@ -57,14 +59,16 @@ private fun rememberProgressLabel(
             buildAnnotatedString {
                 append(current.toString())
                 withStyle(SpanStyle(fontSize = 0.9.em)) { append("/$total") }
-                append(" (${formatter.format(percentage)})")
+                append(" (${formatter(percentage)})")
             }
         }
     }
 }
 
 object LinearProgressIndicatorWrapperDefaults {
-    val formatter: NumberFormat = NumberFormat.getPercentInstance()
+    val formatter: PercentageFormatter = { percentage ->
+        "${(percentage * 100).roundToInt()}%"
+    }
     val indeterminateLabel: String? = null
     val determinateLabel: String? = null
 }
@@ -76,7 +80,7 @@ fun LinearProgressIndicatorWrapper(
     modifier: Modifier = Modifier,
     indeterminateLabel: String? = LinearProgressIndicatorWrapperDefaults.indeterminateLabel,
     determinateLabel: String? = LinearProgressIndicatorWrapperDefaults.determinateLabel,
-    formatter: NumberFormat = LinearProgressIndicatorWrapperDefaults.formatter,
+    formatter: PercentageFormatter = LinearProgressIndicatorWrapperDefaults.formatter,
 ) {
     val isIndeterminate = rememberIsIndeterminate(current, total)
     val percentage = rememberPercentage(current, total)
@@ -107,7 +111,7 @@ fun LinearProgressIndicatorWrapper(
     modifier: Modifier = Modifier,
     indeterminateLabel: String? = LinearProgressIndicatorWrapperDefaults.indeterminateLabel,
     determinateLabel: String? = LinearProgressIndicatorWrapperDefaults.determinateLabel,
-    formatter: NumberFormat = LinearProgressIndicatorWrapperDefaults.formatter,
+    formatter: PercentageFormatter = LinearProgressIndicatorWrapperDefaults.formatter,
 ) {
     LinearProgressIndicatorWrapper(
         current = progress?.first ?: 0,
