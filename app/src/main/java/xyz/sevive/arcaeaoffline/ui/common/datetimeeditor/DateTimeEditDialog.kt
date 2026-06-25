@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.common.datetimeeditor
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -111,6 +112,7 @@ internal fun DateTimeEditDialog(
 
     val minDateMillis = remember(minDate) { minDate?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds() }
     val datePickerState =
+        @SuppressLint("NewApi") // coreLibraryDesugaring will handle the compatibility
         rememberDatePickerState(
             initialSelectedDate = dateTime.date.toJavaLocalDate(),
             selectableDates =
