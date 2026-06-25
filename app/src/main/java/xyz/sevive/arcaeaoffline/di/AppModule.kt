@@ -1,6 +1,9 @@
 package xyz.sevive.arcaeaoffline.di
 
 import android.content.Context
+import com.github.panpf.sketch.Sketch
+import com.github.panpf.sketch.cache.MemoryCache
+import com.github.panpf.sketch.util.Logger
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
@@ -53,9 +56,24 @@ internal fun ocrQueueTaskDao(db: OcrQueueDatabase) = db.ocrQueueTaskDao()
 
 internal fun ocrQueueEnqueueBufferDao(db: OcrQueueDatabase) = db.ocrQueueEnqueueBufferDao()
 
+val thirdPartyModule =
+    module {
+        single<Sketch> {
+            Sketch
+                .Builder(get())
+                .apply {
+                    logger(level = Logger.Level.Debug)
+                    memoryCache {
+                        MemoryCache.Builder(get()).apply { maxSizePercent(0.1) }.build()
+                    }
+                }.build()
+        }
+    }
+
 val appModule =
     module {
         includes(coreModule)
+        includes(thirdPartyModule)
 
         single<AppDatabase> { create(::createAppDatabase) }
         single<OcrHistoryDao> { create(::ocrHistoryDao) }
