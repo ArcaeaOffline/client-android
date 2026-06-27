@@ -9,17 +9,21 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.database.converters.DeviceOcrResultConverters
+import xyz.sevive.arcaeaoffline.database.converters.OcrQueueEnqueueOptionsConverters
+import xyz.sevive.arcaeaoffline.database.converters.OcrQueueSourceTypeConverters
 import xyz.sevive.arcaeaoffline.database.converters.OcrQueueTaskStatusConverters
 import xyz.sevive.arcaeaoffline.database.converters.PlayResultConverters
 import xyz.sevive.arcaeaoffline.database.converters.UriConverters
+import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBatchDao
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBufferDao
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBatch
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 
 @Database(
-    entities = [OcrQueueTask::class, OcrQueueEnqueueBuffer::class],
-    version = 2,
+    entities = [OcrQueueTask::class, OcrQueueEnqueueBuffer::class, OcrQueueEnqueueBatch::class],
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(
@@ -28,11 +32,15 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
     OcrQueueTaskStatusConverters::class,
     DeviceOcrResultConverters::class,
     PlayResultConverters::class,
+    OcrQueueEnqueueOptionsConverters::class,
+    OcrQueueSourceTypeConverters::class,
 )
 abstract class OcrQueueDatabase : RoomDatabase() {
     abstract fun ocrQueueTaskDao(): OcrQueueTaskDao
 
     abstract fun ocrQueueEnqueueBufferDao(): OcrQueueEnqueueBufferDao
+
+    abstract fun ocrQueueEnqueueBatchDao(): OcrQueueEnqueueBatchDao
 
     companion object {
         const val DATABASE_FILENAME = "ocr-queue.db"

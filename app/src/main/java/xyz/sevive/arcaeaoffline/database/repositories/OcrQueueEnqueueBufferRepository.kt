@@ -1,19 +1,21 @@
 package xyz.sevive.arcaeaoffline.database.repositories
 
 import android.net.Uri
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBufferDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueUriType
 
 class OcrQueueEnqueueBufferRepository(
     private val dao: OcrQueueEnqueueBufferDao,
 ) {
-    fun findUnchecked(): Flow<List<OcrQueueEnqueueBuffer>> = dao.findUnchecked()
+    suspend fun findByUriType(type: OcrQueueUriType): List<OcrQueueEnqueueBuffer> = dao.findByUriType(type)
 
-    fun findChecked(): Flow<List<OcrQueueEnqueueBuffer>> = dao.findChecked()
-
-    fun findShouldInsertUris(): Flow<List<Uri>> = dao.findShouldInsertUris()
+    suspend fun findShouldInsertUris(): List<Uri> =
+        dao
+            .findShouldInsertBuffers()
+            .filter { it.uriType == OcrQueueUriType.FILE }
+            .map { it.uri }
 
     fun count(): Flow<Int> = dao.count()
 
@@ -21,13 +23,21 @@ class OcrQueueEnqueueBufferRepository(
 
     suspend fun insert(ocrQueueEnqueueBuffer: OcrQueueEnqueueBuffer): Long = dao.insert(ocrQueueEnqueueBuffer)
 
-    suspend fun insertBatch(uris: List<Uri>): List<Long> {
-        val wtf = dao.insertBatch(uris.map { OcrQueueEnqueueBuffer(uri = it) })
-        Logger.withTag("OCR").d { wtf.size.toString() }
-        return wtf
-    }
+    suspend fun insertBatch(
+        uris: Map<Uri, OcrQueueUriType>,
+        batchId: Long,
+    ): List<Long> =
+        dao.insertBatch(
+            uris.map { (uri, uriType) ->
+                OcrQueueEnqueueBuffer(uri = uri, uriType = uriType, batchId = batchId)
+            },
+        )
 
-    suspend fun update(ocrQueueEnqueueBuffer: OcrQueueEnqueueBuffer) = dao.update(ocrQueueEnqueueBuffer)
+    suspend fun update(item: OcrQueueEnqueueBuffer) = dao.update(item)
+
+    suspend fun updateBatch(items: List<OcrQueueEnqueueBuffer>) = dao.updateBatch(items)
+
+    suspend fun deleteById(id: Long) = dao.deleteById(id)
 
     suspend fun deleteChecked(): Int = dao.deleteChecked()
 

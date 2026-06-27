@@ -233,7 +233,6 @@
 
     <string name="ocr_queue_pick_images_button">多选图像</string>
     <string name="ocr_queue_pick_folder_button">导入文件夹</string>
-    <string name="ocr_queue_stop_enqueue_checker_job_button">停止当前任务</string>
     <string name="ocr_queue_add_image_options_title">添加图片</string>
     <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
@@ -244,6 +243,19 @@
     <string name="ocr_queue_status_done">完成</string>
     <string name="ocr_queue_status_done_with_warning">完成但有警告</string>
     <string name="ocr_queue_status_error">出错</string>
+
+    <plurals name="ocr_queue_event_files_enqueued">
+        <item quantity="other">%s 个文件已被添加至入队检查器</item>
+    </plurals>
+    <string name="ocr_queue_event_folder_enqueued">正在扫描 "%s"</string>
+    <string name="ocr_queue_event_enqueue_error">入队检查器错误：%s</string>
+    <string name="ocr_queue_event_enqueue_buffer_cleared">缓冲区已被清空</string>
+    <string name="ocr_queue_enqueue_buffer_status_label">缓冲区</string>
+    <string name="ocr_queue_enqueue_buffer_empty">空</string>
+    <string name="ocr_queue_enqueue_worker_status_label">检查器</string>
+    <string name="ocr_queue_enqueue_worker_not_running">已停止</string>
+    <string name="ocr_queue_start_enqueue_checker_job_button">启动</string>
+    <string name="ocr_queue_clear_enqueue_buffer_button">清空</string>
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR 依赖项</string>

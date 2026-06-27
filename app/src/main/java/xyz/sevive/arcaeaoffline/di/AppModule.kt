@@ -14,9 +14,11 @@ import xyz.sevive.arcaeaoffline.core.di.coreModule
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
+import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBatchDao
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueEnqueueBufferDao
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBatchRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
@@ -56,6 +58,8 @@ internal fun ocrQueueTaskDao(db: OcrQueueDatabase) = db.ocrQueueTaskDao()
 
 internal fun ocrQueueEnqueueBufferDao(db: OcrQueueDatabase) = db.ocrQueueEnqueueBufferDao()
 
+internal fun ocrQueueEnqueueBatchDao(db: OcrQueueDatabase) = db.ocrQueueEnqueueBatchDao()
+
 val thirdPartyModule =
     module {
         single<Sketch> {
@@ -82,8 +86,10 @@ val appModule =
         single<OcrQueueDatabase> { create(::createOcrQueueDatabase) }
         single<OcrQueueTaskDao> { create(::ocrQueueTaskDao) }
         single<OcrQueueEnqueueBufferDao> { create(::ocrQueueEnqueueBufferDao) }
+        single<OcrQueueEnqueueBatchDao> { create(::ocrQueueEnqueueBatchDao) }
         single<OcrQueueTaskRepositoryImpl>().bind(OcrQueueTaskRepository::class)
         single<OcrQueueEnqueueBufferRepository>()
+        single<OcrQueueEnqueueBatchRepository>()
 
         single<AppPreferencesRepository>()
         single<EmergencyModePreferencesRepository>()

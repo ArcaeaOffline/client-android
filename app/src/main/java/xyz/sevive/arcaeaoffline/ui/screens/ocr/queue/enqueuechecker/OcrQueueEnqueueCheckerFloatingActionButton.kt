@@ -1,175 +1,58 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
 
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.Badge
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.dialogs.FileKitMode
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.dialogs.toAndroidUri
-import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import kotlin.math.roundToInt
 
 @Composable
 internal fun OcrQueueEnqueueCheckerFloatingActionButton(
-    modifier: Modifier = Modifier,
-    vm: OcrQueueEnqueueCheckerViewModel = koinViewModel(),
-) {
-    val context = LocalContext.current
-
-    val uiState by vm.uiState.collectAsStateWithLifecycle()
-
-    val pickImagesLauncher =
-        rememberFilePickerLauncher(
-            mode = FileKitMode.Multiple(),
-            type = FileKitType.Image,
-        ) { files: List<PlatformFile>? ->
-            // persist access permission to these images, ensuring the image preview function
-            // will work even if the application restarted
-            val uris = files?.map { it.toAndroidUri() }.orEmpty()
-            context.persistUriPermissions(uris, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            vm.addImageFiles(uris)
-        }
-
-    val pickFolderLauncher =
-        rememberDirectoryPickerLauncher { dir ->
-            dir?.let {
-                // persistent access permission to this folder
-                context.persistUriPermissions(it.toAndroidUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                vm.addFolder(it)
-            }
-        }
-
-    OcrQueueEnqueueCheckerFloatingActionButton(
-        uiState = uiState,
-        onPickImages = { pickImagesLauncher.launch() },
-        onPickFolder = { pickFolderLauncher.launch() },
-        onStopJob = { vm.cancelWork() },
-        modifier = modifier,
-    )
-}
-
-@Composable
-internal fun OcrQueueEnqueueCheckerFloatingActionButton(
-    onPickImages: () -> Unit,
-    onPickFolder: () -> Unit,
-    onStopJob: () -> Unit,
-    uiState: OcrQueueEnqueueCheckerViewModel.UiState,
+    onClick: () -> Unit,
+    isVisible: Boolean,
+    badgeCount: Int?,
     modifier: Modifier = Modifier,
 ) {
-    val enabled = !uiState.ocrQueueRunning
-    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = enabled) {
-        if (!enabled) showBottomSheet = false
-    }
-
-    if (showBottomSheet) {
-        OcrQueueEnqueueCheckerBottomSheet(
-            onDismissRequest = { showBottomSheet = false },
-            onPickImagesRequest = {
-                onPickImages()
-                showBottomSheet = false
-            },
-            onPickFolderRequest = {
-                onPickFolder()
-                showBottomSheet = false
-            },
-            onStopJobRequest =
-                if (uiState.isRunning) {
-                    {
-                        onStopJob()
-                        showBottomSheet = false
-                    }
-                } else {
-                    null
-                },
-        )
-    }
-
-    val progress =
-        remember(uiState.progress) {
-            uiState.progress?.let { it.first.toFloat() / it.second }
-        }
-    val progressText = remember(progress) { progress?.let { "${(it * 100).roundToInt()}%" } }
-    val imagePlusIconAlpha by animateFloatAsState(
-        targetValue = if (uiState.isPreparing || progress != null) 0.05f else 1f,
-        label = "imagePlusIconAlpha",
-    )
-
     AnimatedVisibility(
-        visible = enabled,
+        visible = isVisible,
         modifier = modifier,
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        FloatingActionButton(onClick = { if (enabled) showBottomSheet = true }) {
-            Box {
+        Box {
+            FloatingActionButton(onClick = onClick) {
                 Icon(
                     ImageVector.vectorResource(R.drawable.ic_image_plus),
                     contentDescription = null,
-                    Modifier
-                        .align(Alignment.Center)
-                        .alpha(imagePlusIconAlpha),
                 )
+            }
 
-                if (uiState.isPreparing) {
-                    CircularProgressIndicator(
+            if (badgeCount != null) {
+                Badge(
+                    modifier =
                         Modifier
-                            .size(48.dp)
-                            .align(Alignment.Center),
-                    )
-                }
-
-                progress?.let {
-                    CircularProgressIndicator(
-                        progress = { it },
-                        modifier =
-                            Modifier
-                                .size(48.dp)
-                                .align(Alignment.Center),
-                    )
-
-                    Text(
-                        progressText ?: "",
-                        Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Light,
-                    )
+                            .align(Alignment.TopStart)
+                            .offset(x = (-4).dp, y = (-4).dp),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ) {
+                    Text(badgeCount.toString())
                 }
             }
         }
@@ -183,36 +66,15 @@ private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
         Surface {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OcrQueueEnqueueCheckerFloatingActionButton(
-                    onPickImages = {},
-                    onPickFolder = {},
-                    onStopJob = {},
-                    uiState =
-                        OcrQueueEnqueueCheckerViewModel.UiState(
-                            ocrQueueRunning = false,
-                        ),
+                    onClick = {},
+                    isVisible = true,
+                    badgeCount = null,
                 )
 
                 OcrQueueEnqueueCheckerFloatingActionButton(
-                    onPickImages = {},
-                    onPickFolder = {},
-                    onStopJob = {},
-                    uiState =
-                        OcrQueueEnqueueCheckerViewModel.UiState(
-                            isPreparing = true,
-                            ocrQueueRunning = false,
-                        ),
-                )
-
-                OcrQueueEnqueueCheckerFloatingActionButton(
-                    onPickImages = {},
-                    onPickFolder = {},
-                    onStopJob = {},
-                    uiState =
-                        OcrQueueEnqueueCheckerViewModel.UiState(
-                            isRunning = true,
-                            progress = 33 to 100,
-                            ocrQueueRunning = false,
-                        ),
+                    onClick = {},
+                    isVisible = true,
+                    badgeCount = 5,
                 )
             }
         }

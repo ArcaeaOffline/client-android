@@ -264,7 +264,6 @@ CC BY-SA 3.0
 
     <string name="ocr_queue_pick_images_button">Add Images</string>
     <string name="ocr_queue_pick_folder_button">Import Folder</string>
-    <string name="ocr_queue_stop_enqueue_checker_job_button">Stop Current Job</string>
     <string name="ocr_queue_add_image_options_title">Adding Images</string>
     <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
@@ -275,6 +274,20 @@ CC BY-SA 3.0
     <string name="ocr_queue_status_done">Done</string>
     <string name="ocr_queue_status_done_with_warning">Done but with warnings</string>
     <string name="ocr_queue_status_error">Error</string>
+
+    <plurals name="ocr_queue_event_files_enqueued">
+        <item quantity="one">%s file added to enqueue checker</item>
+        <item quantity="many">%s files added to enqueue checker</item>
+    </plurals>
+    <string name="ocr_queue_event_folder_enqueued">Scanning "%s"</string>
+    <string name="ocr_queue_event_enqueue_error">Error occurred in enqueue checker: %s</string>
+    <string name="ocr_queue_event_enqueue_buffer_cleared">Buffer cleared</string>
+    <string name="ocr_queue_enqueue_buffer_status_label">Buffer</string>
+    <string name="ocr_queue_enqueue_buffer_empty">Empty</string>
+    <string name="ocr_queue_enqueue_worker_status_label">Worker</string>
+    <string name="ocr_queue_enqueue_worker_not_running">Stopped</string>
+    <string name="ocr_queue_start_enqueue_checker_job_button">Start</string>
+    <string name="ocr_queue_clear_enqueue_buffer_button">Clear</string>
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR Dependencies</string>
