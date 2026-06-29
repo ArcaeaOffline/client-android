@@ -17,6 +17,7 @@ import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabaseBuilder
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
+import xyz.sevive.arcaeaoffline.helpers.toWorkData
 
 class ImageHashesDatabaseBuilderJob(
     context: Context,
@@ -27,8 +28,6 @@ class ImageHashesDatabaseBuilderJob(
     companion object {
         const val NAME = "ImageHashesDatabaseBuilderJob"
         private const val LOG_TAG = "ImageHashesDbBuilderJob"
-        const val KEY_PROGRESS = "progress"
-        const val KEY_PROGRESS_TOTAL = "progressTotal"
     }
 
     override suspend fun doWork(): Result {
@@ -52,10 +51,8 @@ class ImageHashesDatabaseBuilderJob(
                     val builder = ImageHashesDatabaseBuilder(conn)
 
                     collectScope.launch {
-                        builder.buildProgress.collectLatest {
-                            setProgress(
-                                workDataOf(KEY_PROGRESS to it?.first, KEY_PROGRESS_TOTAL to it?.second),
-                            )
+                        builder.buildProgress.collectLatest { progress ->
+                            progress?.let { setProgress(it.toWorkData()) }
                         }
                     }
 

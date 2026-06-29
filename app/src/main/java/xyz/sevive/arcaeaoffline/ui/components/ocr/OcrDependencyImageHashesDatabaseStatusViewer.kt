@@ -7,11 +7,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 
 data class OcrDependencyImageHashesDatabaseStatusUiState(
-    val progress: Pair<Int, Int>? = null,
+    val progress: Progress? = null,
     val statusDetail: ImageHashesDatabaseStatusDetail = ImageHashesDatabaseStatusDetail(),
 )
 
