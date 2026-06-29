@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.room.Transactor
 import androidx.room.useWriterConnection
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -17,7 +16,7 @@ import kotlin.time.Clock
 interface OcrQueueTaskRepository {
     fun findAll(): Flow<List<OcrQueueTask>>
 
-    fun findById(id: Long): Flow<OcrQueueTask>
+    suspend fun findById(id: Long): OcrQueueTask?
 
     fun findByStatus(statuses: List<OcrQueueTaskStatus>): Flow<List<OcrQueueTask>>
 
@@ -67,7 +66,7 @@ class OcrQueueTaskRepositoryImpl(
 
     override fun findAll(): Flow<List<OcrQueueTask>> = dao.findAll()
 
-    override fun findById(id: Long): Flow<OcrQueueTask> = dao.findById(id)
+    override suspend fun findById(id: Long): OcrQueueTask? = dao.findById(id)
 
     override fun findByStatus(statuses: List<OcrQueueTaskStatus>): Flow<List<OcrQueueTask>> = dao.findByStatus(statuses)
 
@@ -88,7 +87,7 @@ class OcrQueueTaskRepositoryImpl(
         id: Long,
         chart: Chart,
     ): Int? {
-        var item = findById(id).firstOrNull() ?: return null
+        var item = findById(id) ?: return null
 
         if (item.status == OcrQueueTaskStatus.ERROR) {
             item = item.copy(status = OcrQueueTaskStatus.DONE, errorType = null, errorMessage = null)
@@ -107,8 +106,8 @@ class OcrQueueTaskRepositoryImpl(
         id: Long,
         playResult: PlayResult,
     ): Int? {
-        val item = findById(id).firstOrNull()?.copy(playResult = playResult) ?: return null
-        return update(item)
+        val item = findById(id) ?: return null
+        return update(item.copy(playResult = playResult))
     }
 
     override suspend fun delete(item: OcrQueueTask): Int = dao.delete(item)
@@ -135,7 +134,7 @@ class OcrQueueTaskRepositoryImpl(
     }
 
     override suspend fun save(itemId: Long) {
-        dao.findById(itemId).firstOrNull()?.let { save(it) }
+        dao.findById(itemId)?.let { save(it) }
     }
 
     override suspend fun saveBatch(items: List<OcrQueueTask>) {

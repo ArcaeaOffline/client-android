@@ -16,7 +16,7 @@ interface OcrQueueTaskDao {
     fun findAll(): Flow<List<OcrQueueTask>>
 
     @Query("SELECT * FROM ocr_queue_tasks WHERE id = :id")
-    fun findById(id: Long): Flow<OcrQueueTask>
+    suspend fun findById(id: Long): OcrQueueTask?
 
     @Query("SELECT * FROM ocr_queue_tasks WHERE status IN (:statuses)")
     fun findByStatus(statuses: List<OcrQueueTaskStatus>): Flow<List<OcrQueueTask>>
