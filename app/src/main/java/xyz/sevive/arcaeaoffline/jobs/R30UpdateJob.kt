@@ -30,7 +30,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.toWorkData
-import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob.RunMode.NORMAL
 import kotlin.time.Clock
 
 private fun PlayResult.triggersConditionalWrite(): Boolean {
@@ -70,8 +69,7 @@ class R30UpdateJob(
         val value: Int,
     ) {
         NORMAL(0),
-        REBUILD(1),
-        ;
+        REBUILD(1), ;
 
         companion object {
             fun fromInt(value: Int) = entries.firstOrNull { it.value == value }
@@ -85,8 +83,8 @@ class R30UpdateJob(
     private fun parseRunMode(): RunMode {
         val runModeInput = inputData.getInt(DATA_RUN_MODE, -1)
         val result = RunMode.fromInt(runModeInput)
-        if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to $NORMAL" }
-        return result ?: NORMAL
+        if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to ${RunMode.NORMAL}" }
+        return result ?: RunMode.NORMAL
     }
 
     private fun getWorkOptions(): WorkOptions =
@@ -119,12 +117,8 @@ class R30UpdateJob(
                         RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
                         else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
                     } ?: emptyList()
-                val deletedSongIds =
-                    songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-                val newPlayResults =
-                    playResults
-                        .filter { it.date != null && it.songId !in deletedSongIds }
-                        .sortedBy { it.date }
+                val deletedSongIds = songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
+                val newPlayResults = playResults.filter { it.date != null && it.songId !in deletedSongIds }.sortedBy { it.date }
 
                 progressFlow.update { Progress(current = 0, total = newPlayResults.size) }
                 logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
@@ -184,10 +178,7 @@ class R30UpdateJob(
 
         // ensure the new r30 should have at least 10 unique charts
         // otherwise keep the entries unmodified
-        val uniqueChartsCount =
-            newR30Entries
-                .distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }
-                .count()
+        val uniqueChartsCount = newR30Entries.distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }.count()
         return if (uniqueChartsCount < 10) {
             oldR30List
         } else {
