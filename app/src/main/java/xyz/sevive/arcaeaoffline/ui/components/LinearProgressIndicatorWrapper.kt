@@ -62,10 +62,7 @@ fun LinearProgressIndicatorWrapper(
     val label = if (isIndeterminate) indeterminateLabel else determinateLabel
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
             label?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyMedium)
             }
