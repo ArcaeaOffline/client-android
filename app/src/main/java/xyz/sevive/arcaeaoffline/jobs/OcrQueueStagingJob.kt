@@ -66,14 +66,10 @@ class OcrQueueStagingJob(
 
     private val logger = Logger.withTag(LOG_TAG)
 
-    private val notificationTitle =
-        applicationContext.getString(R.string.notif_title_ocr_queue_staging)
-    private val notificationTextPleaseWait =
-        applicationContext.getString(R.string.general_please_wait)
     private val notificationBuilder =
         NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL).apply {
             setSmallIcon(R.drawable.ic_ocr)
-            setContentTitle(notificationTitle)
+            setContentTitle(applicationContext.getString(R.string.notif_title_ocr_queue_staging))
             setOnlyAlertOnce(true)
         }
 
@@ -103,7 +99,7 @@ class OcrQueueStagingJob(
 
     private fun createNotification(progress: Progress): Notification {
         if (progress.isIndeterminate) {
-            notificationBuilder.setContentText(notificationTextPleaseWait)
+            notificationBuilder.setContentText(applicationContext.getString(R.string.general_please_wait))
             notificationBuilder.setProgress(0, 0, true)
         } else {
             notificationBuilder.setContentText("${progress.current} / ${progress.total}")

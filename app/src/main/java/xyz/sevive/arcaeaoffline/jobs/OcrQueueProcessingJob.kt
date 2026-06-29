@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -13,29 +12,31 @@ import co.touchlab.kermit.Logger
 import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.helpers.toWorkData
+import kotlin.time.Duration.Companion.milliseconds
 
 class OcrQueueProcessingJob(
     context: Context,
     params: WorkerParameters,
-    private val ocrQueueTaskRepo: OcrQueueTaskRepository,
+    private val taskRepo: OcrQueueTaskRepository,
     private val chartInfoRepo: ChartInfoRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
@@ -84,45 +85,35 @@ class OcrQueueProcessingJob(
                 ),
         )
 
-    private val notificationManager = NotificationManagerCompat.from(applicationContext)
+    private val notificationBuilder =
+        NotificationCompat
+            .Builder(applicationContext, NOTIFICATION_CHANNEL)
+            .setSmallIcon(R.drawable.ic_ocr)
+            .setContentTitle(applicationContext.getString(R.string.notif_title_ocr_queue_job))
 
-    private val progressCurrent = MutableStateFlow(0)
-    private val progressTotal = MutableStateFlow(-1)
-    private val progressLock = Mutex()
-    private val progress =
-        combine(progressCurrent, progressTotal) { p, t ->
-            if (t > -1) p to t else null
-        }
+    private val progressFlow = MutableStateFlow(Progress.INDETERMINATE)
 
-    private fun createNotification(progress: Pair<Int, Int>?): Notification {
-        val builder =
-            NotificationCompat
-                .Builder(applicationContext, NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.ic_ocr)
-                .setContentTitle(applicationContext.getString(R.string.notif_title_ocr_queue_job))
-
-        val progressDone = progress == null
-        if (progressDone) {
-            builder.setOngoing(false)
-            builder.setContentText(applicationContext.getString(R.string.general_action_done))
+    private fun createNotification(progress: Progress?): Notification {
+        // legacy code says null value indicates job done
+        if (progress == null) {
+            notificationBuilder.setOngoing(false)
+            notificationBuilder.setContentText(applicationContext.getString(R.string.general_action_done))
         } else {
-            builder.setOngoing(true)
-            progress.let {
-                builder.setContentText("${it.first} / ${it.second}")
-                if (it.second > -1) {
-                    builder.setProgress(it.second, it.first, false)
-                } else {
-                    builder.setProgress(0, 0, true)
-                }
+            notificationBuilder.setOngoing(true)
+            if (progress.isIndeterminate) {
+                notificationBuilder.setContentText(applicationContext.getString(R.string.general_please_wait))
+                notificationBuilder.setProgress(0, 0, true)
+            } else {
+                notificationBuilder.setContentText("${progress.current} / ${progress.total}")
+                notificationBuilder.setProgress(progress.total, progress.current, false)
             }
         }
 
-        return builder.build()
+        return notificationBuilder.build()
     }
 
-    private suspend fun createForegroundInfo(): ForegroundInfo {
-        val notification = createNotification(progress.firstOrNull() ?: (0 to -1))
-
+    private fun createForegroundInfo(progress: Progress): ForegroundInfo {
+        val notification = createNotification(progress)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ForegroundInfo(
                 NOTIFICATION_ID,
@@ -134,12 +125,17 @@ class OcrQueueProcessingJob(
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo()
+    override suspend fun getForegroundInfo(): ForegroundInfo = createForegroundInfo(progressFlow.value)
+
+    private suspend fun publishProgress(progress: Progress) {
+        setForeground(createForegroundInfo(progress))
+        setProgress(progress.toWorkData())
+    }
 
     private suspend fun fetchTasks(runMode: RunMode): List<OcrQueueTask> =
         when (runMode) {
             RunMode.NORMAL -> {
-                ocrQueueTaskRepo
+                taskRepo
                     .findByStatus(
                         OcrQueueTaskStatus.IDLE,
                         OcrQueueTaskStatus.PROCESSING,
@@ -149,11 +145,11 @@ class OcrQueueProcessingJob(
             }
 
             RunMode.ALL -> {
-                ocrQueueTaskRepo.findAll().firstOrNull().orEmpty()
+                taskRepo.findAll().firstOrNull().orEmpty()
             }
 
             RunMode.SMART_FIX -> {
-                ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
+                taskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
                     task.playResult?.let { playResult ->
                         val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return@let false
                         ArcaeaPlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
@@ -162,12 +158,12 @@ class OcrQueueProcessingJob(
             }
         }
 
-    private fun createTaskExecutor(runMode: RunMode): OcrQueueJobTaskExecutor =
+    private fun createTaskExecutor(runMode: RunMode): OcrQueueProcessingJobTaskExecutor =
         when (runMode) {
             RunMode.SMART_FIX -> {
                 OcrQueueFixTaskExecutor(
                     chartInfoRepo,
-                    ocrQueueTaskRepo,
+                    taskRepo,
                 )
             }
 
@@ -176,7 +172,7 @@ class OcrQueueProcessingJob(
             -> {
                 OcrQueueOcrImageTaskExecutor(
                     applicationContext,
-                    ocrQueueTaskRepo,
+                    taskRepo,
                 )
             }
         }
@@ -188,17 +184,18 @@ class OcrQueueProcessingJob(
 
         if (tasks.isEmpty()) return Result.success()
 
-        progressTotal.value = tasks.size
+        progressFlow.update { Progress(total = tasks.size) }
         setForeground(getForegroundInfo())
 
         try {
             // coroutineScope inherits the worker's cancellation context natively
             coroutineScope {
-                val progressJob =
+                @OptIn(FlowPreview::class)
+                val progressPublishJob =
                     launch {
-                        progress.collectLatest {
-                            notificationManager.notify(NOTIFICATION_ID, createNotification(it))
-                        }
+                        progressFlow
+                            .sample(500.milliseconds)
+                            .collect { publishProgress(it) }
                     }
 
                 try {
@@ -210,19 +207,19 @@ class OcrQueueProcessingJob(
                         )
                     }
                 } finally {
-                    progressJob.cancel()
+                    progressPublishJob.cancel()
                 }
             }
 
             return Result.success()
         } catch (e: CancellationException) {
-            logger.i { "CancellationException caught" }
+            logger.i { "CancellationException caught, updating ongoing task status" }
 
             // Database cleaning up
             withContext(NonCancellable + Dispatchers.IO) {
-                val processingTasks = ocrQueueTaskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()
+                val processingTasks = taskRepo.findByStatus(OcrQueueTaskStatus.PROCESSING).firstOrNull()
                 processingTasks?.forEach {
-                    ocrQueueTaskRepo.update(it.copyWithException(e))
+                    taskRepo.update(it.copyWithException(e))
                 }
             }
 
@@ -235,20 +232,17 @@ class OcrQueueProcessingJob(
             }
             return Result.failure()
         } finally {
-            notificationManager.cancel(NOTIFICATION_ID)
-
             // Reset progress for future runs if this worker instance is reused
-            progressCurrent.value = 0
-            progressTotal.value = -1
+            progressFlow.update { Progress.INDETERMINATE }
         }
     }
 
     private suspend fun processTasks(
         tasks: List<OcrQueueTask>,
-        executor: OcrQueueJobTaskExecutor,
+        executor: OcrQueueProcessingJobTaskExecutor,
         parallelCount: Int,
     ) = coroutineScope {
-        val channel = Channel<OcrQueueTask>(Channel.UNLIMITED)
+        val channel = Channel<OcrQueueTask>(parallelCount)
 
         launch {
             tasks.forEach { channel.send(it) }
@@ -261,9 +255,7 @@ class OcrQueueProcessingJob(
                     try {
                         executor.execute(task)
                     } finally {
-                        progressLock.withLock {
-                            progressCurrent.value += 1
-                        }
+                        progressFlow.update { it.increment() }
                     }
                 }
             }
