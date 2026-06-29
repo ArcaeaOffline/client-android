@@ -14,11 +14,18 @@ fun Progress.toWorkData(): Data =
         .putInt(KEY_TOTAL, total)
         .build()
 
-fun Progress.Companion.fromWorkData(data: Data): Progress =
-    Progress(
-        current = data.getInt(KEY_CURRENT, 0),
-        total = data.getInt(KEY_TOTAL, -1),
+fun Progress.Companion.fromWorkData(data: Data): Progress? {
+    with(data.keyValueMap) {
+        if (isEmpty()) return null
+        if (!containsKey(KEY_CURRENT)) return null
+        if (!containsKey(KEY_TOTAL)) return null
+    }
+
+    return Progress(
+        current = data.getInt(KEY_CURRENT, Progress.INDETERMINATE.current),
+        total = data.getInt(KEY_TOTAL, Progress.INDETERMINATE.total),
     )
+}
 
 fun Progress.Companion.fromWorkInfo(workInfo: WorkInfo?): Progress? =
     when (workInfo?.state) {

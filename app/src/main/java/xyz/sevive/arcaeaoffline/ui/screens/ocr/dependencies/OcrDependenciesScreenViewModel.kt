@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import org.opencv.ml.KNearest
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
@@ -30,6 +31,7 @@ import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
+import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
@@ -69,14 +71,8 @@ class OcrDependenciesScreenViewModel(
 
     private val imagesHashesDatabaseBuildProgress =
         imageHashesDatabaseBuilderJobInfo
-            .map {
-                if (it == null) return@map null
-
-                val progress = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS, -1)
-                val total = it.progress.getInt(ImageHashesDatabaseBuilderJob.KEY_PROGRESS_TOTAL, -1)
-
-                if (progress == -1) null else progress to total
-            }.stateIn(viewModelScope, sharingStarted, null)
+            .map { Progress.fromWorkInfo(it) }
+            .stateIn(viewModelScope, sharingStarted, null)
 
     private val imagesHashesDatabaseStatusDetail =
         MutableStateFlow(ImageHashesDatabaseStatusDetail())

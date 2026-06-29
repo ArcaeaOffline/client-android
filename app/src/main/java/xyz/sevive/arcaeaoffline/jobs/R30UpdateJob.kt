@@ -5,17 +5,18 @@ import androidx.room.immediateTransaction
 import androidx.room.useWriterConnection
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import co.touchlab.kermit.Logger
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
@@ -28,18 +29,19 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.helpers.toWorkData
 import kotlin.time.Clock
 
-private fun PlayResult.matchesR30Condition(): Boolean {
+private fun PlayResult.triggersConditionalWrite(): Boolean {
     // score >= EX
-    if (score >= 9800000) return true
+    if (score >= 9_800_000) return true
     // is hard lost
     if (clearType == ArcaeaPlayResultClearType.TRACK_LOST && modifier == ArcaeaPlayResultModifier.HARD) return true
 
     return false
 }
 
-private fun List<R30EntryCombined>.minPlayRatingItem(): R30EntryCombined? =
+private fun List<R30EntryCombined>.minByPlayRating(): R30EntryCombined? =
     this.minByOrNull { entry ->
         entry.chartInfo?.let { entry.playResult.playRating(it) } ?: Double.MAX_VALUE
     }
@@ -59,88 +61,90 @@ class R30UpdateJob(
         const val WORK_NAME = "R30UpdateJob"
 
         const val DATA_RUN_MODE = "run_mode"
-
-        const val KEY_PROGRESS = "progress"
-        const val KEY_PROGRESS_TOTAL = "progress_total"
     }
+
+    private val logger = Logger.withTag(LOG_TAG)
 
     enum class RunMode(
         val value: Int,
     ) {
         NORMAL(0),
-        REBUILD(1),
+        REBUILD(1), ;
+
+        companion object {
+            fun fromInt(value: Int) = entries.firstOrNull { it.value == value }
+        }
     }
 
     private data class WorkOptions(
         val runMode: RunMode,
     )
 
-    private val logger = Logger.withTag(LOG_TAG)
+    private fun parseRunMode(): RunMode {
+        val runModeInput = inputData.getInt(DATA_RUN_MODE, 0)
+        val result = RunMode.fromInt(runModeInput)
+        if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to ${RunMode.NORMAL}" }
+        return result ?: RunMode.NORMAL
+    }
 
     private fun getWorkOptions(): WorkOptions =
         WorkOptions(
-            runMode =
-                RunMode.entries.firstOrNull {
-                    it.value == inputData.getInt(DATA_RUN_MODE, 0)
-                } ?: RunMode.NORMAL,
+            runMode = parseRunMode(),
         )
 
-    private val progress = MutableStateFlow(0)
-    private val progressTotal = MutableStateFlow(-1)
-    private val progressListenScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val progressFlow = MutableStateFlow(Progress.INDETERMINATE)
 
     override suspend fun doWork(): Result {
-        progressListenScope.launch {
-            combine(progress, progressTotal) { p, t -> p to t }.collectLatest {
-                setProgress(
-                    workDataOf(KEY_PROGRESS to it.first, KEY_PROGRESS_TOTAL to it.second),
-                )
-            }
-        }
-
         val workOptions = getWorkOptions()
 
         try {
-            val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
+            return coroutineScope {
+                val progressPublishJob =
+                    launch {
+                        progressFlow.collectLatest { setProgress(it.toWorkData()) }
+                    }
 
-            var r30EntryCombinedList =
-                when (workOptions.runMode) {
-                    RunMode.REBUILD -> emptyList()
-                    else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
+
+                var r30EntryCombinedList =
+                    when (workOptions.runMode) {
+                        RunMode.REBUILD -> emptyList()
+                        else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                    }
+
+                val playResults =
+                    when (workOptions.runMode) {
+                        RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
+                        else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
+                    } ?: emptyList()
+                val deletedSongIds = songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
+                val newPlayResults = playResults.filter { it.date != null && it.songId !in deletedSongIds }.sortedBy { it.date }
+
+                progressFlow.update { Progress(current = 0, total = newPlayResults.size) }
+                logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
+                newPlayResults.forEach {
+                    ensureActive()
+                    r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
+                    progressFlow.update { progress -> progress.increment() }
                 }
 
-            val playResults =
-                when (workOptions.runMode) {
-                    RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
-                    else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
-                } ?: emptyList()
-            val deletedSongIds =
-                songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-            val newPlayResults =
-                playResults
-                    .filter { it.date != null && it.songId !in deletedSongIds }
-                    .sortedBy { it.date }
+                // Room3 possibly has a convenient extension function for this
+                // see https://issuetracker.google.com/issues/416306996
+                db.useWriterConnection { transactor ->
+                    transactor.immediateTransaction {
+                        r30EntryRepo.deleteAll()
+                        r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-            progressTotal.value = newPlayResults.size
-            logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
-            newPlayResults.forEach {
-                r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
-                progress.value += 1
-            }
-
-            // Room3 possibly has a convenient extension function for this
-            // see https://issuetracker.google.com/issues/416306996
-            db.useWriterConnection { transactor ->
-                transactor.immediateTransaction {
-                    r30EntryRepo.deleteAll()
-                    r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
-
-                    propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                        propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                    }
                 }
-            }
 
-            return Result.success()
-        } catch (e: Throwable) {
+                progressPublishJob.cancelAndJoin()
+                Result.success()
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+
             logger.e(e) { "Error updating r30" }
             Sentry.captureException(e)
             return Result.failure()
@@ -148,7 +152,7 @@ class R30UpdateJob(
     }
 
     /**
-     * Wrapper of [updateR30ListByDate] and [updateR30ListByPotential] that automatically
+     * Wrapper of [updateR30ListByDirectWrite] and [updateR30ListByConditionalWrite] that automatically
      * choose one of them depending on the [playResult]'s state.
      */
     private suspend fun updateR30List(
@@ -162,22 +166,19 @@ class R30UpdateJob(
         }
 
         val newR30Entries =
-            if (playResult.matchesR30Condition()) {
+            if (playResult.triggersConditionalWrite()) {
                 // now check if the play result play rating is higher than the lowest play rating r30 entry
                 // if any chart info is missing, return the old r30 entries directly
                 val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30List
-                updateR30ListByPotential(playResult, chartInfo, oldR30List)
+                updateR30ListByConditionalWrite(playResult, chartInfo, oldR30List)
             } else {
                 // otherwise, just update the entries by date
-                updateR30ListByDate(playResult, oldR30List)
+                updateR30ListByDirectWrite(playResult, oldR30List)
             }
 
         // ensure the new r30 should have at least 10 unique charts
         // otherwise keep the entries unmodified
-        val uniqueChartsCount =
-            newR30Entries
-                .distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }
-                .count()
+        val uniqueChartsCount = newR30Entries.distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }.count()
         return if (uniqueChartsCount < 10) {
             oldR30List
         } else {
@@ -195,14 +196,14 @@ class R30UpdateJob(
      * @param oldR30List Old R30 entries
      * @return The new R30 entries
      */
-    private fun updateR30ListByPotential(
+    private fun updateR30ListByConditionalWrite(
         playResult: PlayResult,
         chartInfo: ChartInfo,
         oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {
         // try getting the min play rating item in old list
         // otherwise leave the old list untouched
-        val minRatingEntry = oldR30List.minPlayRatingItem() ?: return oldR30List
+        val minRatingEntry = oldR30List.minByPlayRating() ?: return oldR30List
         val minRatingEntryRating = minRatingEntry.playRating() ?: return oldR30List
 
         if (playResult.playRating(chartInfo) < minRatingEntryRating) return oldR30List
@@ -222,7 +223,7 @@ class R30UpdateJob(
      * @param oldR30List Old R30 entries
      * @return The new R30 entries
      */
-    private suspend fun updateR30ListByDate(
+    private suspend fun updateR30ListByDirectWrite(
         playResult: PlayResult,
         oldR30List: List<R30EntryCombined>,
     ): List<R30EntryCombined> {

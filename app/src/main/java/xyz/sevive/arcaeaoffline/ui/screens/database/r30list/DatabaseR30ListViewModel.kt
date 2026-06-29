@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.R30Entry
@@ -22,6 +23,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.R30UpdateJob
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -96,18 +98,11 @@ class DatabaseR30ListViewModel(
     val updateProgress =
         workManager
             .getWorkInfosForUniqueWorkFlow(R30UpdateJob.WORK_NAME)
-            .mapLatest { workInfos ->
-                val workInfo = workInfos.getOrNull(0) ?: return@mapLatest 0 to -1
-
-                workInfo.progress.getInt(R30UpdateJob.KEY_PROGRESS, 0) to
-                    workInfo.progress.getInt(
-                        R30UpdateJob.KEY_PROGRESS_TOTAL,
-                        -1,
-                    )
-            }.stateIn(
+            .mapLatest { workInfos -> Progress.fromWorkInfo(workInfos.getOrNull(0)) }
+            .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-                0 to -1,
+                null,
             )
 
     private fun enqueueWork(runMode: R30UpdateJob.RunMode) {

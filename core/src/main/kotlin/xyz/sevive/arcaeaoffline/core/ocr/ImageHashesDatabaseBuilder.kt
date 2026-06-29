@@ -5,8 +5,10 @@ import androidx.sqlite.execSQL
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.io.files.Path
 import org.opencv.core.Mat
+import xyz.sevive.arcaeaoffline.core.Progress
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -26,17 +28,17 @@ class ImageHashesDatabaseBuilder(
         val inputToGrayscaleImage: (T) -> Mat,
     )
 
-    private val _buildProgress = MutableStateFlow<Pair<Int, Int>?>(null)
+    private val _buildProgress = MutableStateFlow<Progress?>(null)
     val buildProgress = _buildProgress.asStateFlow()
 
     private val tasks = mutableListOf<Task<Path>>()
 
     private fun initBuildProgress() {
-        _buildProgress.value = 0 to tasks.size
+        _buildProgress.update { Progress(current = 0, total = tasks.size) }
     }
 
     private fun increaseBuildProgress() {
-        _buildProgress.value = _buildProgress.value?.let { it.copy(first = it.first + 1) }
+        _buildProgress.update { it?.increment() }
     }
 
     private fun resetBuildProgress() {

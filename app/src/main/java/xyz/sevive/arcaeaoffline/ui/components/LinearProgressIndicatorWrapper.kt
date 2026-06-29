@@ -99,22 +99,3 @@ fun LinearProgressIndicatorWrapper(
         formatter = formatter,
     )
 }
-
-@Deprecated("Migrate to new Progress data class")
-@Composable
-fun LinearProgressIndicatorWrapper(
-    progress: Pair<Int, Int>?,
-    modifier: Modifier = Modifier,
-    indeterminateLabel: String? = LinearProgressIndicatorWrapperDefaults.indeterminateLabel,
-    determinateLabel: String? = LinearProgressIndicatorWrapperDefaults.determinateLabel,
-    formatter: PercentageFormatter = LinearProgressIndicatorWrapperDefaults.formatter,
-) {
-    LinearProgressIndicatorWrapper(
-        current = progress?.first ?: 0,
-        total = progress?.second ?: -1,
-        modifier = modifier,
-        indeterminateLabel = indeterminateLabel,
-        determinateLabel = determinateLabel,
-        formatter = formatter,
-    )
-}

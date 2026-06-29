@@ -66,7 +66,7 @@ class OcrQueueProcessingJob(
         ;
 
         companion object {
-            fun fromInt(value: Int) = entries.firstOrNull { it.value == value } ?: NORMAL
+            fun fromInt(value: Int) = entries.firstOrNull { it.value == value }
         }
     }
 
@@ -75,9 +75,16 @@ class OcrQueueProcessingJob(
         val parallelCount: Int,
     )
 
+    private fun parseRunMode(): RunMode {
+        val runModeInput = inputData.getInt(DATA_RUN_MODE, 0)
+        val result = RunMode.fromInt(runModeInput)
+        if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to ${RunMode.NORMAL}" }
+        return result ?: RunMode.NORMAL
+    }
+
     private fun getWorkOptions(): WorkOptions =
         WorkOptions(
-            runMode = RunMode.fromInt(inputData.getInt(DATA_RUN_MODE, RunMode.NORMAL.value)),
+            runMode = parseRunMode(),
             parallelCount =
                 inputData
                     .getInt(
