@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.database.converters
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingOptions
 
@@ -11,7 +12,7 @@ object OcrQueueStagingOptionsConverters {
     fun fromDatabaseValue(value: String?): OcrQueueStagingOptions =
         try {
             value?.let { json.decodeFromString(it) } ?: OcrQueueStagingOptions()
-        } catch (_: Exception) {
+        } catch (_: SerializationException) {
             OcrQueueStagingOptions()
         }
 
