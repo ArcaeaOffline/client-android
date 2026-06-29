@@ -44,7 +44,6 @@ import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.helpers.OcrQueueHelper
 import xyz.sevive.arcaeaoffline.helpers.toWorkData
-import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 
 class OcrQueueStagingJob(
@@ -287,7 +286,7 @@ class OcrQueueStagingJob(
             }
 
         val workers =
-            List(max(parallelCount, 1)) {
+            List(parallelCount) {
                 launch {
                     for (item in inputChannel) {
                         val processed = processItem(item, options)

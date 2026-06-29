@@ -99,7 +99,7 @@ private fun ContentPreview() {
                 checkIsImage = true,
                 checkIsArcaeaImage = true,
                 parallelCount = 4,
-                parallelCountMax = 16,
+                parallelCountIntRange = 1..16,
             ),
         )
     }

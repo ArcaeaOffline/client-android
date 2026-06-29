@@ -16,11 +16,10 @@ class OcrQueuePreferencesViewModel(
         val checkIsImage: Boolean = false,
         val checkIsArcaeaImage: Boolean = false,
         val parallelCount: Int = -1,
-        val parallelCountMin: Int = 1,
-        val parallelCountMax: Int = Runtime.getRuntime().availableProcessors() * 2,
+        val parallelCountIntRange: IntRange = 1..Runtime.getRuntime().availableProcessors() * 2,
     ) {
-        val parallelCountSliderRange = parallelCountMin.toFloat()..parallelCountMax.toFloat()
-        val parallelCountSliderSteps = parallelCountMax - parallelCountMin - 1
+        val parallelCountSliderRange = parallelCountIntRange.first.toFloat()..parallelCountIntRange.last.toFloat()
+        val parallelCountSliderSteps = parallelCountIntRange.count() - 1
     }
 
     val preferencesUiState =

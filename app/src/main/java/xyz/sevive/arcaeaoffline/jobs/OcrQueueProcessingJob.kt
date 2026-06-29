@@ -79,10 +79,11 @@ class OcrQueueProcessingJob(
         WorkOptions(
             runMode = RunMode.fromInt(inputData.getInt(DATA_RUN_MODE, RunMode.NORMAL.value)),
             parallelCount =
-                inputData.getInt(
-                    DATA_PARALLEL_COUNT,
-                    Runtime.getRuntime().availableProcessors() / 2,
-                ),
+                inputData
+                    .getInt(
+                        DATA_PARALLEL_COUNT,
+                        Runtime.getRuntime().availableProcessors() / 2,
+                    ).coerceAtLeast(1),
         )
 
     private val notificationBuilder =

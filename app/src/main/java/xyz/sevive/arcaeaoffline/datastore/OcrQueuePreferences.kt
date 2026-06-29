@@ -21,7 +21,7 @@ data class OcrQueuePreferences(
     @SerialName("check_is_arcaea_image")
     val checkIsArcaeaImage: Boolean = OcrQueueStagingOptions.DEFAULTS.checkIsArcaeaImage,
     @SerialName("parallel_count")
-    val parallelCount: Int = Runtime.getRuntime().availableProcessors() / 2,
+    val parallelCount: Int = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1),
 )
 
 object OcrQueuePreferencesSerializer : OkioSerializer<OcrQueuePreferences> {
@@ -63,6 +63,7 @@ class OcrQueuePreferencesRepository(
     }
 
     suspend fun setParallelCount(value: Int) {
+        if (value < 1) throw IllegalArgumentException("Parallel count must be greater than 0")
         dataStore.updateData { preferences ->
             preferences.copy(parallelCount = value)
         }
