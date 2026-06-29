@@ -32,15 +32,15 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 
-class OcrQueueJob(
+class OcrQueueProcessingJob(
     context: Context,
     params: WorkerParameters,
     private val ocrQueueTaskRepo: OcrQueueTaskRepository,
     private val chartInfoRepo: ChartInfoRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
-        private const val LOG_TAG = "OcrQueueJob"
-        const val WORK_NAME = "OcrQueueJob"
+        private const val LOG_TAG = "OcrQueueProcessingJob"
+        const val WORK_NAME = "OcrQueueProcessingJob"
 
         const val NOTIFICATION_CHANNEL = Notifications.CHANNEL_OCR_QUEUE_JOB
         const val NOTIFICATION_ID = Notifications.ID_OCR_QUEUE_JOB

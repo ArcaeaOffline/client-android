@@ -31,7 +31,7 @@ class OcrQueueOcrImageTaskExecutor(
     private val context: Context,
     private val ocrQueueTaskRepo: OcrQueueTaskRepository,
 ) : OcrQueueJobTaskExecutor {
-    private val logger = Logger.withTag("OcrQueueJob.OcrQueueOcrImageTaskExecutor")
+    private val logger = Logger.withTag("OcrQueueProcessing.Image")
 
     private val ortSession =
         DeviceOcrOnnxHelper.createOrtSession(context)

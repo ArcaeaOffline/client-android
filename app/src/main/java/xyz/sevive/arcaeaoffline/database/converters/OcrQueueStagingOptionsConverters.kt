@@ -1,0 +1,20 @@
+package xyz.sevive.arcaeaoffline.database.converters
+
+import androidx.room.TypeConverter
+import kotlinx.serialization.json.Json
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingOptions
+
+object OcrQueueStagingOptionsConverters {
+    private val json = Json { ignoreUnknownKeys = true }
+
+    @TypeConverter
+    fun fromDatabaseValue(value: String?): OcrQueueStagingOptions =
+        try {
+            value?.let { json.decodeFromString(it) } ?: OcrQueueStagingOptions()
+        } catch (_: Exception) {
+            OcrQueueStagingOptions()
+        }
+
+    @TypeConverter
+    fun toDatabaseValue(value: OcrQueueStagingOptions): String = json.encodeToString(value)
+}

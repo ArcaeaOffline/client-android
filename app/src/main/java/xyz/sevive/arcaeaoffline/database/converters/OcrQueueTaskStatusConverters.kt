@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:filename")
-
 package xyz.sevive.arcaeaoffline.database.converters
 
 import androidx.room.TypeConverter

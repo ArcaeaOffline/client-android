@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,28 +51,28 @@ import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun OcrQueueEnqueueCheckerBottomSheet(
+internal fun OcrQueueStagingSheet(
     onDismissRequest: () -> Unit,
-    onPickImagesRequest: () -> Unit,
-    onPickFolderRequest: () -> Unit,
-    onStartJobRequest: () -> Unit,
-    onStopJobRequest: () -> Unit,
-    onClearBufferRequest: () -> Unit,
+    onPickImages: () -> Unit,
+    onPickFolder: () -> Unit,
+    onStartJob: () -> Unit,
+    onStopJob: () -> Unit,
+    onDeleteAll: () -> Unit,
     isJobRunning: Boolean,
     workerProgress: Progress?,
-    bufferItemsCount: OcrQueueEnqueueCheckerViewModel.BufferItemsCount?,
+    stagingItemCount: OcrQueueStagingViewModel.StagingItemCount?,
     modifier: Modifier = Modifier,
 ) {
     ModalBottomSheet(onDismissRequest = onDismissRequest, modifier = modifier) {
         BottomSheetContent(
-            onPickImagesRequest = onPickImagesRequest,
-            onPickFolderRequest = onPickFolderRequest,
-            onStartJobRequest = onStartJobRequest,
-            onStopJobRequest = onStopJobRequest,
-            onClearBufferRequest = onClearBufferRequest,
+            onPickImages = onPickImages,
+            onPickFolder = onPickFolder,
+            onStartJob = onStartJob,
+            onStopJob = onStopJob,
+            onDeleteAll = onDeleteAll,
             isJobRunning = isJobRunning,
             workerProgress = workerProgress,
-            bufferItemsCount = bufferItemsCount,
+            stagingItemCount = stagingItemCount,
         )
     }
 }
@@ -108,19 +108,19 @@ private fun PickerButton(
 }
 
 @Composable
-private fun BufferStatus(
-    bufferItemsCount: OcrQueueEnqueueCheckerViewModel.BufferItemsCount?,
+private fun StagingItemStatus(
+    stagingItemCount: OcrQueueStagingViewModel.StagingItemCount?,
     modifier: Modifier = Modifier,
 ) {
-    if (bufferItemsCount != null) {
+    if (stagingItemCount != null) {
         LinearProgressIndicatorWrapper(
-            current = bufferItemsCount.checked,
-            total = bufferItemsCount.total,
+            current = stagingItemCount.checked,
+            total = stagingItemCount.total,
             modifier = modifier,
         )
     } else {
         Text(
-            stringResource(R.string.ocr_queue_enqueue_buffer_empty),
+            stringResource(R.string.ocr_queue_staging_empty),
             modifier = modifier,
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -130,15 +130,15 @@ private fun BufferStatus(
 }
 
 @Composable
-private fun BufferAction(
-    onClearBufferRequest: () -> Unit,
-    bufferItemsCount: OcrQueueEnqueueCheckerViewModel.BufferItemsCount?,
+private fun StagingItemAction(
+    onDeleteAll: () -> Unit,
+    stagingItemCount: OcrQueueStagingViewModel.StagingItemCount?,
     isJobRunning: Boolean,
     modifier: Modifier = Modifier,
 ) {
     FilledTonalButton(
-        onClick = onClearBufferRequest,
-        enabled = bufferItemsCount != null && !isJobRunning,
+        onClick = onDeleteAll,
+        enabled = stagingItemCount != null && !isJobRunning,
         colors =
             ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -148,7 +148,7 @@ private fun BufferAction(
     ) {
         IconRow {
             Icon(Icons.Default.Close, contentDescription = null)
-            Text(stringResource(R.string.ocr_queue_clear_enqueue_buffer_button))
+            Text(stringResource(R.string.ocr_queue_clear_staging_button))
         }
     }
 }
@@ -165,7 +165,7 @@ private fun WorkerStatus(
         )
     } else {
         Text(
-            stringResource(R.string.ocr_queue_enqueue_worker_not_running),
+            stringResource(R.string.ocr_queue_validation_not_running),
             modifier = modifier,
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -176,10 +176,10 @@ private fun WorkerStatus(
 
 @Composable
 private fun WorkerAction(
-    onStartJobRequest: () -> Unit,
-    onStopJobRequest: () -> Unit,
+    onStartJob: () -> Unit,
+    onStopJob: () -> Unit,
     isJobRunning: Boolean,
-    bufferItemsCount: OcrQueueEnqueueCheckerViewModel.BufferItemsCount?,
+    stagingItemCount: OcrQueueStagingViewModel.StagingItemCount?,
     modifier: Modifier = Modifier,
 ) {
     var isJobControlButtonInCooldown by rememberSaveable { mutableStateOf(false) }
@@ -195,7 +195,7 @@ private fun WorkerAction(
         if (isJobRunning) {
             stringResource(R.string.general_stop)
         } else {
-            stringResource(R.string.ocr_queue_start_enqueue_checker_job_button)
+            stringResource(R.string.ocr_queue_start_staging_job_button)
         }
     val buttonColors =
         if (isJobRunning) {
@@ -209,10 +209,10 @@ private fun WorkerAction(
 
     FilledTonalButton(
         onClick = {
-            if (isJobRunning) onStopJobRequest() else onStartJobRequest()
+            if (isJobRunning) onStopJob() else onStartJob()
             isJobControlButtonInCooldown = true
         },
-        enabled = !isJobControlButtonInCooldown && bufferItemsCount != null,
+        enabled = !isJobControlButtonInCooldown && stagingItemCount != null,
         colors = buttonColors,
         modifier = modifier,
     ) {
@@ -226,14 +226,14 @@ private fun WorkerAction(
 @OptIn(ExperimentalGridApi::class)
 @Composable
 private fun BottomSheetContent(
-    onPickImagesRequest: () -> Unit,
-    onPickFolderRequest: () -> Unit,
-    onStartJobRequest: () -> Unit,
-    onStopJobRequest: () -> Unit,
-    onClearBufferRequest: () -> Unit,
+    onPickImages: () -> Unit,
+    onPickFolder: () -> Unit,
+    onStartJob: () -> Unit,
+    onStopJob: () -> Unit,
+    onDeleteAll: () -> Unit,
     isJobRunning: Boolean,
     workerProgress: Progress?,
-    bufferItemsCount: OcrQueueEnqueueCheckerViewModel.BufferItemsCount?,
+    stagingItemCount: OcrQueueStagingViewModel.StagingItemCount?,
 ) {
     Column {
         Grid(
@@ -250,26 +250,26 @@ private fun BottomSheetContent(
                 .padding(bottom = 16.dp),
         ) {
             Text(
-                stringResource(R.string.ocr_queue_enqueue_buffer_status_label),
+                stringResource(R.string.ocr_queue_staging_status),
                 Modifier.gridItem(alignment = Alignment.CenterEnd),
             )
 
-            BufferStatus(
-                bufferItemsCount = bufferItemsCount,
+            StagingItemStatus(
+                stagingItemCount = stagingItemCount,
                 Modifier
                     .fillMaxWidth()
                     .gridItem(alignment = Alignment.Center),
             )
 
-            BufferAction(
-                onClearBufferRequest = onClearBufferRequest,
-                bufferItemsCount = bufferItemsCount,
+            StagingItemAction(
+                onDeleteAll = onDeleteAll,
+                stagingItemCount = stagingItemCount,
                 isJobRunning = isJobRunning,
                 Modifier.fillMaxWidth().gridItem(alignment = Alignment.CenterStart),
             )
 
             Text(
-                stringResource(R.string.ocr_queue_enqueue_worker_status_label),
+                stringResource(R.string.ocr_queue_validation_status),
                 Modifier.fillMaxWidth().gridItem(alignment = Alignment.CenterEnd),
             )
 
@@ -281,24 +281,24 @@ private fun BottomSheetContent(
             )
 
             WorkerAction(
-                onStartJobRequest = onStartJobRequest,
-                onStopJobRequest = onStopJobRequest,
+                onStartJob = onStartJob,
+                onStopJob = onStopJob,
                 isJobRunning = isJobRunning,
-                bufferItemsCount = bufferItemsCount,
+                stagingItemCount = stagingItemCount,
                 Modifier.gridItem(alignment = Alignment.CenterStart),
             )
         }
 
         Row {
             PickerButton(
-                onClick = onPickImagesRequest,
+                onClick = onPickImages,
                 icon = Icons.Default.PhotoLibrary,
                 label = stringResource(R.string.ocr_queue_pick_images_button),
                 modifier = Modifier.weight(1f),
             )
 
             PickerButton(
-                onClick = onPickFolderRequest,
+                onClick = onPickFolder,
                 icon = ImageVector.vectorResource(R.drawable.ic_folder_image),
                 label = stringResource(R.string.ocr_queue_pick_folder_button),
                 modifier = Modifier.weight(1f),
@@ -313,15 +313,15 @@ private fun BottomSheetContentPreview() {
     ArcaeaOfflineTheme {
         Surface {
             BottomSheetContent(
-                onPickImagesRequest = {},
-                onPickFolderRequest = {},
-                onStartJobRequest = {},
-                onStopJobRequest = {},
-                onClearBufferRequest = {},
+                onPickImages = {},
+                onPickFolder = {},
+                onStartJob = {},
+                onStopJob = {},
+                onDeleteAll = {},
                 isJobRunning = false,
                 workerProgress = Progress(3, 10),
-                bufferItemsCount =
-                    OcrQueueEnqueueCheckerViewModel.BufferItemsCount(
+                stagingItemCount =
+                    OcrQueueStagingViewModel.StagingItemCount(
                         checked = 3,
                         total = 10,
                     ),

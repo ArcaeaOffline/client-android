@@ -33,12 +33,12 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
-import xyz.sevive.arcaeaoffline.database.entities.OcrQueueBatchWithBuffers
-import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer
-import xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueOptions
-import xyz.sevive.arcaeaoffline.database.entities.OcrQueueUriType
-import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBatchRepository
-import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueEnqueueBufferRepository
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatchWithItems
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingItem
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingOptions
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingUriType
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueStagingBatchRepository
+import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueStagingItemRepository
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
@@ -47,27 +47,27 @@ import xyz.sevive.arcaeaoffline.helpers.toWorkData
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 
-class OcrQueueEnqueueCheckerJob(
+class OcrQueueStagingJob(
     context: Context,
     params: WorkerParameters,
     private val db: OcrQueueDatabase,
-    private val bufferRepo: OcrQueueEnqueueBufferRepository,
+    private val itemRepo: OcrQueueStagingItemRepository,
     private val taskRepo: OcrQueueTaskRepository,
-    private val batchRepo: OcrQueueEnqueueBatchRepository,
+    private val batchRepo: OcrQueueStagingBatchRepository,
     private val preferencesRepo: OcrQueuePreferencesRepository,
 ) : CoroutineWorker(context, params) {
     companion object {
-        private const val LOG_TAG = "OcrQueueEnqCheckerJob"
-        const val WORK_NAME = "OcrQueueEnqueueChecker"
+        private const val LOG_TAG = "OcrQueueStagingJob"
+        const val WORK_NAME = "OcrQueueStaging"
 
-        const val NOTIFICATION_CHANNEL = Notifications.CHANNEL_OCR_QUEUE_ENQUEUE_CHECKER_JOB
-        const val NOTIFICATION_ID = Notifications.ID_OCR_QUEUE_ENQUEUE_CHECKER_JOB
+        const val NOTIFICATION_CHANNEL = Notifications.CHANNEL_OCR_QUEUE_STAGING
+        const val NOTIFICATION_ID = Notifications.ID_OCR_QUEUE_STAGING
     }
 
     private val logger = Logger.withTag(LOG_TAG)
 
     private val notificationTitle =
-        applicationContext.getString(R.string.notif_title_ocr_queue_enqueue_checker_job)
+        applicationContext.getString(R.string.notif_title_ocr_queue_staging)
     private val notificationTextPleaseWait =
         applicationContext.getString(R.string.general_please_wait)
     private val notificationBuilder =
@@ -80,20 +80,20 @@ class OcrQueueEnqueueCheckerJob(
     /**
      * Cleanup the database, which:
      *
-     * * Convert all checked [OcrQueueEnqueueBuffer][xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBuffer]s
+     * * Convert all checked [OcrQueueStagingItem][xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingItem]s
      *   to [OcrQueueTask][xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask]
-     * * Removes all completed [OcrQueueEnqueueBatch][xyz.sevive.arcaeaoffline.database.entities.OcrQueueEnqueueBatch]s
+     * * Removes all completed [OcrQueueStagingBatch][xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatch]s
      */
     private suspend fun cleanup() {
         logger.i { "Cleaning up" }
 
         db.useWriterConnection { transactor ->
             transactor.immediateTransaction {
-                val urisToEnqueue = bufferRepo.findShouldInsertUris()
-                if (urisToEnqueue.isNotEmpty()) {
-                    taskRepo.insertBatch(urisToEnqueue)
+                val urisToInsert = itemRepo.findShouldInsertUris()
+                if (urisToInsert.isNotEmpty()) {
+                    taskRepo.insertBatch(urisToInsert)
                 }
-                bufferRepo.deleteChecked()
+                itemRepo.deleteChecked()
                 batchRepo.deleteByIds(batchRepo.getOrphans().map { it.id })
             }
         }
@@ -144,7 +144,7 @@ class OcrQueueEnqueueCheckerJob(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Unexpected error during enqueue checking" }
+            logger.e(e) { "Unexpected error during staging" }
             Sentry.captureException(e)
             return Result.failure()
         } finally {
@@ -170,17 +170,17 @@ class OcrQueueEnqueueCheckerJob(
 
             try {
                 // first, if there's folder requests, process them.
-                val folderBuffers = bufferRepo.findByUriType(OcrQueueUriType.FOLDER)
-                scanFolder(folderBuffers)
+                val folderItems = itemRepo.findByUriType(OcrQueueStagingUriType.FOLDER)
+                scanFolder(folderItems)
 
                 // folders done, reset progress
                 progressFlow.update { Progress.INDETERMINATE }
 
                 // now process the files we have
-                val items = batchRepo.getAllBatchWithBuffers()
+                val items = batchRepo.getAllBatchWithItems()
                 if (items.isEmpty()) return@coroutineScope
                 // total progress handled here
-                progressFlow.update { Progress(total = items.sumOf { it.buffers.size }) }
+                progressFlow.update { Progress(total = items.sumOf { it.items.size }) }
                 val preferences = preferencesRepo.preferencesFlow.firstOrNull() ?: OcrQueuePreferences()
                 items.forEach { processBatch(it, preferences.parallelCount) }
             } catch (e: CancellationException) {
@@ -193,21 +193,21 @@ class OcrQueueEnqueueCheckerJob(
         }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private suspend fun scanFolder(buffers: List<OcrQueueEnqueueBuffer>) =
+    private suspend fun scanFolder(items: List<OcrQueueStagingItem>) =
         withContext(Dispatchers.IO) {
             logger.i { "scanFolder preprocessing" }
             // set progress to intermediate
             // TODO: if any progress could be displayed?
             progressFlow.update { Progress.INDETERMINATE }
-            buffers
+            items
                 .forEach {
                     val fileUris = getFolderFileUris(it.uri)
 
                     db.useWriterConnection { transactor ->
                         transactor.immediateTransaction {
                             // A folder item should be removed when it's processed
-                            bufferRepo.deleteById(it.id)
-                            bufferRepo.insertBatch(fileUris.associateWith { OcrQueueUriType.FILE }, it.batchId)
+                            itemRepo.deleteById(it.id)
+                            itemRepo.insertBatch(fileUris.associateWith { OcrQueueStagingUriType.FILE }, it.batchId)
                         }
                     }
                 }
@@ -258,33 +258,33 @@ class OcrQueueEnqueueCheckerJob(
         }
 
     private suspend fun processBatch(
-        batchWithBuffers: OcrQueueBatchWithBuffers,
+        batchWithItems: OcrQueueStagingBatchWithItems,
         parallelCount: Int,
     ) = coroutineScope {
-        val options = batchWithBuffers.batch.options
+        val options = batchWithItems.batch.options
 
-        val inputChannel = Channel<OcrQueueEnqueueBuffer>(parallelCount * 2)
-        val outputChannel = Channel<OcrQueueEnqueueBuffer>(capacity = 100)
+        val inputChannel = Channel<OcrQueueStagingItem>(parallelCount * 2)
+        val outputChannel = Channel<OcrQueueStagingItem>(capacity = 100)
 
         launch {
-            batchWithBuffers.buffers.forEach { inputChannel.send(it) }
+            batchWithItems.items.forEach { inputChannel.send(it) }
             inputChannel.close()
         }
 
         val dbWriterJob =
             launch {
-                val chunk = mutableListOf<OcrQueueEnqueueBuffer>()
+                val chunk = mutableListOf<OcrQueueStagingItem>()
 
                 for (result in outputChannel) {
                     chunk.add(result)
                     if (chunk.size >= 50) {
-                        bufferRepo.updateBatch(chunk)
+                        itemRepo.updateBatch(chunk)
                         chunk.clear()
                     }
                 }
 
                 if (chunk.isNotEmpty()) {
-                    bufferRepo.updateBatch(chunk)
+                    itemRepo.updateBatch(chunk)
                 }
             }
 
@@ -292,7 +292,7 @@ class OcrQueueEnqueueCheckerJob(
             List(max(parallelCount, 1)) {
                 launch {
                     for (item in inputChannel) {
-                        val processed = processBuffer(item, options)
+                        val processed = processItem(item, options)
                         outputChannel.send(processed)
                         progressFlow.update { it.increment() }
                     }
@@ -305,10 +305,10 @@ class OcrQueueEnqueueCheckerJob(
         dbWriterJob.join()
     }
 
-    private suspend fun processBuffer(
-        item: OcrQueueEnqueueBuffer,
-        options: OcrQueueEnqueueOptions,
-    ): OcrQueueEnqueueBuffer {
+    private suspend fun processItem(
+        item: OcrQueueStagingItem,
+        options: OcrQueueStagingOptions,
+    ): OcrQueueStagingItem {
         if (item.checked) return item
 
         var shouldInsert = true

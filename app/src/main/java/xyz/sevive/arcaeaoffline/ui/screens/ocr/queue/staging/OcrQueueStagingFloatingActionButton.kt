@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.enqueuechecker
+package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -24,7 +24,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
-internal fun OcrQueueEnqueueCheckerFloatingActionButton(
+internal fun OcrQueueStagingFloatingActionButton(
     onClick: () -> Unit,
     isVisible: Boolean,
     badgeCount: Int?,
@@ -61,17 +61,17 @@ internal fun OcrQueueEnqueueCheckerFloatingActionButton(
 
 @PreviewLightDark
 @Composable
-private fun OcrQueueEnqueueCheckerFloatingActionButtonPreview() {
+private fun OcrQueueStagingFloatingActionButtonPreview() {
     ArcaeaOfflineTheme {
         Surface {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OcrQueueEnqueueCheckerFloatingActionButton(
+                OcrQueueStagingFloatingActionButton(
                     onClick = {},
                     isVisible = true,
                     badgeCount = null,
                 )
 
-                OcrQueueEnqueueCheckerFloatingActionButton(
+                OcrQueueStagingFloatingActionButton(
                     onClick = {},
                     isVisible = true,
                     badgeCount = 5,

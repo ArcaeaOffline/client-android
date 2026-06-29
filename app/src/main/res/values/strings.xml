@@ -275,19 +275,19 @@ CC BY-SA 3.0
     <string name="ocr_queue_status_done_with_warning">Done but with warnings</string>
     <string name="ocr_queue_status_error">Error</string>
 
-    <plurals name="ocr_queue_event_files_enqueued">
-        <item quantity="one">%s file added to enqueue checker</item>
-        <item quantity="many">%s files added to enqueue checker</item>
+    <plurals name="ocr_queue_event_files_staged">
+        <item quantity="one">%s file added to staging</item>
+        <item quantity="many">%s files added to staging</item>
     </plurals>
-    <string name="ocr_queue_event_folder_enqueued">Scanning "%s"</string>
-    <string name="ocr_queue_event_enqueue_error">Error occurred in enqueue checker: %s</string>
-    <string name="ocr_queue_event_enqueue_buffer_cleared">Buffer cleared</string>
-    <string name="ocr_queue_enqueue_buffer_status_label">Buffer</string>
-    <string name="ocr_queue_enqueue_buffer_empty">Empty</string>
-    <string name="ocr_queue_enqueue_worker_status_label">Worker</string>
-    <string name="ocr_queue_enqueue_worker_not_running">Stopped</string>
-    <string name="ocr_queue_start_enqueue_checker_job_button">Start</string>
-    <string name="ocr_queue_clear_enqueue_buffer_button">Clear</string>
+    <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
+    <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
+    <string name="ocr_queue_event_staging_cleared">Staging cleared</string>
+    <string name="ocr_queue_staging_status">Staging</string>
+    <string name="ocr_queue_staging_empty">Empty</string>
+    <string name="ocr_queue_validation_status">Validation</string>
+    <string name="ocr_queue_validation_not_running">Idle</string>
+    <string name="ocr_queue_start_staging_job_button">Start</string>
+    <string name="ocr_queue_clear_staging_button">Clear</string>
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR Dependencies</string>

@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.database.entities
 
-enum class OcrQueueUriType(
+enum class OcrQueueStagingUriType(
     val value: Int,
 ) {
     FILE(0),

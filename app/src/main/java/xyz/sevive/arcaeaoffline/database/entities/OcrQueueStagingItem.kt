@@ -8,11 +8,14 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "ocr_queue_enqueue_buffer",
-    indices = [Index(value = ["uri"], unique = true)],
+    tableName = "ocr_queue_staging_item",
+    indices = [
+        Index(value = ["uri"], unique = true),
+        Index(value = ["batch_id"]),
+    ],
     foreignKeys = [
         ForeignKey(
-            entity = OcrQueueEnqueueBatch::class,
+            entity = OcrQueueStagingBatch::class,
             parentColumns = ["id"],
             childColumns = ["batch_id"],
             onUpdate = ForeignKey.CASCADE,
@@ -20,7 +23,7 @@ import androidx.room.PrimaryKey
         ),
     ],
 )
-data class OcrQueueEnqueueBuffer(
+data class OcrQueueStagingItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     @ColumnInfo(name = "batch_id")
@@ -28,7 +31,7 @@ data class OcrQueueEnqueueBuffer(
     @ColumnInfo(name = "uri")
     val uri: Uri,
     @ColumnInfo(name = "uri_type")
-    val uriType: OcrQueueUriType,
+    val uriType: OcrQueueStagingUriType,
     @ColumnInfo(name = "checked")
     val checked: Boolean = false,
     @ColumnInfo(name = "should_insert")

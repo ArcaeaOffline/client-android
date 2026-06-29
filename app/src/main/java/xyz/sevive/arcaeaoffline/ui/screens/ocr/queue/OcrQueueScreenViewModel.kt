@@ -31,7 +31,7 @@ import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.jobs.OcrQueueJob
+import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
@@ -125,7 +125,7 @@ class OcrQueueScreenViewModel(
 
     val queueStatusUiState =
         workManager
-            .getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME)
+            .getWorkInfosForUniqueWorkFlow(OcrQueueProcessingJob.WORK_NAME)
             .map {
                 it.getOrNull(0)
             }.mapLatest {
@@ -188,7 +188,7 @@ class OcrQueueScreenViewModel(
 
     private val queueRunning =
         workManager
-            .getWorkInfosForUniqueWorkFlow(OcrQueueJob.WORK_NAME)
+            .getWorkInfosForUniqueWorkFlow(OcrQueueProcessingJob.WORK_NAME)
             .map {
                 it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
             }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
@@ -246,23 +246,23 @@ class OcrQueueScreenViewModel(
     }
 
     fun tryStopQueue() {
-        workManager.cancelUniqueWork(OcrQueueJob.WORK_NAME)
+        workManager.cancelUniqueWork(OcrQueueProcessingJob.WORK_NAME)
     }
 
-    fun startQueue(runMode: OcrQueueJob.RunMode = OcrQueueJob.RunMode.NORMAL) {
+    fun startQueue(runMode: OcrQueueProcessingJob.RunMode = OcrQueueProcessingJob.RunMode.NORMAL) {
         viewModelScope.launch(Dispatchers.Default) {
             val workRequest =
-                OneTimeWorkRequestBuilder<OcrQueueJob>()
+                OneTimeWorkRequestBuilder<OcrQueueProcessingJob>()
                     .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
                     .setInputData(
                         workDataOf(
-                            OcrQueueJob.DATA_RUN_MODE to runMode.value,
-                            OcrQueueJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
+                            OcrQueueProcessingJob.DATA_RUN_MODE to runMode.value,
+                            OcrQueueProcessingJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
                         ),
                     ).build()
 
             workManager.enqueueUniqueWork(
-                OcrQueueJob.WORK_NAME,
+                OcrQueueProcessingJob.WORK_NAME,
                 ExistingWorkPolicy.KEEP,
                 workRequest,
             )
