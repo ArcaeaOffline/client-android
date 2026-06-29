@@ -62,6 +62,8 @@ class OcrQueueStagingJob(
 
         const val NOTIFICATION_CHANNEL = Notifications.CHANNEL_OCR_QUEUE_STAGING
         const val NOTIFICATION_ID = Notifications.ID_OCR_QUEUE_STAGING
+
+        const val BATCH_WRITE_CHUNK_SIZE = 50
     }
 
     private val logger = Logger.withTag(LOG_TAG)
@@ -273,7 +275,7 @@ class OcrQueueStagingJob(
 
                 for (result in outputChannel) {
                     chunk.add(result)
-                    if (chunk.size >= 50) {
+                    if (chunk.size >= BATCH_WRITE_CHUNK_SIZE) {
                         itemRepo.updateBatch(chunk)
                         chunk.clear()
                     }
