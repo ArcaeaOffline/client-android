@@ -4,6 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OcrQueueStagingOptions(
-    val checkIsImage: Boolean = true,
-    val checkIsArcaeaImage: Boolean = true,
-)
+    val checkIsImage: Boolean,
+    val checkIsArcaeaImage: Boolean,
+) {
+    companion object {
+        val DEFAULTS =
+            OcrQueueStagingOptions(
+                checkIsImage = true,
+                checkIsArcaeaImage = true,
+            )
+    }
+}

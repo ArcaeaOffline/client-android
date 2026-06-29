@@ -11,14 +11,15 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import okio.BufferedSink
 import okio.BufferedSource
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingOptions
 
 @Serializable
 data class OcrQueuePreferences(
     val metadata: PreferencesMetadata = PreferencesMetadata(),
     @SerialName("check_is_image")
-    val checkIsImage: Boolean = true,
+    val checkIsImage: Boolean = OcrQueueStagingOptions.DEFAULTS.checkIsImage,
     @SerialName("check_is_arcaea_image")
-    val checkIsArcaeaImage: Boolean = true,
+    val checkIsArcaeaImage: Boolean = OcrQueueStagingOptions.DEFAULTS.checkIsArcaeaImage,
     @SerialName("parallel_count")
     val parallelCount: Int = Runtime.getRuntime().availableProcessors() / 2,
 )

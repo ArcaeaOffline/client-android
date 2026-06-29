@@ -11,9 +11,9 @@ object OcrQueueStagingOptionsConverters {
     @TypeConverter
     fun fromDatabaseValue(value: String?): OcrQueueStagingOptions =
         try {
-            value?.let { json.decodeFromString(it) } ?: OcrQueueStagingOptions()
+            value?.let { json.decodeFromString(it) } ?: OcrQueueStagingOptions.DEFAULTS
         } catch (_: SerializationException) {
-            OcrQueueStagingOptions()
+            OcrQueueStagingOptions.DEFAULTS
         }
 
     @TypeConverter
