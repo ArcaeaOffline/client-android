@@ -14,11 +14,18 @@ fun Progress.toWorkData(): Data =
         .putInt(KEY_TOTAL, total)
         .build()
 
-fun Progress.Companion.fromWorkData(data: Data): Progress =
-    Progress(
-        current = data.getInt(KEY_CURRENT, 0),
-        total = data.getInt(KEY_TOTAL, -1),
-    )
+fun Progress.Companion.fromWorkData(data: Data): Progress? {
+    // -1 is used for indeterminate progress
+    // so we use -75 here to indicate no value fetched from work data
+    val current = data.getInt(KEY_CURRENT, -75)
+    val total = data.getInt(KEY_TOTAL, -75)
+
+    return if (current == -75 && total == -75) {
+        null
+    } else {
+        Progress(current = current, total = total)
+    }
+}
 
 fun Progress.Companion.fromWorkInfo(workInfo: WorkInfo?): Progress? =
     when (workInfo?.state) {
