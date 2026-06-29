@@ -23,15 +23,15 @@ internal fun OcrQueueTask.copyWithException(exception: Exception) =
         errorMessage = exception.message,
     )
 
-interface OcrQueueJobTaskExecutor : AutoCloseable {
+interface OcrQueueProcessingJobTaskExecutor : AutoCloseable {
     suspend fun execute(task: OcrQueueTask)
 }
 
 class OcrQueueOcrImageTaskExecutor(
     private val context: Context,
-    private val ocrQueueTaskRepo: OcrQueueTaskRepository,
-) : OcrQueueJobTaskExecutor {
-    private val logger = Logger.withTag("OcrQueueJob.OcrQueueOcrImageTaskExecutor")
+    private val taskRepo: OcrQueueTaskRepository,
+) : OcrQueueProcessingJobTaskExecutor {
+    private val logger = Logger.withTag("OcrQueueProcessing.Image")
 
     private val ortSession =
         DeviceOcrOnnxHelper.createOrtSession(context)
@@ -51,7 +51,7 @@ class OcrQueueOcrImageTaskExecutor(
     override suspend fun execute(task: OcrQueueTask) {
         @Suppress("NAME_SHADOWING")
         var task = task.copy(status = OcrQueueTaskStatus.PROCESSING)
-        ocrQueueTaskRepo.update(task)
+        taskRepo.update(task)
         logger.v { "Processing task ${task.id}" }
 
         try {
@@ -82,7 +82,7 @@ class OcrQueueOcrImageTaskExecutor(
                     errorMessage = null,
                 )
 
-            ocrQueueTaskRepo.update(task)
+            taskRepo.update(task)
         } catch (e: CancellationException) {
             // Rethrow and let [doWork] handle the rest
             throw e
@@ -90,7 +90,7 @@ class OcrQueueOcrImageTaskExecutor(
             task = task.copyWithException(e)
             logger.e(e) { "Error occurred at task ${task.id} ${task.fileUri}" }
             Sentry.captureException(e)
-            ocrQueueTaskRepo.update(task)
+            taskRepo.update(task)
         }
     }
 }
@@ -98,7 +98,7 @@ class OcrQueueOcrImageTaskExecutor(
 class OcrQueueFixTaskExecutor(
     private val chartInfoRepo: ChartInfoRepository,
     private val ocrQueueTaskRepo: OcrQueueTaskRepository,
-) : OcrQueueJobTaskExecutor {
+) : OcrQueueProcessingJobTaskExecutor {
     override suspend fun execute(task: OcrQueueTask) {
         if (task.result == null || task.playResult == null) return
 

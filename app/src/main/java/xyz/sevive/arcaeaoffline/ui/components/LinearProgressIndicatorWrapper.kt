@@ -17,9 +17,10 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import xyz.sevive.arcaeaoffline.core.Progress
 import kotlin.math.roundToInt
 
-typealias PercentageFormatter = (Double) -> String
+typealias PercentageFormatter = (Float) -> String
 
 object LinearProgressIndicatorWrapperDefaults {
     val formatter: PercentageFormatter = { percentage ->
@@ -31,18 +32,16 @@ object LinearProgressIndicatorWrapperDefaults {
 
 @Composable
 fun LinearProgressIndicatorWrapper(
-    current: Int,
-    total: Int,
+    progress: Progress?,
     modifier: Modifier = Modifier,
     indeterminateLabel: String? = LinearProgressIndicatorWrapperDefaults.indeterminateLabel,
     determinateLabel: String? = LinearProgressIndicatorWrapperDefaults.determinateLabel,
     formatter: PercentageFormatter = LinearProgressIndicatorWrapperDefaults.formatter,
 ) {
-    val isIndeterminate = total < 1 || current == -1
-    val percentage = if (isIndeterminate) 0.0f else (current.toFloat() / total.toFloat()).coerceIn(0f, 1f)
+    val isIndeterminate = progress?.isIndeterminate ?: true
 
     val animatedProgress by animateFloatAsState(
-        targetValue = percentage,
+        targetValue = progress?.fraction ?: 0f,
         label = "ProgressIndicatorAnimation",
     )
 
@@ -53,9 +52,9 @@ fun LinearProgressIndicatorWrapper(
                 append("-")
                 withStyle(SpanStyle(color = secondaryColor)) { append("/- (--%)") }
             } else {
-                append(current.toString())
+                append(progress.current.toString())
                 withStyle(SpanStyle(color = secondaryColor)) {
-                    append("/$total (${formatter(percentage.toDouble())})")
+                    append("/${progress.total} (${formatter(progress.fraction)})")
                 }
             }
         }
@@ -63,10 +62,7 @@ fun LinearProgressIndicatorWrapper(
     val label = if (isIndeterminate) indeterminateLabel else determinateLabel
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
             label?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyMedium)
             }
@@ -86,6 +82,25 @@ fun LinearProgressIndicatorWrapper(
     }
 }
 
+@Composable
+fun LinearProgressIndicatorWrapper(
+    current: Int,
+    total: Int,
+    modifier: Modifier = Modifier,
+    indeterminateLabel: String? = LinearProgressIndicatorWrapperDefaults.indeterminateLabel,
+    determinateLabel: String? = LinearProgressIndicatorWrapperDefaults.determinateLabel,
+    formatter: PercentageFormatter = LinearProgressIndicatorWrapperDefaults.formatter,
+) {
+    LinearProgressIndicatorWrapper(
+        progress = Progress(current = current, total = total),
+        modifier = modifier,
+        indeterminateLabel = indeterminateLabel,
+        determinateLabel = determinateLabel,
+        formatter = formatter,
+    )
+}
+
+@Deprecated("Migrate to new Progress data class")
 @Composable
 fun LinearProgressIndicatorWrapper(
     progress: Pair<Int, Int>?,

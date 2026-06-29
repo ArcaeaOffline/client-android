@@ -7,7 +7,7 @@
     <string name="notif_description_ocr_queue_job">Display the progress of OCR queue</string>
     <string name="notif_title_ocr_queue_job">OCR Queue Progress</string>
 
-    <string name="notif_channel_ocr_queue_enqueue_checker_job">OCR Queue Enqueueing</string>
-    <string name="notif_description_ocr_queue_enqueue_checker_job">Display the progress of OCR queue enqueue checker</string>
-    <string name="notif_title_ocr_queue_enqueue_checker_job">OCR Queue Enqueue Progress</string>
+    <string name="notif_channel_ocr_queue_staging">OCR Queue Staging</string>
+    <string name="notif_description_ocr_queue_staging">Display the progress of OCR queue staging</string>
+    <string name="notif_title_ocr_queue_staging">OCR Queue Staging Progress</string>
 </resources>

@@ -264,7 +264,6 @@ CC BY-SA 3.0
 
     <string name="ocr_queue_pick_images_button">Add Images</string>
     <string name="ocr_queue_pick_folder_button">Import Folder</string>
-    <string name="ocr_queue_stop_enqueue_checker_job_button">Stop Current Job</string>
     <string name="ocr_queue_add_image_options_title">Adding Images</string>
     <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
     <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
@@ -275,6 +274,20 @@ CC BY-SA 3.0
     <string name="ocr_queue_status_done">Done</string>
     <string name="ocr_queue_status_done_with_warning">Done but with warnings</string>
     <string name="ocr_queue_status_error">Error</string>
+
+    <plurals name="ocr_queue_event_files_staged">
+        <item quantity="one">%s file added to staging</item>
+        <item quantity="many">%s files added to staging</item>
+    </plurals>
+    <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
+    <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
+    <string name="ocr_queue_event_staging_cleared">Staging cleared</string>
+    <string name="ocr_queue_staging_status">Staging</string>
+    <string name="ocr_queue_staging_empty">Empty</string>
+    <string name="ocr_queue_validation_status">Validation</string>
+    <string name="ocr_queue_validation_not_running">Idle</string>
+    <string name="ocr_queue_start_staging_job_button">Start</string>
+    <string name="ocr_queue_clear_staging_button">Clear</string>
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR Dependencies</string>

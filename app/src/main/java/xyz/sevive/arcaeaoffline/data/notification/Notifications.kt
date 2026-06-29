@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import xyz.sevive.arcaeaoffline.R
 
 object Notifications {
+    @Suppress("unused")
     const val CHANNEL_DEFAULT = "default_channel"
 
     const val GROUP_TASKS = "tasks_group"
@@ -14,12 +15,13 @@ object Notifications {
     const val CHANNEL_OCR_QUEUE_JOB = "ocr_queue_job_channel"
     const val ID_OCR_QUEUE_JOB = 101
 
-    const val CHANNEL_OCR_QUEUE_ENQUEUE_CHECKER_JOB = "ocr_queue_enqueue_checker_job_channel"
-    const val ID_OCR_QUEUE_ENQUEUE_CHECKER_JOB = 102
+    const val CHANNEL_OCR_QUEUE_STAGING = "ocr_queue_staging_channel"
+    const val ID_OCR_QUEUE_STAGING = 102
 
-    private val legacyChannels = listOf<String>()
+    private val legacyChannels = listOf("ocr_queue_enqueue_checker_job_channel")
     private val legacyChannelGroups = listOf<String>()
 
+    @Suppress("SameParameterValue")
     private fun buildNotificationChannelGroup(
         groupId: String,
         block: (NotificationChannelGroupCompat.Builder.() -> Unit),
@@ -61,10 +63,10 @@ object Notifications {
                     setDescription(context.getString(R.string.notif_description_ocr_queue_job))
                     setShowBadge(false)
                 },
-                buildNotificationChannel(CHANNEL_OCR_QUEUE_ENQUEUE_CHECKER_JOB) {
+                buildNotificationChannel(CHANNEL_OCR_QUEUE_STAGING) {
                     setGroup(GROUP_TASKS)
-                    setName(context.getString(R.string.notif_channel_ocr_queue_enqueue_checker_job))
-                    setDescription(context.getString(R.string.notif_description_ocr_queue_enqueue_checker_job))
+                    setName(context.getString(R.string.notif_channel_ocr_queue_staging))
+                    setDescription(context.getString(R.string.notif_description_ocr_queue_staging))
                     setShowBadge(false)
                 },
             )

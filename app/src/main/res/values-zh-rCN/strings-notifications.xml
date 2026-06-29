@@ -7,7 +7,7 @@
     <string name="notif_description_ocr_queue_job">显示 OCR 队列进度</string>
     <string name="notif_title_ocr_queue_job">OCR 队列进度</string>
 
-    <string name="notif_channel_ocr_queue_enqueue_checker_job">OCR 队列入队</string>
-    <string name="notif_description_ocr_queue_enqueue_checker_job">显示 OCR 队列入队过滤器的工作进度</string>
-    <string name="notif_title_ocr_queue_enqueue_checker_job">OCR 队列入队过滤器</string>
+    <string name="notif_channel_ocr_queue_staging">OCR 队列暂存</string>
+    <string name="notif_description_ocr_queue_staging">显示 OCR 队列暂存处理的工作进度</string>
+    <string name="notif_title_ocr_queue_staging">OCR 队列暂存进度</string>
 </resources>
