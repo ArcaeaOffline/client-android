@@ -76,7 +76,7 @@ class OcrQueueProcessingJob(
     )
 
     private fun parseRunMode(): RunMode {
-        val runModeInput = inputData.getInt(DATA_RUN_MODE, -1)
+        val runModeInput = inputData.getInt(DATA_RUN_MODE, 0)
         val result = RunMode.fromInt(runModeInput)
         if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to ${RunMode.NORMAL}" }
         return result ?: RunMode.NORMAL
