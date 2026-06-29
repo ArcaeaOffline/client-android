@@ -225,7 +225,7 @@ class OcrQueueProcessingJob(
             }
 
             throw e
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             logger.e(e) { "Uncaught error during doWork()" }
             Sentry.configureScope {
                 it.setContexts(WORK_NAME, workOptions)

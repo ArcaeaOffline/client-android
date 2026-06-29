@@ -8,7 +8,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -196,20 +195,20 @@ class OcrQueueScreenViewModel(
     fun deleteTask(taskId: Long) {
         if (queueRunning.value) return
 
-        viewModelScope.launch(Dispatchers.IO) { ocrQueueTaskRepo.delete(taskId) }
+        viewModelScope.launch { ocrQueueTaskRepo.delete(taskId) }
     }
 
     fun clearTasks() {
         if (queueRunning.value) return
 
-        viewModelScope.launch(Dispatchers.IO) { ocrQueueTaskRepo.deleteAll() }
+        viewModelScope.launch { ocrQueueTaskRepo.deleteAll() }
     }
 
     fun modifyTaskChart(
         taskId: Long,
         chart: Chart,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             ocrQueueTaskRepo.updateChart(taskId, chart)
         }
     }
@@ -218,13 +217,13 @@ class OcrQueueScreenViewModel(
         taskId: Long,
         playResult: PlayResult,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             ocrQueueTaskRepo.updatePlayResult(taskId, playResult)
         }
     }
 
     fun saveTaskPlayResult(taskId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val task = uiItems.firstOrNull().orEmpty().firstOrNull { it.dbItem.id == taskId }
             if (task == null) return@launch
             ocrQueueTaskRepo.save(task.dbItem.id)
@@ -234,7 +233,7 @@ class OcrQueueScreenViewModel(
     fun saveAllTaskPlayResults() {
         if (queueRunning.value) return
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             ocrQueueTaskRepo.saveBatch(
                 uiItems
                     .firstOrNull()
@@ -250,22 +249,20 @@ class OcrQueueScreenViewModel(
     }
 
     fun startQueue(runMode: OcrQueueProcessingJob.RunMode = OcrQueueProcessingJob.RunMode.NORMAL) {
-        viewModelScope.launch(Dispatchers.Default) {
-            val workRequest =
-                OneTimeWorkRequestBuilder<OcrQueueProcessingJob>()
-                    .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-                    .setInputData(
-                        workDataOf(
-                            OcrQueueProcessingJob.DATA_RUN_MODE to runMode.value,
-                            OcrQueueProcessingJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
-                        ),
-                    ).build()
+        val workRequest =
+            OneTimeWorkRequestBuilder<OcrQueueProcessingJob>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setInputData(
+                    workDataOf(
+                        OcrQueueProcessingJob.DATA_RUN_MODE to runMode.value,
+                        OcrQueueProcessingJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
+                    ),
+                ).build()
 
-            workManager.enqueueUniqueWork(
-                OcrQueueProcessingJob.WORK_NAME,
-                ExistingWorkPolicy.KEEP,
-                workRequest,
-            )
-        }
+        workManager.enqueueUniqueWork(
+            OcrQueueProcessingJob.WORK_NAME,
+            ExistingWorkPolicy.KEEP,
+            workRequest,
+        )
     }
 }

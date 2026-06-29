@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.room.immediateTransaction
 import androidx.room.useWriterConnection
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import co.touchlab.kermit.Logger
@@ -61,6 +62,8 @@ class OcrQueueStagingJob(
 
         const val NOTIFICATION_CHANNEL = Notifications.CHANNEL_OCR_QUEUE_STAGING
         const val NOTIFICATION_ID = Notifications.ID_OCR_QUEUE_STAGING
+
+        const val KEY_ERROR_MESSAGE = "error_message"
 
         const val BATCH_WRITE_CHUNK_SIZE = 50
     }
@@ -143,7 +146,14 @@ class OcrQueueStagingJob(
         } catch (e: Exception) {
             logger.e(e) { "Unexpected error during staging" }
             Sentry.captureException(e)
-            return Result.failure()
+            val errorMessage =
+                buildString {
+                    append(e::class.simpleName ?: "(Exception)")
+                    append(" ${(e.message ?: "No message provided")}")
+                }
+            return Result.failure(
+                Data.Builder().putString(KEY_ERROR_MESSAGE, errorMessage).build(),
+            )
         } finally {
             logger.i { "doWork cleaning up" }
             withContext(NonCancellable) {

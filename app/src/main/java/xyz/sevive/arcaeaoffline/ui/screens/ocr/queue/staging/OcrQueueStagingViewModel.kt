@@ -102,25 +102,20 @@ class OcrQueueStagingViewModel(
         }
 
     private val workerProgress =
-        stagingJobWorkInfoFlow
-            .mapLatest { Progress.fromWorkInfo(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+        stagingJobWorkInfoFlow.mapLatest { Progress.fromWorkInfo(it) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     init {
         viewModelScope.launch {
-            stagingJobWorkInfoFlow
-                .map { workInfo -> workInfo?.state }
-                .distinctUntilChanged()
-                .collectLatest { state ->
-                    if (state == WorkInfo.State.FAILED) {
-                        _events.send(
-                            UiEvent.StringRes(
-                                R.string.ocr_queue_event_staging_error,
-                                listOf("WorkInfo.State.FAILED"),
-                            ),
-                        )
-                    }
-                }
+            stagingJobWorkInfoFlow.distinctUntilChanged { old, new -> old?.state == new?.state }.collectLatest { workInfo ->
+                if (workInfo == null || workInfo.state != WorkInfo.State.FAILED) return@collectLatest
+
+                _events.send(
+                    UiEvent.StringRes(
+                        R.string.ocr_queue_event_staging_error,
+                        listOf(workInfo.outputData.getString(OcrQueueStagingJob.KEY_ERROR_MESSAGE) ?: "WorkInfo.State.FAILED"),
+                    ),
+                )
+            }
         }
     }
 
@@ -194,9 +189,7 @@ class OcrQueueStagingViewModel(
 
     fun requestWork() {
         val workRequest =
-            OneTimeWorkRequestBuilder<OcrQueueStagingJob>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
+            OneTimeWorkRequestBuilder<OcrQueueStagingJob>().setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
 
         workManager.enqueueUniqueWork(
             OcrQueueStagingJob.WORK_NAME,
