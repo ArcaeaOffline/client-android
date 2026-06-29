@@ -1,9 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
@@ -41,9 +38,6 @@ data class R30EntryCombined(
 }
 
 interface R30EntryRepository {
-    val updating: StateFlow<Boolean>
-    val updateProgress: StateFlow<Pair<Int, Int>>
-
     fun findAll(): Flow<List<R30Entry>>
 
     fun findAllCombined(): Flow<List<R30EntryCombined>>
@@ -61,12 +55,6 @@ class R30EntryRepositoryImpl(
     companion object {
         const val LOG_TAG = "R30EntryRepoImpl"
     }
-
-    private val _updating = MutableStateFlow(false)
-    override val updating = _updating.asStateFlow()
-
-    private val _updateProgress = MutableStateFlow(0 to -1)
-    override val updateProgress: StateFlow<Pair<Int, Int>> = _updateProgress.asStateFlow()
 
     override fun findAll(): Flow<List<R30Entry>> = dao.findAll()
 

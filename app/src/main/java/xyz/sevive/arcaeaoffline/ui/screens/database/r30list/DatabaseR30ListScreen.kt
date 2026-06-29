@@ -44,15 +44,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 
 @Composable
-private fun DatabaseR30UpdateProgress(
-    current: Int,
-    total: Int,
-    modifier: Modifier = Modifier,
-) {
-    LinearProgressIndicatorWrapper(current = current, total = total, modifier)
-}
-
-@Composable
 private fun DatabaseR30RebuildConfirmDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
@@ -83,7 +74,7 @@ private fun DatabaseR30RebuildConfirmDialog(
 @Composable
 internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinViewModel()) {
     val updateProgress by viewModel.updateProgress.collectAsStateWithLifecycle()
-    val isUpdating by remember { derivedStateOf { updateProgress.second > -1 } }
+    val isUpdating by remember { derivedStateOf { updateProgress != null } }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val uiItems = uiState.listItems
@@ -136,10 +127,9 @@ internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinVie
     ) {
         if (isUpdating) {
             Box(Modifier.fillMaxSize()) {
-                DatabaseR30UpdateProgress(
-                    current = updateProgress.first,
-                    total = updateProgress.second,
-                    modifier = Modifier.align(Alignment.Center),
+                LinearProgressIndicatorWrapper(
+                    progress = updateProgress,
+                    Modifier.align(Alignment.Center),
                 )
             }
         } else if (uiState.isLoading) {

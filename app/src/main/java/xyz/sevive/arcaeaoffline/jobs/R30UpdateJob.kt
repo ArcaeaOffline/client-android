@@ -5,17 +5,17 @@ import androidx.room.immediateTransaction
 import androidx.room.useWriterConnection
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 import co.touchlab.kermit.Logger
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
@@ -28,6 +28,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.helpers.toWorkData
 import kotlin.time.Clock
 
 private fun PlayResult.matchesR30Condition(): Boolean {
@@ -59,9 +60,6 @@ class R30UpdateJob(
         const val WORK_NAME = "R30UpdateJob"
 
         const val DATA_RUN_MODE = "run_mode"
-
-        const val KEY_PROGRESS = "progress"
-        const val KEY_PROGRESS_TOTAL = "progress_total"
     }
 
     enum class RunMode(
@@ -85,62 +83,62 @@ class R30UpdateJob(
                 } ?: RunMode.NORMAL,
         )
 
-    private val progress = MutableStateFlow(0)
-    private val progressTotal = MutableStateFlow(-1)
-    private val progressListenScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val progressFlow = MutableStateFlow(Progress.INDETERMINATE)
 
     override suspend fun doWork(): Result {
-        progressListenScope.launch {
-            combine(progress, progressTotal) { p, t -> p to t }.collectLatest {
-                setProgress(
-                    workDataOf(KEY_PROGRESS to it.first, KEY_PROGRESS_TOTAL to it.second),
-                )
-            }
-        }
-
         val workOptions = getWorkOptions()
 
         try {
-            val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
+            return coroutineScope {
+                val progressPublishJob =
+                    launch {
+                        progressFlow.collectLatest { setProgress(it.toWorkData()) }
+                    }
 
-            var r30EntryCombinedList =
-                when (workOptions.runMode) {
-                    RunMode.REBUILD -> emptyList()
-                    else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
+
+                var r30EntryCombinedList =
+                    when (workOptions.runMode) {
+                        RunMode.REBUILD -> emptyList()
+                        else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                    }
+
+                val playResults =
+                    when (workOptions.runMode) {
+                        RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
+                        else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
+                    } ?: emptyList()
+                val deletedSongIds =
+                    songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
+                val newPlayResults =
+                    playResults
+                        .filter { it.date != null && it.songId !in deletedSongIds }
+                        .sortedBy { it.date }
+
+                progressFlow.update { Progress(current = 0, total = newPlayResults.size) }
+                logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
+                newPlayResults.forEach {
+                    r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
+                    progressFlow.update { progress -> progress.increment() }
                 }
 
-            val playResults =
-                when (workOptions.runMode) {
-                    RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
-                    else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
-                } ?: emptyList()
-            val deletedSongIds =
-                songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-            val newPlayResults =
-                playResults
-                    .filter { it.date != null && it.songId !in deletedSongIds }
-                    .sortedBy { it.date }
+                // Room3 possibly has a convenient extension function for this
+                // see https://issuetracker.google.com/issues/416306996
+                db.useWriterConnection { transactor ->
+                    transactor.immediateTransaction {
+                        r30EntryRepo.deleteAll()
+                        r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-            progressTotal.value = newPlayResults.size
-            logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
-            newPlayResults.forEach {
-                r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
-                progress.value += 1
-            }
-
-            // Room3 possibly has a convenient extension function for this
-            // see https://issuetracker.google.com/issues/416306996
-            db.useWriterConnection { transactor ->
-                transactor.immediateTransaction {
-                    r30EntryRepo.deleteAll()
-                    r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
-
-                    propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                        propertyRepo.setR30LastUpdatedAt(Clock.System.now())
+                    }
                 }
-            }
 
-            return Result.success()
+                progressPublishJob.cancelAndJoin()
+                Result.success()
+            }
         } catch (e: Throwable) {
+            if (e is CancellationException) throw e
+
             logger.e(e) { "Error updating r30" }
             Sentry.captureException(e)
             return Result.failure()
