@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.database.repositories
 
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueStagingBatchDao
-import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatchWithItems
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatch
+import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatchWithItems
 
 class OcrQueueStagingBatchRepository(
     private val dao: OcrQueueStagingBatchDao,
