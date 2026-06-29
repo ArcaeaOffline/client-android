@@ -15,16 +15,16 @@ fun Progress.toWorkData(): Data =
         .build()
 
 fun Progress.Companion.fromWorkData(data: Data): Progress? {
-    // -1 is used for indeterminate progress
-    // so we use -75 here to indicate no value fetched from work data
-    val current = data.getInt(KEY_CURRENT, -75)
-    val total = data.getInt(KEY_TOTAL, -75)
-
-    return if (current == -75 && total == -75) {
-        null
-    } else {
-        Progress(current = current, total = total)
+    with(data.keyValueMap) {
+        if (isEmpty()) return null
+        if (!containsKey(KEY_CURRENT)) return null
+        if (!containsKey(KEY_TOTAL)) return null
     }
+
+    return Progress(
+        current = data.getInt(KEY_CURRENT, Progress.INDETERMINATE.current),
+        total = data.getInt(KEY_TOTAL, Progress.INDETERMINATE.total),
+    )
 }
 
 fun Progress.Companion.fromWorkInfo(workInfo: WorkInfo?): Progress? =
