@@ -33,3 +33,5 @@ dependencyResolutionManagement {
 rootProject.name = "Arcaea Offline"
 include("app")
 include(":core")
+include(":shared")
+include(":desktopApp")
