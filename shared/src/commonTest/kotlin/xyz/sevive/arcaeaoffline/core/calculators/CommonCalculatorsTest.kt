@@ -1,9 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.calculators
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class CommonCalculatorsTest {
     @Test
@@ -45,15 +45,15 @@ class CommonCalculatorsTest {
     fun testInvertPlayRating() {
         val result1 = calculateInvertScoreRange(targetPlayRating = 12.465, constant = 107)
         assertNotNull(result1)
-        assert(9_952_935 in result1!!) { "9_952_935 [10.7] > 12.4647" }
+        assert(9_952_935 in result1) { "9_952_935 [10.7] > 12.4647" }
 
         val result2 = calculateInvertScoreRange(targetPlayRating = 12.345, constant = 111)
         assertNotNull(result2)
-        assert(9_849_089 in result2!!) { "9_849_089 [11.1] > 12.3454" }
+        assert(9_849_089 in result2) { "9_849_089 [11.1] > 12.3454" }
 
         val result3 = calculateInvertScoreRange(targetPlayRating = 14.0, constant = 120)
         assertNotNull(result3)
-        assert(10_002_221 in result3!!) { "10_002_221 [12.0] > 14.0" }
+        assert(10_002_221 in result3) { "10_002_221 [12.0] > 14.0" }
 
         assertNull(calculateInvertScoreRange(targetPlayRating = 14.0, constant = 80))
     }
