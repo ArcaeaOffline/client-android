@@ -14,7 +14,7 @@ data class Progress(
                 (current.toFloat() / total).coerceIn(0f, 1f)
             }
 
-    fun increment() = copy(current = current + 1)
+    fun increment() = copy(current = (current + 1).coerceAtMost(total))
 
     companion object {
         val INDETERMINATE = Progress()
