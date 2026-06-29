@@ -3,9 +3,11 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.r30list
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -129,7 +131,7 @@ internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinVie
             Box(Modifier.fillMaxSize()) {
                 LinearProgressIndicatorWrapper(
                     progress = updateProgress,
-                    Modifier.align(Alignment.Center),
+                    Modifier.align(Alignment.Center).width(IntrinsicSize.Min),
                 )
             }
         } else if (uiState.isLoading) {
