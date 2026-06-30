@@ -60,7 +60,7 @@ compose-material-icons-extended = { module = "org.jetbrains.compose.material:mat
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress" }
-
+jSystemThemeDetector = { module = "com.github.Dansoftowner:jSystemThemeDetector", version = "3.9.1" }
 io-sentry-sentryAndroid = { module = "io.sentry:sentry-android", version.ref = "io-sentry-sentryAndroid" }
 
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version = "1.26.0" }
@@ -88,6 +88,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
+
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }

@@ -2,10 +2,11 @@ package xyz.sevive.arcaeaoffline.desktop
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -24,11 +25,16 @@ import xyz.sevive.arcaeaoffline.ui.components.DecimalStepperTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
 import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaConstantStepperTextFieldState
+import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 fun main() =
     application {
         Window(onCloseRequest = ::exitApplication, title = "Arcaea Offline (Proof-of-Concept Prototype)") {
-            CalculatorScreen()
+            ArcaeaOfflineTheme {
+                Surface(Modifier.fillMaxSize()) {
+                    CalculatorScreen()
+                }
+            }
         }
     }
 
@@ -41,24 +47,22 @@ fun CalculatorScreen() {
     val constant by remember { derivedStateOf { ((constantTextFieldState.doubleValue ?: 0.0) * 10).toInt() } }
     val result = calculatePlayRating(score, constant)
 
-    MaterialTheme {
-        Column(
-            Modifier.padding(16.dp).width(400.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            OutlinedArcaeaScoreTextField(scoreTextFieldState)
+    Column(
+        Modifier.padding(16.dp).width(400.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        OutlinedArcaeaScoreTextField(scoreTextFieldState)
 
-            DecimalStepperTextField(
-                constantTextFieldState,
-                label = { Text(stringResource(Res.string.arcaea_constant)) },
-            )
+        DecimalStepperTextField(
+            constantTextFieldState,
+            label = { Text(stringResource(Res.string.arcaea_constant)) },
+        )
 
-            OutlinedTextField(
-                value = "%.4f".format(result),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(Res.string.arcaea_play_rating)) },
-            )
-        }
+        OutlinedTextField(
+            value = "%.4f".format(result),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(Res.string.arcaea_play_rating)) },
+        )
     }
 }

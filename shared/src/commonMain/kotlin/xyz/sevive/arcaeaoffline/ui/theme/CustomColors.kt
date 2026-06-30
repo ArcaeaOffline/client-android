@@ -4,16 +4,28 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+@Suppress("unused")
 val ArcaeaPastSvgMain = Color(0xFF5CBAD3)
+
+@Suppress("unused")
 val ArcaeaPastSvgBg = Color(0xFF328AA0)
 
+@Suppress("unused")
 val ArcaeaPresentSvgMain = Color(0xFFB5C76F)
+
+@Suppress("unused")
 val ArcaeaPresentSvgBg = Color(0xFF8C9B51)
 
+@Suppress("unused")
 val ArcaeaFutureSvgMain = Color(0xFF913A79)
+
+@Suppress("unused")
 val ArcaeaFutureSvgBg = Color(0xFF772F63)
 
+@Suppress("unused")
 val ArcaeaBeyondSvgMain = Color(0xFFBF0D25)
+
+@Suppress("unused")
 val ArcaeaBeyondSvgBg = Color(0xFFA0303F)
 
 /**

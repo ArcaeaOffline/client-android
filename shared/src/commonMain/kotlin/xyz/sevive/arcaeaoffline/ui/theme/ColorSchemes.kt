@@ -1,6 +1,7 @@
 /*
  * Auto generated file from https://material-foundation.github.io/material-theme-builder/
  */
+@file:Suppress("unused")
 
 package xyz.sevive.arcaeaoffline.ui.theme
 

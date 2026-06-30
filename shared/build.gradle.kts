@@ -1,5 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-//    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.compose)
@@ -14,8 +16,19 @@ compose {
 }
 
 kotlin {
-//    androidTarget()
     jvm()
+
+    android {
+        namespace = "xyz.sevive.arcaeaoffline.shared"
+        compileSdk = 37
+        minSdk = 24
+
+        withJava()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -31,7 +44,9 @@ kotlin {
             implementation(libs.bignum)
         }
 
-        jvmMain.dependencies { }
+        jvmMain.dependencies {
+            implementation(libs.jSystemThemeDetector)
+        }
 
         commonTest.dependencies {
             implementation(kotlin("test"))

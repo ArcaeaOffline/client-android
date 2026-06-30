@@ -1,22 +1,21 @@
 package xyz.sevive.arcaeaoffline.ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 
-val LocalExtendedColorScheme = staticCompositionLocalOf { ExtendedColorScheme() }
+@Composable
+actual fun isSystemInDarkTheme(): Boolean = androidx.compose.foundation.isSystemInDarkTheme()
 
 @Composable
-fun ArcaeaOfflineTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(), // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit,
+actual fun ArcaeaOfflineTheme(
+    darkTheme: Boolean,
+    dynamicColor: Boolean,
+    content: @Composable (() -> Unit),
 ) {
     val colorScheme =
         when {
