@@ -24,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable

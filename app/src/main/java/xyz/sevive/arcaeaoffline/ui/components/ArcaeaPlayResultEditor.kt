@@ -21,6 +21,8 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
+import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 

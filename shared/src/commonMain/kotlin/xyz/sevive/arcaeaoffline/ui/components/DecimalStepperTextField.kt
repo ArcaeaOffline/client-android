@@ -38,9 +38,10 @@ import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.delay
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+
+// import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 object DecimalStepperTextFieldTestTags {
     const val DECREASE_BUTTON = "DecimalStepperTextField_DecreaseIconButton"
@@ -338,16 +339,16 @@ private fun DecimalStepperTextFieldPreview() {
             maxValue = 100.0,
         )
 
-    ArcaeaOfflineTheme {
-        Surface {
-            Column(
-                Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                DecimalStepperTextField(state)
+//    ArcaeaOfflineTheme {
+    Surface {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            DecimalStepperTextField(state)
 
-                Text("state.value is ${state.value}")
-            }
+            Text("state.value is ${state.value}")
         }
     }
+//    }
 }

@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components
+package xyz.sevive.arcaeaoffline.ui.components.arcaea
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -11,10 +11,11 @@ import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
-import xyz.sevive.arcaeaoffline.R
+import org.jetbrains.compose.resources.stringResource
+import xyz.sevive.arcaeaoffline.resources.Res
+import xyz.sevive.arcaeaoffline.resources.arcaea_play_result_score
 import kotlin.math.abs
 
 /**
@@ -167,7 +168,7 @@ fun rememberArcaeaScoreTextFieldState(
 fun OutlinedArcaeaScoreTextField(
     state: ArcaeaScoreTextFieldState,
     modifier: Modifier = Modifier,
-    label: @Composable TextFieldLabelScope.() -> Unit = { Text(stringResource(R.string.arcaea_play_result_score)) },
+    label: @Composable TextFieldLabelScope.() -> Unit = { Text(stringResource(Res.string.arcaea_play_result_score)) },
 ) {
     OutlinedTextField(
         state.textFieldState,
