@@ -77,7 +77,12 @@ class DecimalStepperTextFieldState(
     }
 
     val value: BigDecimal?
-        get() = runCatching { textFieldState.text.toString().toBigDecimal() }.getOrNull()
+        get() =
+            try {
+                textFieldState.text.toString().toBigDecimal()
+            } catch (_: ArithmeticException) {
+                null
+            }
 
     val doubleValue
         get() = value?.doubleValue(exactRequired = false)
