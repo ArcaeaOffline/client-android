@@ -27,6 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
@@ -37,10 +44,9 @@ import androidx.compose.ui.unit.dp
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
-import kotlinx.coroutines.delay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import xyz.sevive.arcaeaoffline.ui.utils.AutoRepeatController
+import xyz.sevive.arcaeaoffline.ui.utils.rememberAutoRepeatController
 
 object DecimalStepperTextFieldTestTags {
     const val DECREASE_BUTTON = "DecimalStepperTextField_DecreaseIconButton"
@@ -77,13 +83,11 @@ class DecimalStepperTextFieldState(
         get() = value?.doubleValue(exactRequired = false)
 
     fun stepUp() {
-        val current = value ?: BigDecimal.ZERO
-        commitValue(current + step)
+        value?.let { commitValue(it + step) }
     }
 
     fun stepDown() {
-        val current = value ?: BigDecimal.ZERO
-        commitValue(current - step)
+        value?.let { commitValue(it - step) }
     }
 
     /**
@@ -221,31 +225,32 @@ fun rememberArcaeaConstantStepperTextFieldState(initialValue: Double) =
 @Composable
 private fun RepeatingIconButton(
     onClick: () -> Unit,
+    repeatController: AutoRepeatController,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    initialDelayMillis: Duration = 500.milliseconds,
-    repeatDelayMillis: Duration = 80.milliseconds,
     content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressed by interactionSource.collectIsPressedAsState()
 
-    LaunchedEffect(isPressed, enabled) {
-        if (isPressed && enabled) {
-            // wait for a period to confirm the long click indication
-            delay(initialDelayMillis)
-            while (true) {
-                onClick()
-                delay(repeatDelayMillis)
-            }
+    LaunchedEffect(pressed, enabled) {
+        if (!enabled) {
+            repeatController.release()
+            return@LaunchedEffect
+        }
+
+        if (pressed) {
+            repeatController.press(onClick)
+        } else {
+            repeatController.release()
         }
     }
 
     IconButton(
-        onClick = onClick, // this handles the first click interaction
-        modifier = modifier,
+        onClick = {}, // Controlled by repeatController
         enabled = enabled,
         interactionSource = interactionSource,
+        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
         content = content,
     )
 }
@@ -271,6 +276,8 @@ fun DecimalStepperTextField(
         }
 
     val isSteppingEnabled = enabled && !readonly
+    val stepUpRepeater = rememberAutoRepeatController()
+    val stepDownRepeater = rememberAutoRepeatController()
 
     OutlinedTextField(
         state.textFieldState,
@@ -280,7 +287,34 @@ fun DecimalStepperTextField(
                 // Normalize input when focus is lost
                 .onFocusChanged { focusState ->
                     if (focusState.isFocused) return@onFocusChanged
+
+                    stepUpRepeater.cancel()
+                    stepDownRepeater.cancel()
                     state.value?.let { state.commitValue(it) }
+                }.onPreviewKeyEvent {
+                    if (!isSteppingEnabled) return@onPreviewKeyEvent false
+
+                    when (it.key) {
+                        Key.DirectionUp -> {
+                            when (it.type) {
+                                KeyEventType.KeyDown -> stepUpRepeater.press(state::stepUp)
+                                KeyEventType.KeyUp -> stepUpRepeater.release()
+                            }
+                            true
+                        }
+
+                        Key.DirectionDown -> {
+                            when (it.type) {
+                                KeyEventType.KeyDown -> stepDownRepeater.press(state::stepDown)
+                                KeyEventType.KeyUp -> stepDownRepeater.release()
+                            }
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
+                    }
                 },
         inputTransformation = inputTransformation,
         lineLimits = TextFieldLineLimits.SingleLine,
@@ -302,6 +336,7 @@ fun DecimalStepperTextField(
                 {
                     RepeatingIconButton(
                         onClick = { state.stepDown() },
+                        repeatController = stepDownRepeater,
                         modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.DECREASE_BUTTON),
                     ) {
                         Icon(Icons.Default.Remove, contentDescription = "Decrease")
@@ -315,6 +350,7 @@ fun DecimalStepperTextField(
                 {
                     RepeatingIconButton(
                         onClick = { state.stepUp() },
+                        repeatController = stepUpRepeater,
                         modifier = Modifier.testTag(DecimalStepperTextFieldTestTags.INCREASE_BUTTON),
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Increase")

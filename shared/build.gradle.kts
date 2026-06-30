@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.compose)
+
+    alias(libs.plugins.kotlinx.atomicfu)
 }
 
 compose {
@@ -24,6 +26,10 @@ kotlin {
         minSdk = 24
 
         withJava()
+        withHostTestBuilder {}.configure {}
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
@@ -50,6 +56,11 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.compose.ui.test)
+        }
+
+        jvmTest.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }

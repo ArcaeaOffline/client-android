@@ -4,6 +4,7 @@ desugarJdkLibs = "2.1.5"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
+kotlinx-atomicfu = "0.33.0"
 ktoml = "0.7.1"
 kotlinx-datetime = "0.8.0"
 ksp = "2.3.9"
@@ -56,6 +57,7 @@ compose-ui-graphics = { module = "org.jetbrains.compose.ui:ui-graphics", version
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
+compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose-multiplatform" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
@@ -92,6 +94,7 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlinx-atomicfu" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
