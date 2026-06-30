@@ -54,22 +54,11 @@ data class DeviceOcrResult(
 }
 
 fun DeviceOcrResult.toPlayResult(
-    arcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
     date: Instant? = null,
     comment: String? = null,
 ): PlayResult {
-    val playResultModifier =
-        if (arcaeaPartnerModifiers != null) {
-            arcaeaPartnerModifiers[this.partnerId]
-        } else {
-            null
-        }
-    val clearType =
-        if (playResultModifier != null && this.clearStatus != null) {
-            clearStatusToClearType(this.clearStatus, playResultModifier)
-        } else {
-            null
-        }
+    val playResultModifier = ArcaeaPartnerModifiers[this.partnerId]
+    val clearType = this.clearStatus?.let { clearStatusToClearType(it, playResultModifier) }
 
     return PlayResult(
         id = 0,

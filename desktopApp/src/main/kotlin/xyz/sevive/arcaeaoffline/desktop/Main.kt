@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import org.jetbrains.compose.resources.stringResource
+import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.resources.Res
 import xyz.sevive.arcaeaoffline.resources.arcaea_constant
@@ -63,6 +64,18 @@ fun CalculatorScreen() {
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(Res.string.arcaea_play_rating)) },
+        )
+
+        Text(
+            "Should be EASY: " + ArcaeaPartnerModifiers["0"].toDisplayString(),
+        )
+
+        Text(
+            "Should be NORMAL: " + ArcaeaPartnerModifiers["1"].toDisplayString(),
+        )
+
+        Text(
+            "Should be HARD: " + ArcaeaPartnerModifiers["7"].toDisplayString(),
         )
     }
 }

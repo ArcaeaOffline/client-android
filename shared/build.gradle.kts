@@ -3,8 +3,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.multiplatform)
+
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.compose)
+
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
 compose {
@@ -47,6 +50,8 @@ kotlin {
             implementation(libs.compose.material.icons.extended)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.ui.tooling)
+
+            implementation(libs.kotlinx.serialization)
 
             implementation(libs.bignum)
         }
