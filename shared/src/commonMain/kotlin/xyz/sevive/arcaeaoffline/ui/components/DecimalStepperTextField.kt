@@ -295,7 +295,7 @@ fun DecimalStepperTextField(
 
                     stepUpRepeater.cancel()
                     stepDownRepeater.cancel()
-                    state.value?.let { state.commitValue(it) }
+                    state.commitValue(state.value ?: state.minValue)
                 }.onPreviewKeyEvent {
                     if (!isSteppingEnabled) return@onPreviewKeyEvent false
 

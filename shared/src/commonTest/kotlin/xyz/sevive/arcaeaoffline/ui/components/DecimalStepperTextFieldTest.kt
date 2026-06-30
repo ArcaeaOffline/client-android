@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -165,6 +166,36 @@ class DecimalStepperTextFieldTest {
             onNodeWithTag("other_text_field").requestFocus()
 
             assertEquals("1.500", state.textFieldState.text.toString())
+        }
+
+    @Test
+    fun defaulting_to_minimum_value_when_focus_lost_with_empty_input() =
+        runComposeUiTest {
+            lateinit var state: DecimalStepperTextFieldState
+            setContent {
+                state =
+                    rememberDecimalStepperTextFieldState(
+                        initialValue = 1.5,
+                        maxDecimalPlaces = 2,
+                        minValue = 1.0,
+                    )
+
+                Column {
+                    DecimalStepperTextField(state)
+                    // A clickable item to change focus
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        Modifier.testTag("other_text_field"),
+                    )
+                }
+            }
+
+            onNodeWithTag(DecimalStepperTextFieldTestTags.TEXT_FIELD).performTextClearance()
+            // Changing focus
+            onNodeWithTag("other_text_field").requestFocus()
+
+            assertEquals("1.00", state.textFieldState.text.toString())
         }
 
     @Test
