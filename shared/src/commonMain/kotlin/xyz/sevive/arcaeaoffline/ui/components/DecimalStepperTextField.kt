@@ -1,7 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -22,9 +23,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
@@ -34,6 +35,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
@@ -236,26 +238,44 @@ private fun RepeatingIconButton(
     content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-
-    LaunchedEffect(pressed, enabled) {
-        if (!enabled) {
-            repeatController.release()
-            return@LaunchedEffect
-        }
-
-        if (pressed) {
-            repeatController.press(onClick)
-        } else {
-            repeatController.release()
-        }
-    }
+    val currentOnClick by rememberUpdatedState(onClick)
 
     IconButton(
-        onClick = {}, // Controlled by repeatController
+        onClick = {},
         enabled = enabled,
         interactionSource = interactionSource,
-        modifier = modifier.pointerHoverIcon(PointerIcon.Hand),
+        modifier =
+            modifier
+                .pointerHoverIcon(PointerIcon.Hand)
+                // This complex pointerInput ensures consistent behavior on both desktop and mobile
+                // ---
+                // Use raw pointerInput + awaitEachGesture instead of the simpler
+                // onClick + LaunchedEffect(pressed) pattern because:
+                // 1. IconButton.onClick fires at different lifecycle points per platform
+                //    (press on Desktop, release on Android), causing double-fire when
+                //    combined with InteractionSource-based press detection.
+                // 2. LaunchedEffect watching collectIsPressedAsState() misses brief
+                //    press-release cycles on Android due to coroutine scheduling latency,
+                //    and InteractionSource is unreliable on non-Android targets:
+                //    https://github.com/JetBrains/compose-multiplatform/issues/4087
+                // 3. JetBrains recommends using pointer events over InteractionSource for
+                //    button gesture handling:
+                //    https://github.com/JetBrains/compose-multiplatform/issues/4801
+                // Events are intentionally not consumed so IconButton's internal
+                // clickable still handles ripple/animation.
+                // ---
+                // deepseek-v4-pro with OpenCode, 2026-07-01.
+                .pointerInput(enabled) {
+                    if (!enabled) return@pointerInput
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false)
+                        repeatController.press(currentOnClick)
+                        do {
+                            val event = awaitPointerEvent()
+                        } while (event.changes.any { it.pressed })
+                        repeatController.release()
+                    }
+                },
         content = content,
     )
 }
