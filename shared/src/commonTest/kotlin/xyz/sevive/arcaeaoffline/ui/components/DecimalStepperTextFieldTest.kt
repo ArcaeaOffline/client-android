@@ -22,7 +22,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class DecimalStepperTextFieldTest {
     @Test
-    fun `stepping up preserves decimal places`() =
+    fun stepping_up_preserves_decimal_places() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -45,7 +45,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `stepping past max boundary clamps to max value`() =
+    fun stepping_past_max_boundary_clamps_to_max_value() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -67,7 +67,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `stepping past min boundary clamps to min value`() =
+    fun stepping_past_min_boundary_clamps_to_min_value() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -89,7 +89,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `rejects invalid inputs`() =
+    fun rejects_invalid_inputs() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -113,7 +113,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `allows negative input`() =
+    fun allows_negative_input() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -137,7 +137,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `losing focus appends trailing zeros`() =
+    fun losing_focus_appends_trailing_zeros() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -168,7 +168,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `replaces locale comma with dot`() =
+    fun replaces_locale_comma_with_dot() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -183,7 +183,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `disabled state blocks interactions`() =
+    fun disabled_state_blocks_interactions() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -206,7 +206,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `readonly state blocks interactions`() =
+    fun readonly_state_blocks_interactions() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {
@@ -229,7 +229,7 @@ class DecimalStepperTextFieldTest {
         }
 
     @Test
-    fun `ime done action triggers formatting`() =
+    fun ime_done_action_triggers_formatting() =
         runComposeUiTest {
             lateinit var state: DecimalStepperTextFieldState
             setContent {

@@ -4,7 +4,6 @@ desugarJdkLibs = "2.1.5"
 
 kotlin = "2.3.21"
 kotlinx-serialization = "1.11.0"
-kotlinx-atomicfu = "0.33.0"
 ktoml = "0.7.1"
 kotlinx-datetime = "0.8.0"
 ksp = "2.3.9"
@@ -94,7 +93,6 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "kotlinx-atomicfu" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

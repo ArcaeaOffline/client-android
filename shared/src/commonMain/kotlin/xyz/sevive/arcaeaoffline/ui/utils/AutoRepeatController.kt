@@ -5,11 +5,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -21,7 +21,7 @@ class AutoRepeatController internal constructor(
     private val initialDelay: Duration,
     private val repeatDelay: Duration,
 ) {
-    private val repeatJob = atomic<Job?>(null)
+    private val repeatJob = AtomicReference<Job?>(null)
 
     /**
      * Call when a press begins.
@@ -30,11 +30,11 @@ class AutoRepeatController internal constructor(
      */
     fun press(action: () -> Unit) {
         // Ignore auto-repeat KeyDown or duplicated presses.
-        if (repeatJob.value != null) return
+        if (repeatJob.load() != null) return
 
         action()
 
-        repeatJob.value =
+        repeatJob.store(
             scope.launch {
                 delay(initialDelay)
 
@@ -42,15 +42,16 @@ class AutoRepeatController internal constructor(
                     action()
                     delay(repeatDelay)
                 }
-            }
+            },
+        )
     }
 
     /**
      * Call when the press ends.
      */
     fun release() {
-        repeatJob.value?.cancel()
-        repeatJob.value = null
+        repeatJob.load()?.cancel()
+        repeatJob.store(null)
     }
 
     /**

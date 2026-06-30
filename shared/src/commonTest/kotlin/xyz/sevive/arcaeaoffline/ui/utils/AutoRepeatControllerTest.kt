@@ -23,7 +23,7 @@ class AutoRepeatControllerTest {
     }
 
     @Test
-    fun `press invokes action immediately`() =
+    fun press_invokes_action_immediately() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -33,7 +33,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `press starts repeating after initial delay`() =
+    fun press_starts_repeating_after_initial_delay() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -53,7 +53,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `repeated press calls are ignored`() =
+    fun repeated_press_calls_are_ignored() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -74,7 +74,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `release stops repeating`() =
+    fun release_stops_repeating() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -90,7 +90,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `cancel stops repeating`() =
+    fun cancel_stops_repeating() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -105,7 +105,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `release during initial delay prevents any repeat`() =
+    fun release_during_initial_delay_prevents_any_repeat() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -121,7 +121,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `controller can be reused after release`() =
+    fun controller_can_be_reused_after_release() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
@@ -142,7 +142,7 @@ class AutoRepeatControllerTest {
         }
 
     @Test
-    fun `multiple rapid press-release cycles work`() =
+    fun `multiple_rapid_press-release_cycles_work`() =
         runTest {
             var counter = 0
             val controller = AutoRepeatController(backgroundScope, initialDelay, repeatDelay)
