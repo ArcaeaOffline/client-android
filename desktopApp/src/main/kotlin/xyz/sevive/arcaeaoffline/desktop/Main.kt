@@ -21,7 +21,7 @@ import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 
 fun main() =
     application {
-        Window(onCloseRequest = ::exitApplication, title = "Arcaea Offline - Play Rating Calculator") {
+        Window(onCloseRequest = ::exitApplication, title = "Arcaea Offline (Proof-of-Concept Prototype)") {
             CalculatorScreen()
         }
     }
