@@ -18,6 +18,14 @@ compose {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    if (name == "testAndroidHostTest") {
+        useJUnit {
+            excludeCategories("xyz.sevive.arcaeaoffline.test.category.AndroidHostTestIncompatible")
+        }
+    }
+}
+
 kotlin {
     jvm()
 
@@ -27,7 +35,9 @@ kotlin {
         minSdk = 24
 
         withJava()
-        withHostTest {}
+        withHostTest {
+            isIncludeAndroidResources = true
+        }
         withDeviceTestBuilder {
             // Link Android device tests to the KMP 'test' source set tree
             // so commonTest (including UI tests) will also run on the devices.

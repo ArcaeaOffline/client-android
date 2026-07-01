@@ -18,9 +18,12 @@ import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
+import xyz.sevive.arcaeaoffline.test.category.AndroidHostTestIncompatible
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
+@Category(AndroidHostTestIncompatible::class)
 class DecimalStepperTextFieldTest {
     @Test
     fun stepping_up_preserves_decimal_places() =
