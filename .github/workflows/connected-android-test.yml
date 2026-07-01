@@ -62,36 +62,7 @@ jobs:
           arch: x86_64
           emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            OUTPUT_ROOT="build/ci-connected-android-test-reports"
-            echo "reports-path=$OUTPUT_ROOT" >> "$GITHUB_OUTPUT"
-
-            set_orientation() {
-              # portrait: 0, landscape: 1
-              local rotation=$1
-              adb shell settings put system accelerometer_rotation 0
-              adb shell settings put system user_rotation "$rotation"
-            }
-            
-            archive_reports() {
-              # "portrait" or "landscape"
-              local stage=$1
-              local target_dir="$OUTPUT_ROOT/$stage"
-            
-              echo "=== Archiving $stage test reports ==="
-              mkdir -p "$target_dir/app" "$target_dir/shared"
-            
-              cp -r app/build/reports/androidTests/connected/* "$target_dir/app/" 2>/dev/null || true
-              cp -r shared/build/reports/androidTests/connected/* "$target_dir/shared/" 2>/dev/null || true
-            }
-            
-            set_orientation 0
-            ./gradlew connectedDebugAndroidTest --stacktrace
-            archive_reports "portrait"
-            
-            set_orientation 1
-            ./gradlew connectedDebugAndroidTest --stacktrace
-            archive_reports "landscape"
+          script: .github/scripts/connected-android-test.sh
 
       - name: Upload Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
