@@ -23,3 +23,7 @@ ktlint_function_naming_ignore_when_annotated_with = Composable
 ktlint_standard_class-naming = disabled
 # Auto generated SQL lines can be very long
 ktlint_standard_max-line-length = disabled
+
+# For generated code
+[**/build/generated/**/*]
+ktlint = disabled
