@@ -27,10 +27,13 @@ kotlin {
         minSdk = 24
 
         withJava()
-        withHostTestBuilder {}.configure {}
+        withHostTest {}
         withDeviceTestBuilder {
+            // Link Android device tests to the KMP 'test' source set tree
+            // so commonTest (including UI tests) will also run on the devices.
             sourceSetTreeName = "test"
         }
+
         androidResources {
             enable = true
         }

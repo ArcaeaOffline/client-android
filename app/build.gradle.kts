@@ -236,6 +236,7 @@ dependencies {
     androidTestImplementation(androidx.test.espresso.core)
     androidTestImplementation(androidx.test.espresso.contrib)
     androidTestImplementation(androidx.compose.ui.test.junit4)
+    androidTestImplementation(project(":shared"))
 
     debugImplementation(androidx.compose.ui.test.manifest)
 }
