@@ -53,6 +53,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
+
     implementation(libs.kotlinx.io)
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)

@@ -10,12 +10,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+
 jobs:
   test:
-    name: Run Connected Android Tests (unstableDebug)
+    name: Run Connected Android Tests
     runs-on: ubuntu-latest
-    env:
-      GRADLE_OPTS: -Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +43,7 @@ jobs:
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
       - name: Build Application
-        run: ./gradlew assembleUnstableDebug assembleUnstableDebugAndroidTest --stacktrace
+        run: ./gradlew assembleDebugAndroidTest --stacktrace
 
       # android-emulator-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
@@ -53,6 +54,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run UI Tests
+        id: ui_tests
         uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
         with:
           api-level: ${{ matrix.api-level }}
@@ -60,29 +62,11 @@ jobs:
           arch: x86_64
           emulator-options: -no-metrics -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            # Disable auto-rotation and lock device to landscape
-            adb shell settings put system accelerometer_rotation 0
-            # Lock device to portrait
-            adb shell settings put system user_rotation 0
-            
-            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
-            
-            mkdir -p app/build/reports/portrait-tests
-            cp -r app/build/reports/androidTests/connected/* app/build/reports/portrait-tests/ || true
-            
-            # Lock device to landscape
-            adb shell settings put system user_rotation 1
-            
-            ./gradlew connectedUnstableDebugAndroidTest --stacktrace
-            
-            mkdir -p app/build/reports/landscape-tests
-            cp -r app/build/reports/androidTests/connected/* app/build/reports/landscape-tests/ || true
+          script: .github/scripts/connected-android-test.sh
 
       - name: Upload Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}  # run this step even if previous step failed
         with:
           name: test-results-api${{ matrix.api-level }}-${{ matrix.target }}
-          path: |
-            **/build/reports/
+          path: ${{ steps.ui_tests.outputs.reports-path }}

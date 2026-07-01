@@ -22,7 +22,6 @@ import kotlinx.io.buffered
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.ml.KNearest
-import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
@@ -146,16 +145,11 @@ object DeviceOcrHelper {
         ocrResult: DeviceOcrResult,
         fallbackDate: Instant? = null,
         overrideDate: Instant? = null,
-        customArcaeaPartnerModifiers: ArcaeaPartnerModifiers? = null,
     ): PlayResult {
-        val arcaeaPartnerModifiers =
-            customArcaeaPartnerModifiers ?: ArcaeaPartnerModifiers(context.assets)
-
         val date = readImageDateFromExif(imageUri, overrideDate) ?: fallbackDate
         val imgFilename = context.getFilename(imageUri)
 
         return ocrResult.toPlayResult(
-            arcaeaPartnerModifiers = arcaeaPartnerModifiers,
             date = date,
             comment = if (imgFilename != null) "OCR $imgFilename" else null,
         )

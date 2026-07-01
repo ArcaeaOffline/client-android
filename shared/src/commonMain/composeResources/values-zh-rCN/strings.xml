@@ -1,0 +1,333 @@
+<resources>
+    <string name="app_name">Arcaea Offline</string>
+
+    <!-- General icon descriptions -->
+    <string name="icon_desc_navigate_back">返回</string>
+    <string name="icon_desc_edit">编辑此项</string>
+    <string name="icon_desc_delete">删除此项</string>
+
+    <!-- General strings -->
+    <string name="general_ok">OK</string>
+    <string name="general_action_done">完成</string>
+    <string name="general_save">保存</string>
+    <string name="general_edit">编辑</string>
+    <string name="general_delete">删除</string>
+    <string name="general_reset">重置</string>
+    <string name="general_please_wait">请稍候……</string>
+    <string name="general_import">导入</string>
+    <string name="general_stop">停止</string>
+    <string name="general_no_results">无结果</string>
+    <string name="general_updated_at">更新于 %s</string>
+    <string name="general_unknown_error">未知错误</string>
+
+    <string name="general_sort_ascending">升序</string>
+    <string name="general_sort_ascending_short">升序</string>
+    <string name="general_sort_descending">降序</string>
+    <string name="general_sort_descending_short">降序</string>
+
+    <string name="general_arcaea_not_installed">未安装 Arcaea</string>
+    <string name="general_import_from_arcaea">从 Arcaea 导入</string>
+
+    <!-- ArcaeaButton -->
+    <string name="arcaea_button_resource_unavailable">Arcaea 资源不可用</string>
+
+    <!-- ArcaeaPlayResultCard -->
+    <string name="play_result_no_date">// 无日期 //</string>
+    <string name="play_result_no_clear_type">// 无 Clear Type //</string>
+    <string name="play_result_no_modifier">// 无 Modifier //</string>
+    <string name="play_result_no_comment">// 无备注 //</string>
+
+    <!-- CrashReportActivity -->
+    <string name="crash_report_title_app_crashed">应用崩溃。</string>
+    <string name="crash_report_title_error_occurred">发生错误。</string>
+    <string name="crash_report_installation_id">应用安装 ID</string>
+    <string name="crash_report_report_id">报告 ID</string>
+    <string name="crash_report_crash_date">崩溃时间</string>
+    <string name="crash_report_send_report_prompt">要发送崩溃报告吗？</string>
+    <string name="crash_report_textfield_label_comment">备注（可选）</string>
+    <string name="crash_report_textfield_placeholder_comment">你在应用崩溃时尝试执行什么操作？</string>
+    <string name="crash_report_textfield_label_contact">联系方式（可选）</string>
+    <string name="crash_report_textfield_placeholder_contact">当我们需要更多有关信息时，该如何联系你？</string>
+    <string name="crash_report_send_button">发送</string>
+    <string name="crash_report_save_button">暂存</string>
+    <string name="crash_report_ignore_button">忽略</string>
+    <string name="crash_report_toast_report_send_attempted">已尝试发送崩溃报告</string>
+    <string name="crash_report_toast_report_send_success">崩溃报告已发送</string>
+    <string name="crash_report_toast_report_send_failed">崩溃报告发送失败</string>
+    <string name="crash_report_toast_report_save_success">崩溃报告已保存</string>
+    <string name="crash_report_toast_report_save_failed">崩溃报告保存失败</string>
+    <string name="crash_report_toast_report_ignored">崩溃报告已忽略</string>
+
+    <!-- Permission helpers -->
+    <string name="permission_required_dialog_title">未授予权限</string>
+    <plurals name="permission_required_dialog_content">
+        <item quantity="other">“%s”需要以下权限：</item>
+    </plurals>
+    <!-- Functions that need permissions -->
+    <string name="permission_function_save_image">保存图片</string>
+
+    <!-- OCR dependencies -->
+    <string name="ocr_dependency_knn_model">KNearest 模型</string>
+    <string name="ocr_dependency_image_hashes_database">图像哈希数据库</string>
+    <string name="ocr_dependency_crnn_model">CRNN OCR 模型</string>
+
+    <!-- Arcaea terms -->
+    <string name="arcaea_chart">谱面</string>
+    <string name="arcaea_play_result">游玩记录</string>
+    <string name="arcaea_play_result_score">分数</string>
+    <string name="arcaea_play_result_max_recall">MAX RECALL</string>
+    <string name="arcaea_play_result_clear_type">通关状态</string>
+    <string name="arcaea_play_result_modifier">Modifier</string>
+    <string name="arcaea_play_result_comment">备注</string>
+    <string name="arcaea_potential">潜力值</string>
+    <string name="arcaea_constant">定数</string>
+    <string name="arcaea_play_rating">单曲潜力值</string>
+
+    <!-- OcrFromShareActivity -->
+    <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
+    <string name="ocr_from_share_save_image_button">保存图片</string>
+    <string name="ocr_from_share_cache_score_button">暂存</string>
+    <string name="ocr_from_share_score_saved">成绩已保存</string>
+    <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
+    <string name="ocr_from_share_stay_in_app">留在 %s</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_overview">概览</string>
+    <string name="nav_database">数据库</string>
+    <string name="nav_utilities">小工具</string>
+    <string name="nav_ocr">OCR</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- Database info/status labels -->
+    <string name="database_version_label">版本 %d</string>
+    <plurals name="database_pack_entries">
+        <item quantity="other">%d 个曲包</item>
+    </plurals>
+    <plurals name="database_song_entries">
+        <item quantity="other">%d 首歌曲</item>
+    </plurals>
+    <plurals name="database_difficulty_entries">
+        <item quantity="other">%d 个难度</item>
+    </plurals>
+    <plurals name="database_chart_info_entries">
+        <item quantity="other">%d 个谱面信息</item>
+    </plurals>
+    <plurals name="database_play_result_entries">
+        <item quantity="other">%d 个游玩记录</item>
+    </plurals>
+
+    <string name="database_status_title">数据库状态</string>
+    <string name="database_status_initialize_button">初始化</string>
+    <string name="database_status_not_initialized">数据库未初始化</string>
+
+    <!-- Database manage pane -->
+    <string name="database_manage_title">管理</string>
+
+    <string name="database_manage_import_title">导入</string>
+    <string name="database_manage_import_pack_entries">曲包</string>
+    <string name="database_manage_import_pack_localized_entries">曲包本地化对象</string>
+    <string name="database_manage_import_song_entries">歌曲</string>
+    <string name="database_manage_import_song_localized_entries">歌曲本地化对象</string>
+    <string name="database_manage_import_difficulty_entries">难度</string>
+    <string name="database_manage_import_difficulty_localized_entries">难度本地化对象</string>
+    <string name="database_manage_import_chart_info_entries">谱面信息</string>
+    <string name="database_manage_import_play_result_entries">游玩记录</string>
+    <string name="database_manage_import_packlist">packlist</string>
+    <string name="database_manage_import_songlist">songlist</string>
+    <string name="database_manage_import_from_arcaea_apk">从 Arcaea 安装包导入</string>
+    <string name="database_manage_import_reading_apk">正在读取安装包，耗时可能较长……</string>
+    <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
+    <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
+
+    <string name="database_manage_export_title">导出</string>
+    <string name="database_manage_export_play_results">游玩记录</string>
+
+    <!-- Database add play result pane -->
+    <string name="database_add_play_result_title">添加游玩记录</string>
+    <string name="database_add_play_result_select_chart_header">选择谱面……</string>
+    <string name="database_add_play_result_edit_play_result_header">编辑游玩记录……</string>
+    <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
+    <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
+
+    <!-- Database play result list pane -->
+    <string name="database_play_result_list_title">游玩记录列表</string>
+    <plurals name="database_play_result_list_delete_confirm_dialog_content">
+        <item quantity="other">删除 %d 个游玩记录？</item>
+    </plurals>
+    <string name="database_play_result_updated">游玩记录 %s 已更新</string>
+
+    <!-- Database b30 list pane -->
+    <string name="database_b30_list_title">B30 列表</string>
+
+    <!-- Database r30 list pane -->
+    <string name="database_r30_list_title">R30 列表</string>
+    <string name="database_r30_rebuild_dialog_title">重建 R30 列表</string>
+    <string name="database_r30_rebuild_dialog_content">将清除目前 R30 列表内的所有记录，然后再从头计算 R30。确定吗？</string>
+
+    <!-- Database deduplicator pane -->
+    <string name="database_deduplicator_title">去重器</string>
+    <string name="database_deduplicator_auto_select_identical">自动选择（完全相同）</string>
+    <string name="database_deduplicator_description_auto_select_identical">对每组完全相同的游玩记录，仅保留其中 ID 最小的项</string>
+    <string name="database_deduplicator_auto_select_properties_priority">自动选择（属性优先）</string>
+    <string name="database_deduplicator_description_auto_select_properties_priority">对每一重复组，仅保留属性最多的一项</string>
+    <string name="database_deduplicator_auto_select_r30_priority">自动选择（R30 优先）</string>
+    <string name="database_deduplicator_description_auto_select_r30_priority">对每一重复组，仅保留有日期的一项</string>
+    <string name="database_deduplicator_auto_merge">自动合并所有重复组</string>
+    <string name="database_deduplicator_auto_merge_warning">自动合并在一般情况下没有问题，但也有可能合并出不太对劲的结果，并且在处理过程中不能手动介入或更改。</string>
+
+    <!-- Database toasts -->
+    <plurals name="database_packs_imported">
+        <item quantity="other">已导入 %d 个曲包</item>
+    </plurals>
+    <plurals name="database_packs_localized_imported">
+        <item quantity="other">已导入 %d 个曲包本地化对象</item>
+    </plurals>
+    <plurals name="database_songs_imported">
+        <item quantity="other">已导入 %d 首歌曲</item>
+    </plurals>
+    <plurals name="database_songs_localized_imported">
+        <item quantity="other">已导入 %d 个歌曲本地化对象</item>
+    </plurals>
+    <plurals name="database_difficulties_imported">
+        <item quantity="other">已导入 %d 个难度</item>
+    </plurals>
+    <plurals name="database_difficulties_localized_imported">
+        <item quantity="other">已导入 %d 个难度本地化对象</item>
+    </plurals>
+    <plurals name="database_chart_info_imported">
+        <item quantity="other">已导入 %d 个谱面信息</item>
+    </plurals>
+    <plurals name="database_play_results_imported">
+        <item quantity="other">已导入 %d 个游玩记录</item>
+    </plurals>
+    <plurals name="database_play_results_exported">
+        <item quantity="other">已导出 %d 个游玩记录</item>
+    </plurals>
+
+    <!-- components -->
+    <string name="song_id_selector_quick_search">快速搜索……</string>
+    <string name="song_id_selector_select_pack">选择曲包</string>
+    <string name="song_id_selector_select_song">选择歌曲</string>
+
+    <string name="play_result_editor_main_fields">主要字段</string>
+    <string name="play_result_editor_other_fields">其他字段</string>
+    <string name="play_result_editor_set_null">置空</string>
+    <string name="play_result_editor_comment_field">备注</string>
+
+    <string name="datetime_picker_label">日期时间选择</string>
+    <string name="datetime_picker_date">日期</string>
+    <string name="datetime_picker_time">时间</string>
+
+    <!-- Utilities -->
+    <string name="utilities_calculator_title">单曲潜力值计算</string>
+    <string name="utilities_recommend_title">推荐谱面</string>
+    <string name="utilities_recommend_minimum_score">分数下界</string>
+    <string name="utilities_recommend_maximum_score">分数上界</string>
+    <string name="utilities_recommend_target_play_rating">期望单曲潜力值</string>
+    <string name="utilities_recommend_input">参数</string>
+    <string name="utilities_recommend_results">结果</string>
+
+    <!-- Ocr queue screen -->
+    <string name="ocr_queue_title">OCR 队列</string>
+
+    <string name="ocr_queue_pick_images_button">多选图像</string>
+    <string name="ocr_queue_pick_folder_button">导入文件夹</string>
+    <string name="ocr_queue_add_image_options_title">添加图片</string>
+    <string name="ocr_queue_add_image_options_check_is_image">检查是否为图片</string>
+    <string name="ocr_queue_add_image_options_detect_screenshot">检查是否为 Arcaea 截图</string>
+    <string name="ocr_queue_queue_options_title">队列</string>
+    <string name="ocr_queue_queue_options_parallel_count">并行数量</string>
+    <string name="ocr_queue_status_idle">待命</string>
+    <string name="ocr_queue_status_processing">正在处理</string>
+    <string name="ocr_queue_status_done">完成</string>
+    <string name="ocr_queue_status_done_with_warning">完成但有警告</string>
+    <string name="ocr_queue_status_error">出错</string>
+
+    <plurals name="ocr_queue_event_files_staged">
+        <item quantity="other">%s 个文件已添加至暂存区</item>
+    </plurals>
+    <string name="ocr_queue_event_folder_staged">正在扫描 "%s"</string>
+    <string name="ocr_queue_event_staging_error">暂存处理错误：%s</string>
+    <string name="ocr_queue_event_staging_cleared">暂存区已清空</string>
+    <string name="ocr_queue_staging_status">暂存</string>
+    <string name="ocr_queue_staging_empty">空</string>
+    <string name="ocr_queue_validation_status">验证</string>
+    <string name="ocr_queue_validation_not_running">空闲</string>
+    <string name="ocr_queue_start_staging_job_button">开始</string>
+    <string name="ocr_queue_clear_staging_button">清空</string>
+
+    <!-- Ocr dependencies screen -->
+    <string name="ocr_dependencies_title">OCR 依赖项</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_app_pref_enable_sentry">发送崩溃报告</string>
+    <string name="settings_general_title">通用</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_application_id">应用 ID</string>
+    <string name="settings_about_version">版本</string>
+    <string name="settings_about_version_code">版本代号</string>
+    <string name="settings_license_title">许可证</string>
+    <string name="settings_aboutlibraries_title">开源组件</string>
+
+    <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
+
+    <!-- PlayResult validator warnings -->
+    <plurals name="play_result_validator_warning_count">
+        <item quantity="other">%d 条警告</item>
+    </plurals>
+
+    <string name="play_result_validator_SCORE_IS_ZERO_title">分数为零</string>
+    <string name="play_result_validator_SCORE_IS_ZERO_message">分数为 0。</string>
+
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
+
+    <string name="play_result_validator_PFL_OVERFLOW_title">Note 溢出</string>
+    <string name="play_result_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
+
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数要大</string>
+
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL 有误</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
+
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_title">Note 有误</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_message">非 HARD LOST 结算的游玩结果，其 PURE、FAR、LOST 的和应与谱面总物件数相等</string>
+
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">真全想起来了？</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">FULL RECALL 时，LOST 应为 0</string>
+
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">真纯净回忆？</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
+
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier 与 Clear Type 不匹配</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY CLEAR 同理</string>
+
+
+    <!-- `unstable` build flavor -->
+    <string name="unstable_version_alert_title">不稳定版本</string>
+    <string name="unstable_version_alert_short_description">应用随时可能崩溃，并且数据可能丢失甚至无法恢复。\n请注意备份！</string>
+    <string name="unstable_version_alert_screen_details_markdown">
+        这是 Arcaea Offline 的**不稳定**构建版本。\n
+        \n
+        #### 应用随时可能崩溃\n
+        \n
+        部分功能未经充分测试，可能导致应用崩溃。\n
+        \n
+        也请在应用请求时发送崩溃报告，帮助我们确定崩溃原因。\n
+        \n
+        *如若担心隐私泄露等问题，也可不发送崩溃报告。*
+        *我们尊重您的选择。*\n
+        \n
+        #### 数据存在丢失风险\n
+        \n
+        部分数据操作未经充分测试，可能导致数据丢失乃至无法恢复。\n
+        \n
+        因此，请确保时常备份您的数据。
+    </string>
+    <string name="unstable_version_alert_screen_confirm_prompt_markdown">
+        对于使用不稳定版本造成的数据丢失等问题，我们将**不会提供技术支持**。请确认您已知悉相关风险。
+    </string>
+    <string name="unstable_version_alert_screen_actions_confirm">我已了解这些风险，继续。</string>
+    <string name="unstable_version_alert_screen_actions_deny">退出</string>
+</resources>

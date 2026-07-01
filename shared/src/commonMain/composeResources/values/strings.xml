@@ -1,0 +1,363 @@
+<resources>
+    <string name="app_name">Arcaea Offline</string>
+
+    <string name="copyright_notice" translatable="false">Copyright © 2023-2024 Arcaea Offline Android client maintainers</string>
+    <string name="open_source_license_notice" translatable="false">GNU General Public License Version 3</string>
+
+    <!-- General icon descriptions -->
+    <string name="icon_desc_navigate_back">Go back</string>
+    <string name="icon_desc_edit">Edit this</string>
+    <string name="icon_desc_delete">Delete this</string>
+
+    <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
+
+    <!-- General strings -->
+    <string name="general_ok">OK</string>
+    <string name="general_action_done">Done</string>
+    <string name="general_save">Save</string>
+    <string name="general_edit">Edit</string>
+    <string name="general_delete">Delete</string>
+    <string name="general_reset">Reset</string>
+    <string name="general_please_wait">Please wait…</string>
+    <string name="general_import">Import</string>
+    <string name="general_stop">Stop</string>
+    <string name="general_no_results">No results</string>
+    <string name="general_updated_at">Updated at %s</string>
+    <string name="general_unknown_error">Unknown error.</string>
+
+    <string name="general_sort_ascending">Ascending</string>
+    <string name="general_sort_ascending_short">ASC</string>
+    <string name="general_sort_descending">Descending</string>
+    <string name="general_sort_descending_short">DESC</string>
+
+    <string name="general_arcaea_not_installed">Arcaea not installed</string>
+    <string name="general_import_from_arcaea">Import from Arcaea</string>
+
+    <!-- ArcaeaButton -->
+    <string name="arcaea_button_resource_unavailable">Arcaea resource unavailable</string>
+
+    <!-- ArcaeaPlayResultCard -->
+    <string name="play_result_no_date">// No date //</string>
+    <string name="play_result_no_clear_type">// No clear type //</string>
+    <string name="play_result_no_modifier">// No modifier //</string>
+    <string name="play_result_no_comment">// No comment //</string>
+
+    <!-- CrashReportActivity -->
+    <string name="crash_report_title_app_crashed">App Crashed.</string>
+    <string name="crash_report_title_error_occurred">Error Occurred.</string>
+    <string name="crash_report_installation_id">App installation ID</string>
+    <string name="crash_report_report_id">Report ID</string>
+    <string name="crash_report_crash_date">Crashed at</string>
+    <string name="crash_report_send_report_prompt">Send this crash report?</string>
+    <string name="crash_report_textfield_label_comment">Comment (Optional)</string>
+    <string name="crash_report_textfield_placeholder_comment">What did you do when the app crashed?</string>
+    <string name="crash_report_textfield_label_contact">Contact (Optional)</string>
+    <string name="crash_report_textfield_placeholder_contact">How can we reach you when we need more information?</string>
+    <string name="crash_report_send_button">Send</string>
+    <string name="crash_report_save_button">Save</string>
+    <string name="crash_report_ignore_button">Ignore</string>
+    <string name="crash_report_toast_report_send_attempted">Attempted to send a crash report</string>
+    <string name="crash_report_toast_report_send_success">Crash report sent</string>
+    <string name="crash_report_toast_report_send_failed">Failed to send crash report</string>
+    <string name="crash_report_toast_report_save_success">Crash report saved</string>
+    <string name="crash_report_toast_report_save_failed">Failed to save crash report</string>
+    <string name="crash_report_toast_report_ignored">Crash report ignored</string>
+
+    <!-- Permission helpers -->
+    <string name="permission_required_dialog_title">Permission Required</string>
+    <plurals name="permission_required_dialog_content">
+        <item quantity="many">\"%s\" needs these permissions:</item>
+        <item quantity="other">\"%s\" needs this permission:</item>
+    </plurals>
+    <!-- Functions that need permissions -->
+    <string name="permission_function_save_image">Save image</string>
+
+    <!-- OCR dependencies -->
+    <string name="ocr_dependency_knn_model">KNearest model</string>
+    <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
+    <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
+
+    <!-- Arcaea terms -->
+    <string name="arcaea_chart">Chart</string>
+    <string name="arcaea_play_result">Play Results</string>
+    <string name="arcaea_play_result_score">Score</string>
+    <string name="arcaea_play_result_pure" translatable="false">PURE</string>
+    <string name="arcaea_play_result_far" translatable="false">FAR</string>
+    <string name="arcaea_play_result_lost" translatable="false">LOST</string>
+    <string name="arcaea_play_result_max_recall">MAX RECALL</string>
+    <string name="arcaea_play_result_clear_type">Clear Type</string>
+    <string name="arcaea_play_result_modifier">Modifier</string>
+    <string name="arcaea_play_result_comment">Comment</string>
+    <string name="arcaea_st3" translatable="false">st3</string>
+    <string name="arcaea_potential">Potential</string>
+    <string name="arcaea_constant">Constant</string>
+    <string name="arcaea_play_rating">Play Rating</string>
+
+    <!-- OcrFromShareActivity -->
+    <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
+    <string name="ocr_from_share_save_image_button">Save Image</string>
+    <string name="ocr_from_share_cache_score_button">Cache</string>
+    <string name="ocr_from_share_score_saved">Score saved</string>
+    <string name="ocr_from_share_return_to_share_source">Return to previous app</string>
+    <string name="ocr_from_share_stay_in_app">Stay in %s</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_overview">Overview</string>
+    <string name="nav_database">Database</string>
+    <string name="nav_utilities">Utilities</string>
+    <string name="nav_ocr">OCR</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Database info/status labels -->
+    <string name="database_version_label">Version %d</string>
+    <plurals name="database_pack_entries">
+        <item quantity="many">%d packs</item>
+        <item quantity="other">%d pack</item>
+    </plurals>
+    <plurals name="database_song_entries">
+        <item quantity="many">%d songs</item>
+        <item quantity="other">%d song</item>
+    </plurals>
+    <plurals name="database_difficulty_entries">
+        <item quantity="many">%d difficulties</item>
+        <item quantity="other">%d difficulty</item>
+    </plurals>
+    <plurals name="database_chart_info_entries">
+        <item quantity="many">%d chart info</item>
+        <item quantity="other">%d chart info</item>
+    </plurals>
+    <plurals name="database_play_result_entries">
+        <item quantity="many">%d play results</item>
+        <item quantity="other">%d play result</item>
+    </plurals>
+
+    <string name="database_status_title">Database Status</string>
+    <string name="database_status_initialize_button">Initialize</string>
+    <string name="database_status_not_initialized">Database not initialized</string>
+
+    <!-- Database manage pane -->
+    <string name="database_manage_title">Manage</string>
+
+    <string name="database_manage_import_title">Import…</string>
+    <string name="database_manage_import_pack_entries">Packs</string>
+    <string name="database_manage_import_pack_localized_entries">Pack Localized Objects</string>
+    <string name="database_manage_import_song_entries">Songs</string>
+    <string name="database_manage_import_song_localized_entries">Song Localized Objects</string>
+    <string name="database_manage_import_difficulty_entries">Difficulties</string>
+    <string name="database_manage_import_difficulty_localized_entries">Difficulty Localized Objects</string>
+    <string name="database_manage_import_chart_info_entries">Chart Info</string>
+    <string name="database_manage_import_play_result_entries">Play Results</string>
+    <string name="database_manage_import_packlist">packlist</string>
+    <string name="database_manage_import_songlist">songlist</string>
+    <string name="database_manage_import_from_arcaea_apk">From Arcaea .apk</string>
+    <string name="database_manage_import_reading_apk">Reading apk, this might take a while…</string>
+    <string name="database_manage_import_from_arcaea_installed">From installed Arcaea</string>
+    <string name="database_manage_import_chart_info_database">Chart Info Database</string>
+
+    <string name="database_manage_export_title">Export…</string>
+    <string name="database_manage_export_play_results">Play Results</string>
+
+    <!-- Database add play result pane -->
+    <string name="database_add_play_result_title">Add a Play Result</string>
+    <string name="database_add_play_result_select_chart_header">Select a chart…</string>
+    <string name="database_add_play_result_edit_play_result_header">Then edit your play result…</string>
+    <string name="database_add_play_result_click_select_chart">Click here to select a chart.</string>
+    <string name="database_add_play_result_select_chart_first">Select a chart first.</string>
+
+    <!-- Database play result list pane -->
+    <string name="database_play_result_list_title">Play Results List</string>
+    <plurals name="database_play_result_list_delete_confirm_dialog_content">
+        <item quantity="many">Are you sure to delete %d play results?</item>
+        <item quantity="other">Are you sure to delete %d play result?</item>
+    </plurals>
+    <string name="database_play_result_updated">Play result %s updated</string>
+
+    <!-- Database b30 list pane -->
+    <string name="database_b30_list_title">Best30 List</string>
+
+    <!-- Database r30 list pane -->
+    <string name="database_r30_list_title">Recent30 List</string>
+    <string name="database_r30_rebuild_dialog_title">Rebuild Recent30 List</string>
+    <string name="database_r30_rebuild_dialog_content">This will remove all the records in the current Recent30 list, and then re-calculate the list from scratch. Continue?</string>
+
+    <!-- Database deduplicator pane -->
+    <string name="database_deduplicator_title">Deduplicator</string>
+    <string name="database_deduplicator_auto_select_identical">Auto select (identical)</string>
+    <string name="database_deduplicator_description_auto_select_identical">Only keep the one with smallest ID in an identical play results group</string>
+    <string name="database_deduplicator_auto_select_properties_priority">Auto select (properties priority)</string>
+    <string name="database_deduplicator_description_auto_select_properties_priority">Only keep the one with most properties in a duplicate group</string>
+    <string name="database_deduplicator_auto_select_r30_priority">Auto select (R30 priority)</string>
+    <string name="database_deduplicator_description_auto_select_r30_priority">Only keep the one has date property in a duplicate group</string>
+    <string name="database_deduplicator_auto_merge">Auto merge all groups</string>
+    <string name="database_deduplicator_auto_merge_warning">Auto merge works fine in general situations. However, it may produce undesired results, and you cannot manually edit them during the process.</string>
+
+    <!-- Database toasts -->
+    <plurals name="database_packs_imported">
+        <item quantity="many">%d packs imported</item>
+        <item quantity="other">%d pack imported</item>
+    </plurals>
+    <plurals name="database_packs_localized_imported">
+        <item quantity="many">%d pack localized objects imported</item>
+        <item quantity="other">%d pack localized objects imported</item>
+    </plurals>
+    <plurals name="database_songs_imported">
+        <item quantity="many">%d songs imported</item>
+        <item quantity="other">%d song imported</item>
+    </plurals>
+    <plurals name="database_songs_localized_imported">
+        <item quantity="many">%d song localized objects imported</item>
+        <item quantity="other">%d song localized objects imported</item>
+    </plurals>
+    <plurals name="database_difficulties_imported">
+        <item quantity="many">%d difficulties imported</item>
+        <item quantity="other">%d difficulty imported</item>
+    </plurals>
+    <plurals name="database_difficulties_localized_imported">
+        <item quantity="many">%d difficulty localized objects imported</item>
+        <item quantity="other">%d difficulty localized objects imported</item>
+    </plurals>
+    <plurals name="database_chart_info_imported">
+        <item quantity="many">%d chart info imported</item>
+        <item quantity="other">%d chart info imported</item>
+    </plurals>
+    <plurals name="database_play_results_imported">
+        <item quantity="many">%d play results imported</item>
+        <item quantity="other">%d play result imported</item>
+    </plurals>
+    <plurals name="database_play_results_exported">
+        <item quantity="many">%d play results exported</item>
+        <item quantity="other">%d play result exported</item>
+    </plurals>
+
+    <!-- components -->
+    <string name="song_id_selector_quick_search">Quick Search…</string>
+    <string name="song_id_selector_select_pack">Select a pack…</string>
+    <string name="song_id_selector_select_song">Select a song…</string>
+
+    <string name="play_result_editor_main_fields">Main fields</string>
+    <string name="play_result_editor_other_fields">Other fields</string>
+    <string name="play_result_editor_set_null">NULL</string>
+    <string name="play_result_editor_comment_field">Comment</string>
+
+    <string name="datetime_picker_label">Date Time Picker</string>
+    <string name="datetime_picker_date">Date</string>
+    <string name="datetime_picker_time">Time</string>
+
+    <!-- Utilities -->
+    <string name="utilities_calculator_title">Play Rating Calculator</string>
+    <string name="utilities_recommend_title">Recommend Charts</string>
+    <string name="utilities_recommend_minimum_score">Minimum Score</string>
+    <string name="utilities_recommend_maximum_score">Maximum Score</string>
+    <string name="utilities_recommend_target_play_rating">Target Play Rating</string>
+    <string name="utilities_recommend_input">Input</string>
+    <string name="utilities_recommend_results">Results</string>
+
+    <!-- Ocr queue screen -->
+    <string name="ocr_queue_title">OCR Queue</string>
+
+    <string name="ocr_queue_pick_images_button">Add Images</string>
+    <string name="ocr_queue_pick_folder_button">Import Folder</string>
+    <string name="ocr_queue_add_image_options_title">Adding Images</string>
+    <string name="ocr_queue_add_image_options_check_is_image">Check if the file is an image</string>
+    <string name="ocr_queue_add_image_options_detect_screenshot">Check if the image is an Arcaea screenshot</string>
+    <string name="ocr_queue_queue_options_title">Queue</string>
+    <string name="ocr_queue_queue_options_parallel_count">Parallel execution counts</string>
+    <string name="ocr_queue_status_idle">Ready</string>
+    <string name="ocr_queue_status_processing">Processing</string>
+    <string name="ocr_queue_status_done">Done</string>
+    <string name="ocr_queue_status_done_with_warning">Done but with warnings</string>
+    <string name="ocr_queue_status_error">Error</string>
+
+    <plurals name="ocr_queue_event_files_staged">
+        <item quantity="one">%s file added to staging</item>
+        <item quantity="many">%s files added to staging</item>
+    </plurals>
+    <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
+    <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
+    <string name="ocr_queue_event_staging_cleared">Staging cleared</string>
+    <string name="ocr_queue_staging_status">Staging</string>
+    <string name="ocr_queue_staging_empty">Empty</string>
+    <string name="ocr_queue_validation_status">Validation</string>
+    <string name="ocr_queue_validation_not_running">Idle</string>
+    <string name="ocr_queue_start_staging_job_button">Start</string>
+    <string name="ocr_queue_clear_staging_button">Clear</string>
+
+    <!-- Ocr dependencies screen -->
+    <string name="ocr_dependencies_title">OCR Dependencies</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_app_pref_enable_sentry">Send crash reports</string>
+    <string name="settings_general_title">General</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_application_id">Application ID</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_version_code">Version code</string>
+    <string name="settings_license_title">License</string>
+    <string name="settings_aboutlibraries_title">Libraries</string>
+
+    <string name="title_activity_ocr_from_share">OCR from Sharing</string>
+
+    <!-- PlayResult validator warnings -->
+    <plurals name="play_result_validator_warning_count">
+        <item quantity="many">%d warnings</item>
+        <item quantity="other">%d warning</item>
+    </plurals>
+
+    <string name="play_result_validator_SCORE_IS_ZERO_title">Score is zero</string>
+    <string name="play_result_validator_SCORE_IS_ZERO_message">Score is zero.</string>
+
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
+    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
+
+    <string name="play_result_validator_PFL_OVERFLOW_title">Notes overflow</string>
+    <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
+
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart.</string>
+
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL mismatch</string>
+    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">The max recall of a FULL RECALL / PURE MEMORY play result should be equal to the total notes of the chart.</string>
+
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_title">Notes mismatch</string>
+    <string name="play_result_validator_CLEAR_PFL_MISMATCH_message">The sum of pure, far, lost of a non HARD LOST play result should be equal to the total notes of the chart.</string>
+
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">FULL RECALL?</string>
+    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">The lost of a FULL RECALL play result should be zero.</string>
+
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">PURE MEMORY?</string>
+    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">The far and lost of a PURE MEMORY play result should be zero.</string>
+
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier &amp; Clear Type mismatch</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">A HARD CLEAR clear type should have the HARD modifier, and the same for EASY CLEAR.</string>
+
+
+    <!-- `unstable` build flavor -->
+    <string name="unstable_version_alert_title">UNSTABLE VERSION</string>
+    <string name="unstable_version_alert_short_description">The app may crash at any time, and your data is under the risk of being lost or even irrecoverable.\nBe sure to backup your data!</string>
+    <string name="unstable_version_alert_screen_details_markdown">
+        This is an **unstable** version of Arcaea Offline.\n
+        \n
+        #### App may crash at any time\n
+        \n
+        Some features have not been tested and may result in app crashes.\n
+        \n
+        Thus, please send crash reports to help us locate issues when the app prompted to do so.\n
+        \n
+        *If you are concerned about privacy issues, you can also choose not to send the reports.*
+        *We respect your choice.*\n
+        \n
+        #### Risk of data loss\n
+        \n
+        Some data operations have not been tested, and may result in data loss, even making it
+        irrecoverable.\n
+        \n
+        Thus, please be sure to back up your data.
+    </string>
+    <string name="unstable_version_alert_screen_confirm_prompt_markdown">
+        We will **not provide any support** for data loss or any other similar issues
+        caused by using an unstable version. Thus, please confirm that you are aware of
+        the risks.
+    </string>
+    <string name="unstable_version_alert_screen_actions_confirm">I am aware of the risks. Continue.</string>
+    <string name="unstable_version_alert_screen_actions_deny">Exit</string>
+</resources>

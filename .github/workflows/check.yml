@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+
 jobs:
   general:
     name: General Checks
@@ -50,5 +53,4 @@ jobs:
         with:
           name: check-results
           path: |
-            **/build/reports/tests/
-            **/build/reports/lint-results-*.html
+            **/build/reports/

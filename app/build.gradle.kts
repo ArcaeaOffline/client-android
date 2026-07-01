@@ -148,6 +148,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
+    implementation(project(":core"))
+
     // android & androidx
     coreLibraryDesugaring(libs.desugarJdkLibs)
 
@@ -233,8 +236,7 @@ dependencies {
     androidTestImplementation(androidx.test.espresso.core)
     androidTestImplementation(androidx.test.espresso.contrib)
     androidTestImplementation(androidx.compose.ui.test.junit4)
+    androidTestImplementation(project(":shared"))
 
     debugImplementation(androidx.compose.ui.test.manifest)
-
-    implementation(project(":core"))
 }
