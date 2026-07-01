@@ -43,7 +43,7 @@ jobs:
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
       - name: Build Application
-        run: ./gradlew assemble assembleAndroidTest --stacktrace
+        run: ./gradlew assembleDebugAndroidTest --stacktrace
 
       # android-emulator-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
@@ -86,11 +86,11 @@ jobs:
             }
             
             set_orientation 0
-            ./gradlew connectedAndroidTest --stacktrace
+            ./gradlew connectedDebugAndroidTest --stacktrace
             archive_reports "portrait"
             
             set_orientation 1
-            ./gradlew connectedAndroidTest --stacktrace
+            ./gradlew connectedDebugAndroidTest --stacktrace
             archive_reports "landscape"
 
       - name: Upload Test Results
