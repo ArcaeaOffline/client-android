@@ -17,15 +17,16 @@ archive_reports() {
     local target_dir="$OUTPUT_ROOT/$stage"
 
     echo "=== Archiving $stage test reports ==="
-    mkdir -p "$target_dir/app" "$target_dir/shared"
+    mkdir -p "$target_dir/app" "$target_dir/core" "$target_dir/shared"
 
     cp -r app/build/reports/androidTests/connected/* "$target_dir/app/" 2>/dev/null || true
+    cp -r core/build/reports/androidTests/connected/* "$target_dir/core/" 2>/dev/null || true
     cp -r shared/build/reports/androidTests/connected/* "$target_dir/shared/" 2>/dev/null || true
 }
 
 echo "=== Starting Portrait Tests ==="
 set_orientation 0
-if ! ./gradlew connectedDebugAndroidTest --stacktrace; then
+if ! ./gradlew app:connectedStableDebugAndroidTest app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest --stacktrace; then
     echo "❌ Portrait tests failed!"
     TEST_FAILED=1
 fi
@@ -33,7 +34,7 @@ archive_reports "portrait"
 
 echo "=== Starting Landscape Tests ==="
 set_orientation 1
-if ! ./gradlew connectedDebugAndroidTest --stacktrace; then
+if ! ./gradlew app:connectedStableDebugAndroidTest app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest --stacktrace; then
     echo "❌ Landscape tests failed!"
     TEST_FAILED=1
 fi
