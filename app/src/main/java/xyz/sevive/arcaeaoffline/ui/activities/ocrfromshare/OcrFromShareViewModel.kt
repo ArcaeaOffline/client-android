@@ -38,7 +38,6 @@ import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 import kotlin.time.Clock
 
 class OcrFromShareViewModel(
@@ -47,7 +46,6 @@ class OcrFromShareViewModel(
     private val ocrHistoryRepo: OcrHistoryRepository,
 ) : ViewModel() {
     class OcrDependencyViewersUiState(
-        val kNearestModel: OcrDependencyKNearestModelStatusUiState = OcrDependencyKNearestModelStatusUiState(),
         val imageHashesDatabase: OcrDependencyImageHashesDatabaseStatusUiState = OcrDependencyImageHashesDatabaseStatusUiState(),
         val crnnModel: OcrDependencyCrnnModelStatusUiState = OcrDependencyCrnnModelStatusUiState(),
     )
@@ -63,13 +61,11 @@ class OcrFromShareViewModel(
 
     fun reloadOcrDependencyViewersUiState(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val kNearest = OcrDependencyStatusBuilder.kNearest()
             val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase()
             val crnnModel = OcrDependencyStatusBuilder.crnnModel(context)
 
             _ocrDependencyViewersUiState.value =
                 OcrDependencyViewersUiState(
-                    kNearestModel = OcrDependencyKNearestModelStatusUiState(kNearest),
                     imageHashesDatabase = OcrDependencyImageHashesDatabaseStatusUiState(statusDetail = imageHashesDatabase),
                     crnnModel = OcrDependencyCrnnModelStatusUiState(crnnModel),
                 )
@@ -210,7 +206,6 @@ class OcrFromShareViewModel(
 
         withContext(Dispatchers.IO) {
             try {
-                val kNearestModel = OcrDependencyLoader.kNearestModel()
                 val imageHashesSQLiteDatabase =
                     OcrDependencyLoader.imageHashesSQLiteDatabase()
 
@@ -219,7 +214,6 @@ class OcrFromShareViewModel(
                         val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
                         DeviceOcrHelper.ocrImage(
                             imageUri,
-                            kNearestModel,
                             imageHashesDatabase,
                             ortSession = ortSession,
                         )

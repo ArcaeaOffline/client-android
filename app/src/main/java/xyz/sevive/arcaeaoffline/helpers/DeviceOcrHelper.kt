@@ -21,7 +21,6 @@ import kotlinx.datetime.toInstant
 import kotlinx.io.buffered
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
-import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
@@ -56,7 +55,6 @@ object DeviceOcrHelper {
 
     suspend fun ocrImage(
         imageUri: Uri,
-        kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
@@ -91,7 +89,6 @@ object DeviceOcrHelper {
         return DeviceOcr(
             extractor = extractor,
             masker = masker,
-            kNearestModel = kNearestModel,
             ortSession = ortSession,
             hashesDb = imageHashesDatabase,
         ).ocr()
