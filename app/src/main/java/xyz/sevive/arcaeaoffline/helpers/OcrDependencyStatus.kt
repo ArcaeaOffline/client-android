@@ -20,31 +20,6 @@ interface OcrDependencyStatusDetail {
     }
 }
 
-data class KNearestModelStatusDetail(
-    override val absence: Boolean = false,
-    override val exception: Exception? = null,
-    val varCount: Int? = null,
-    val isTrained: Boolean = false,
-) : OcrDependencyStatusDetail {
-    override fun status(): OcrDependencyStatus {
-        if (absence) return OcrDependencyStatus.ABSENCE
-        if (exception != null || !isTrained) return OcrDependencyStatus.ERROR
-
-        return when (varCount) {
-            null -> OcrDependencyStatus.UNKNOWN
-            81 -> OcrDependencyStatus.OK
-            else -> OcrDependencyStatus.WARNING
-        }
-    }
-
-    override fun summary(): String? =
-        when {
-            exception != null -> exception::class.simpleName ?: "Error"
-            varCount != null -> "varCount $varCount"
-            else -> null
-        }
-}
-
 data class ImageHashesDatabaseStatusDetail(
     override val absence: Boolean = false,
     override val exception: Exception? = null,

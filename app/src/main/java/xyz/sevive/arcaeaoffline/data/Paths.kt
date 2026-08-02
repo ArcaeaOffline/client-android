@@ -9,7 +9,6 @@ import kotlinx.io.files.Path
 class OcrDependencyPaths {
     val parentDir = Path(FileKit.filesDir.absolutePath()) / "ocr" / "dependencies"
 
-    val knnModelFile = parentDir / "digits.knn.dat"
     val phashDatabaseFile = parentDir / "image-phash.db"
     val imageHashesDatabaseFile = parentDir / "image-hashes.db"
 }

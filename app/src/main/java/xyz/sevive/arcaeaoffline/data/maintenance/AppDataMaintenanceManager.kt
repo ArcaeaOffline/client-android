@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.data.maintenance
 import android.content.Context
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException
+import xyz.sevive.arcaeaoffline.data.maintenance.tasks.LegacyKnnModelCleanUpTask
 import xyz.sevive.arcaeaoffline.data.maintenance.tasks.ProtoDataStoreCleanUpTask
 
 class AppDataMaintenanceManager(
@@ -13,6 +14,7 @@ class AppDataMaintenanceManager(
     private val tasks =
         listOf(
             ProtoDataStoreCleanUpTask(context),
+            LegacyKnnModelCleanUpTask(),
         )
 
     suspend fun runAllTasks() =

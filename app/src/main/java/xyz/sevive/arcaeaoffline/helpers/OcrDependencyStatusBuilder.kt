@@ -8,18 +8,6 @@ import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import kotlin.use
 
 object OcrDependencyStatusBuilder {
-    fun kNearest(): KNearestModelStatusDetail {
-        try {
-            val paths = OcrDependencyPaths()
-            if (!SystemFileSystem.exists(paths.knnModelFile)) return KNearestModelStatusDetail(absence = true)
-
-            val model = OcrDependencyLoader.kNearestModel()
-            return KNearestModelStatusDetail(varCount = model.varCount, isTrained = model.isTrained)
-        } catch (e: Exception) {
-            return KNearestModelStatusDetail(exception = e)
-        }
-    }
-
     fun imageHashesDatabase(): ImageHashesDatabaseStatusDetail {
         try {
             val paths = OcrDependencyPaths()
