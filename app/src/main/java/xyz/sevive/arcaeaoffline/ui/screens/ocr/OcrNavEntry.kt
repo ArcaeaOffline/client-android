@@ -21,7 +21,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
@@ -33,7 +32,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScree
 fun OcrNavEntry(modifier: Modifier = Modifier) {
     val navContext = LocalListDetailNavigationContext.current
     val vm = koinViewModel<OcrDependenciesScreenViewModel>()
-    val kNearestModelUiState by vm.kNearestModelUiState.collectAsStateWithLifecycle()
     val imageHashesDatabaseUiState by vm.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
     val crnnModelUiState by vm.crnnModelUiState.collectAsStateWithLifecycle()
 
@@ -52,7 +50,6 @@ fun OcrNavEntry(modifier: Modifier = Modifier) {
         ) {
             item {
                 Column {
-                    OcrDependencyKNearestModelStatusViewer(kNearestModelUiState)
                     OcrDependencyImageHashesDatabaseStatusViewer(imageHashesDatabaseUiState)
                     OcrDependencyCrnnModelStatusViewer(crnnModelUiState)
                 }

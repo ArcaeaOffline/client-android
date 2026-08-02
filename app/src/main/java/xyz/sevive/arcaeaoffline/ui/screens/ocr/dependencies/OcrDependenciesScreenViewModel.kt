@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
-import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
@@ -35,7 +34,6 @@ import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusUiState
 import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
@@ -49,10 +47,6 @@ class OcrDependenciesScreenViewModel(
 
     private val logger = Logger.withTag(LOG_TAG)
     private val workManager = WorkManager.getInstance(context.applicationContext)
-
-    private val _kNearestModelUiState =
-        MutableStateFlow(OcrDependencyKNearestModelStatusUiState())
-    val kNearestModelUiState = _kNearestModelUiState.asStateFlow()
 
     private val imageHashesDatabaseBuilderJobInfo =
         workManager
@@ -118,34 +112,6 @@ class OcrDependenciesScreenViewModel(
         return true
     }
 
-    fun importKNearestModel(
-        uri: Uri,
-        context: Context,
-    ) {
-        val paths = OcrDependencyPaths()
-        if (!mkOcrDependencyParentDirs(paths)) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            if (isFileTooLarge(uri, context, logName = "KNearest")) return@launch
-
-            val cacheFile = context.copyToCache(uri, "knearest_model_import_temp") ?: return@launch
-            try {
-                KNearest.load(cacheFile.toString())
-                SystemFileSystem.source(cacheFile).buffered().use { src ->
-                    SystemFileSystem.sink(paths.knnModelFile).buffered().use { dst ->
-                        src.transferTo(dst)
-                    }
-                }
-            } catch (e: Exception) {
-                logger.e(e) { "Error importing KNearest model" }
-            } finally {
-                SystemFileSystem.delete(cacheFile)
-            }
-
-            reloadKNearestModelStatusDetailUiState()
-        }
-    }
-
     fun importImageHashesDatabase(
         uri: Uri,
         context: Context,
@@ -179,13 +145,6 @@ class OcrDependenciesScreenViewModel(
             }
 
             reloadImageHashesDatabaseStatusDetailUiState()
-        }
-    }
-
-    private fun reloadKNearestModelStatusDetailUiState() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _kNearestModelUiState.value =
-                OcrDependencyKNearestModelStatusUiState(OcrDependencyStatusBuilder.kNearest())
         }
     }
 
@@ -228,7 +187,6 @@ class OcrDependenciesScreenViewModel(
     }
 
     fun reloadAll(context: Context) {
-        reloadKNearestModelStatusDetailUiState()
         reloadImageHashesDatabaseStatusDetailUiState()
         reloadCrnnModelStatusDetailUiState(context)
     }
