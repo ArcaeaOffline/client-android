@@ -73,7 +73,6 @@
     <string name="permission_function_save_image">Save image</string>
 
     <!-- OCR dependencies -->
-    <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
 
