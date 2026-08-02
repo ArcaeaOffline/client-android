@@ -14,7 +14,7 @@ compose-multiplatform = "1.11.1"
 compose-material3 = "1.9.0"
 compose-material-icons-extended = "1.7.3"
 
-opencv = "4.13.0"
+opencv = "5.0.0.1"
 apache-commons-compress = "1.28.0"
 
 io-sentry-sentryAndroid = "8.17.0"
