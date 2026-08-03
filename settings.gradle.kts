@@ -13,6 +13,14 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     @Suppress("UnstableApiUsage")
     repositories {
+        maven {
+            setUrl(
+                providers
+                    .gradleProperty("localMavenRepo")
+                    .getOrElse(rootDir.resolve("maven-local").absolutePath),
+            )
+        }
+
         google()
         mavenCentral()
 

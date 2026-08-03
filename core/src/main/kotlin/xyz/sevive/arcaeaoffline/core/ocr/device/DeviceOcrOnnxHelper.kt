@@ -32,24 +32,47 @@ object DeviceOcrOnnxHelper {
 
     @SuppressLint("UnsafeOptInUsageError")
     @Serializable
-    private data class ModelInfo(
+    data class ModelInfo(
         @SerialName("image_height") val imageHeight: Long,
         @SerialName("image_width") val imageWidth: Long,
         @SerialName("labels") val labels: List<String>,
         @SerialName("blank_token") val blankToken: String,
         @SerialName("pad_token") val padToken: String,
+        @SerialName("built_timestamp") val builtTimestamp: Long = 0,
+    )
+
+    @SuppressLint("UnsafeOptInUsageError")
+    @Serializable
+    data class ModelInfoFile(
+        val training: ModelInfo,
+        val patch: ModelPatchInfo? = null,
+    )
+
+    @SuppressLint("UnsafeOptInUsageError")
+    @Serializable
+    data class ModelPatchInfo(
+        @SerialName("version") val version: List<Int> = emptyList(),
+        @SerialName("producer_name") val producerName: String? = null,
+        @SerialName("producer_version") val producerVersion: String? = null,
+        @SerialName("domain") val domain: String? = null,
+        @SerialName("graph_name") val graphName: String? = null,
+        @SerialName("input_names") val inputNames: List<String> = emptyList(),
+        @SerialName("output_names") val outputNames: List<String> = emptyList(),
+        @SerialName("patched_timestamp") val patchedTimestamp: Long = 0,
     )
 
     private fun getOrtEnvironment(): OrtEnvironment = OrtEnvironment.getEnvironment("ocr")
 
+    fun loadModelInfoFile(context: Context): ModelInfoFile =
+        jsonSerializer.decodeFromString<ModelInfoFile>(
+            context.assets
+                .open("ocr/model_info.json")
+                .bufferedReader()
+                .use { it.readText() },
+        )
+
     fun loadModelInfo(context: Context) {
-        val modelInfo =
-            jsonSerializer.decodeFromString<ModelInfo>(
-                context.assets
-                    .open("ocr/model_info.json")
-                    .bufferedReader()
-                    .use { it.readText() },
-            )
+        val modelInfo = loadModelInfoFile(context).training
 
         logger.d { "Loaded model info $modelInfo" }
 
@@ -67,14 +90,13 @@ object DeviceOcrOnnxHelper {
      *
      * @return arrayOf(major, minor, patch)
      */
-    fun modelVersion(version: Long): List<Int> {
+    @Suppress("UNUSED")
+    private fun modelVersion(version: Long): List<Int> {
         val major = ((version shr 48) and 0xFFFF).toInt()
         val minor = ((version shr 32) and 0xFFFF).toInt()
         val patch = (version and 0xFFFFFFFF).toInt()
         return listOf(major, minor, patch)
     }
-
-    fun modelVersionString(version: Long): String = "v" + modelVersion(version).joinToString(".")
 
     fun createOrtSession(context: Context): OrtSession {
         val ortEnvironment = getOrtEnvironment()
@@ -82,6 +104,9 @@ object DeviceOcrOnnxHelper {
 
         return OrtSession.SessionOptions().use {
             it.setIntraOpNumThreads(Runtime.getRuntime().availableProcessors() / 2)
+            // Custom build onnxruntime cannot ensure optimized node exists,
+            // so the optimization must be disabled, otherwise ORT_NOT_IMPLEMENTED may occur.
+            it.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.NO_OPT)
 
             ortEnvironment.createSession(onnxModelBytes, it)
         }
@@ -107,7 +132,7 @@ object DeviceOcrOnnxHelper {
     private fun modelDecodedOutputToString(onnxTensor: OnnxTensor): String {
         val rawPredictions = mutableListOf<Int>()
         for (i in 0 until onnxTensor.info.shape[0]) {
-            rawPredictions.add(onnxTensor.longBuffer.get(i.toInt()).toInt())
+            rawPredictions.add(onnxTensor.intBuffer.get(i.toInt()))
         }
 
         val predictions = rawPredictions.map { labels[it] }

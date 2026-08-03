@@ -5,6 +5,7 @@ import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import kotlin.time.Instant
 import kotlin.use
 
 object OcrDependencyStatusBuilder {
@@ -32,15 +33,22 @@ object OcrDependencyStatusBuilder {
     }
 
     fun crnnModel(context: Context): CrnnModelStatusDetail =
-        DeviceOcrOnnxHelper.createOrtSession(context).use {
-            try {
+        try {
+            val info = DeviceOcrOnnxHelper.loadModelInfoFile(context)
+            with(info) {
                 CrnnModelStatusDetail(
-                    modelMetadata = it.metadata,
-                    inputNames = it.inputNames.toSet(), // make a copy, same for below
-                    outputNames = it.outputNames.toSet(),
+                    modelVersion = patch?.version?.takeIf { it.isNotEmpty() },
+                    producerName = patch?.producerName,
+                    producerVersion = patch?.producerVersion,
+                    domain = patch?.domain,
+                    graphName = patch?.graphName,
+                    inputNames = patch?.inputNames?.toSet(),
+                    outputNames = patch?.outputNames?.toSet(),
+                    builtTimestamp = training.builtTimestamp.takeIf { it != 0L }?.let { Instant.fromEpochSeconds(it) },
+                    patchedTimestamp = patch?.patchedTimestamp?.takeIf { it != 0L }?.let { Instant.fromEpochSeconds(it) },
                 )
-            } catch (e: Exception) {
-                CrnnModelStatusDetail(exception = e)
             }
+        } catch (e: Exception) {
+            CrnnModelStatusDetail(exception = e)
         }
 }
