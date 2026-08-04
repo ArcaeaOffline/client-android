@@ -42,17 +42,7 @@ jobs:
         run: ./gradlew assembleUnstableRelease
 
       - name: Verify APK signing
-        run: |
-          # Locate the latest build tools
-          BUILD_TOOLS_VERSION=$(ls $ANDROID_HOME/build-tools/ | sort -V | tail -n 1)
-          # Adding build tools to PATH for this step only
-          PATH=$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:$PATH
-          
-          apksigner verify --verbose --min-sdk-version 24 app/build/outputs/apk/unstable/release/app-unstable-arm64-v8a-release.apk
-          apksigner verify --verbose --min-sdk-version 24 app/build/outputs/apk/unstable/release/app-unstable-armeabi-v7a-release.apk
-          apksigner verify --verbose --min-sdk-version 24 app/build/outputs/apk/unstable/release/app-unstable-x86_64-release.apk
-          apksigner verify --verbose --min-sdk-version 24 app/build/outputs/apk/unstable/release/app-unstable-x86-release.apk
-          apksigner verify --verbose --min-sdk-version 24 app/build/outputs/apk/unstable/release/app-unstable-universal-release.apk
+        run: bash .github/scripts/verify-apk-signing.sh
 
       - name: Verify custom-built libs in APK
         continue-on-error: true
