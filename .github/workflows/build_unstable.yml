@@ -26,6 +26,9 @@ jobs:
       - name: Setup Toolchain
         uses: ./.github/actions/setup-toolchain
 
+      - name: Setup Custom Maven
+        uses: ./.github/actions/setup-custom-maven
+
       - name: Release keystore file
         run: base64 -d <<< "${{ secrets.KEYSTORE_FILE_BASE64 }}" > arcaea_offline.jks
 

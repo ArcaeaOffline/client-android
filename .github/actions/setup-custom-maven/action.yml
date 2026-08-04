@@ -1,0 +1,29 @@
+name: Setup Custom Maven Repo
+description: Downloads custom-built onnxruntime/opencv maven artifacts from custom-lib-builds releases into maven-local/
+
+runs:
+  using: composite
+  steps:
+    # Cache may not applicable for onnxruntime, as it may change its opset while
+    # not changing its version.
+    # Since GitHub Actions should have quite fast Internet access to its own
+    # release service, we don't set up caches here.
+    - name: Download and extract custom maven repo
+      run: |
+        set -euo pipefail
+        
+        mkdir -p maven-local
+        
+        curl -fL -o /tmp/ort-maven.zip \
+          https://github.com/ArcaeaOffline/custom-lib-builds/releases/download/onnxruntime-1.26.0/maven_repo.zip
+        unzip -q -o /tmp/ort-maven.zip -d maven-local
+        
+        curl -fL -o /tmp/opencv-maven.zip \
+          https://github.com/ArcaeaOffline/custom-lib-builds/releases/download/opencv-5.0.0/maven_repo.zip
+        unzip -q -o /tmp/opencv-maven.zip -d maven-local
+        
+        rm -f /tmp/ort-maven.zip /tmp/opencv-maven.zip
+        
+        test -f maven-local/com/microsoft/onnxruntime/onnxruntime-android/1.26.0/onnxruntime-android-1.26.0.aar
+        test -f maven-local/org/opencv/opencv/5.0.0/opencv-5.0.0.aar
+      shell: bash
