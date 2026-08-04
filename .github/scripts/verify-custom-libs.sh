@@ -45,48 +45,46 @@ file_in_zip_size() {
 }
 
 warnings=()
-rows=()
-for abi in "${ABIS[@]}"; do
-    apk="$APK_DIR/app-unstable-$abi-release.apk"
-    if [ ! -f "$apk" ]; then
-        warnings+=("missing APK: $apk")
-        continue
+
+{
+    if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+        echo "## Custom build verification"
+        echo ""
     fi
     for entry in "${LIBS[@]}"; do
         so="${entry%%|*}"
         aar="$MAVEN_LOCAL/${entry#*|}"
-        custom="$(file_in_zip_sha256 "$aar" "jni/$abi/$so" || true)"
-        packed="$(file_in_zip_sha256 "$apk" "lib/$abi/$so" || true)"
-        custom_size="$(file_in_zip_size "$aar" "jni/$abi/$so" || true)"
-        packed_size="$(file_in_zip_size "$apk" "lib/$abi/$so" || true)"
+        echo "### $so"
+        echo ""
+        echo "| ABI | Size (maven-local, B) | Size (APK, B) | sha256 (maven-local) | sha256 (APK) | Result |"
+        echo "| --- | --- | --- | --- | --- | --- |"
+        for abi in "${ABIS[@]}"; do
+            apk="$APK_DIR/app-unstable-$abi-release.apk"
+            if [ ! -f "$apk" ]; then
+                warnings+=("missing APK: $apk")
+                echo "| $abi | - | - | - | - | APK missing |"
+                continue
+            fi
+            custom="$(file_in_zip_sha256 "$aar" "jni/$abi/$so" || true)"
+            packed="$(file_in_zip_sha256 "$apk" "lib/$abi/$so" || true)"
+            custom_size="$(file_in_zip_size "$aar" "jni/$abi/$so" || true)"
+            packed_size="$(file_in_zip_size "$apk" "lib/$abi/$so" || true)"
 
-        result="OK"
-        if [ -z "$custom" ] || [ -z "$custom_size" ]; then
-            warnings+=("$abi/$so: custom .so not found in $aar")
-            result="NOT FOUND"
-        elif [ -z "$packed" ] || [ -z "$packed_size" ]; then
-            warnings+=("$abi/$so: .so not found in APK")
-            result="NOT FOUND"
-        elif [ "$packed_size" -lt $((custom_size * 90 / 100)) ] || \
-             [ "$packed_size" -gt $((custom_size * 110 / 100)) ]; then
-            warnings+=("$abi/$so: size ${packed_size}B, expected ~${custom_size}B")
-            result="SIZE MISMATCH"
-        fi
-        rows+=("| $abi | $so | $custom_size | $packed_size | ${custom:0:12}.. | ${packed:0:12}.. | $result |")
-    done
-done
-
-{
-    if [ "${#warnings[@]}" -gt 0 ]; then
-        echo "## Custom build verification failed"
-    else
-        echo "## Custom build verification passed"
-    fi
-    echo ""
-    echo "| ABI | Library | Size (maven-local, B) | Size (APK, B) | sha256 (maven-local) | sha256 (APK) | Result |"
-    echo "| --- | --- | --- | --- | --- | --- | --- |"
-    for r in "${rows[@]}"; do
-        echo "$r"
+            result="OK"
+            if [ -z "$custom" ] || [ -z "$custom_size" ]; then
+                warnings+=("$abi/$so: custom .so not found in $aar")
+                result="NOT FOUND"
+            elif [ -z "$packed" ] || [ -z "$packed_size" ]; then
+                warnings+=("$abi/$so: .so not found in APK")
+                result="NOT FOUND"
+            elif [ "$packed_size" -lt $((custom_size * 90 / 100)) ] || \
+                 [ "$packed_size" -gt $((custom_size * 110 / 100)) ]; then
+                warnings+=("$abi/$so: size ${packed_size}B, expected ~${custom_size}B")
+                result="SIZE MISMATCH"
+            fi
+            echo "| $abi | ${custom_size:--} | ${packed_size:--} | ${custom:0:12}.. | ${packed:0:12}.. | $result |"
+        done
+        echo ""
     done
 } >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
 
