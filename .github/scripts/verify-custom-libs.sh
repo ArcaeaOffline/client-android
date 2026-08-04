@@ -3,6 +3,11 @@
 # from maven-local/ instead of silently falling back to the
 # official artifacts.
 #
+# Size is the primary signal: the custom .so files are ~50% the size
+# of the official ones, far outside the +/-10% tolerance.
+# sha256 hashes are reported for reference only: release build may
+# strip on the .so files, so hashes legitimately differ there.
+#
 # Soft-fail: mismatches are reported as warnings in the job summary,
 # but don't terminate the build.
 set -euo pipefail
@@ -30,7 +35,17 @@ file_in_zip_sha256() {
     unzip -p "$1" "$2" | sha256sum | cut -d' ' -f1
 }
 
+# size of a file inside a zip; empty output if the entry is missing
+# $1=zip file, $2=path inside zip
+file_in_zip_size() {
+    if ! unzip -l "$1" "$2" >/dev/null 2>&1; then
+        return 1
+    fi
+    unzip -p "$1" "$2" | wc -c
+}
+
 warnings=()
+rows=()
 for abi in "${ABIS[@]}"; do
     apk="$APK_DIR/app-unstable-$abi-release.apk"
     if [ ! -f "$apk" ]; then
@@ -42,29 +57,43 @@ for abi in "${ABIS[@]}"; do
         aar="$MAVEN_LOCAL/${entry#*|}"
         custom="$(file_in_zip_sha256 "$aar" "jni/$abi/$so" || true)"
         packed="$(file_in_zip_sha256 "$apk" "lib/$abi/$so" || true)"
-        if [ -z "$custom" ]; then
+        custom_size="$(file_in_zip_size "$aar" "jni/$abi/$so" || true)"
+        packed_size="$(file_in_zip_size "$apk" "lib/$abi/$so" || true)"
+
+        result="OK"
+        if [ -z "$custom" ] || [ -z "$custom_size" ]; then
             warnings+=("$abi/$so: custom .so not found in $aar")
-        elif [ "$custom" != "$packed" ]; then
-            warnings+=("$abi/$so: maven-local ${custom:0:12}.. != APK ${packed:0:12}..")
+            result="NOT FOUND"
+        elif [ -z "$packed" ] || [ -z "$packed_size" ]; then
+            warnings+=("$abi/$so: .so not found in APK")
+            result="NOT FOUND"
+        elif [ "$packed_size" -lt $((custom_size * 90 / 100)) ] || \
+             [ "$packed_size" -gt $((custom_size * 110 / 100)) ]; then
+            warnings+=("$abi/$so: size ${packed_size}B, expected ~${custom_size}B")
+            result="SIZE MISMATCH"
         fi
+        rows+=("| $abi | $so | $custom_size | $packed_size | ${custom:0:12}.. | ${packed:0:12}.. | $result |")
     done
 done
+
+{
+    if [ "${#warnings[@]}" -gt 0 ]; then
+        echo "## Custom build verification failed"
+    else
+        echo "## Custom build verification passed"
+    fi
+    echo ""
+    echo "| ABI | Library | Size (maven-local, B) | Size (APK, B) | sha256 (maven-local) | sha256 (APK) | Result |"
+    echo "| --- | --- | --- | --- | --- | --- | --- |"
+    for r in "${rows[@]}"; do
+        echo "$r"
+    done
+} >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
 
 if [ "${#warnings[@]}" -gt 0 ]; then
     for w in "${warnings[@]}"; do
         echo "::warning::$w"
     done
-    {
-        echo "## Custom build verification failed"
-        echo ""
-        echo "The APKs do not match the custom-built libraries in maven-local/."
-        echo ""
-        echo "| Check |"
-        echo "| --- |"
-        for w in "${warnings[@]}"; do
-            echo "| $w |"
-        done
-    } >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
     # Non-zero exit marks the step yellow; the workflow step uses
     # continue-on-error so this never blocks artifact upload/release.
     exit 1
