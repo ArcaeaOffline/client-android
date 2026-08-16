@@ -11,4 +11,5 @@ enum class OcrSubScreen(
 ) {
     Dependencies("$OCR_NAV_ROUTE_ROOT/dependencies", R.string.ocr_dependencies_title),
     Queue("$OCR_NAV_ROUTE_ROOT/queue", R.string.ocr_queue_title),
+    Performance("$OCR_NAV_ROUTE_ROOT/performance", R.string.ocr_performance_title),
 }

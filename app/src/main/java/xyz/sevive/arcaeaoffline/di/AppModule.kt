@@ -40,6 +40,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewMod
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.performance.OcrPerformanceScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePreferencesViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
@@ -109,6 +110,7 @@ val appModule =
         viewModel<OcrQueueScreenViewModel>()
         viewModel<OcrQueueStagingViewModel>()
         viewModel<OcrQueuePreferencesViewModel>()
+        viewModel<OcrPerformanceScreenViewModel>()
         viewModel<OcrFromShareViewModel>()
         viewModel<SettingsViewModel>()
         viewModel<SettingsUnstableAlertScreenViewModel>()

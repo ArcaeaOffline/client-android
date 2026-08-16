@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreen
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.performance.OcrPerformanceScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreen
 
 @Composable
@@ -14,6 +15,7 @@ fun OcrEntryScreen() =
             when (route) {
                 OcrSubScreen.Dependencies.route -> OcrDependenciesScreen()
                 OcrSubScreen.Queue.route -> OcrQueueScreen()
+                OcrSubScreen.Performance.route -> OcrPerformanceScreen()
             }
         },
     )

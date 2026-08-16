@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Queue
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
@@ -74,6 +75,15 @@ fun OcrNavEntry(modifier: Modifier = Modifier) {
                     icon = Icons.Default.Queue,
                 ) {
                     navContext.navigateToDetail(OcrSubScreen.Queue.route)
+                }
+            }
+
+            item {
+                NavEntryNavigateButton(
+                    titleResId = OcrSubScreen.Performance.title,
+                    icon = Icons.Default.Speed,
+                ) {
+                    navContext.navigateToDetail(OcrSubScreen.Performance.route)
                 }
             }
         }
