@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.helpers
 import android.graphics.BitmapFactory
 import android.net.Uri
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -10,8 +11,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
 import org.opencv.core.Mat
+import org.opencv.core.MatOfByte
+import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import xyz.sevive.arcaeaoffline.core.ocr.device.ImageDecode
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
 import xyz.sevive.arcaeaoffline.core.ocr.use
 
@@ -35,13 +37,15 @@ object OcrQueueHelper {
     suspend fun isUriArcaeaImage(uri: Uri): Boolean =
         withContext(Dispatchers.IO) {
             async {
-                PlatformFile(uri).source().buffered().asInputStream().use { stream ->
-                    ImageDecode.decode(stream)?.use { img ->
+                val byteArray = PlatformFile(uri).readBytes()
+
+                MatOfByte(*byteArray).use { matOfBytes ->
+                    Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
                         Mat().use { imgHsv ->
                             Imgproc.cvtColor(img, imgHsv, Imgproc.COLOR_BGR2HSV)
                             ScreenshotDetect.isArcaeaScreenshot(imgHsv)
                         }
-                    } ?: false
+                    }
                 }
             }.await()
         }

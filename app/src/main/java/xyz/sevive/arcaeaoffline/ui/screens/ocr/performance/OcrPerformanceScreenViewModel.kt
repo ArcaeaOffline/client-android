@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.opencv.core.Mat
-import xyz.sevive.arcaeaoffline.core.ocr.device.ImageDecode
+import org.opencv.core.MatOfByte
+import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.ocr.device.OcrPerformanceBenchmark
 import xyz.sevive.arcaeaoffline.core.ocr.use
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
@@ -172,12 +173,14 @@ class OcrPerformanceScreenViewModel(
             val roiSets = mutableListOf<List<Mat>>()
             try {
                 uris.forEach { uri ->
-                    val inputStream =
-                        applicationContext.contentResolver.openInputStream(uri)
+                    val bytes =
+                        applicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                             ?: throw ImageLoadException()
-                    inputStream.use { stream ->
-                        val img = ImageDecode.decode(stream) ?: throw ImageLoadException()
-                        img.use { roiSets.add(OcrPerformanceBenchmark.extractRois(it)) }
+                    MatOfByte(*bytes).use { matOfBytes ->
+                        Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
+                            if (img.empty()) throw ImageLoadException()
+                            roiSets.add(OcrPerformanceBenchmark.extractRois(img))
+                        }
                     }
                 }
                 roiSets

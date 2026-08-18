@@ -8,6 +8,7 @@ import de.stefan_oltmann.kim.format.tiff.constant.ExifTag
 import de.stefan_oltmann.kim.input.ByteReader
 import de.stefan_oltmann.kim.input.KotlinIoSourceByteReader
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.datetime.LocalDateTime
@@ -17,14 +18,14 @@ import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.format.char
 import kotlinx.datetime.parseOrNull
 import kotlinx.datetime.toInstant
-import kotlinx.io.asInputStream
 import kotlinx.io.buffered
+import org.opencv.core.MatOfByte
+import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
-import xyz.sevive.arcaeaoffline.core.ocr.device.ImageDecode
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
@@ -35,7 +36,6 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.use
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
-import java.io.IOException
 import kotlin.time.Instant
 
 object DeviceOcrHelper {
@@ -54,16 +54,15 @@ object DeviceOcrHelper {
             second()
         }
 
-    fun ocrImage(
+    suspend fun ocrImage(
         imageUri: Uri,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
-    ): DeviceOcrResult =
-        PlatformFile(imageUri).source().buffered().asInputStream().use { stream ->
-            val img =
-                ImageDecode.decode(stream) ?: throw IOException("Failed to decode image: $imageUri")
+    ): DeviceOcrResult {
+        val byteArray = PlatformFile(imageUri).readBytes()
 
-            img.use { img ->
+        return MatOfByte(*byteArray).use { matOfBytes ->
+            Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
                 val roisAutoType = DeviceRoisAutoSelector.select(img)
 
                 CropBlackEdges.crop(img).use { imgCropped ->
@@ -99,6 +98,7 @@ object DeviceOcrHelper {
                 }
             }
         }
+    }
 
     fun readImageDateFromExif(
         byteReader: ByteReader,
