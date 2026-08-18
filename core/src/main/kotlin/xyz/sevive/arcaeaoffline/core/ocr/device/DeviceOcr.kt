@@ -17,6 +17,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.getMostConfidentItem
+import xyz.sevive.arcaeaoffline.core.ocr.use
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
@@ -110,42 +111,50 @@ class DeviceOcr(
         }
     }
 
-    fun ratingClass(): ArcaeaRatingClass {
-        val roi = extractor.ratingClass
-        val results =
-            listOf(
-                masker.ratingClassPst(roi),
-                masker.ratingClassPrs(roi),
-                masker.ratingClassFtr(roi),
-                masker.ratingClassByd(roi),
-                masker.ratingClassEtr(roi),
-            )
-        return ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
-    }
+    fun ratingClass(): ArcaeaRatingClass =
+        extractor.ratingClass.use { roi ->
+            val results =
+                listOf(
+                    masker.ratingClassPst(roi),
+                    masker.ratingClassPrs(roi),
+                    masker.ratingClassFtr(roi),
+                    masker.ratingClassByd(roi),
+                    masker.ratingClassEtr(roi),
+                )
+            try {
+                ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
+            } finally {
+                results.forEach { it.release() }
+            }
+        }
 
-    private fun clearStatus(): Int {
-        val roi = extractor.clearStatus
-        val results =
-            listOf(
-                masker.clearStatusTrackLost(roi),
-                masker.clearStatusTrackComplete(roi),
-                masker.clearStatusFullRecall(roi),
-                masker.clearStatusPureMemory(roi),
-            )
-        return results.indices.maxBy { Core.countNonZero(results[it]) }
-    }
+    private fun clearStatus(): Int =
+        extractor.clearStatus.use { roi ->
+            val results =
+                listOf(
+                    masker.clearStatusTrackLost(roi),
+                    masker.clearStatusTrackComplete(roi),
+                    masker.clearStatusFullRecall(roi),
+                    masker.clearStatusPureMemory(roi),
+                )
+            try {
+                results.indices.maxBy { Core.countNonZero(results[it]) }
+            } finally {
+                results.forEach { it.release() }
+            }
+        }
 
-    private fun lookupSongId(): List<ImageHashItem> {
-        val roiGray = Mat()
-        Imgproc.cvtColor(extractor.jacket, roiGray, Imgproc.COLOR_BGR2GRAY)
-        return hashesDb.lookupJacket(roiGray)
-    }
+    private fun lookupSongId(): List<ImageHashItem> =
+        Mat().use { roiGray ->
+            Imgproc.cvtColor(extractor.jacket, roiGray, Imgproc.COLOR_BGR2GRAY)
+            hashesDb.lookupJacket(roiGray)
+        }
 
-    private fun lookupPartnerId(): List<ImageHashItem> {
-        val roiGray = Mat()
-        Imgproc.cvtColor(extractor.partnerIcon, roiGray, Imgproc.COLOR_BGR2GRAY)
-        return hashesDb.lookupPartnerIcon(preprocessPartnerIcon(roiGray))
-    }
+    private fun lookupPartnerId(): List<ImageHashItem> =
+        Mat().use { roiGray ->
+            Imgproc.cvtColor(extractor.partnerIcon, roiGray, Imgproc.COLOR_BGR2GRAY)
+            preprocessPartnerIcon(roiGray).use { hashesDb.lookupPartnerIcon(it) }
+        }
 
     fun ocr(): DeviceOcrResult =
         DeviceOcrResult(

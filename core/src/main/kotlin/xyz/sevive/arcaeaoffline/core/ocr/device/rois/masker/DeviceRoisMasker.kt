@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker
 
 import org.opencv.core.Mat
 
+/** Every method returns a newly allocated Mat; ownership passes to the caller. */
 interface DeviceRoisMasker {
     fun pure(roiBgr: Mat): Mat
 

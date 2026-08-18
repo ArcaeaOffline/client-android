@@ -58,10 +58,13 @@ object ImageHashers {
     ): Mat {
         val imgSize = Size(hashSize, hashSize)
         val imgResized = resizeImage(imgGray, imgSize)
-
         val hashMat = Mat()
-        Core.compare(imgResized, imgResized._mean(), hashMat, Core.CMP_GT)
-        return hashMat
+        try {
+            Core.compare(imgResized, imgResized._mean(), hashMat, Core.CMP_GT)
+            return hashMat
+        } finally {
+            imgResized.release()
+        }
     }
 
     /**
@@ -83,13 +86,16 @@ object ImageHashers {
     ): Mat {
         val imgSize = Size(hashSize + 1.0, hashSize)
         val imgResized = resizeImage(imgGray, imgSize)
+        try {
+            val previous = imgResized.submat(0, imgResized.rows(), 0, imgResized.cols() - 1)
+            val current = imgResized.submat(0, imgResized.rows(), 1, imgResized.cols())
 
-        val previous = imgResized.submat(0, imgResized.rows(), 0, imgResized.cols() - 1)
-        val current = imgResized.submat(0, imgResized.rows(), 1, imgResized.cols())
-
-        val hashMat = Mat()
-        Core.compare(previous, current, hashMat, Core.CMP_GT)
-        return hashMat
+            val hashMat = Mat()
+            Core.compare(previous, current, hashMat, Core.CMP_GT)
+            return hashMat
+        } finally {
+            imgResized.release()
+        }
     }
 
     /**
@@ -113,12 +119,20 @@ object ImageHashers {
         val imgSize = Size(imgSizeBase, imgSizeBase)
 
         val imgResized = resizeImage(imgGray, imgSize)
-        imgResized.convertTo(imgResized, CvType.CV_32FC1)
-        val dctMat = Mat()
-        Core.dct(imgResized, dctMat)
-        val hashMat = dctMat.submat(0, hashSize.toInt(), 0, hashSize.toInt()).clone()
-        Core.compare(hashMat, hashMat._median(), hashMat, Core.CMP_GT)
-        return hashMat
+        try {
+            imgResized.convertTo(imgResized, CvType.CV_32FC1)
+            val dctMat = Mat()
+            try {
+                Core.dct(imgResized, dctMat)
+                val hashMat = dctMat.submat(0, hashSize.toInt(), 0, hashSize.toInt()).clone()
+                Core.compare(hashMat, hashMat._median(), hashMat, Core.CMP_GT)
+                return hashMat
+            } finally {
+                dctMat.release()
+            }
+        } finally {
+            imgResized.release()
+        }
     }
 
     /**
@@ -138,6 +152,7 @@ object ImageHashers {
     /**
      * Return the hamming distance between [hash1] and [hash2].
      */
+    @Suppress("unused")
     fun compare(
         hash1: Mat,
         hash2: Mat,
