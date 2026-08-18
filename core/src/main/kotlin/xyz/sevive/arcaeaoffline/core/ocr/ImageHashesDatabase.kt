@@ -37,6 +37,8 @@ class ImageHashesDatabase(
         private set
     var partnerIconHashesCount: Int by Delegates.notNull()
         private set
+
+    @Suppress("unused")
     val hashesCount: Int get() = jacketHashesCount + partnerIconHashesCount
 
     private class HashEntry(
