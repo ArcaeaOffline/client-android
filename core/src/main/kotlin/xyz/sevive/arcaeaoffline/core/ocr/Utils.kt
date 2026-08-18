@@ -4,6 +4,9 @@ import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.math.sqrt
 
 fun matMedian(mat: Mat): Double {
@@ -100,3 +103,17 @@ fun collectionMedian(list: List<Double>) =
             it[it.size / 2]
         }
     }
+
+/**
+ * OpenCV Mats are backed by native memory and only reclaimed by GC
+ * finalization otherwise, which delays reclamation unpredictably.
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <T> Mat.use(block: (Mat) -> T): T {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    return try {
+        block(this)
+    } finally {
+        release()
+    }
+}

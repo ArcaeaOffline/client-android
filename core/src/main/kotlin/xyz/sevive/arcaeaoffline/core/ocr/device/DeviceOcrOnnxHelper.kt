@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.use
 import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.jvm.optionals.getOrElse
@@ -88,9 +89,9 @@ object DeviceOcrOnnxHelper {
     private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open(MODEL_ASSET_PATH).readBytes()
 
     /**
-     * Lightweight sanity check for the bundled model asset: the entry must exist
-     * and be non-empty. This does not load or validate the model itself (a
-     * truncated file still passes); use [createOrtSession] for a full check.
+     * Lightweight sanity check for the bundled model asset. Does not load or
+     * validate the model itself (a truncated file still passes); use
+     * [createOrtSession] for a full check.
      */
     fun checkModelAsset(context: Context) {
         context.assets.open(MODEL_ASSET_PATH).use { stream ->
@@ -125,22 +126,22 @@ object DeviceOcrOnnxHelper {
         }
     }
 
-    private fun matToModelInput(rgbMat: Mat): OnnxTensor {
-        val ortMat = Mat()
-        Imgproc.resize(rgbMat, ortMat, imageSize)
+    private fun matToModelInput(rgbMat: Mat): OnnxTensor =
+        Mat().use { ortMat ->
+            Imgproc.resize(rgbMat, ortMat, imageSize)
 
-        // convert cv.Mat into ByteBuffer
-        val size = ortMat.total() * ortMat.elemSize()
-        val byteBuffer: ByteBuffer = ByteBuffer.allocate(size.toInt())
-        ortMat.get(0, 0, byteBuffer.array())
+            // convert cv.Mat into ByteBuffer
+            val size = ortMat.total() * ortMat.elemSize()
+            val byteBuffer: ByteBuffer = ByteBuffer.allocate(size.toInt())
+            ortMat.get(0, 0, byteBuffer.array())
 
-        return OnnxTensor.createTensor(
-            getOrtEnvironment(),
-            byteBuffer,
-            imageShape,
-            OnnxJavaType.UINT8,
-        )
-    }
+            OnnxTensor.createTensor(
+                getOrtEnvironment(),
+                byteBuffer,
+                imageShape,
+                OnnxJavaType.UINT8,
+            )
+        }
 
     private fun modelDecodedOutputToString(onnxTensor: OnnxTensor): String {
         val rawPredictions = mutableListOf<Int>()
@@ -167,16 +168,25 @@ object DeviceOcrOnnxHelper {
         bgrMat: Mat,
         ortSession: OrtSession,
     ): String {
-        val rgbMat = Mat()
-        Imgproc.cvtColor(bgrMat, rgbMat, Imgproc.COLOR_BGR2RGB)
+        // Ownership notes (per ORT Java API):
+        // - the input OnnxTensor is NOT owned by OrtSession.Result and must be
+        //   closed by the caller;
+        // - Result.close() owns and closes the output tensors it contains, and
+        //   the decoded output must be read before Result closes.
+        val finalResult =
+            Mat().use { rgbMat ->
+                Imgproc.cvtColor(bgrMat, rgbMat, Imgproc.COLOR_BGR2RGB)
 
-        val inputTensor = matToModelInput(rgbMat)
-        val result = ortSession.run(mapOf("raw_image" to inputTensor))
-        val decodedOutput =
-            result
-                .get("decoded_output")
-                .getOrElse { throw NullPointerException("ONNX model output null!") }
-        val finalResult = modelDecodedOutputToString(decodedOutput as OnnxTensor)
+                matToModelInput(rgbMat).use { inputTensor ->
+                    ortSession.run(mapOf("raw_image" to inputTensor)).use { result ->
+                        val decodedOutput =
+                            result
+                                .get("decoded_output")
+                                .getOrElse { throw NullPointerException("ONNX model output null!") }
+                        modelDecodedOutputToString(decodedOutput as OnnxTensor)
+                    }
+                }
+            }
         var placeholderCount = 0
         return buildString {
             for (char in finalResult) {

@@ -18,6 +18,7 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.ocr.device.OcrPerformanceBenchmark
+import xyz.sevive.arcaeaoffline.core.ocr.use
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import java.io.IOException
@@ -108,14 +109,17 @@ class OcrPerformanceScreenViewModel(
                     )
                 }
                 try {
-                    // On decode failure: clear the selection and ask the user to pick again
-                    val images = decodeImages(state.selectedImageUris)
+                    // On decode failure: clear the selection and ask the user to pick again.
+                    // decodeAndExtractRois and runBenchmark are called back-to-back with no
+                    // suspension point in between: runBenchmark takes ownership of the ROI
+                    // Mats and releases them on every exit path, so nothing leaks even if
+                    // the coroutine is cancelled mid-benchmark.
                     val parallel = _uiState.value.parallelCount
                     val result =
                         withContext(Dispatchers.Default) {
                             OcrPerformanceBenchmark.runBenchmark(
                                 context = applicationContext,
-                                images = images,
+                                roiSets = decodeAndExtractRois(state.selectedImageUris),
                                 parallel = parallel,
                             ) { completed, total ->
                                 _uiState.update { it.copy(progress = completed, progressTotal = total) }
@@ -162,15 +166,31 @@ class OcrPerformanceScreenViewModel(
 
     private class ImageLoadException : IOException()
 
-    private suspend fun decodeImages(uris: List<Uri>): List<Mat> =
+    /**
+     * Decodes each image and immediately extracts its OCR ROIs; the decoded
+     * full-size Mats are released in this pass, only the small ROI clones
+     * survive. On any failure the already-extracted ROIs are released before
+     * rethrowing.
+     */
+    private suspend fun decodeAndExtractRois(uris: List<Uri>): List<List<Mat>> =
         withContext(Dispatchers.IO) {
-            uris.map { uri ->
-                val bytes =
-                    applicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                        ?: throw ImageLoadException()
-                val mat = Imgcodecs.imdecode(MatOfByte(*bytes), Imgcodecs.IMREAD_COLOR)
-                if (mat.empty()) throw ImageLoadException()
-                mat
+            val roiSets = mutableListOf<List<Mat>>()
+            try {
+                uris.forEach { uri ->
+                    val bytes =
+                        applicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                            ?: throw ImageLoadException()
+                    MatOfByte(*bytes).use { matOfBytes ->
+                        Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
+                            if (img.empty()) throw ImageLoadException()
+                            roiSets.add(OcrPerformanceBenchmark.extractRois(img))
+                        }
+                    }
+                }
+                roiSets
+            } catch (e: Exception) {
+                roiSets.flatten().forEach { it.release() }
+                throw e
             }
         }
 }

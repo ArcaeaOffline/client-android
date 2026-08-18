@@ -7,6 +7,7 @@ import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges.Companion.cropOrOriginal
+import xyz.sevive.arcaeaoffline.core.ocr.use
 
 class CropBlackEdges {
     companion object {
@@ -17,17 +18,17 @@ class CropBlackEdges {
             imgGraySlice: Mat,
             blackPixelThreshold: Int,
             ratio: Double = 0.6,
-        ): Boolean {
-            val pixelsCompared = Mat()
-            Core.compare(
-                imgGraySlice,
-                Scalar(blackPixelThreshold.toDouble()),
-                pixelsCompared,
-                Core.CMP_LT,
-            )
+        ): Boolean =
+            Mat().use { pixelsCompared ->
+                Core.compare(
+                    imgGraySlice,
+                    Scalar(blackPixelThreshold.toDouble()),
+                    pixelsCompared,
+                    Core.CMP_LT,
+                )
 
-            return Core.countNonZero(pixelsCompared) > (imgGraySlice.width() * imgGraySlice.height()) * ratio
-        }
+                Core.countNonZero(pixelsCompared) > (imgGraySlice.width() * imgGraySlice.height()) * ratio
+            }
 
         private fun getCropRect(
             imgGray: Mat,
@@ -41,31 +42,29 @@ class CropBlackEdges {
             var top = 0
             var bottom = height
 
+            // submat views are passed directly instead of pixel-copying clones;
+            // isBlackEdge only reads the slice
             for (i in 0..width) {
-                val rect = Rect(i, 0, 1, height)
-                val column = imgGray.submat(rect).clone()
-                if (!isBlackEdge(column, blackPixelThreshold)) break
+                val isBlack = imgGray.submat(Rect(i, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }
+                if (!isBlack) break
                 left += 1
             }
 
             for (i in width downTo 0) {
-                val rect = Rect(i - 1, 0, 1, height)
-                val column = imgGray.submat(rect).clone()
-                if (!isBlackEdge(column, blackPixelThreshold)) break
+                val isBlack = imgGray.submat(Rect(i - 1, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }
+                if (!isBlack) break
                 right -= 1
             }
 
             for (i in 0..height) {
-                val rect = Rect(0, i, width, 1)
-                val row = imgGray.submat(rect).clone()
-                if (!isBlackEdge(row, blackPixelThreshold)) break
+                val isBlack = imgGray.submat(Rect(0, i, width, 1)).use { isBlackEdge(it, blackPixelThreshold) }
+                if (!isBlack) break
                 top += 1
             }
 
             for (i in height downTo 0) {
-                val rect = Rect(0, i - 1, width, 1)
-                val row = imgGray.submat(rect).clone()
-                if (!isBlackEdge(row, blackPixelThreshold)) break
+                val isBlack = imgGray.submat(Rect(0, i - 1, width, 1)).use { isBlackEdge(it, blackPixelThreshold) }
+                if (!isBlack) break
                 bottom -= 1
             }
 
@@ -86,9 +85,13 @@ class CropBlackEdges {
             blackPixelThreshold: Int = 25,
         ): Mat {
             val imgGray = Mat()
-            Imgproc.cvtColor(img, imgGray, convertFlag)
-            val rect = getCropRect(imgGray, blackPixelThreshold)
-            return img.submat(rect).clone()
+            try {
+                Imgproc.cvtColor(img, imgGray, convertFlag)
+                val rect = getCropRect(imgGray, blackPixelThreshold)
+                return img.submat(rect).clone()
+            } finally {
+                imgGray.release()
+            }
         }
 
         /**
