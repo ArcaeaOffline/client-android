@@ -13,12 +13,14 @@ import kotlinx.serialization.json.Json
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.jvm.optionals.getOrElse
 import kotlin.properties.Delegates
 
 object DeviceOcrOnnxHelper {
     private const val LOG_TAG = "OnnxHelper"
+    private const val MODEL_ASSET_PATH = "ocr/model_patched.onnx"
     private val logger = Logger.withTag(LOG_TAG)
 
     private var imageSize by Delegates.notNull<Size>()
@@ -83,7 +85,18 @@ object DeviceOcrOnnxHelper {
         padToken = modelInfo.padToken
     }
 
-    private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open("ocr/model_patched.onnx").readBytes()
+    private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open(MODEL_ASSET_PATH).readBytes()
+
+    /**
+     * Lightweight sanity check for the bundled model asset: the entry must exist
+     * and be non-empty. This does not load or validate the model itself (a
+     * truncated file still passes); use [createOrtSession] for a full check.
+     */
+    fun checkModelAsset(context: Context) {
+        context.assets.open(MODEL_ASSET_PATH).use { stream ->
+            if (stream.read(ByteArray(1)) == -1) throw IOException("OCR model asset is empty: $MODEL_ASSET_PATH")
+        }
+    }
 
     /**
      * @see <a href="https://onnx.ai/onnx/repo-docs/Versioning.html#serializing-semver-version-numbers-in-protobuf">ONNX documentation</a>

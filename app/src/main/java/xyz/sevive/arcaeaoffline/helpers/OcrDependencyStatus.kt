@@ -14,7 +14,14 @@ interface OcrDependencyStatusDetail {
 
     fun details(): String? {
         if (exception == null) return null
-        return exception!!.message ?: exception.toString()
+
+        return exception?.let {
+            buildString {
+                append(it::class.simpleName ?: "Exception")
+                append(": ")
+                append(it.message)
+            }
+        } ?: exception.toString()
     }
 }
 
