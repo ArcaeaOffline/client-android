@@ -34,9 +34,8 @@ object OcrDependencyStatusBuilder {
 
     fun crnnModel(context: Context): CrnnModelStatusDetail =
         try {
-            // model_info.json can parse fine while the model asset itself is missing
-            // or empty (e.g. incomplete local debug assets); check the asset file
-            // too before reporting OK.
+            // model_info.json can parse fine while the model asset itself is
+            // missing or empty (e.g. incomplete local debug assets)
             DeviceOcrOnnxHelper.checkModelAsset(context)
             val info = DeviceOcrOnnxHelper.loadModelInfoFile(context)
             with(info) {

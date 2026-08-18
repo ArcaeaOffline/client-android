@@ -24,8 +24,6 @@ data class OcrQueuePreferences(
     val parallelCount: Int = defaultParallelCount(),
 ) {
     companion object {
-        // Single source of truth shared by the datastore default, the queue
-        // processing job fallback, and the queue/performance ViewModels.
         fun defaultParallelCount(): Int = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
 
         fun parallelCountRange(): IntRange = 1..(Runtime.getRuntime().availableProcessors() * 2).coerceAtLeast(2)

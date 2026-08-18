@@ -109,11 +109,9 @@ class OcrPerformanceScreenViewModel(
                     )
                 }
                 try {
-                    // On decode failure: clear the selection and ask the user to pick again.
-                    // decodeAndExtractRois and runBenchmark are called back-to-back with no
-                    // suspension point in between: runBenchmark takes ownership of the ROI
-                    // Mats and releases them on every exit path, so nothing leaks even if
-                    // the coroutine is cancelled mid-benchmark.
+                    // no suspension point between decode and run, so ownership
+                    // of the ROI Mats transfers to runBenchmark without a
+                    // cancellation window
                     val parallel = _uiState.value.parallelCount
                     val result =
                         withContext(Dispatchers.Default) {
@@ -167,10 +165,8 @@ class OcrPerformanceScreenViewModel(
     private class ImageLoadException : IOException()
 
     /**
-     * Decodes each image and immediately extracts its OCR ROIs; the decoded
-     * full-size Mats are released in this pass, only the small ROI clones
-     * survive. On any failure the already-extracted ROIs are released before
-     * rethrowing.
+     * Decodes each image and extracts its OCR ROIs; only the ROI clones
+     * survive this pass. Already-extracted ROIs are released on failure.
      */
     private suspend fun decodeAndExtractRois(uris: List<Uri>): List<List<Mat>> =
         withContext(Dispatchers.IO) {
