@@ -18,7 +18,7 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.ocr.device.OcrPerformanceBenchmark
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import xyz.sevive.arcaeaoffline.datastore.OcrQueueParallelism
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import java.io.IOException

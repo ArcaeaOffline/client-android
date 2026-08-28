@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.core.ocr
+package xyz.sevive.arcaeaoffline.core.ocr.opencv
 
 import org.opencv.core.Mat
 import kotlin.contracts.ExperimentalContracts

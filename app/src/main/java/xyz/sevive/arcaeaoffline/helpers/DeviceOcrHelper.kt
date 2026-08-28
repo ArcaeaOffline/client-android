@@ -34,7 +34,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtract
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import kotlin.time.Instant
 

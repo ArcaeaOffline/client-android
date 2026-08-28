@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import java.nio.ByteBuffer
 import kotlin.jvm.optionals.getOrElse
 import kotlin.properties.Delegates

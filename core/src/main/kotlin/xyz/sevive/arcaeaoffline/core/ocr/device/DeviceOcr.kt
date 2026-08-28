@@ -17,7 +17,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.getMostConfidentItem
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 

@@ -15,7 +15,7 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
     suspend fun isUriImage(uri: Uri): Boolean =

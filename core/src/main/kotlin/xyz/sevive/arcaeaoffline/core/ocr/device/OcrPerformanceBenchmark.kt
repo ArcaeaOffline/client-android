@@ -13,7 +13,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResul
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import kotlin.system.measureTimeMillis
 
 /**

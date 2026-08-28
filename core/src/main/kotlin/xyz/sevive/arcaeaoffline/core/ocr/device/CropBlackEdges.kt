@@ -7,7 +7,7 @@ import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges.Companion.cropOrOriginal
-import xyz.sevive.arcaeaoffline.core.ocr.use
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 class CropBlackEdges {
     companion object {
