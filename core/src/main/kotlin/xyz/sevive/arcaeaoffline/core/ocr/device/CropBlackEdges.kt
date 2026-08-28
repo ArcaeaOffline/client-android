@@ -83,16 +83,12 @@ class CropBlackEdges {
             img: Mat,
             convertFlag: Int = Imgproc.COLOR_BGR2GRAY,
             blackPixelThreshold: Int = 25,
-        ): Mat {
-            val imgGray = Mat()
-            try {
+        ): Mat =
+            Mat().use { imgGray ->
                 Imgproc.cvtColor(img, imgGray, convertFlag)
                 val rect = getCropRect(imgGray, blackPixelThreshold)
-                return img.submat(rect).clone()
-            } finally {
-                imgGray.release()
+                img.submat(rect).clone()
             }
-        }
 
         /**
          * This function would try returning the cropped image.

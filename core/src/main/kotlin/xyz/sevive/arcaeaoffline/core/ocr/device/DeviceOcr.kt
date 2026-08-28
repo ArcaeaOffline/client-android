@@ -97,16 +97,18 @@ class DeviceOcr(
 
             val w = iconSquared.width().toDouble()
             val h = iconSquared.height().toDouble()
-            Imgproc.fillPoly(
-                iconSquared,
+            val contours =
                 listOf(
                     MatOfPoint(Point(0.0, 0.0), Point(w / 2, 0.0), Point(0.0, h / 2)),
                     MatOfPoint(Point(w, 0.0), Point(w / 2, 0.0), Point(w, h / 2)),
                     MatOfPoint(Point(0.0, h), Point(w / 2, h), Point(0.0, h / 2)),
                     MatOfPoint(Point(w, h), Point(w / 2, h), Point(w, h / 2)),
-                ),
-                Scalar(128.0),
-            )
+                )
+            try {
+                Imgproc.fillPoly(iconSquared, contours, Scalar(128.0))
+            } finally {
+                contours.forEach { it.release() }
+            }
             return iconSquared
         }
     }
@@ -159,11 +161,11 @@ class DeviceOcr(
     fun ocr(): DeviceOcrResult =
         DeviceOcrResult(
             ratingClass = ratingClass(),
-            pure = DeviceOcrOnnxHelper.ocrBgrMat(extractor.pure, ortSession).toInt(),
-            far = DeviceOcrOnnxHelper.ocrBgrMat(extractor.far, ortSession).toInt(),
-            lost = DeviceOcrOnnxHelper.ocrBgrMat(extractor.lost, ortSession).toInt(),
-            score = DeviceOcrOnnxHelper.ocrBgrMat(extractor.score, ortSession).toInt(),
-            maxRecall = DeviceOcrOnnxHelper.ocrBgrMat(extractor.maxRecall, ortSession).toInt(),
+            pure = extractor.pure.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
+            far = extractor.far.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
+            lost = extractor.lost.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
+            score = extractor.score.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
+            maxRecall = extractor.maxRecall.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
             songIdResults = lookupSongId(),
             clearStatus = clearStatus(),
             partnerIdResults = lookupPartnerId(),

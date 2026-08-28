@@ -85,7 +85,7 @@ object DeviceOcrOnnxHelper {
         padToken = modelInfo.padToken
     }
 
-    private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open(MODEL_ASSET_PATH).readBytes()
+    private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open(MODEL_ASSET_PATH).use { it.readBytes() }
 
     /**
      * Verifies the bundled model asset against model_info.json. Creating the
