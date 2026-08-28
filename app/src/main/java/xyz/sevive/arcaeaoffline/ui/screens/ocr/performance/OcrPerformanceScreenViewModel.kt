@@ -19,7 +19,7 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.ocr.device.OcrPerformanceBenchmark
 import xyz.sevive.arcaeaoffline.core.ocr.use
-import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
+import xyz.sevive.arcaeaoffline.datastore.OcrQueueParallelism
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import java.io.IOException
 import kotlin.math.round
@@ -33,7 +33,7 @@ class OcrPerformanceScreenViewModel(
     companion object {
         private const val LOG_TAG = "OcrPerfScreenVM"
 
-        private val parallelCountIntRange = OcrQueuePreferences.parallelCountRange()
+        private val parallelCountIntRange = OcrQueueParallelism.countRange()
         val parallelCountSliderRange = parallelCountIntRange.first.toFloat()..parallelCountIntRange.last.toFloat()
         val parallelCountSliderSteps = parallelCountIntRange.count() - 1
     }
@@ -48,7 +48,7 @@ class OcrPerformanceScreenViewModel(
     data class UiState(
         val selectedImageUris: List<Uri> = emptyList(),
         val imageLoadError: Boolean = false,
-        val parallelCount: Int = OcrQueuePreferences.defaultParallelCount(),
+        val parallelCount: Int = OcrQueueParallelism.defaultCount(),
         val parallelCountInitialized: Boolean = false,
         val running: Boolean = false,
         val runningParallel: Int? = null,

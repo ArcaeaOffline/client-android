@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferences
+import xyz.sevive.arcaeaoffline.datastore.OcrQueueParallelism
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,7 +17,7 @@ class OcrQueuePreferencesViewModel(
         val checkIsImage: Boolean = false,
         val checkIsArcaeaImage: Boolean = false,
         val parallelCount: Int = -1,
-        val parallelCountIntRange: IntRange = OcrQueuePreferences.parallelCountRange(),
+        val parallelCountIntRange: IntRange = OcrQueueParallelism.countRange(),
     ) {
         val parallelCountSliderRange = parallelCountIntRange.first.toFloat()..parallelCountIntRange.last.toFloat()
         val parallelCountSliderSteps = parallelCountIntRange.count() - 1
