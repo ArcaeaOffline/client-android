@@ -14,7 +14,6 @@ import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.use
-import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.jvm.optionals.getOrElse
 import kotlin.properties.Delegates
@@ -89,27 +88,37 @@ object DeviceOcrOnnxHelper {
     private fun readOnnxModelBytes(context: Context): ByteArray = context.assets.open(MODEL_ASSET_PATH).readBytes()
 
     /**
-     * Lightweight sanity check for the bundled model asset. Does not load or
-     * validate the model itself (a truncated file still passes); use
-     * [createOrtSession] for a full check.
+     * Verifies the bundled model asset against model_info.json. Creating the
+     * ORT session validates the file itself and the custom ORT build's op
+     * coverage; the session metadata is then cross-checked against the json
+     * description. Returns the parsed info file on success; throws
+     * [IllegalStateException] listing all mismatches otherwise.
      */
-    fun checkModelAsset(context: Context) {
-        context.assets.open(MODEL_ASSET_PATH).use { stream ->
-            if (stream.read(ByteArray(1)) == -1) throw IOException("OCR model asset is empty: $MODEL_ASSET_PATH")
-        }
-    }
+    fun verifyModelAsset(context: Context): ModelInfoFile {
+        val infoFile = loadModelInfoFile(context)
 
-    /**
-     * @see <a href="https://onnx.ai/onnx/repo-docs/Versioning.html#serializing-semver-version-numbers-in-protobuf">ONNX documentation</a>
-     *
-     * @return arrayOf(major, minor, patch)
-     */
-    @Suppress("UNUSED")
-    private fun modelVersion(version: Long): List<Int> {
-        val major = ((version shr 48) and 0xFFFF).toInt()
-        val minor = ((version shr 32) and 0xFFFF).toInt()
-        val patch = (version and 0xFFFFFFFF).toInt()
-        return listOf(major, minor, patch)
+        createOrtSession(context).use { session ->
+            val metadata = session.metadata
+            val mismatches =
+                collectMetadataMismatches(
+                    modelVersion = metadata.version,
+                    producerName = metadata.producerName,
+                    domain = metadata.domain,
+                    graphName = metadata.graphName,
+                    customMetadata = metadata.customMetadata,
+                    inputNames = session.inputNames,
+                    outputNames = session.outputNames,
+                    infoFile = infoFile,
+                )
+
+            if (mismatches.isNotEmpty()) {
+                throw IllegalStateException(
+                    "OCR model asset does not match model_info.json:\n" + mismatches.joinToString("\n"),
+                )
+            }
+        }
+
+        return infoFile
     }
 
     fun createOrtSession(context: Context): OrtSession {
@@ -202,4 +211,104 @@ object DeviceOcrOnnxHelper {
             }
         }
     }
+}
+
+/**
+ * Cross-checks the parsed model_info.json against the model asset's
+ * metadata. Returns one message per mismatch; empty when they match.
+ *
+ * Pure function (no Android or ORT types in the signature) so mismatch
+ * scenarios can be unit-tested on the JVM.
+ */
+internal fun collectMetadataMismatches(
+    modelVersion: Long,
+    producerName: String?,
+    domain: String?,
+    graphName: String?,
+    customMetadata: Map<String, String>,
+    inputNames: Set<String>,
+    outputNames: Set<String>,
+    infoFile: DeviceOcrOnnxHelper.ModelInfoFile,
+): List<String> {
+    val mismatches = mutableListOf<String>()
+
+    val patch = infoFile.patch
+    if (patch == null) {
+        mismatches += "model_info.json is missing the `patch` block"
+        return mismatches
+    }
+
+    val modelVersionList = onnxModelVersion(modelVersion)
+    if (patch.version != modelVersionList) {
+        mismatches += "version: json ${patch.version}, model $modelVersionList"
+    }
+
+    if (patch.producerName != producerName) {
+        mismatches += "producer_name: json ${patch.producerName}, model $producerName"
+    }
+    if (patch.domain != domain) {
+        mismatches += "domain: json ${patch.domain}, model $domain"
+    }
+    if (patch.graphName != graphName) {
+        mismatches += "graph_name: json ${patch.graphName}, model $graphName"
+    }
+
+    if (patch.inputNames.toSet() != inputNames) {
+        mismatches += "input_names: json ${patch.inputNames}, model $inputNames"
+    }
+    if (patch.outputNames.toSet() != outputNames) {
+        mismatches += "output_names: json ${patch.outputNames}, model $outputNames"
+    }
+
+    val training = infoFile.training
+    mismatches +=
+        listOfNotNull(
+            customFieldMismatch(customMetadata, "image_width", training.imageWidth.toString()),
+            customFieldMismatch(customMetadata, "image_height", training.imageHeight.toString()),
+            customFieldMismatch(customMetadata, "blank_token", training.blankToken),
+            customFieldMismatch(customMetadata, "pad_token", training.padToken),
+            // 0 is the "not written" marker on the json side, matching an absent key
+            customTimestampMismatch(customMetadata, "built_timestamp", training.builtTimestamp),
+            customTimestampMismatch(customMetadata, "patched_timestamp", patch.patchedTimestamp),
+        )
+
+    return mismatches
+}
+
+private fun customFieldMismatch(
+    customMetadata: Map<String, String>,
+    key: String,
+    jsonValue: String,
+): String? {
+    val modelValue = customMetadata[key]
+    return when {
+        modelValue == null -> "`$key`: json has \"$jsonValue\" but missing in model metadata"
+        modelValue != jsonValue -> "`$key`: json \"$jsonValue\", model \"$modelValue\""
+        else -> null
+    }
+}
+
+private fun customTimestampMismatch(
+    customMetadata: Map<String, String>,
+    key: String,
+    jsonValue: Long,
+): String? {
+    val modelValue = customMetadata[key]
+    return when {
+        jsonValue == 0L && modelValue == null -> null
+        jsonValue == 0L -> "`$key`: missing in json but model has \"$modelValue\""
+        modelValue == null -> "`$key`: json has $jsonValue but missing in model metadata"
+        modelValue.toLongOrNull() != jsonValue -> "`$key`: json $jsonValue, model \"$modelValue\""
+        else -> null
+    }
+}
+
+/**
+ * @see <a href="https://onnx.ai/onnx/repo-docs/Versioning.html#serializing-semver-version-numbers-in-protobuf">ONNX documentation</a>
+ */
+private fun onnxModelVersion(version: Long): List<Int> {
+    val major = ((version shr 48) and 0xFFFF).toInt()
+    val minor = ((version shr 32) and 0xFFFF).toInt()
+    val patch = (version and 0xFFFFFFFF).toInt()
+    return listOf(major, minor, patch)
 }

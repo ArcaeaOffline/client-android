@@ -35,9 +35,9 @@ object OcrDependencyStatusBuilder {
     fun crnnModel(context: Context): CrnnModelStatusDetail =
         try {
             // model_info.json can parse fine while the model asset itself is
-            // missing or empty (e.g. incomplete local debug assets)
-            DeviceOcrOnnxHelper.checkModelAsset(context)
-            val info = DeviceOcrOnnxHelper.loadModelInfoFile(context)
+            // missing, empty or drifted from the json description (e.g.
+            // incomplete local debug assets, or a stale CI model cache)
+            val info = DeviceOcrOnnxHelper.verifyModelAsset(context)
             with(info) {
                 CrnnModelStatusDetail(
                     modelVersion = patch?.version?.takeIf { it.isNotEmpty() },
