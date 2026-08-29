@@ -17,9 +17,10 @@ archive_reports() {
     local target_dir="$OUTPUT_ROOT/$stage"
 
     echo "=== Archiving $stage test reports ==="
-    mkdir -p "$target_dir/app" "$target_dir/shared"
+    mkdir -p "$target_dir/app" "$target_dir/core" "$target_dir/shared"
 
     cp -r app/build/reports/androidTests/connected/* "$target_dir/app/" 2>/dev/null || true
+    cp -r core/build/reports/androidTests/connected/* "$target_dir/core/" 2>/dev/null || true
     cp -r shared/build/reports/androidTests/connected/* "$target_dir/shared/" 2>/dev/null || true
 }
 

@@ -73,3 +73,4 @@ jobs:
         with:
           name: test-results-api${{ matrix.api-level }}-${{ matrix.target }}
           path: ${{ steps.ui_tests.outputs.reports-path }}
+          if-no-files-found: error
