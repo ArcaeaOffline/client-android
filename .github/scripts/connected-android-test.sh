@@ -22,6 +22,10 @@ RETRY_SIGNATURES=(
     "install-write"
     "device offline"
     "device not found"
+    # Rarer variant of the same stall: the activity fails to launch on a
+    # device that hung mid-install, and Compose tests report it as
+    # "No compose hierarchies found".
+    "No compose hierarchies found"
 )
 
 TEST_FAILED=0
