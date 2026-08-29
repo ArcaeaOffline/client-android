@@ -26,7 +26,7 @@ archive_reports() {
 
 echo "=== Starting Portrait Tests ==="
 set_orientation 0
-if ! ./gradlew connectedDebugAndroidTest --stacktrace; then
+if ! ./gradlew app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest --stacktrace; then
     echo "❌ Portrait tests failed!"
     TEST_FAILED=1
 fi
@@ -34,7 +34,7 @@ archive_reports "portrait"
 
 echo "=== Starting Landscape Tests ==="
 set_orientation 1
-if ! ./gradlew connectedDebugAndroidTest --stacktrace; then
+if ! ./gradlew app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest --stacktrace; then
     echo "❌ Landscape tests failed!"
     TEST_FAILED=1
 fi
