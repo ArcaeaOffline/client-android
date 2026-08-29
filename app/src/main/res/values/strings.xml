@@ -80,7 +80,6 @@ CC BY-SA 3.0
     <string name="permission_function_save_image">Save image</string>
 
     <!-- OCR dependencies -->
-    <string name="ocr_dependency_knn_model">KNearest model</string>
     <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
 
@@ -291,6 +290,34 @@ CC BY-SA 3.0
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR Dependencies</string>
+    <string name="ocr_performance_title">OCR Performance</string>
+    <string name="ocr_performance_images_title">Images</string>
+    <string name="ocr_performance_concurrency_title">Parameters</string>
+    <string name="ocr_performance_result_title">Result</string>
+    <string name="ocr_performance_copy_report">Copy report</string>
+    <string name="ocr_performance_report_copied">Report copied</string>
+    <string name="ocr_performance_result_parallel">Parallel Count %d</string>
+    <string name="ocr_performance_result_median_label">Median per image</string>
+    <string name="ocr_performance_result_median_value">%.0f ms</string>
+    <string name="ocr_performance_result_throughput_label">Throughput</string>
+    <string name="ocr_performance_result_throughput_value">%.1f it/s</string>
+    <string name="ocr_performance_result_batches_label">Batch times</string>
+    <string name="ocr_performance_result_batches_value">%s ms</string>
+    <string name="ocr_performance_result_output_label">Output</string>
+    <string name="ocr_performance_result_output_consistent">Consistent</string>
+    <string name="ocr_performance_result_output_inconsistent">Inconsistent</string>
+    <string name="ocr_performance_run_button">Run</string>
+    <string name="ocr_performance_single_progress">Testing parallel count %d</string>
+    <string name="ocr_performance_clear_selection">Clear selection</string>
+    <string name="ocr_performance_pick_images_button">Select screenshot(s)</string>
+    <plurals name="ocr_performance_picked_images">
+        <item quantity="one">%d image selected</item>
+        <item quantity="other">%d images selected</item>
+    </plurals>
+    <string name="ocr_performance_image_load_failed">Failed to read the selected image(s), please select again</string>
+    <string name="ocr_performance_cancel_button">Cancel</string>
+    <string name="ocr_performance_history_title">History (this session)</string>
+    <string name="ocr_performance_benchmark_error">Benchmark failed: %s</string>
 
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">Send crash reports</string>

@@ -6,6 +6,7 @@ import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 @Suppress("FunctionName")
 private fun Mat._mean(): Scalar = Core.mean(this)
@@ -55,14 +56,12 @@ object ImageHashers {
     private fun average(
         imgGray: Mat,
         hashSize: Double,
-    ): Mat {
-        val imgSize = Size(hashSize, hashSize)
-        val imgResized = resizeImage(imgGray, imgSize)
-
-        val hashMat = Mat()
-        Core.compare(imgResized, imgResized._mean(), hashMat, Core.CMP_GT)
-        return hashMat
-    }
+    ): Mat =
+        resizeImage(imgGray, Size(hashSize, hashSize)).use { imgResized ->
+            val hashMat = Mat()
+            Core.compare(imgResized, imgResized._mean(), hashMat, Core.CMP_GT)
+            hashMat
+        }
 
     /**
      * Computes a simple hash comparing the intensity of each pixel in
@@ -80,17 +79,20 @@ object ImageHashers {
     private fun difference(
         imgGray: Mat,
         hashSize: Double,
-    ): Mat {
-        val imgSize = Size(hashSize + 1.0, hashSize)
-        val imgResized = resizeImage(imgGray, imgSize)
-
-        val previous = imgResized.submat(0, imgResized.rows(), 0, imgResized.cols() - 1)
-        val current = imgResized.submat(0, imgResized.rows(), 1, imgResized.cols())
-
-        val hashMat = Mat()
-        Core.compare(previous, current, hashMat, Core.CMP_GT)
-        return hashMat
-    }
+    ): Mat =
+        resizeImage(imgGray, Size(hashSize + 1.0, hashSize)).use { imgResized ->
+            val hashMat = Mat()
+            imgResized
+                .submat(0, imgResized.rows(), 0, imgResized.cols() - 1)
+                .use { previous ->
+                    imgResized
+                        .submat(0, imgResized.rows(), 1, imgResized.cols())
+                        .use { current ->
+                            Core.compare(previous, current, hashMat, Core.CMP_GT)
+                        }
+                }
+            hashMat
+        }
 
     /**
      * A hash based on the differences between adjacent pixels.
@@ -112,13 +114,15 @@ object ImageHashers {
         val imgSizeBase = hashSize * highFreqFactor
         val imgSize = Size(imgSizeBase, imgSizeBase)
 
-        val imgResized = resizeImage(imgGray, imgSize)
-        imgResized.convertTo(imgResized, CvType.CV_32FC1)
-        val dctMat = Mat()
-        Core.dct(imgResized, dctMat)
-        val hashMat = dctMat.submat(0, hashSize.toInt(), 0, hashSize.toInt()).clone()
-        Core.compare(hashMat, hashMat._median(), hashMat, Core.CMP_GT)
-        return hashMat
+        return resizeImage(imgGray, imgSize).use { imgResized ->
+            imgResized.convertTo(imgResized, CvType.CV_32FC1)
+            Mat().use { dctMat ->
+                Core.dct(imgResized, dctMat)
+                val hashMat = dctMat.submat(0, hashSize.toInt(), 0, hashSize.toInt()).use { it.clone() }
+                Core.compare(hashMat, hashMat._median(), hashMat, Core.CMP_GT)
+                hashMat
+            }
+        }
     }
 
     /**
@@ -138,6 +142,7 @@ object ImageHashers {
     /**
      * Return the hamming distance between [hash1] and [hash2].
      */
+    @Suppress("unused")
     fun compare(
         hash1: Mat,
         hash2: Mat,

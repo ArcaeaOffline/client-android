@@ -1,7 +1,5 @@
 package xyz.sevive.arcaeaoffline.helpers
 
-import ai.onnxruntime.OnnxModelMetadata
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import kotlin.time.Instant
 
 enum class OcrDependencyStatus { OK, ERROR, WARNING, ABSENCE, UNKNOWN }
@@ -16,33 +14,15 @@ interface OcrDependencyStatusDetail {
 
     fun details(): String? {
         if (exception == null) return null
-        return exception!!.message ?: exception.toString()
+
+        return exception?.let {
+            buildString {
+                append(it::class.simpleName ?: "Exception")
+                append(": ")
+                append(it.message)
+            }
+        } ?: exception.toString()
     }
-}
-
-data class KNearestModelStatusDetail(
-    override val absence: Boolean = false,
-    override val exception: Exception? = null,
-    val varCount: Int? = null,
-    val isTrained: Boolean = false,
-) : OcrDependencyStatusDetail {
-    override fun status(): OcrDependencyStatus {
-        if (absence) return OcrDependencyStatus.ABSENCE
-        if (exception != null || !isTrained) return OcrDependencyStatus.ERROR
-
-        return when (varCount) {
-            null -> OcrDependencyStatus.UNKNOWN
-            81 -> OcrDependencyStatus.OK
-            else -> OcrDependencyStatus.WARNING
-        }
-    }
-
-    override fun summary(): String? =
-        when {
-            exception != null -> exception::class.simpleName ?: "Error"
-            varCount != null -> "varCount $varCount"
-            else -> null
-        }
 }
 
 data class ImageHashesDatabaseStatusDetail(
@@ -79,34 +59,36 @@ data class ImageHashesDatabaseStatusDetail(
 data class CrnnModelStatusDetail(
     override val absence: Boolean = false,
     override val exception: Exception? = null,
-    val modelMetadata: OnnxModelMetadata? = null,
+    val modelVersion: List<Int>? = null,
+    val producerName: String? = null,
+    val producerVersion: String? = null,
+    val domain: String? = null,
+    val graphName: String? = null,
     val inputNames: Set<String>? = null,
     val outputNames: Set<String>? = null,
+    val builtTimestamp: Instant? = null,
+    val patchedTimestamp: Instant? = null,
 ) : OcrDependencyStatusDetail {
     override fun status(): OcrDependencyStatus {
         if (absence) return OcrDependencyStatus.ABSENCE
         if (exception != null) return OcrDependencyStatus.ERROR
 
         return when {
-            modelMetadata == null -> OcrDependencyStatus.UNKNOWN
-            modelMetadata.version == 0L -> OcrDependencyStatus.WARNING
+            modelVersion.isNullOrEmpty() -> OcrDependencyStatus.UNKNOWN
             else -> OcrDependencyStatus.OK
         }
     }
 
-    private val builtTimestampRaw get() = modelMetadata?.customMetadata?.get("built_timestamp")
-    private val builtTimestamp = builtTimestampRaw?.let { Instant.fromEpochSeconds(it.toLong()) }
-    private val builtTimestampReadable = builtTimestamp?.formatAsLocalizedDateTime()
+    private val modelVersionString = modelVersion?.takeIf { it.isNotEmpty() }?.let { "v" + it.joinToString(".") }
 
     override fun summary(): String? {
         if (absence) return null
         if (exception != null) return exception::class.simpleName ?: "Error"
-        if (modelMetadata == null) return null
 
         val parts = mutableListOf<String>()
 
-        parts.add(DeviceOcrOnnxHelper.modelVersionString(modelMetadata.version))
-        builtTimestampReadable?.let { parts.add(it) }
+        modelVersionString?.let { parts.add(it) }
+        builtTimestamp?.let { parts.add(it.formatAsLocalizedDateTime()) }
 
         return parts.filter { it.isNotEmpty() }.joinToString(", ")
     }
@@ -117,17 +99,19 @@ data class CrnnModelStatusDetail(
 
         val parts = mutableListOf<String>()
 
-        modelMetadata?.let {
-            parts.add("version: ${it.version} (${DeviceOcrOnnxHelper.modelVersion(it.version)})")
-            parts.add("producer: ${it.producerName}")
-            parts.add("domain: ${it.domain}")
-            parts.add("graph_name: ${it.graphName}")
+        modelVersion?.takeIf { it.isNotEmpty() }?.let {
+            parts.add("version: $it ($modelVersionString)")
         }
+        producerName?.let { parts.add("producer: $it") }
+        producerVersion?.let { parts.add("producer_version: $it") }
+        domain?.let { parts.add("domain: $it") }
+        graphName?.let { parts.add("graph_name: $it") }
 
         parts.add("inputs: $inputNames")
         parts.add("outputs: $outputNames")
 
-        builtTimestampRaw?.let { parts.add("built_timestamp: $it ($builtTimestamp)") }
+        builtTimestamp?.let { parts.add("built: $it") }
+        patchedTimestamp?.let { parts.add("patched: $it") }
 
         return when (val res = parts.joinToString("\n")) {
             "" -> null

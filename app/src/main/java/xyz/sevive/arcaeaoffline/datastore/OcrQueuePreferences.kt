@@ -21,7 +21,7 @@ data class OcrQueuePreferences(
     @SerialName("check_is_arcaea_image")
     val checkIsArcaeaImage: Boolean = OcrQueueStagingOptions.DEFAULTS.checkIsArcaeaImage,
     @SerialName("parallel_count")
-    val parallelCount: Int = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1),
+    val parallelCount: Int = OcrQueueParallelism.defaultCount(),
 )
 
 object OcrQueuePreferencesSerializer : OkioSerializer<OcrQueuePreferences> {

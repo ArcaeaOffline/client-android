@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.database
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,15 +20,11 @@ import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingBatch
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueStagingItem
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
-import xyz.sevive.arcaeaoffline.database.migrations.OcrQueueMigration3To4
 
 @Database(
     entities = [OcrQueueTask::class, OcrQueueStagingItem::class, OcrQueueStagingBatch::class],
     version = 4,
     exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 3, to = 4, spec = OcrQueueMigration3To4::class),
-    ],
 )
 @TypeConverters(
     UriConverters::class,

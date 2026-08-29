@@ -1,0 +1,13 @@
+name: Setup Custom Maven Repo
+description: Downloads custom-built onnxruntime/opencv maven artifacts from custom-lib-builds releases into maven-local/
+
+runs:
+  using: composite
+  steps:
+    # Cache may not applicable for onnxruntime, as it may change its opset while
+    # not changing its version.
+    # Since GitHub Actions should have quite fast Internet access to its own
+    # release service, we don't set up caches here.
+    - name: Download and extract custom maven repo
+      run: bash .github/scripts/setup-custom-maven.sh
+      shell: bash

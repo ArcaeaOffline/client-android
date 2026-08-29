@@ -21,7 +21,6 @@ import kotlinx.datetime.toInstant
 import kotlinx.io.buffered
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
-import org.opencv.ml.KNearest
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
@@ -35,6 +34,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtract
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import kotlin.time.Instant
 
@@ -56,45 +56,48 @@ object DeviceOcrHelper {
 
     suspend fun ocrImage(
         imageUri: Uri,
-        kNearestModel: KNearest,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
         val byteArray = PlatformFile(imageUri).readBytes()
-        val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
-        val imgCropped = CropBlackEdges.crop(img)
 
-        val roisAutoType = DeviceRoisAutoSelector.select(img)
-        val rois =
-            when (roisAutoType) {
-                DeviceRoisAutoSelectorResult.T1 -> {
-                    DeviceRoisAutoT1(
-                        imgCropped.width(),
-                        imgCropped.height(),
-                    )
-                }
+        return MatOfByte(*byteArray).use { matOfBytes ->
+            Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
+                val roisAutoType = DeviceRoisAutoSelector.select(img)
 
-                else -> {
-                    DeviceRoisAutoT2(
-                        imgCropped.width(),
-                        imgCropped.height(),
-                    )
+                CropBlackEdges.crop(img).use { imgCropped ->
+                    val rois =
+                        when (roisAutoType) {
+                            DeviceRoisAutoSelectorResult.T1 -> {
+                                DeviceRoisAutoT1(
+                                    imgCropped.width(),
+                                    imgCropped.height(),
+                                )
+                            }
+
+                            else -> {
+                                DeviceRoisAutoT2(
+                                    imgCropped.width(),
+                                    imgCropped.height(),
+                                )
+                            }
+                        }
+                    val extractor = DeviceRoisExtractor(rois, imgCropped)
+                    val masker =
+                        when (roisAutoType) {
+                            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
+                            else -> DeviceRoisMaskerAutoT2()
+                        }
+
+                    DeviceOcr(
+                        extractor = extractor,
+                        masker = masker,
+                        ortSession = ortSession,
+                        hashesDb = imageHashesDatabase,
+                    ).ocr()
                 }
             }
-        val extractor = DeviceRoisExtractor(rois, imgCropped)
-        val masker =
-            when (roisAutoType) {
-                DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
-                else -> DeviceRoisMaskerAutoT2()
-            }
-
-        return DeviceOcr(
-            extractor = extractor,
-            masker = masker,
-            kNearestModel = kNearestModel,
-            ortSession = ortSession,
-            hashesDb = imageHashesDatabase,
-        ).ocr()
+        }
     }
 
     fun readImageDateFromExif(

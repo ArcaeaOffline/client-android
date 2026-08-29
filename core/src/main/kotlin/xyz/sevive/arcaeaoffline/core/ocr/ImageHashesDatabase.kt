@@ -11,7 +11,13 @@ private fun hammingDistance(
     byteArray2: ByteArray,
 ): Int {
     assert(byteArray1.size == byteArray2.size) { "hash size does not match!" }
-    return byteArray1.zip(byteArray2).count { (b1, b2) -> b1 != b2 }
+    // Must remain allocation-free: this method is called for EVERY entry in allHashes on EVERY lookup.
+    // Creating objects here will cause severe GC pressure.
+    var distance = 0
+    for (i in byteArray1.indices) {
+        if (byteArray1[i] != byteArray2[i]) distance++
+    }
+    return distance
 }
 
 class ImageHashesDatabase(
@@ -31,6 +37,8 @@ class ImageHashesDatabase(
         private set
     var partnerIconHashesCount: Int by Delegates.notNull()
         private set
+
+    @Suppress("unused")
     val hashesCount: Int get() = jacketHashesCount + partnerIconHashesCount
 
     private class HashEntry(
@@ -178,9 +186,15 @@ class ImageHashesDatabase(
         val dHash = ImageHashers.difference(image, this.hashSize)
         val pHash = ImageHashers.dct(image, this.hashSize, this.highFreqFactor)
 
-        items.addAll(lookupAHash(type, aHash.toHashByteArray()))
-        items.addAll(lookupDHash(type, dHash.toHashByteArray()))
-        items.addAll(lookupPHash(type, pHash.toHashByteArray()))
+        try {
+            items.addAll(lookupAHash(type, aHash.toHashByteArray()))
+            items.addAll(lookupDHash(type, dHash.toHashByteArray()))
+            items.addAll(lookupPHash(type, pHash.toHashByteArray()))
+        } finally {
+            aHash.release()
+            dHash.release()
+            pHash.release()
+        }
 
         return items
     }

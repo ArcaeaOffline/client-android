@@ -5,6 +5,9 @@ app/src/main/assets/ocr/model*.onnx
 app/src/main/assets/ocr/model*.ort
 app/src/main/assets/ocr/model_info.json
 
+# Local maven repo (custom-built artifacts: onnxruntime, opencv)
+/maven-local/
+
 # Android Studio added
 /.idea/caches
 /.idea/libraries

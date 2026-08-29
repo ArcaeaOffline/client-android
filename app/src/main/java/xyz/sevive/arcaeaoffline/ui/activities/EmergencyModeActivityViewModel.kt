@@ -89,7 +89,6 @@ class EmergencyModeActivityViewModel(
         val paths = OcrDependencyPaths()
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (SystemFileSystem.exists(paths.knnModelFile)) SystemFileSystem.delete(paths.knnModelFile)
             if (SystemFileSystem.exists(paths.phashDatabaseFile)) SystemFileSystem.delete(paths.phashDatabaseFile)
             if (SystemFileSystem.exists(paths.imageHashesDatabaseFile)) SystemFileSystem.delete(paths.imageHashesDatabaseFile)
         }

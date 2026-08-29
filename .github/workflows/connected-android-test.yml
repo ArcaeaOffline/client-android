@@ -35,6 +35,9 @@ jobs:
       - name: Setup Toolchain
         uses: ./.github/actions/setup-toolchain
 
+      - name: Setup Custom Maven
+        uses: ./.github/actions/setup-custom-maven
+
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 

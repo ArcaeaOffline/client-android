@@ -15,6 +15,7 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
     suspend fun isUriImage(uri: Uri): Boolean =
@@ -38,11 +39,14 @@ object OcrQueueHelper {
             async {
                 val byteArray = PlatformFile(uri).readBytes()
 
-                val img = Imgcodecs.imdecode(MatOfByte(*byteArray), Imgcodecs.IMREAD_COLOR)
-                val imgHsv = Mat()
-                Imgproc.cvtColor(img, imgHsv, Imgproc.COLOR_BGR2HSV)
-
-                ScreenshotDetect.isArcaeaScreenshot(imgHsv)
+                MatOfByte(*byteArray).use { matOfBytes ->
+                    Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
+                        Mat().use { imgHsv ->
+                            Imgproc.cvtColor(img, imgHsv, Imgproc.COLOR_BGR2HSV)
+                            ScreenshotDetect.isArcaeaScreenshot(imgHsv)
+                        }
+                    }
+                }
             }.await()
         }
 }

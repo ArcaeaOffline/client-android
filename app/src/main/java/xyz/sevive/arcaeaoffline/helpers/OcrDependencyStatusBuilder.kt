@@ -5,21 +5,10 @@ import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
+import kotlin.time.Instant
 import kotlin.use
 
 object OcrDependencyStatusBuilder {
-    fun kNearest(): KNearestModelStatusDetail {
-        try {
-            val paths = OcrDependencyPaths()
-            if (!SystemFileSystem.exists(paths.knnModelFile)) return KNearestModelStatusDetail(absence = true)
-
-            val model = OcrDependencyLoader.kNearestModel()
-            return KNearestModelStatusDetail(varCount = model.varCount, isTrained = model.isTrained)
-        } catch (e: Exception) {
-            return KNearestModelStatusDetail(exception = e)
-        }
-    }
-
     fun imageHashesDatabase(): ImageHashesDatabaseStatusDetail {
         try {
             val paths = OcrDependencyPaths()
@@ -44,15 +33,25 @@ object OcrDependencyStatusBuilder {
     }
 
     fun crnnModel(context: Context): CrnnModelStatusDetail =
-        DeviceOcrOnnxHelper.createOrtSession(context).use {
-            try {
+        try {
+            // model_info.json can parse fine while the model asset itself is
+            // missing, empty or drifted from the json description (e.g.
+            // incomplete local debug assets, or a stale CI model cache)
+            val info = DeviceOcrOnnxHelper.verifyModelAsset(context)
+            with(info) {
                 CrnnModelStatusDetail(
-                    modelMetadata = it.metadata,
-                    inputNames = it.inputNames.toSet(), // make a copy, same for below
-                    outputNames = it.outputNames.toSet(),
+                    modelVersion = patch?.version?.takeIf { it.isNotEmpty() },
+                    producerName = patch?.producerName,
+                    producerVersion = patch?.producerVersion,
+                    domain = patch?.domain,
+                    graphName = patch?.graphName,
+                    inputNames = patch?.inputNames?.toSet(),
+                    outputNames = patch?.outputNames?.toSet(),
+                    builtTimestamp = training.builtTimestamp.takeIf { it != 0L }?.let { Instant.fromEpochSeconds(it) },
+                    patchedTimestamp = patch?.patchedTimestamp?.takeIf { it != 0L }?.let { Instant.fromEpochSeconds(it) },
                 )
-            } catch (e: Exception) {
-                CrnnModelStatusDetail(exception = e)
             }
+        } catch (e: Exception) {
+            CrnnModelStatusDetail(exception = e)
         }
 }

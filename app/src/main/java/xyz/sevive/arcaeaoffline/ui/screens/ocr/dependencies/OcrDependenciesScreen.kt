@@ -21,7 +21,6 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
-import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyKNearestModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 
@@ -32,17 +31,12 @@ fun OcrDependenciesScreen(
 ) {
     val context = LocalContext.current
 
-    val kNearestModelUiState by viewModel.kNearestModelUiState.collectAsStateWithLifecycle()
     val imageHashesDatabaseUiState by viewModel.imageHashesDatabaseUiState.collectAsStateWithLifecycle()
     val crnnModelUiState by viewModel.crnnModelUiState.collectAsStateWithLifecycle()
 
     val canBuildHashesDatabase by ArcaeaResourcesStateHolder.canBuildHashesDatabase.collectAsStateWithLifecycle()
     val buildHashesDatabaseButtonEnabled by viewModel.buildHashesDatabaseButtonEnabled.collectAsStateWithLifecycle()
 
-    val kNearestModelFileChooserLauncher =
-        rememberFileChooserLauncher { uri ->
-            uri?.let { viewModel.importKNearestModel(it, context) }
-        }
     val imageHashesDatabaseFileChooserLauncher =
         rememberFileChooserLauncher { uri ->
             uri?.let { viewModel.importImageHashesDatabase(it, context) }
@@ -57,20 +51,6 @@ fun OcrDependenciesScreen(
         },
     ) {
         LazyColumn(modifier) {
-            item {
-                OcrDependencyKNearestModelStatusViewer(kNearestModelUiState)
-            }
-
-            item {
-                TextPreferencesWidget(
-                    onClick = { kNearestModelFileChooserLauncher.launch("*/*") },
-                    title = stringResource(R.string.general_import),
-                    leadingIcon = Icons.Default.FileOpen,
-                )
-            }
-
-            item { HorizontalDivider() }
-
             item {
                 OcrDependencyImageHashesDatabaseStatusViewer(imageHashesDatabaseUiState)
             }

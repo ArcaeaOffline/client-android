@@ -29,6 +29,7 @@ import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
+import xyz.sevive.arcaeaoffline.datastore.OcrQueueParallelism
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.toWorkData
 import kotlin.time.Duration.Companion.milliseconds
@@ -89,7 +90,7 @@ class OcrQueueProcessingJob(
                 inputData
                     .getInt(
                         DATA_PARALLEL_COUNT,
-                        Runtime.getRuntime().availableProcessors() / 2,
+                        OcrQueueParallelism.defaultCount(),
                     ).coerceAtLeast(1),
         )
 

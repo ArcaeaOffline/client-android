@@ -68,7 +68,6 @@
     <string name="permission_function_save_image">保存图片</string>
 
     <!-- OCR dependencies -->
-    <string name="ocr_dependency_knn_model">KNearest 模型</string>
     <string name="ocr_dependency_image_hashes_database">图像哈希数据库</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR 模型</string>
 
@@ -259,6 +258,33 @@
 
     <!-- Ocr dependencies screen -->
     <string name="ocr_dependencies_title">OCR 依赖项</string>
+    <string name="ocr_performance_title">OCR 性能</string>
+    <string name="ocr_performance_images_title">图片</string>
+    <string name="ocr_performance_concurrency_title">参数</string>
+    <string name="ocr_performance_result_title">结果</string>
+    <string name="ocr_performance_copy_report">复制报告</string>
+    <string name="ocr_performance_report_copied">报告已复制</string>
+    <string name="ocr_performance_result_parallel">并发数 %d</string>
+    <string name="ocr_performance_result_median_label">单任务中位</string>
+    <string name="ocr_performance_result_median_value">%.0f ms</string>
+    <string name="ocr_performance_result_throughput_label">吞吐</string>
+    <string name="ocr_performance_result_throughput_value">%.1f it/s</string>
+    <string name="ocr_performance_result_batches_label">批耗时</string>
+    <string name="ocr_performance_result_batches_value">%s ms</string>
+    <string name="ocr_performance_result_output_label">输出</string>
+    <string name="ocr_performance_result_output_consistent">一致</string>
+    <string name="ocr_performance_result_output_inconsistent">不一致</string>
+    <string name="ocr_performance_run_button">运行</string>
+    <string name="ocr_performance_single_progress">正在测试并发数 %d</string>
+    <string name="ocr_performance_clear_selection">清空选择</string>
+    <string name="ocr_performance_pick_images_button">选择截图</string>
+    <plurals name="ocr_performance_picked_images">
+        <item quantity="other">已选择 %d 张图片</item>
+    </plurals>
+    <string name="ocr_performance_image_load_failed">无法读取所选图片，请重新选择</string>
+    <string name="ocr_performance_cancel_button">取消</string>
+    <string name="ocr_performance_history_title">历史记录（本次会话）</string>
+    <string name="ocr_performance_benchmark_error">基准测试失败: %s</string>
 
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">发送崩溃报告</string>

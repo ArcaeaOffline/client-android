@@ -41,8 +41,6 @@ class OcrQueueOcrImageTaskExecutor(
 
     private val imageHashesDatabase = ImageHashesDatabase(imageHashesSQLiteDatabase)
 
-    private val kNearestModel = OcrDependencyLoader.kNearestModel()
-
     override fun close() {
         ortSession.close()
         imageHashesSQLiteDatabase.close()
@@ -60,7 +58,6 @@ class OcrQueueOcrImageTaskExecutor(
             val ocrResult =
                 DeviceOcrHelper.ocrImage(
                     uri,
-                    kNearestModel,
                     imageHashesDatabase,
                     ortSession = ortSession,
                 )
