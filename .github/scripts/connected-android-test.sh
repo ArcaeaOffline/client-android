@@ -6,7 +6,11 @@ echo "reports-path=$OUTPUT_ROOT" >>"$GITHUB_OUTPUT"
 
 # Keep in sync with the "Build Application" step in
 # .github/workflows/connected-android-test.yml
-TEST_TASKS="app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest"
+TEST_TASKS=(
+    "app:connectedUnstableDebugAndroidTest"
+    "core:connectedDebugAndroidTest"
+    "shared:connectedAndroidDeviceTest"
+)
 
 # Environment-instability signatures seen on older API images (e.g. API 24).
 # When a failure matches one of these we retry ONCE after restarting adb.
@@ -57,7 +61,7 @@ run_stage() {
 
     for attempt in 1 2; do
         log="$OUTPUT_ROOT/gradle-$stage-attempt$attempt.log"
-        if ./gradlew "$TEST_TASKS" --stacktrace 2>&1 | tee "$log"; then
+        if ./gradlew "${TEST_TASKS[@]}" --stacktrace 2>&1 | tee "$log"; then
             return 0
         fi
         if [ "$attempt" -eq 1 ] && is_environment_failure "$log"; then
