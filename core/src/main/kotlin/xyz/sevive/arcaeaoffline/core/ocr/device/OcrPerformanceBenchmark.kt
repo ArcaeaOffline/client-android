@@ -14,6 +14,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
+import java.util.Locale
 import kotlin.system.measureTimeMillis
 
 /**
@@ -99,9 +100,15 @@ object OcrPerformanceBenchmark {
 
                 // Median resists single-run spikes (DVFS/scheduling noise), used instead of the mean
                 val sortedBatchTimes = batchTimes.sorted()
-                val medianBatchMs = sortedBatchTimes[sortedBatchTimes.size / 2].toDouble()
+                val medianBatchMs =
+                    if (sortedBatchTimes.size % 2 == 1) {
+                        sortedBatchTimes[sortedBatchTimes.size / 2].toDouble()
+                    } else {
+                        (sortedBatchTimes[sortedBatchTimes.size / 2 - 1] + sortedBatchTimes[sortedBatchTimes.size / 2]) / 2.0
+                    }
                 logger.i {
                     "Benchmark done: parallel %d, taskPerBatch %d, batchTimes(ms) %s, throughput %.1f it/s, consistent %s".format(
+                        Locale.ROOT,
                         parallel,
                         tasksPerBatch,
                         batchTimes.joinToString("/"),

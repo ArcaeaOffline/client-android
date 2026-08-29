@@ -64,6 +64,7 @@ import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
+import java.util.Locale
 
 @Composable
 fun OcrPerformanceScreen(
@@ -92,10 +93,12 @@ fun OcrPerformanceScreen(
             }
 
             item {
+                val selectedUris = uiState.selectedImageUris
+                val hasSelection = selectedUris.isNotEmpty()
                 TextPreferencesWidget(
                     title = stringResource(R.string.ocr_performance_pick_images_button),
                     content =
-                        uiState.selectedImageUris.takeIf { it.isNotEmpty() }?.let {
+                        selectedUris.takeIf { hasSelection }?.let {
                             pluralStringResource(
                                 R.plurals.ocr_performance_picked_images,
                                 it.size,
@@ -116,7 +119,7 @@ fun OcrPerformanceScreen(
                         )
                     },
                     trailingSlot =
-                        uiState.selectedImageUris.takeIf { it.isNotEmpty() }?.let {
+                        if (hasSelection) {
                             {
                                 IconButton(
                                     onClick = viewModel::clearImages,
@@ -132,6 +135,8 @@ fun OcrPerformanceScreen(
                                     )
                                 }
                             }
+                        } else {
+                            null
                         },
                 )
             }
@@ -262,7 +267,7 @@ private fun ResultCard(
     val coroutineScope = rememberCoroutineScope()
     val resources = LocalResources.current
 
-    Card(modifier = modifier.then(Modifier.padding(horizontal = 16.dp))) {
+    Card(modifier = modifier.padding(horizontal = 16.dp)) {
         Column(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
@@ -327,9 +332,6 @@ private fun ResultCard(
     }
 }
 
-/**
- * Key-value row: label left-aligned (muted), value right-aligned
- */
 @Composable
 private fun KeyValueRow(
     label: String,
@@ -352,7 +354,8 @@ private fun KeyValueRow(
 }
 
 /**
- * Generate pure text report for copying
+ * Plain-text report for pasting into issue reports; deliberately not localized,
+ * and formatted with Locale.ROOT so numbers stay consistent across devices.
  */
 private fun buildReportText(
     parallel: Int,
@@ -360,8 +363,8 @@ private fun buildReportText(
 ): String =
     buildString {
         appendLine("OCR Performance (p$parallel)")
-        appendLine("median: %.0f ms/image".format(result.medianPerImageMs))
-        appendLine("throughput: %.1f it/s".format(result.throughputPerSecond))
+        appendLine("median: %.0f ms/image".format(Locale.ROOT, result.medianPerImageMs))
+        appendLine("throughput: %.1f it/s".format(Locale.ROOT, result.throughputPerSecond))
         appendLine("batches: ${result.batchTimesMs.joinToString("/")} ms")
         append("consistent: ${result.resultsConsistent}")
     }
@@ -396,6 +399,7 @@ private fun HistoryRow(
         ) {
             Text(
                 "p%d, %.1f it/s".format(
+                    Locale.ROOT,
                     entry.parallel,
                     entry.result.throughputPerSecond,
                 ),

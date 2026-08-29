@@ -8,6 +8,7 @@ import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -72,9 +73,12 @@ class OcrPerformanceScreenViewModel(
             preferencesRepository.preferencesFlow.collectLatest { preferences ->
                 _uiState.update {
                     // Initial slider value follows the production config
-                    it.copy(parallelCount = if (it.parallelCountInitialized) it.parallelCount else preferences.parallelCount)
+                    if (it.parallelCountInitialized) {
+                        it
+                    } else {
+                        it.copy(parallelCount = preferences.parallelCount, parallelCountInitialized = true)
+                    }
                 }
-                _uiState.update { it.copy(parallelCountInitialized = true) }
             }
         }
     }
@@ -97,10 +101,11 @@ class OcrPerformanceScreenViewModel(
 
         benchmarkJob =
             viewModelScope.launch {
+                val parallel = state.parallelCount
                 _uiState.update {
                     it.copy(
                         running = true,
-                        runningParallel = it.parallelCount,
+                        runningParallel = parallel,
                         progress = 0,
                         progressTotal = 0,
                         result = null,
@@ -112,7 +117,6 @@ class OcrPerformanceScreenViewModel(
                     // no suspension point between decode and run, so ownership
                     // of the ROI Mats transfers to runBenchmark without a
                     // cancellation window
-                    val parallel = _uiState.value.parallelCount
                     val result =
                         withContext(Dispatchers.Default) {
                             OcrPerformanceBenchmark.runBenchmark(
@@ -125,8 +129,6 @@ class OcrPerformanceScreenViewModel(
                         }
                     _uiState.update {
                         it.copy(
-                            running = false,
-                            runningParallel = null,
                             result = result,
                             resultParallel = parallel,
                             history =
@@ -139,21 +141,20 @@ class OcrPerformanceScreenViewModel(
                         )
                     }
                 } catch (e: CancellationException) {
-                    _uiState.update { it.copy(running = false, runningParallel = null) }
                     throw e
                 } catch (e: ImageLoadException) {
                     logger.e(e) { "Failed to decode benchmark images" }
                     _uiState.update {
                         it.copy(
-                            running = false,
-                            runningParallel = null,
                             selectedImageUris = emptyList(),
                             imageLoadError = true,
                         )
                     }
                 } catch (e: Exception) {
                     logger.e(e) { "Benchmark failed" }
-                    _uiState.update { it.copy(running = false, runningParallel = null, errorMessage = e.message) }
+                    _uiState.update { it.copy(errorMessage = e.message) }
+                } finally {
+                    _uiState.update { it.copy(running = false, runningParallel = null) }
                 }
             }
     }
@@ -173,6 +174,9 @@ class OcrPerformanceScreenViewModel(
             val roiSets = mutableListOf<List<Mat>>()
             try {
                 uris.forEach { uri ->
+                    // decoding below is all blocking calls, so cancellation
+                    // must be polled manually between images
+                    coroutineContext.ensureActive()
                     val bytes =
                         applicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
                             ?: throw ImageLoadException()
