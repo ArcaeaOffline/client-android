@@ -12,6 +12,18 @@ echo "reports-path=$OUTPUT_ROOT" >>"$GITHUB_OUTPUT"
 # .github/workflows/connected-android-test.yml
 TEST_TASKS="app:connectedUnstableDebugAndroidTest core:connectedDebugAndroidTest shared:connectedAndroidDeviceTest"
 
+# Environment-instability signatures seen on older API images (e.g. API 24):
+# the emulator becomes unresponsive mid-APK-install. When a failure matches
+# one of these we retry ONCE after restarting adb. Anything else is treated
+# as a real regression and must not be retried.
+RETRY_SIGNATURES=(
+    "ShellCommandUnresponsiveException"
+    "InstallException"
+    "install-write"
+    "device offline"
+    "device not found"
+)
+
 TEST_FAILED=0
 
 set_orientation() {
@@ -19,6 +31,49 @@ set_orientation() {
     local rotation=$1
     adb shell settings put system accelerometer_rotation 0
     adb shell settings put system user_rotation "$rotation"
+}
+
+is_environment_failure() {
+    local log=$1 signature
+    for signature in "${RETRY_SIGNATURES[@]}"; do
+        if grep -q "$signature" "$log"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+dump_failure_diagnostics() {
+    local out="$OUTPUT_ROOT/diagnostics"
+    mkdir -p "$out"
+    echo "=== Dumping failure diagnostics to $out ==="
+    # The device may be half-dead at this point, so tolerate dump failures.
+    timeout 30 adb logcat -d >"$out/logcat.log" 2>&1 || echo "⚠️ logcat dump failed or timed out"
+    adb devices -l >"$out/devices.txt" 2>&1 || true
+}
+
+run_stage() {
+    local stage=$1 orientation=$2 attempt
+    local log
+    mkdir -p "$OUTPUT_ROOT"
+    set_orientation "$orientation"
+
+    for attempt in 1 2; do
+        log="$OUTPUT_ROOT/gradle-$stage-attempt$attempt.log"
+        if ./gradlew $TEST_TASKS --stacktrace 2>&1 | tee "$log"; then
+            return 0
+        fi
+        if [ "$attempt" -eq 1 ] && is_environment_failure "$log"; then
+            echo "⚠️ Environment failure detected (device unresponsive during install?), retrying once"
+            dump_failure_diagnostics
+            adb kill-server || true
+            adb start-server || true
+            adb wait-for-device || true
+        else
+            return 1
+        fi
+    done
+    return 1
 }
 
 archive_reports() {
@@ -45,16 +100,14 @@ archive_reports() {
 }
 
 echo "=== Starting Portrait Tests ==="
-set_orientation 0
-if ! ./gradlew $TEST_TASKS --stacktrace; then
+if ! run_stage portrait 0; then
     echo "❌ Portrait tests failed!"
     TEST_FAILED=1
 fi
 archive_reports "portrait"
 
 echo "=== Starting Landscape Tests ==="
-set_orientation 1
-if ! ./gradlew $TEST_TASKS --stacktrace; then
+if ! run_stage landscape 1; then
     echo "❌ Landscape tests failed!"
     TEST_FAILED=1
 fi
