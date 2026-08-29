@@ -45,8 +45,9 @@ jobs:
         uses: ./.github/actions/setup-ocr-model
 
       # Avoid building the application when AVD is running, so Gradle can use more RAM
+      # NOTE: keep this task list in sync with TEST_TASKS in .github/scripts/connected-android-test.sh
       - name: Build Application
-        run: ./gradlew assembleDebugAndroidTest --stacktrace
+        run: ./gradlew app:assembleUnstableDebugAndroidTest core:assembleDebugAndroidTest shared:assembleAndroidDeviceTest --stacktrace
 
       # android-emulator-runner configurations start here
       # See also https://github.com/ReactiveCircus/android-emulator-runner#usage--examples
@@ -73,3 +74,4 @@ jobs:
         with:
           name: test-results-api${{ matrix.api-level }}-${{ matrix.target }}
           path: ${{ steps.ui_tests.outputs.reports-path }}
+          if-no-files-found: error
