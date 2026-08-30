@@ -44,13 +44,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.core.graphics.ColorUtils
+import com.materialkolor.hct.Hct
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
-import kotlin.math.min
 
 @Immutable
 data class RatingClassSelectorItem(
@@ -117,32 +116,12 @@ internal class RatingClassBoxColors(
     val disabledTextColor = Color(0xff9f9f9f)
 
     init {
-        val selectedTextHsl = floatArrayOf(0f, 0f, 0f)
-        ColorUtils.colorToHSL(baseColor.toArgb(), selectedTextHsl)
+        val hct = Hct.fromInt(baseColor.toArgb())
 
-        selectedTextHsl[1] = min(1f, selectedTextHsl[1] + 0.1f)
-        selectedTextHsl[2] = 0.95f
-        selectedTextColor = Color(ColorUtils.HSLToColor(selectedTextHsl))
-
-        val selectedTextShadowHsl = floatArrayOf(0f, 0f, 0f)
-        ColorUtils.colorToHSL(baseColor.toArgb(), selectedTextShadowHsl)
-
-        selectedTextShadowHsl[2] = 0.05f
-        selectedTextShadowColor = Color(ColorUtils.HSLToColor(selectedTextShadowHsl))
-
-        val notSelectedBgHsl = floatArrayOf(0f, 0f, 0f)
-        ColorUtils.colorToHSL(baseColor.toArgb(), notSelectedBgHsl)
-
-        notSelectedBgHsl[1] = 0.015f
-        notSelectedBgHsl[2] = 0.6f
-        notSelectedBgColor = Color(ColorUtils.HSLToColor(notSelectedBgHsl))
-
-        val notSelectedTextHsl = floatArrayOf(0f, 0f, 0f)
-        ColorUtils.colorToHSL(baseColor.toArgb(), notSelectedTextHsl)
-
-        notSelectedTextHsl[1] = 0f
-        notSelectedTextHsl[2] = 0.28f
-        notSelectedTextColor = Color(ColorUtils.HSLToColor(notSelectedTextHsl))
+        selectedTextColor = Color(hct.withTone(98.0).toInt())
+        selectedTextShadowColor = Color(hct.withTone(10.0).toInt())
+        notSelectedBgColor = Color(Hct.from(hct.hue, 3.0, 60.0).toInt())
+        notSelectedTextColor = Color(Hct.from(hct.hue, 0.0, 25.0).toInt())
     }
 }
 
@@ -211,11 +190,11 @@ internal fun RatingClassBox(
         label = "selectedTextShadowColor",
     )
     val selectedTextShadowOffset by animateOffsetAsState(
-        targetValue = if (selected) Offset(3f, 3f) else Offset(0f, 0f),
+        targetValue = if (selected) Offset(2f, 2f) else Offset(0f, 0f),
         label = "selectedTextShadowOffset",
     )
     val selectedTextShadowBlur by animateFloatAsState(
-        targetValue = if (selected) 5f else 0f,
+        targetValue = if (selected) 4f else 0f,
         label = "selectedTextShadowOffset",
     )
 
