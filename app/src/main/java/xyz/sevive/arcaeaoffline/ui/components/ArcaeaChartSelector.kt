@@ -87,13 +87,9 @@ fun ArcaeaChartSelector(
         allowFakeChart = allowFakeChart,
     )
 
-    val ratingDetails =
+    val selectorItems =
         remember(charts) {
-            charts.associate { it.ratingClass to (it.rating to it.ratingPlus) }
-        }
-    val enabledRatingClasses =
-        remember(charts) {
-            charts.map { it.ratingClass }
+            charts.toRatingClassSelectorItems()
         }
 
     // Emit the change when either [selectedSongId] or [selectedRatingClass] changes.
@@ -123,10 +119,9 @@ fun ArcaeaChartSelector(
             Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 
             ArcaeaRatingClassSelector(
+                items = selectorItems,
                 selectedRatingClass = selectedRatingClass,
                 onRatingClassChange = { selectedRatingClass = it },
-                enabledRatingClasses = enabledRatingClasses,
-                ratingDetails = ratingDetails,
             )
         }
     }

@@ -10,7 +10,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +31,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPackAndSongQuickSearch
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaRatingClassSelector
 import xyz.sevive.arcaeaoffline.ui.components.PlayRatingCalculator
+import xyz.sevive.arcaeaoffline.ui.components.toRatingClassSelectorItems
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,12 +48,10 @@ fun UtilitiesCalculatorScreen(
             value = chartRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
         }
     }
-    val enabledRatingClasses by remember {
-        derivedStateOf { charts.map { it.ratingClass } }
-    }
-    val ratingDetails by remember {
-        derivedStateOf { charts.associate { it.ratingClass to (it.rating to it.ratingPlus) } }
-    }
+    val selectorItems =
+        remember(charts) {
+            charts.toRatingClassSelectorItems()
+        }
 
     LaunchedEffect(selectedRatingClass, charts) {
         selectedRatingClass?.let { ratingClass ->
@@ -90,10 +88,9 @@ fun UtilitiesCalculatorScreen(
                     Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 
                     ArcaeaRatingClassSelector(
+                        items = selectorItems,
                         selectedRatingClass = selectedRatingClass,
                         onRatingClassChange = { selectedRatingClass = it },
-                        enabledRatingClasses = enabledRatingClasses,
-                        ratingDetails = ratingDetails,
                     )
                 }
             }
