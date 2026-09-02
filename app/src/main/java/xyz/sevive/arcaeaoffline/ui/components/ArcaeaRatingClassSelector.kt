@@ -195,7 +195,7 @@ internal fun RatingClassBox(
     )
     val selectedTextShadowBlur by animateFloatAsState(
         targetValue = if (selected) 4f else 0f,
-        label = "selectedTextShadowOffset",
+        label = "selectedTextShadowBlur",
     )
 
     Box(
@@ -358,7 +358,10 @@ private fun RatingClassSelectorDevicePreview() {
         itemsCommon +
             RatingClassSelectorItem(ArcaeaRatingClassDisplay.INSCRIBED, 11)
 
-    val itemsAll = itemsWithBeyond + itemsWithEternal.last()
+    val itemsAll =
+        itemsCommon +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.BEYOND, 12) +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.ETERNAL, 10, ratingPlus = true)
 
     ArcaeaOfflineTheme {
         Surface {
