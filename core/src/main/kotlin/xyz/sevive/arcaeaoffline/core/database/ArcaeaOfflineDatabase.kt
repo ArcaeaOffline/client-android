@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
@@ -40,6 +39,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
+import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_14_15
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 
@@ -56,7 +56,6 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         PlayResult::class,
         R30Entry::class,
     ],
-    views = [Chart::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
@@ -67,7 +66,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
 )
 @TypeConverters(
@@ -129,6 +128,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
                     .addMigrations(
                         Migration_6_7,
                         Migration_7_8,
+                        Migration_14_15,
                     ).build()
                     .also { instance = it }
             }
