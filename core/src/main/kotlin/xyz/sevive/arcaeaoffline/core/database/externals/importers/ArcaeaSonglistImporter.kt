@@ -95,6 +95,7 @@ class ArcaeaSonglistImporter(
                     Difficulty(
                         songId = song.id,
                         ratingClass = ArcaeaRatingClass.fromInt(difficulty.ratingClass),
+                        ratingClassAlias = difficulty.ratingClassAlias,
                         rating = difficulty.rating,
                         ratingPlus = difficulty.ratingPlus ?: false,
                         chartDesigner = difficulty.chartDesigner,

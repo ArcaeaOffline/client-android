@@ -1,0 +1,35 @@
+{
+  "songs": [
+    {
+      "idx": 0,
+      "id": "aliastest",
+      "title_localized": { "en": "Alias Test" },
+      "artist": "Test Artist",
+      "bpm": "100",
+      "bpm_base": 100.0,
+      "set": "testset",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 0,
+      "bg": "testbg",
+      "date": 1720000000,
+      "version": "7.0",
+      "difficulties": [
+        {
+          "ratingClass": 1,
+          "chartDesigner": "Toaster",
+          "jacketDesigner": "jl",
+          "rating": 7
+        },
+        {
+          "ratingClass": 3,
+          "chartDesigner": "Toaster",
+          "jacketDesigner": "jl",
+          "rating": 12,
+          "ratingClassAlias": 1,
+          "legacy11": true
+        }
+      ]
+    }
+  ]
+}
