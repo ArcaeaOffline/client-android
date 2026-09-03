@@ -30,6 +30,8 @@ kotlinx-io = "0.9.0"
 bignum = "0.3.10"
 kim = "0.31.0"
 
+materialkolor = "5.0.1"
+
 junit = "4.13.2"
 robolectric = "4.16.1"
 
@@ -58,6 +60,8 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
 compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "compose-multiplatform" }
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended" }
+
+materialkolor-color-utilities = { module = "com.materialkolor:material-color-utilities", version.ref = "materialkolor" }
 
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress" }

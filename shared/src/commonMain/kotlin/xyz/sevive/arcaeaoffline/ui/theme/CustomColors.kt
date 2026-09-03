@@ -36,6 +36,7 @@ data class ArcaeaColors(
     val past: Color = Color(0xFF5CBAD3),
     val present: Color = Color(0xFF829438),
     val future: Color = Color(0xFF913A79),
+    val inscribed: Color = Color(0xFF293885),
     val beyond: Color = Color(0xFFBF0D25),
     val eternal: Color = Color(0xFF8B77A4),
     val pure: Color = Color(0xFFF22EC6),
@@ -50,6 +51,7 @@ data class ArcaeaColors(
                 past = Color(0xFF5CBAD3),
                 present = Color(0xFFB5C76F),
                 future = Color(0xFFC56DAC),
+                inscribed = Color(0xFF5169C7),
                 beyond = Color(0xFFF24058),
                 eternal = Color(0xFFD3B5F9),
             )

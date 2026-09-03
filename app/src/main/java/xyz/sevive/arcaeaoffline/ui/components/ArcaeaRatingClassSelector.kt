@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,11 +44,28 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.core.graphics.ColorUtils
+import com.materialkolor.hct.Hct
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
-import kotlin.math.min
+
+@Immutable
+data class RatingClassSelectorItem(
+    val display: ArcaeaRatingClassDisplay,
+    val rating: Int? = null,
+    val ratingPlus: Boolean = false,
+)
+
+fun List<Chart>.toRatingClassSelectorItems(): List<RatingClassSelectorItem> =
+    map {
+        RatingClassSelectorItem(
+            display = ArcaeaRatingClassDisplay.of(it.ratingClass),
+            rating = it.rating,
+            ratingPlus = it.ratingPlus,
+        )
+    }
 
 private class RatingClassShape(
     private val isFirst: Boolean = false,
@@ -81,59 +99,37 @@ private class RatingClassShape(
     }
 }
 
-internal data class RatingClassBoxColors(
-    val baseColor: Color,
+internal class RatingClassBoxColors(
+    baseColor: Color,
 ) {
 //    val bgColor = baseColor.copy(alpha = 0.3f)
 //    val textColor = baseColor.copy()
 
     val selectedBgColor = baseColor.copy()
     val selectedTextColor: Color
-        get() {
-            val hsl = floatArrayOf(0f, 0f, 0f)
-            ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
-
-            hsl[1] = min(1f, hsl[1] + 0.1f)
-            hsl[2] = 0.95f
-            return Color(ColorUtils.HSLToColor(hsl))
-        }
     val selectedTextShadowColor: Color
-        get() {
-            val hsl = floatArrayOf(0f, 0f, 0f)
-            ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
-
-            hsl[2] = 0.05f
-            return Color(ColorUtils.HSLToColor(hsl))
-        }
 
     val notSelectedBgColor: Color
-        get() {
-            val hsl = floatArrayOf(0f, 0f, 0f)
-            ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
-
-            hsl[1] = 0.015f
-            hsl[2] = 0.6f
-            return Color(ColorUtils.HSLToColor(hsl))
-        }
     val notSelectedTextColor: Color
-        get() {
-            val hsl = floatArrayOf(0f, 0f, 0f)
-            ColorUtils.colorToHSL(baseColor.toArgb(), hsl)
-
-            hsl[1] = 0f
-            hsl[2] = 0.28f
-            return Color(ColorUtils.HSLToColor(hsl))
-        }
 
     val disabledBgColor = Color(0xff202020)
     val disabledTextColor = Color(0xff9f9f9f)
+
+    init {
+        val hct = Hct.fromInt(baseColor.toArgb())
+
+        selectedTextColor = Color(hct.withTone(98.0).toInt())
+        selectedTextShadowColor = Color(hct.withTone(10.0).toInt())
+        notSelectedBgColor = Color(Hct.from(hct.hue, 3.0, 60.0).toInt())
+        notSelectedTextColor = Color(Hct.from(hct.hue, 0.0, 25.0).toInt())
+    }
 }
 
 @Composable
 internal fun RatingClassBox(
     onClick: () -> Unit,
     baseColor: Color,
-    ratingClass: ArcaeaRatingClass,
+    label: String,
     selected: Boolean = false,
     disabled: Boolean = false,
     isFirst: Boolean = false,
@@ -143,7 +139,7 @@ internal fun RatingClassBox(
     val height = 50.dp
     val width = height * 1.4f
 
-    val colors = RatingClassBoxColors(baseColor)
+    val colors = remember(baseColor) { RatingClassBoxColors(baseColor) }
 
     val bgColor by animateColorAsState(
         targetValue =
@@ -182,7 +178,6 @@ internal fun RatingClassBox(
                 }
             }
         }
-    val label = ratingClass.toString()
 
 //    val constantMaxHeight = height * 0.9f
     val labelMaxHeight = height * 0.4f
@@ -195,12 +190,12 @@ internal fun RatingClassBox(
         label = "selectedTextShadowColor",
     )
     val selectedTextShadowOffset by animateOffsetAsState(
-        targetValue = if (selected) Offset(3f, 3f) else Offset(0f, 0f),
+        targetValue = if (selected) Offset(2f, 2f) else Offset(0f, 0f),
         label = "selectedTextShadowOffset",
     )
     val selectedTextShadowBlur by animateFloatAsState(
-        targetValue = if (selected) 5f else 0f,
-        label = "selectedTextShadowOffset",
+        targetValue = if (selected) 4f else 0f,
+        label = "selectedTextShadowBlur",
     )
 
     Box(
@@ -289,48 +284,52 @@ private fun RatingClassRowLayout(
     }
 }
 
+/**
+ * The default order of selector items.
+ */
+private val SelectorSlotRatingClasses =
+    listOf(
+        ArcaeaRatingClass.PAST,
+        ArcaeaRatingClass.PRESENT,
+        ArcaeaRatingClass.FUTURE,
+        ArcaeaRatingClass.BEYOND,
+        ArcaeaRatingClass.ETERNAL,
+    )
+
+/**
+ * Only show these items when passed in.
+ */
+private val SelectorOptionalSlotRatingClasses =
+    setOf(ArcaeaRatingClass.BEYOND, ArcaeaRatingClass.ETERNAL)
+
 @Composable
 fun ArcaeaRatingClassSelector(
+    items: List<RatingClassSelectorItem>,
     selectedRatingClass: ArcaeaRatingClass?,
     onRatingClassChange: (ArcaeaRatingClass) -> Unit,
-    enabledRatingClasses: List<ArcaeaRatingClass> = listOf(),
-    ratingDetails: Map<ArcaeaRatingClass, Pair<Int, Boolean>> = mapOf(),
+    modifier: Modifier = Modifier,
 ) {
-    @Composable
-    fun RatingClassBoxWrapper(
-        ratingClass: ArcaeaRatingClass,
-        isFirst: Boolean = false,
-    ) {
-        val ratingGroup = ratingDetails[ratingClass]
-        val rating = ratingGroup?.first
-        val ratingPlus = ratingGroup?.second ?: false
+    RatingClassRowLayout(modifier = modifier) {
+        SelectorSlotRatingClasses.forEach { slotRatingClass ->
+            val item = items.find { it.display.ratingClass == slotRatingClass }
 
-        RatingClassBox(
-            onClick = { onRatingClassChange(ratingClass) },
-            baseColor = ratingClassColor(ratingClass),
-            ratingClass = ratingClass,
-            selected = selectedRatingClass == ratingClass,
-            disabled = !enabledRatingClasses.contains(ratingClass),
-            isFirst = isFirst,
-            rating = rating,
-            ratingPlus = ratingPlus,
-        )
-    }
+            if (item == null && slotRatingClass in SelectorOptionalSlotRatingClasses) {
+                return@forEach
+            }
 
-    RatingClassRowLayout {
-        RatingClassBoxWrapper(
-            ratingClass = ArcaeaRatingClass.PAST,
-            isFirst = true,
-        )
-        RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.PRESENT)
-        RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.FUTURE)
-
-        if (enabledRatingClasses.contains(ArcaeaRatingClass.BEYOND)) {
-            RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.BEYOND)
-        }
-
-        if (enabledRatingClasses.contains(ArcaeaRatingClass.ETERNAL)) {
-            RatingClassBoxWrapper(ratingClass = ArcaeaRatingClass.ETERNAL)
+            RatingClassBox(
+                onClick = { onRatingClassChange(slotRatingClass) },
+                baseColor =
+                    item?.let {
+                        ratingClassColor(it.display)
+                    } ?: ratingClassColor(slotRatingClass),
+                label = item?.display?.name ?: slotRatingClass.name,
+                selected = selectedRatingClass == slotRatingClass,
+                disabled = item == null,
+                isFirst = slotRatingClass == ArcaeaRatingClass.PAST,
+                rating = item?.rating,
+                ratingPlus = item?.ratingPlus ?: false,
+            )
         }
     }
 }
@@ -340,37 +339,29 @@ fun ArcaeaRatingClassSelector(
 private fun RatingClassSelectorDevicePreview() {
     var selectedRatingClass by remember { mutableStateOf(ArcaeaRatingClass.PRESENT) }
 
-    val ratingClasses =
-        mutableListOf(
-            ArcaeaRatingClass.PAST,
-            ArcaeaRatingClass.PRESENT,
-            ArcaeaRatingClass.FUTURE,
-            ArcaeaRatingClass.BEYOND,
-            ArcaeaRatingClass.ETERNAL,
+    val itemsCommon =
+        listOf(
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.PAST, 3),
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.PRESENT, 7, ratingPlus = true),
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.FUTURE, 10, ratingPlus = true),
         )
 
-    val ratingClassesCommon = ratingClasses.toMutableList()
-    ratingClassesCommon.removeAll(
-        arrayOf(
-            ArcaeaRatingClass.BEYOND,
-            ArcaeaRatingClass.ETERNAL,
-        ),
-    )
+    val itemsWithBeyond =
+        itemsCommon +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.BEYOND, 12)
 
-    val ratingClassesWithBeyond = ratingClasses.toMutableList()
-    ratingClassesWithBeyond.remove(ArcaeaRatingClass.ETERNAL)
+    val itemsWithEternal =
+        itemsCommon +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.ETERNAL, 10, ratingPlus = true)
 
-    val ratingClassesWithEternal = ratingClasses.toMutableList()
-    ratingClassesWithEternal.remove(ArcaeaRatingClass.BEYOND)
+    val itemsWithInscribed =
+        itemsCommon +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.INSCRIBED, 11)
 
-    val ratingDetails =
-        mapOf(
-            ArcaeaRatingClass.PAST to Pair(3, false),
-            ArcaeaRatingClass.PRESENT to Pair(7, true),
-            ArcaeaRatingClass.FUTURE to Pair(10, true),
-            ArcaeaRatingClass.BEYOND to Pair(12, false),
-            ArcaeaRatingClass.ETERNAL to Pair(10, true),
-        )
+    val itemsAll =
+        itemsCommon +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.BEYOND, 12) +
+            RatingClassSelectorItem(ArcaeaRatingClassDisplay.ETERNAL, 10, ratingPlus = true)
 
     ArcaeaOfflineTheme {
         Surface {
@@ -379,49 +370,47 @@ private fun RatingClassSelectorDevicePreview() {
 
                 Text("Common case")
                 ArcaeaRatingClassSelector(
+                    items = itemsCommon,
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = ratingClassesCommon,
-                )
-
-                Text("With constant")
-                ArcaeaRatingClassSelector(
-                    selectedRatingClass = selectedRatingClass,
-                    onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = ratingClassesCommon,
-                    ratingDetails = ratingDetails,
                 )
 
                 Text("With beyond")
                 ArcaeaRatingClassSelector(
+                    items = itemsWithBeyond,
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = ratingClassesWithBeyond,
-                    ratingDetails = ratingDetails,
                 )
 
                 Text("With eternal")
                 ArcaeaRatingClassSelector(
+                    items = itemsWithEternal,
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = ratingClassesWithEternal,
-                    ratingDetails = ratingDetails,
+                )
+
+                Text("With inscribed")
+                ArcaeaRatingClassSelector(
+                    items = itemsWithInscribed,
+                    selectedRatingClass = selectedRatingClass,
+                    onRatingClassChange = { selectedRatingClass = it },
                 )
 
                 Text("Last | ???")
                 ArcaeaRatingClassSelector(
+                    items =
+                        listOf(
+                            RatingClassSelectorItem(ArcaeaRatingClassDisplay.BEYOND, 12),
+                        ),
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = listOf(ArcaeaRatingClass.BEYOND),
-                    ratingDetails = ratingDetails,
                 )
 
-                Text("wtf")
+                Text("All")
                 ArcaeaRatingClassSelector(
+                    items = itemsAll,
                     selectedRatingClass = selectedRatingClass,
                     onRatingClassChange = { selectedRatingClass = it },
-                    enabledRatingClasses = ratingClasses,
-                    ratingDetails = ratingDetails,
                 )
             }
         }

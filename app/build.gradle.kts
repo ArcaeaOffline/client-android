@@ -194,6 +194,7 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.bignum)
     implementation(libs.kim)
+    implementation(libs.materialkolor.color.utilities)
 
     implementation(libs.kotlinx.serialization)
     implementation(libs.ktoml.core)

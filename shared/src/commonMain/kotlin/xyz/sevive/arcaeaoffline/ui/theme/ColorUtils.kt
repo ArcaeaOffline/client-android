@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 
 @Composable
 fun ratingClassColor(ratingClass: ArcaeaRatingClass): Color =
@@ -13,6 +14,13 @@ fun ratingClassColor(ratingClass: ArcaeaRatingClass): Color =
         ArcaeaRatingClass.FUTURE -> LocalArcaeaColors.current.future
         ArcaeaRatingClass.BEYOND -> LocalArcaeaColors.current.beyond
         ArcaeaRatingClass.ETERNAL -> LocalArcaeaColors.current.eternal
+    }
+
+@Composable
+fun ratingClassColor(display: ArcaeaRatingClassDisplay): Color =
+    when (display) {
+        ArcaeaRatingClassDisplay.INSCRIBED -> LocalArcaeaColors.current.inscribed
+        else -> ratingClassColor(display.ratingClass)
     }
 
 @Composable
