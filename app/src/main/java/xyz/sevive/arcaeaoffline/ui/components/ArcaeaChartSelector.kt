@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.helpers.ChartFactory
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
@@ -40,25 +41,30 @@ private fun rememberArcaeaSong(
     }
 
 @Composable
-private fun rememberArcaeaCharts(
+private fun rememberArcaeaDifficulties(
     difficultyRepo: DifficultyRepository,
+    song: Song?,
+): State<List<Difficulty>> =
+    produceState(initialValue = emptyList(), song?.id) {
+        song?.let {
+            difficultyRepo.findAllBySongId(it.id).collect { value = it }
+        }
+    }
+
+@Composable
+private fun rememberArcaeaCharts(
     chartRepo: ChartRepository,
     song: Song?,
+    difficulties: List<Difficulty>,
     allowFakeChart: Boolean = false,
 ): State<List<Chart>> =
-    produceState(initialValue = emptyList(), song?.id, allowFakeChart) {
+    produceState(initialValue = emptyList(), song?.id, difficulties, allowFakeChart) {
         song?.let {
-            val availableRatingClasses =
-                difficultyRepo.findAllBySongId(song.id).firstOrNull()?.map { it.ratingClass }
-                    ?: emptyList()
-
             value =
-                availableRatingClasses.mapNotNull { ratingClass ->
-                    var chart = chartRepo.find(song.id, ratingClass).firstOrNull()
+                difficulties.mapNotNull { difficulty ->
+                    var chart = chartRepo.find(difficulty.songId, difficulty.ratingClass).firstOrNull()
                     if (chart == null && allowFakeChart) {
-                        difficultyRepo.find(song.id, ratingClass).firstOrNull()?.let { difficulty ->
-                            chart = ChartFactory.fakeChart(song, difficulty)
-                        }
+                        chart = ChartFactory.fakeChart(song, difficulty)
                     }
                     chart
                 }
@@ -80,16 +86,17 @@ fun ArcaeaChartSelector(
         mutableStateOf(chart?.ratingClass)
     }
     val song by rememberArcaeaSong(songRepo = songRepo, songId = selectedSongId)
+    val difficulties by rememberArcaeaDifficulties(difficultyRepo = difficultyRepo, song = song)
     val charts by rememberArcaeaCharts(
-        difficultyRepo = difficultyRepo,
         chartRepo = chartRepo,
         song = song,
+        difficulties = difficulties,
         allowFakeChart = allowFakeChart,
     )
 
     val selectorItems =
-        remember(charts) {
-            charts.toRatingClassSelectorItems()
+        remember(difficulties) {
+            difficulties.toRatingClassSelectorItems()
         }
 
     // Emit the change when either [selectedSongId] or [selectedRatingClass] changes.

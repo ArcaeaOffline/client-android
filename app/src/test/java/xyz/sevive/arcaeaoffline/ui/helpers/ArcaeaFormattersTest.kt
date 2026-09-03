@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.helpers
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 
 class ArcaeaFormattersTest {
     @Test
@@ -122,6 +123,30 @@ class ArcaeaFormattersTest {
         assertEquals(
             "BEYOND 11.8",
             ArcaeaFormatters.ratingText(ArcaeaRatingClass.BEYOND, 11, true, 118),
+        )
+    }
+
+    @Test
+    fun ratingTextAliasTest() {
+        assertEquals(
+            "INSCRIBED 11",
+            ArcaeaFormatters.ratingText(ArcaeaRatingClassDisplay.INSCRIBED, 11, false),
+        )
+
+        assertEquals(
+            "INSCRIBED 11.5",
+            ArcaeaFormatters.ratingText(ArcaeaRatingClassDisplay.INSCRIBED, 11, false, 115),
+        )
+
+        // Unknown (ratingClass, alias) combos must fall back to the default
+        // display form of the rating class, not throw.
+        assertEquals(
+            "BEYOND 12",
+            ArcaeaFormatters.ratingText(
+                ArcaeaRatingClassDisplay.of(ArcaeaRatingClass.BEYOND, alias = 2),
+                12,
+                false,
+            ),
         )
     }
 }
