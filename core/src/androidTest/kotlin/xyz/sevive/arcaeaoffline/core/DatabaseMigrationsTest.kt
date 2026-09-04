@@ -10,13 +10,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_14_15
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseMigrationsTest {
-    private val testDatabaseName = "arcaea-offline"
+    private val testDatabaseName7To8 = "arcaea-offline-7-8"
     private val testDatabaseName14To15 = "arcaea-offline-14-15"
 
     @get:Rule
@@ -32,7 +31,7 @@ class DatabaseMigrationsTest {
         val sqlFilename = "arcaea_offline_0.0.6.db.sql"
 
         var db =
-            helper.createDatabase(testDatabaseName, 7).apply {
+            helper.createDatabase(testDatabaseName7To8, 7).apply {
                 // filling data
                 execSqlScript(this, sqlFilename)
 
@@ -41,7 +40,7 @@ class DatabaseMigrationsTest {
             }
 
         // perform migration
-        db = helper.runMigrationsAndValidate(testDatabaseName, 8, true, Migration_7_8)
+        db = helper.runMigrationsAndValidate(testDatabaseName7To8, 8, true, Migration_7_8)
 
         /**
          * schema passed
@@ -86,7 +85,7 @@ class DatabaseMigrationsTest {
         }
 
         val db =
-            helper.runMigrationsAndValidate(testDatabaseName14To15, 15, true, Migration_14_15)
+            helper.runMigrationsAndValidate(testDatabaseName14To15, 15, true)
 
         // Old rows get a null alias.
         db

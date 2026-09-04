@@ -39,7 +39,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.entities.SongLocalized
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_5_6
 import xyz.sevive.arcaeaoffline.core.database.migrations.AutoMigration_9_10
-import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_14_15
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 
@@ -65,6 +64,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ],
     version = 15,
     exportSchema = true,
@@ -128,7 +128,6 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
                     .addMigrations(
                         Migration_6_7,
                         Migration_7_8,
-                        Migration_14_15,
                     ).build()
                     .also { instance = it }
             }
