@@ -8,8 +8,6 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 data class Difficulty(
     @ColumnInfo(name = "song_id") val songId: String,
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
-    // Raw value from upstream songlist; interpretation is centralized in
-    // ArcaeaRatingClassDisplay.of(). Null means no alias.
     @ColumnInfo(name = "rating_class_alias") val ratingClassAlias: Int? = null,
     val rating: Int,
     @ColumnInfo(name = "rating_plus") val ratingPlus: Boolean,

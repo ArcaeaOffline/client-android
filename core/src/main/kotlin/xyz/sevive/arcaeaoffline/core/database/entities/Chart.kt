@@ -3,9 +3,6 @@ package xyz.sevive.arcaeaoffline.core.database.entities
 import androidx.room.ColumnInfo
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
-// Not a Room entity/view anymore: the `charts` DatabaseView was replaced by
-// explicit join queries in ChartDao, so schema migrations no longer need to
-// recreate a view definition.
 data class Chart(
     @ColumnInfo(name = "song_idx") val songIdx: Int,
     @ColumnInfo(name = "song_id") val songId: String,

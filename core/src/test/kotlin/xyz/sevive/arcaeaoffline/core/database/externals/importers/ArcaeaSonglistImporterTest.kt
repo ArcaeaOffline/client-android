@@ -6,9 +6,6 @@ import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 class ArcaeaSonglistImporterTest {
-    // The fixture mirrors upstream alias entries: ratingClassAlias only appears
-    // alongside ratingClass 3, and ships with the unknown-to-this-app legacy11
-    // key, which must be ignored rather than fail parsing.
     private val fixture =
         javaClass.classLoader!!
             .getResource("songlist_alias_fixture.json")!!

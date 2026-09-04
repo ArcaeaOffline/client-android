@@ -17,17 +17,16 @@
       "difficulties": [
         {
           "ratingClass": 1,
-          "chartDesigner": "Toaster",
+          "chartDesigner": "designer ant",
           "jacketDesigner": "jl",
           "rating": 7
         },
         {
           "ratingClass": 3,
-          "chartDesigner": "Toaster",
+          "chartDesigner": "designer ant",
           "jacketDesigner": "jl",
           "rating": 12,
-          "ratingClassAlias": 1,
-          "legacy11": true
+          "ratingClassAlias": 1
         }
       ]
     }
