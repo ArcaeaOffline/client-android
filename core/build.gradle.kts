@@ -85,6 +85,9 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
     testImplementation(androidx.room.testing)
+    // Host JVM natives for in-memory SQLite in unit tests; the android variant
+    // of androidx.sqlite:sqlite-bundled has none.
+    testImplementation("androidx.sqlite:sqlite-bundled-jvm:${androidx.versions.sqlite.get()}")
     androidTestImplementation(androidx.test.runner)
     androidTestImplementation(androidx.room.testing)
 }

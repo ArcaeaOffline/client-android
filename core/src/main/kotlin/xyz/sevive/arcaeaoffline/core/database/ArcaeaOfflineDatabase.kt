@@ -18,6 +18,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
@@ -91,6 +92,8 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun songLocalizedDao(): SongLocalizedDao
 
     abstract fun difficultyDao(): DifficultyDao
+
+    abstract fun difficultyWithSongDao(): DifficultyWithSongDao
 
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
 

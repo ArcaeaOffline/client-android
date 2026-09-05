@@ -10,6 +10,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
@@ -23,6 +24,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
@@ -78,6 +81,8 @@ internal fun relationshipsDao(db: ArcaeaOfflineDatabase) = db.relationshipsDao()
 
 internal fun r30EntryDao(db: ArcaeaOfflineDatabase) = db.r30EntryDao()
 
+internal fun difficultyWithSongDao(db: ArcaeaOfflineDatabase) = db.difficultyWithSongDao()
+
 internal fun chartDao(db: ArcaeaOfflineDatabase) = db.chartDao()
 
 val coreModule =
@@ -96,6 +101,7 @@ val coreModule =
         single<PlayResultDao> { create(::playResultDao) }
         single<RelationshipsDao> { create(::relationshipsDao) }
         single<R30EntryDao> { create(::r30EntryDao) }
+        single<DifficultyWithSongDao> { create(::difficultyWithSongDao) }
         single<ChartDao> { create(::chartDao) }
 
         single<MetaRepositoryImpl>().bind(MetaRepository::class)
@@ -108,6 +114,7 @@ val coreModule =
         single<DifficultyLocalizedRepositoryImpl>().bind(DifficultyLocalizedRepository::class)
         single<ChartInfoRepositoryImpl>().bind(ChartInfoRepository::class)
         single<ChartRepositoryImpl>().bind(ChartRepository::class)
+        single<DifficultyWithSongRepositoryImpl>().bind(DifficultyWithSongRepository::class)
         single<PlayResultRepositoryImpl>().bind(PlayResultRepository::class)
         single<PlayResultCalculatedRepositoryImpl>().bind(PlayResultCalculatedRepository::class)
         single<PlayResultBestRepositoryImpl>().bind(PlayResultBestRepository::class)
