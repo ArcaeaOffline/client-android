@@ -107,7 +107,7 @@ class DatabaseMigrationsTest {
         // The dropped `charts` view must not linger: a future `CREATE VIEW charts`
         // would fail while the stale definition still exists.
         db
-            .query("SELECT COUNT(*) FROM sqlite_master WHERE type = 'view' AND name = 'charts''")
+            .query("SELECT COUNT(*) FROM sqlite_master WHERE type = 'view' AND name = 'charts'")
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals(0, cursor.getInt(0))
