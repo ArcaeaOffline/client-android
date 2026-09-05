@@ -22,10 +22,10 @@ import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
-import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -101,7 +101,7 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
 
     abstract fun playResultDao(): PlayResultDao
 
-    abstract fun relationshipsDao(): RelationshipsDao
+    abstract fun playResultBestDao(): PlayResultBestDao
 
     abstract fun r30EntryDao(): R30EntryDao
 

@@ -14,10 +14,10 @@ import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
-import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
@@ -77,7 +77,7 @@ internal fun chartInfoDao(db: ArcaeaOfflineDatabase) = db.chartInfoDao()
 
 internal fun playResultDao(db: ArcaeaOfflineDatabase) = db.playResultDao()
 
-internal fun relationshipsDao(db: ArcaeaOfflineDatabase) = db.relationshipsDao()
+internal fun playResultBestDao(db: ArcaeaOfflineDatabase) = db.playResultBestDao()
 
 internal fun r30EntryDao(db: ArcaeaOfflineDatabase) = db.r30EntryDao()
 
@@ -99,7 +99,7 @@ val coreModule =
         single<DifficultyLocalizedDao> { create(::difficultyLocalizedDao) }
         single<ChartInfoDao> { create(::chartInfoDao) }
         single<PlayResultDao> { create(::playResultDao) }
-        single<RelationshipsDao> { create(::relationshipsDao) }
+        single<PlayResultBestDao> { create(::playResultBestDao) }
         single<R30EntryDao> { create(::r30EntryDao) }
         single<DifficultyWithSongDao> { create(::difficultyWithSongDao) }
         single<ChartDao> { create(::chartDao) }

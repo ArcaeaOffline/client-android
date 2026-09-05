@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 
 interface PlayResultBestRepository {
@@ -21,7 +21,7 @@ interface PlayResultBestRepository {
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayResultBestRepositoryImpl(
-    private val relationshipsDao: RelationshipsDao,
+    private val playResultBestDao: PlayResultBestDao,
     private val playResultCalculatedRepo: PlayResultCalculatedRepository,
 ) : PlayResultBestRepository {
     override fun find(
@@ -35,7 +35,7 @@ class PlayResultBestRepositoryImpl(
             }
 
     override fun orderDescWithLimit(limit: Int): Flow<List<PlayResultCalculated>> =
-        relationshipsDao.minimumPlayResultPotentialFields().flatMapLatest { originalList ->
+        playResultBestDao.minimumPlayResultPotentialFields().flatMapLatest { originalList ->
             val topUuids =
                 originalList
                     .groupBy { it.songId to it.ratingClass }

@@ -7,8 +7,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 
 // Display columns shared by every query returning [Chart]-shaped rows; keep
-// in sync with Chart's fields. RelationshipsDao reuses this fragment with its
-// own identity columns, since pr.* shadows song_id/rating_class/date.
+// in sync with Chart's fields.
 internal const val CHART_DISPLAY_COLUMNS =
     """
     COALESCE(d.title, s.title) AS title, COALESCE(d.artist, s.artist) AS artist,
