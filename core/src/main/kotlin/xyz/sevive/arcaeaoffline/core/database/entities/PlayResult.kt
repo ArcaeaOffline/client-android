@@ -40,5 +40,3 @@ data class PlayResult(
 fun PlayResult.playRating(constant: Int): Double = calculatePlayRating(this.score, constant)
 
 fun PlayResult.playRating(chartInfo: ChartInfo) = playRating(chartInfo.constant)
-
-fun PlayResult.playRating(chart: Chart) = playRating(chart.constant)

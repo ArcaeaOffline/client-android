@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.helpers
 
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
@@ -31,25 +30,5 @@ object ArcaeaPlayResultValidator {
         }
 
         return warnings.toList()
-    }
-
-    fun validate(
-        playResult: PlayResult,
-        chart: Chart?,
-    ): List<ArcaeaPlayResultValidatorWarning> {
-        if (chart == null) {
-            return validate(playResult = playResult, chartInfo = null)
-        }
-
-        return validate(
-            playResult = playResult,
-            chartInfo =
-                ChartInfo(
-                    songId = chart.songId,
-                    ratingClass = chart.ratingClass,
-                    constant = chart.constant,
-                    notes = chart.notes,
-                ),
-        )
     }
 }

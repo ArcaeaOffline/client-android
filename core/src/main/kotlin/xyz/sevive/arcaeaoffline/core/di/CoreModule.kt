@@ -6,7 +6,6 @@ import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
 import org.koin.plugin.module.dsl.single
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
@@ -22,8 +21,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
@@ -81,8 +78,6 @@ internal fun r30EntryDao(db: ArcaeaOfflineDatabase) = db.r30EntryDao()
 
 internal fun difficultyWithSongDao(db: ArcaeaOfflineDatabase) = db.difficultyWithSongDao()
 
-internal fun chartDao(db: ArcaeaOfflineDatabase) = db.chartDao()
-
 val coreModule =
     module {
         single<ArcaeaOfflineDatabase> { create(::createArcaeaOfflineDatabase) }
@@ -100,7 +95,6 @@ val coreModule =
         single<PlayResultBestDao> { create(::playResultBestDao) }
         single<R30EntryDao> { create(::r30EntryDao) }
         single<DifficultyWithSongDao> { create(::difficultyWithSongDao) }
-        single<ChartDao> { create(::chartDao) }
 
         single<MetaRepositoryImpl>().bind(MetaRepository::class)
         single<PropertyRepositoryImpl>().bind(PropertyRepository::class)
@@ -111,7 +105,6 @@ val coreModule =
         single<DifficultyRepositoryImpl>().bind(DifficultyRepository::class)
         single<DifficultyLocalizedRepositoryImpl>().bind(DifficultyLocalizedRepository::class)
         single<ChartInfoRepositoryImpl>().bind(ChartInfoRepository::class)
-        single<ChartRepositoryImpl>().bind(ChartRepository::class)
         single<DifficultyWithSongRepositoryImpl>().bind(DifficultyWithSongRepository::class)
         single<PlayResultRepositoryImpl>().bind(PlayResultRepository::class)
         single<PlayResultCalculatedRepositoryImpl>().bind(PlayResultCalculatedRepository::class)

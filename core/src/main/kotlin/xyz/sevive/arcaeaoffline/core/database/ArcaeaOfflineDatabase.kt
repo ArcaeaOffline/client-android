@@ -14,7 +14,6 @@ import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifie
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaRatingClassConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.UuidByteArrayConverters
-import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
@@ -104,8 +103,6 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
     abstract fun playResultBestDao(): PlayResultBestDao
 
     abstract fun r30EntryDao(): R30EntryDao
-
-    abstract fun chartDao(): ChartDao
 
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"
