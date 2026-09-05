@@ -27,7 +27,6 @@ import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
@@ -56,7 +55,6 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         PlayResult::class,
         R30Entry::class,
     ],
-    views = [Chart::class],
     autoMigrations = [
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = AutoMigration_5_6::class),
@@ -66,8 +64,9 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
 )
 @TypeConverters(

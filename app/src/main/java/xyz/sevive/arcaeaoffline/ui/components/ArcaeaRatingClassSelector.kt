@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.em
 import com.materialkolor.hct.Hct
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
@@ -58,10 +58,10 @@ data class RatingClassSelectorItem(
     val ratingPlus: Boolean = false,
 )
 
-fun List<Chart>.toRatingClassSelectorItems(): List<RatingClassSelectorItem> =
+fun List<Difficulty>.toRatingClassSelectorItems(): List<RatingClassSelectorItem> =
     map {
         RatingClassSelectorItem(
-            display = ArcaeaRatingClassDisplay.of(it.ratingClass),
+            display = ArcaeaRatingClassDisplay.of(it.ratingClass, it.ratingClassAlias),
             rating = it.rating,
             ratingPlus = it.ratingPlus,
         )

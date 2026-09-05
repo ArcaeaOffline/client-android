@@ -9,6 +9,7 @@ import com.ionspin.kotlin.bignum.decimal.DecimalMode
 import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 
@@ -96,12 +97,12 @@ object ArcaeaFormatters {
     }
 
     internal fun ratingText(
-        ratingClass: ArcaeaRatingClass,
+        ratingClassDisplay: ArcaeaRatingClassDisplay,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int = 0,
     ) = buildString {
-        append(ratingClass.toString())
+        append(ratingClassDisplay.name)
         append(' ')
 
         if (constant > 0) {
@@ -114,18 +115,31 @@ object ArcaeaFormatters {
         }
     }
 
+    internal fun ratingText(
+        ratingClass: ArcaeaRatingClass,
+        rating: Int,
+        ratingPlus: Boolean,
+        constant: Int = 0,
+    ) = ratingText(
+        ArcaeaRatingClassDisplay.of(ratingClass),
+        rating,
+        ratingPlus,
+        constant,
+    )
+
     /**
      * Returns the readable rating text for the given difficulty.
      *
      * For example:
      * * `Difficulty(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
      * * `Difficulty(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
+     * * `Difficulty(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
      */
     fun ratingText(difficulty: Difficulty): String =
         ratingText(
-            ratingClass = difficulty.ratingClass,
-            rating = difficulty.rating,
-            ratingPlus = difficulty.ratingPlus,
+            ArcaeaRatingClassDisplay.of(difficulty.ratingClass, difficulty.ratingClassAlias),
+            difficulty.rating,
+            difficulty.ratingPlus,
         )
 
     /**
@@ -139,12 +153,13 @@ object ArcaeaFormatters {
      * * `Chart(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
      * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
      * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=0)` > "FUTURE 10+"
+     * * `Chart(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
      */
     fun ratingText(chart: Chart): String =
         ratingText(
-            ratingClass = chart.ratingClass,
-            rating = chart.rating,
-            ratingPlus = chart.ratingPlus,
+            ArcaeaRatingClassDisplay.of(chart.ratingClass, chart.ratingClassAlias),
+            chart.rating,
+            chart.ratingPlus,
             constant = chart.constant,
         )
 }

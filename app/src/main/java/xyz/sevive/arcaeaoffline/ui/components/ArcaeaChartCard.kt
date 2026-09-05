@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -92,7 +93,10 @@ fun ArcaeaChartCard(
                     Text(
                         text = ArcaeaFormatters.ratingText(it),
                         modifier = Modifier.fillMaxWidth(),
-                        color = ratingClassColor(it.ratingClass),
+                        color =
+                            ratingClassColor(
+                                ArcaeaRatingClassDisplay.of(it.ratingClass, it.ratingClassAlias),
+                            ),
                     )
                 }
             }

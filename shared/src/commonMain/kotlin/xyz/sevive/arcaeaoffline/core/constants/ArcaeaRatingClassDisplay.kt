@@ -13,11 +13,16 @@ enum class ArcaeaRatingClassDisplay(
     ;
 
     companion object {
+        fun ofOrNull(
+            ratingClass: ArcaeaRatingClass,
+            alias: Int? = null,
+        ): ArcaeaRatingClassDisplay? = entries.find { it.ratingClass == ratingClass && it.alias == alias }
+
         fun of(
             ratingClass: ArcaeaRatingClass,
             alias: Int? = null,
         ): ArcaeaRatingClassDisplay =
-            entries.find { it.ratingClass == ratingClass && it.alias == alias }
+            ofOrNull(ratingClass, alias)
                 ?: entries.first { it.ratingClass == ratingClass && it.alias == null }
     }
 }

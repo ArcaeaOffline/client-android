@@ -27,6 +27,7 @@ import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPackAndSongQuickSearch
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaRatingClassSelector
@@ -39,6 +40,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
 fun UtilitiesCalculatorScreen(
     modifier: Modifier = Modifier,
     chartRepo: ChartRepository = koinInject(),
+    difficultyRepo: DifficultyRepository = koinInject(),
 ) {
     var constant by remember { mutableIntStateOf(0) }
     var selectedSongId by remember { mutableStateOf<String?>(null) }
@@ -48,9 +50,14 @@ fun UtilitiesCalculatorScreen(
             value = chartRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
         }
     }
+    val difficulties by produceState(initialValue = listOf(), selectedSongId) {
+        selectedSongId?.let {
+            value = difficultyRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
+        }
+    }
     val selectorItems =
-        remember(charts) {
-            charts.toRatingClassSelectorItems()
+        remember(difficulties) {
+            difficulties.toRatingClassSelectorItems()
         }
 
     LaunchedEffect(selectedRatingClass, charts) {

@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import kotlinx.serialization.json.Json
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaLanguage
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyLocalized
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
@@ -91,10 +92,24 @@ class ArcaeaSonglistImporter(
                     continue
                 }
 
+                if (difficulty.ratingClassAlias != null &&
+                    ArcaeaRatingClassDisplay.ofOrNull(
+                        ArcaeaRatingClass.fromInt(difficulty.ratingClass),
+                        difficulty.ratingClassAlias,
+                    ) == null
+                ) {
+                    logger.w {
+                        "Unknown ratingClassAlias ${difficulty.ratingClassAlias} " +
+                            "for ${song.id}.${difficulty.ratingClass}; " +
+                            "display falls back to the default form"
+                    }
+                }
+
                 items.add(
                     Difficulty(
                         songId = song.id,
                         ratingClass = ArcaeaRatingClass.fromInt(difficulty.ratingClass),
+                        ratingClassAlias = difficulty.ratingClassAlias,
                         rating = difficulty.rating,
                         ratingPlus = difficulty.ratingPlus ?: false,
                         chartDesigner = difficulty.chartDesigner,

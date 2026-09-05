@@ -13,6 +13,7 @@ object ChartFactory {
             songIdx = song.idx,
             songId = song.id,
             ratingClass = difficulty.ratingClass,
+            ratingClassAlias = difficulty.ratingClassAlias,
             rating = difficulty.rating,
             ratingPlus = difficulty.ratingPlus,
             title = difficulty.title ?: song.title,
