@@ -84,6 +84,7 @@ data class ArcaeaSonglistBgDayNightItem(
 @Serializable
 data class ArcaeaSonglistDifficultyItem(
     val ratingClass: Int,
+    val ratingClassAlias: Int? = null,
     val chartDesigner: String,
     val jacketDesigner: String,
     val rating: Int,
