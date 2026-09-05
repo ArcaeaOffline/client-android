@@ -54,7 +54,8 @@ import org.koin.androidx.compose.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculateInvertScoreRange
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
@@ -124,10 +125,10 @@ data class PlayRatingCalculatorDialogState(
     val constant: Int = 0,
     val initialScore: Int = 0,
 ) {
-    constructor(chart: Chart, initialScore: Int) : this(
-        songTitle = chart.title,
-        songArtist = chart.artist,
-        constant = chart.constant,
+    constructor(item: DifficultyWithSongAndInfo, initialScore: Int) : this(
+        songTitle = item.difficultyWithSong.title,
+        songArtist = item.difficultyWithSong.artist,
+        constant = item.constant,
         initialScore = initialScore,
     )
 }
@@ -173,14 +174,14 @@ private fun PlayRatingCalculatorDialog(
 }
 
 data class ResultsListItemState(
-    val chart: Chart,
+    val item: DifficultyWithSongAndInfo,
     val scoreRange: IntRange,
     val targetPlayRating: Double,
 ) {
     val targetScoreRange by lazy {
         calculateInvertScoreRange(
             targetPlayRating = targetPlayRating,
-            constant = chart.constant,
+            constant = item.constant,
             tolerance = 1e-6,
         )
     }
@@ -194,7 +195,7 @@ data class ResultsListItemState(
     }
 
     val actualPlayRating by lazy {
-        calculatePlayRating(score, chart.constant)
+        calculatePlayRating(score, item.constant)
     }
 }
 
@@ -206,8 +207,15 @@ private fun ResultsListItem(
 ) {
     OutlinedCard(modifier) {
         ArcaeaChartCard(
-            chart = state.chart,
+            state.item.difficultyWithSong,
             shape = ShapeDefaults.Medium.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
+            chartInfo =
+                ChartInfo(
+                    state.item.difficultyWithSong.songId,
+                    state.item.difficultyWithSong.ratingClass,
+                    state.item.constant,
+                    state.item.notes,
+                ),
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -374,13 +382,13 @@ fun UtilitiesChartRecommendScreen(
                         EmptyScreen(Modifier.fillMaxSize())
                     }
                 } else {
-                    items(uiState.charts, { it.songId + it.ratingClass.name }) { chart ->
-                        val state = ResultsListItemState(chart, scoreRange, targetPlayRating)
+                    items(uiState.charts, { it.difficultyWithSong.songId + it.difficultyWithSong.ratingClass.name }) { item ->
+                        val state = ResultsListItemState(item, scoreRange, targetPlayRating)
 
                         ResultsListItem(
                             state = state,
                             onOpenCalculator = {
-                                calculatorDialogState = PlayRatingCalculatorDialogState(state.chart, state.score)
+                                calculatorDialogState = PlayRatingCalculatorDialogState(item, state.score)
                                 showCalculatorDialog = true
                             },
                             Modifier.animateItem(),

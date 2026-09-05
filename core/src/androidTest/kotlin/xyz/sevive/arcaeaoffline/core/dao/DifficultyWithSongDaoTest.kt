@@ -28,10 +28,11 @@ class DifficultyWithSongDaoTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room
-            .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
+        db =
+            Room
+                .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
         dao = db.difficultyWithSongDao()
     }
 
@@ -104,78 +105,83 @@ class DifficultyWithSongDaoTest {
     }
 
     @Test
-    fun findReturnsAliasAndSongMetadataFallback() = runBlocking {
-        seed()
+    fun findReturnsAliasAndSongMetadataFallback() =
+        runBlocking {
+            seed()
 
-        val result = dao.find("songa", ArcaeaRatingClass.BEYOND).first()
+            val result = dao.find("songa", ArcaeaRatingClass.BEYOND).first()
 
-        assertEquals(
-            DifficultyWithSong(
-                songId = "songa",
-                ratingClass = ArcaeaRatingClass.BEYOND,
-                ratingClassAlias = 1,
-                rating = 90,
-                ratingPlus = false,
-                // Difficulty title/artist are null: falls back to song metadata.
-                title = "A (in-game)",
-                artist = "Artist A",
-            ),
-            result,
-        )
-    }
-
-    @Test
-    fun findReturnsDifficultyOverridesOverSongMetadata() = runBlocking {
-        seed()
-
-        val result = dao.find("songa", ArcaeaRatingClass.FUTURE).first()
-
-        assertEquals("A (custom)", result?.title)
-        assertEquals("Custom Artist", result?.artist)
-    }
+            assertEquals(
+                DifficultyWithSong(
+                    songId = "songa",
+                    ratingClass = ArcaeaRatingClass.BEYOND,
+                    ratingClassAlias = 1,
+                    rating = 90,
+                    ratingPlus = false,
+                    // Difficulty title/artist are null: falls back to song metadata.
+                    title = "A (in-game)",
+                    artist = "Artist A",
+                ),
+                result,
+            )
+        }
 
     @Test
-    fun findReturnsNullForMissingPair() = runBlocking {
-        seed()
+    fun findReturnsDifficultyOverridesOverSongMetadata() =
+        runBlocking {
+            seed()
 
-        assertNull(dao.find("songa", ArcaeaRatingClass.ETERNAL).first())
-    }
+            val result = dao.find("songa", ArcaeaRatingClass.FUTURE).first()
 
-    @Test
-    fun findAllBySongIdsReturnsAllRowsForQueriedSongs() = runBlocking {
-        seed()
-
-        val result = dao.findAllBySongIds(listOf("songa", "songb")).first()
-
-        assertEquals(4, result.size)
-        assertEquals(
-            setOf(
-                "songa" to ArcaeaRatingClass.FUTURE,
-                "songa" to ArcaeaRatingClass.BEYOND,
-                "songb" to ArcaeaRatingClass.PAST,
-                "songb" to ArcaeaRatingClass.FUTURE,
-            ),
-            result.map { it.songId to it.ratingClass }.toSet(),
-        )
-    }
+            assertEquals("A (custom)", result?.title)
+            assertEquals("Custom Artist", result?.artist)
+        }
 
     @Test
-    fun findAllWithInfoJoinsChartInfoOrderedByConstant() = runBlocking {
-        seed()
+    fun findReturnsNullForMissingPair() =
+        runBlocking {
+            seed()
 
-        val result = dao.findAllWithInfo().first()
+            assertNull(dao.find("songa", ArcaeaRatingClass.ETERNAL).first())
+        }
 
-        // The chart-info-less difficulty is excluded by the INNER JOIN.
-        assertEquals(
-            listOf(
-                "songb" to ArcaeaRatingClass.PAST,
-                "songa" to ArcaeaRatingClass.FUTURE,
-                "songa" to ArcaeaRatingClass.BEYOND,
-            ),
-            result.map { it.difficultyWithSong.songId to it.difficultyWithSong.ratingClass },
-        )
-        assertEquals(listOf(410, 960, 1080), result.map { it.constant })
-        // Null notes survive the join.
-        assertNull(result.last().notes)
-    }
+    @Test
+    fun findAllBySongIdsReturnsAllRowsForQueriedSongs() =
+        runBlocking {
+            seed()
+
+            val result = dao.findAllBySongIds(listOf("songa", "songb")).first()
+
+            assertEquals(4, result.size)
+            assertEquals(
+                setOf(
+                    "songa" to ArcaeaRatingClass.FUTURE,
+                    "songa" to ArcaeaRatingClass.BEYOND,
+                    "songb" to ArcaeaRatingClass.PAST,
+                    "songb" to ArcaeaRatingClass.FUTURE,
+                ),
+                result.map { it.songId to it.ratingClass }.toSet(),
+            )
+        }
+
+    @Test
+    fun findAllWithInfoJoinsChartInfoOrderedByConstant() =
+        runBlocking {
+            seed()
+
+            val result = dao.findAllWithInfo().first()
+
+            // The chart-info-less difficulty is excluded by the INNER JOIN.
+            assertEquals(
+                listOf(
+                    "songb" to ArcaeaRatingClass.PAST,
+                    "songa" to ArcaeaRatingClass.FUTURE,
+                    "songa" to ArcaeaRatingClass.BEYOND,
+                ),
+                result.map { it.difficultyWithSong.songId to it.difficultyWithSong.ratingClass },
+            )
+            assertEquals(listOf(410, 960, 1080), result.map { it.constant })
+            // Null notes survive the join.
+            assertNull(result.last().notes)
+        }
 }

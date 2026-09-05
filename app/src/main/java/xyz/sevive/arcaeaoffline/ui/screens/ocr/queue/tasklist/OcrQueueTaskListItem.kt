@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
@@ -22,7 +22,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 internal fun OcrQueueTaskListItem(
     uiItem: OcrQueueScreenViewModel.TaskUiItem,
     onDelete: () -> Unit,
-    onEditChart: (Chart) -> Unit,
+    onEditChart: (Difficulty) -> Unit,
     onEditPlayResult: (PlayResult) -> Unit,
     onSaveTask: () -> Unit,
 ) {
@@ -34,13 +34,15 @@ internal fun OcrQueueTaskListItem(
         )
     }
 
-    val chart = uiItem.chart
     var showChartEditor by rememberSaveable { mutableStateOf(false) }
     if (showChartEditor) {
         BasicAlertDialogSurface(onDismissRequest = { showChartEditor = false }) {
+            // The selector only reads the identity fields of the current
+            // selection; the emit is a full Difficulty from the songlist.
             ArcaeaChartSelector(
-                chart = chart,
-                onChartChange = { it?.let(onEditChart) },
+                songId = uiItem.dbItem.playResult?.songId,
+                ratingClass = uiItem.dbItem.playResult?.ratingClass,
+                onDifficultyChange = onEditChart,
             )
         }
     }

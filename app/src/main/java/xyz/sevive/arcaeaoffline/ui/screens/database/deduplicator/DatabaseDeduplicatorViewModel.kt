@@ -15,21 +15,18 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
 class DatabaseDeduplicatorViewModel(
     private val playResultRepo: PlayResultRepository,
-    private val songRepo: SongRepository,
-    private val difficultyRepo: DifficultyRepository,
-    private val chartRepo: ChartRepository,
+    private val difficultyWithSongRepo: DifficultyWithSongRepository,
+    private val chartInfoRepo: ChartInfoRepository,
 ) : ViewModel() {
     // #region Raw grouped play results
     internal val groupByValues = MutableStateFlow(setOf(GroupByValue.SCORE))
@@ -188,7 +185,7 @@ class DatabaseDeduplicatorViewModel(
     data class GroupListUiItem(
         val index: Int,
         val key: String,
-        val chart: Chart?,
+        val display: UiDisplayChartCacheHolder.Entry?,
         val playResults: List<PlayResult>,
     )
 
@@ -205,7 +202,11 @@ class DatabaseDeduplicatorViewModel(
             groupListUiItemLoading.value = true
 
             val chartCacheHolder = UiDisplayChartCacheHolder()
-            chartCacheHolder.updateCache(groups.values.flatten(), songRepo, difficultyRepo, chartRepo)
+            chartCacheHolder.updateCache(
+                groups.values.flatten().map { it.songId to it.ratingClass },
+                difficultyWithSongRepo,
+                chartInfoRepo,
+            )
 
             emit(
                 groups.entries.mapIndexed { i, entry ->
@@ -214,7 +215,7 @@ class DatabaseDeduplicatorViewModel(
                     GroupListUiItem(
                         index = i,
                         key = entry.key,
-                        chart = playResult?.let { chartCacheHolder.get(it) },
+                        display = playResult?.let { chartCacheHolder.get(it) },
                         playResults = entry.value,
                     )
                 },

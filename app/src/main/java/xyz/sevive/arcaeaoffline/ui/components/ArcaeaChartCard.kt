@@ -36,15 +36,19 @@ import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
 @Composable
 fun ArcaeaChartCard(
-    chart: Chart,
+    difficultyWithSong: DifficultyWithSong,
     modifier: Modifier = Modifier,
+    // Null chart info degrades the level text to the "10+" form (songlist
+    // leading the external chart info database is the normal case).
+    chartInfo: ChartInfo? = null,
     shape: Shape = CardDefaults.shape,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -71,14 +75,14 @@ fun ArcaeaChartCard(
             )
 
             Column(Modifier.weight(1f)) {
-                Text(chart.title, style = MaterialTheme.typography.titleMedium)
+                Text(difficultyWithSong.title, style = MaterialTheme.typography.titleMedium)
 
                 AnimatedVisibility(visible = expanded) {
-                    Text(chart.artist)
+                    Text(difficultyWithSong.artist)
                 }
 
                 AnimatedContent(
-                    targetState = chart,
+                    targetState = difficultyWithSong,
                     transitionSpec = {
                         if (targetState.ratingClass > initialState.ratingClass) {
                             slideInVertically { height -> height } togetherWith
@@ -91,7 +95,7 @@ fun ArcaeaChartCard(
                     label = "ratingClassFlipping",
                 ) {
                     Text(
-                        text = ArcaeaFormatters.ratingText(it),
+                        text = ArcaeaFormatters.ratingText(it, chartInfo?.constant ?: 0),
                         modifier = Modifier.fillMaxWidth(),
                         color =
                             ratingClassColor(
@@ -114,42 +118,34 @@ fun ArcaeaChartCard(
 @Preview
 @Composable
 private fun ArcaeaChartCardPreview() {
-    val chart =
-        Chart(
-            songIdx = 1,
+    val difficulty =
+        DifficultyWithSong(
             songId = "example",
             ratingClass = ArcaeaRatingClass.FUTURE,
             rating = 10,
             ratingPlus = true,
             title = "Example",
             artist = "Artist",
-            set = "example",
-            side = 1,
-            audioOverride = false,
-            jacketOverride = false,
-            constant = 109,
         )
 
-    val chartLongTitle =
-        Chart(
-            songIdx = 2,
+    val difficultyLongTitle =
+        DifficultyWithSong(
             songId = "verylong",
             ratingClass = ArcaeaRatingClass.FUTURE,
             rating = 10,
             ratingPlus = true,
             title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",
             artist = "Example VS Case VS Lorem VS Ipsum VS dolor VS sit VS amet feat. Preview",
-            set = "example",
-            side = 1,
-            audioOverride = false,
-            jacketOverride = false,
-            constant = 109,
         )
 
     ArcaeaOfflineTheme {
         Column {
-            ArcaeaChartCard(chart = chart, Modifier.fillMaxWidth())
-            ArcaeaChartCard(chart = chartLongTitle, Modifier.fillMaxWidth())
+            ArcaeaChartCard(
+                difficulty,
+                Modifier.fillMaxWidth(),
+                chartInfo = ChartInfo("example", ArcaeaRatingClass.FUTURE, constant = 109, notes = null),
+            )
+            ArcaeaChartCard(difficultyLongTitle, Modifier.fillMaxWidth())
         }
     }
 }

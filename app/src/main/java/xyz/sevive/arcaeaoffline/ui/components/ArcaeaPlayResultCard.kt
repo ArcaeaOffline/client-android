@@ -55,7 +55,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
@@ -303,10 +304,11 @@ fun ArcaeaPlayResultCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
-    chart: Chart?,
+    difficultyWithSong: DifficultyWithSong?,
+    chartInfo: ChartInfo? = null,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
-    if (chart == null) {
+    if (difficultyWithSong == null) {
         ArcaeaPlayResultCard(
             playResult = playResult,
             modifier = modifier,
@@ -328,7 +330,11 @@ fun ArcaeaPlayResultCard(
         }
 
     Column(modifier) {
-        ArcaeaChartCard(chart = chart, shape = upperCardShape)
+        ArcaeaChartCard(
+            difficultyWithSong,
+            shape = upperCardShape,
+            chartInfo = chartInfo,
+        )
         HorizontalDivider(
             thickness = 1.dp,
             color = CardDefaults.cardColors().containerColor.copy(alpha = 0.5f),
@@ -344,53 +350,32 @@ fun ArcaeaPlayResultCard(
 }
 
 @Composable
-private fun previewCharts(): Array<Chart> {
-    fun chart(
+private fun previewDifficulties(): List<Pair<DifficultyWithSong, ChartInfo>> {
+    fun difficulty(
         ratingClass: ArcaeaRatingClass,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int,
-    ): Chart =
-        Chart(
-            songIdx = 75,
+    ) = DifficultyWithSong(
+        songId = "test",
+        ratingClass = ratingClass,
+        rating = rating,
+        ratingPlus = ratingPlus,
+        title = "TestTitle",
+        artist = "TestArtist",
+    ) to
+        ChartInfo(
             songId = "test",
-            title = "TestTitle",
-            artist = "TestArtist",
-            set = "test",
-            side = 0,
-            audioOverride = false,
-            jacketOverride = false,
             ratingClass = ratingClass,
-            rating = rating,
-            ratingPlus = ratingPlus,
             constant = constant,
+            notes = null,
         )
 
-    return arrayOf(
-        chart(
-            ratingClass = ArcaeaRatingClass.PAST,
-            rating = 2,
-            ratingPlus = false,
-            constant = 20,
-        ),
-        chart(
-            ratingClass = ArcaeaRatingClass.PRESENT,
-            rating = 6,
-            ratingPlus = false,
-            constant = 65,
-        ),
-        chart(
-            ratingClass = ArcaeaRatingClass.FUTURE,
-            rating = 9,
-            ratingPlus = true,
-            constant = 96,
-        ),
-        chart(
-            ratingClass = ArcaeaRatingClass.BEYOND,
-            rating = 12,
-            ratingPlus = false,
-            constant = 120,
-        ),
+    return listOf(
+        difficulty(ArcaeaRatingClass.PAST, 2, false, 20),
+        difficulty(ArcaeaRatingClass.PRESENT, 6, false, 65),
+        difficulty(ArcaeaRatingClass.FUTURE, 9, true, 96),
+        difficulty(ArcaeaRatingClass.BEYOND, 12, false, 120),
     )
 }
 
@@ -458,15 +443,18 @@ private fun previewPlayResults(): Array<PlayResult> {
 @PreviewLightDark
 @Composable
 private fun PlayResultCardPreview() {
-    val charts = previewCharts()
+    val difficulties = previewDifficulties()
     val playResults = previewPlayResults()
 
     ArcaeaOfflineTheme {
         Column {
             repeat(4) { i ->
+                val (difficulty, chartInfo) = difficulties[i]
+
                 ArcaeaPlayResultCard(
                     playResult = playResults[i],
-                    chart = if (i >= 1) charts[i] else null,
+                    difficultyWithSong = if (i >= 1) difficulty else null,
+                    chartInfo = if (i >= 1) chartInfo else null,
                     modifier = Modifier.padding(bottom = 4.dp),
                 )
             }

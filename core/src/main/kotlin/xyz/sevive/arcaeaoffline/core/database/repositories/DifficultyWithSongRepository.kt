@@ -15,11 +15,9 @@ interface DifficultyWithSongRepository {
         ratingClass: ArcaeaRatingClass,
     ): Flow<DifficultyWithSong?>
 
-    fun find(playResult: PlayResult): Flow<DifficultyWithSong?> =
-        find(playResult.songId, playResult.ratingClass)
+    fun find(playResult: PlayResult): Flow<DifficultyWithSong?> = find(playResult.songId, playResult.ratingClass)
 
-    fun find(difficulty: Difficulty): Flow<DifficultyWithSong?> =
-        find(difficulty.songId, difficulty.ratingClass)
+    fun find(difficulty: Difficulty): Flow<DifficultyWithSong?> = find(difficulty.songId, difficulty.ratingClass)
 
     fun findAllBySongId(songId: String): Flow<List<DifficultyWithSong>>
 
@@ -38,11 +36,9 @@ class DifficultyWithSongRepositoryImpl(
         ratingClass: ArcaeaRatingClass,
     ): Flow<DifficultyWithSong?> = dao.find(songId, ratingClass)
 
-    override fun findAllBySongId(songId: String): Flow<List<DifficultyWithSong>> =
-        dao.findAllBySongId(songId)
+    override fun findAllBySongId(songId: String): Flow<List<DifficultyWithSong>> = dao.findAllBySongId(songId)
 
-    override fun findAllBySongIds(songIds: List<String>): Flow<List<DifficultyWithSong>> =
-        dao.findAllBySongIds(songIds)
+    override fun findAllBySongIds(songIds: List<String>): Flow<List<DifficultyWithSong>> = dao.findAllBySongIds(songIds)
 
     override fun findAllWithInfo(): Flow<List<DifficultyWithSongAndInfo>> = dao.findAllWithInfo()
 }

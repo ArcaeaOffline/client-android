@@ -80,9 +80,12 @@ internal fun DatabaseDeduplicatorGroupListItem(
             }
         }
 
-        AnimatedVisibility(visible = item.chart != null) {
-            item.chart?.let {
-                ArcaeaChartCard(it)
+        AnimatedVisibility(visible = item.display != null) {
+            item.display?.let {
+                ArcaeaChartCard(
+                    it.difficultyWithSong,
+                    chartInfo = it.chartInfo,
+                )
             }
         }
 
@@ -90,8 +93,8 @@ internal fun DatabaseDeduplicatorGroupListItem(
             val selected = selectedUuids.contains(it.uuid)
             val onSelect = { onPlayResultSelectedChange(it.uuid, !selected) }
             val warnings =
-                remember(it, item.chart) {
-                    ArcaeaPlayResultValidator.validate(it, item.chart)
+                remember(it, item.display) {
+                    ArcaeaPlayResultValidator.validate(it, item.display?.chartInfo)
                 }
 
             Row(

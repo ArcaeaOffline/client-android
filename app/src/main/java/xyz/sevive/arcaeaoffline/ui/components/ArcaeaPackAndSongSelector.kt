@@ -19,7 +19,6 @@ import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 
@@ -34,22 +33,11 @@ private fun rememberArcaeaPacks(packRepo: PackRepository): State<List<Pack>> =
 @Composable
 private fun rememberArcaeaSongs(
     songRepo: SongRepository,
-    chartInfoRepo: ChartInfoRepository,
     packId: String?,
-    chartOnly: Boolean = false,
 ): State<List<Song>> =
-    produceState(initialValue = emptyList(), packId, chartOnly) {
+    produceState(initialValue = emptyList(), packId) {
         if (packId != null) {
-            songRepo.findBySet(packId).collect { songs ->
-                value =
-                    if (!chartOnly) {
-                        songs
-                    } else {
-                        songs.filter { song ->
-                            !chartInfoRepo.findAllBySongId(song.id).firstOrNull().isNullOrEmpty()
-                        }
-                    }
-            }
+            songRepo.findBySet(packId).collect { value = it }
         } else {
             emptyList<Song>()
         }
@@ -60,20 +48,16 @@ fun ArcaeaPackAndSongSelector(
     song: Song?,
     onSongChanged: (Song?) -> Unit,
     modifier: Modifier = Modifier,
-    chartOnly: Boolean = false,
 ) {
     val packRepo = koinInject<PackRepository>()
     val songRepo = koinInject<SongRepository>()
-    val chartInfoRepo = koinInject<ChartInfoRepository>()
 
     val packs by rememberArcaeaPacks(packRepo = packRepo)
     var selectedPackIndex by rememberSaveable { mutableIntStateOf(-1) }
 
     val songs by rememberArcaeaSongs(
         songRepo = songRepo,
-        chartInfoRepo = chartInfoRepo,
         packId = packs.getOrNull(selectedPackIndex)?.id,
-        chartOnly = chartOnly,
     )
     var selectedSongIndex by rememberSaveable { mutableIntStateOf(-1) }
 

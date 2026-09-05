@@ -10,8 +10,8 @@ import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 
 object ArcaeaFormatters {
     /**
@@ -55,46 +55,6 @@ object ArcaeaFormatters {
             score >= 8_600_000 -> "C"
             else -> "D"
         }
-
-    /**
-     * Format the given constant to a "rating class text".
-     * For example, 70 to "7", 109 to "10+".
-     *
-     * If the constant is null, return "?" instead.
-     */
-    internal fun constantToRatingClassText(constant: Int?): String {
-        if (constant == null) return "?"
-
-        val base = constant / 10
-        val remainder = constant % 10
-
-        return buildString {
-            append(base)
-            if (base >= 7 && remainder >= 7) append('+')
-        }
-    }
-
-    /**
-     * Wrapper of [constantToRatingClassText] that returns [AnnotatedString] instead.
-     *
-     * If the formatted rating class text does not contain "+", return the original text.
-     * Otherwise, return an annotated string like `10<small>+</small>`.
-     *
-     * @see constantToRatingClassText
-     */
-    fun constantToRatingClassAnnotatedString(constant: Int?): AnnotatedString {
-        val text = constantToRatingClassText(constant)
-
-        if (!text.contains("+")) return AnnotatedString(text)
-
-        return buildAnnotatedString {
-            append(text.substringBefore("+"))
-
-            withStyle(SpanStyle(fontSize = 0.7.em)) {
-                append('+')
-            }
-        }
-    }
 
     internal fun ratingText(
         ratingClassDisplay: ArcaeaRatingClassDisplay,
@@ -143,23 +103,24 @@ object ArcaeaFormatters {
         )
 
     /**
-     * Returns the readable rating text for the given chart.
+     * Returns the readable rating text for the given difficulty.
      *
      * If the `constant` is not null, return it.
      * Otherwise, return the `rating` and `ratingPlus` fields.
      *
      * For example:
-     * * `Chart(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
-     * * `Chart(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
-     * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
-     * * `Chart(ratingClass=2, rating=10, ratingPlus=true, constant=0)` > "FUTURE 10+"
-     * * `Chart(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
+     * * `DifficultyWithSong(ratingClass=2, rating=2, ratingPlus=false, constant=0)` > "FUTURE 2"
+     * * `DifficultyWithSong(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
+     * * `DifficultyWithSong(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
      */
-    fun ratingText(chart: Chart): String =
+    fun ratingText(
+        difficultyWithSong: DifficultyWithSong,
+        constant: Int = 0,
+    ): String =
         ratingText(
-            ArcaeaRatingClassDisplay.of(chart.ratingClass, chart.ratingClassAlias),
-            chart.rating,
-            chart.ratingPlus,
-            constant = chart.constant,
+            ArcaeaRatingClassDisplay.of(difficultyWithSong.ratingClass, difficultyWithSong.ratingClassAlias),
+            difficultyWithSong.rating,
+            difficultyWithSong.ratingPlus,
+            constant,
         )
 }

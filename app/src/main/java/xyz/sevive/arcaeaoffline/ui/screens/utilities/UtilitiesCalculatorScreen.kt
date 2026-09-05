@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPackAndSongQuickSearch
@@ -39,17 +39,12 @@ import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
 @Composable
 fun UtilitiesCalculatorScreen(
     modifier: Modifier = Modifier,
-    chartRepo: ChartRepository = koinInject(),
     difficultyRepo: DifficultyRepository = koinInject(),
+    chartInfoRepo: ChartInfoRepository = koinInject(),
 ) {
     var constant by remember { mutableIntStateOf(0) }
     var selectedSongId by remember { mutableStateOf<String?>(null) }
     var selectedRatingClass by remember { mutableStateOf<ArcaeaRatingClass?>(null) }
-    val charts by produceState(initialValue = listOf(), selectedSongId) {
-        selectedSongId?.let {
-            value = chartRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
-        }
-    }
     val difficulties by produceState(initialValue = listOf(), selectedSongId) {
         selectedSongId?.let {
             value = difficultyRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
@@ -60,9 +55,13 @@ fun UtilitiesCalculatorScreen(
             difficulties.toRatingClassSelectorItems()
         }
 
-    LaunchedEffect(selectedRatingClass, charts) {
-        selectedRatingClass?.let { ratingClass ->
-            charts.find { it.ratingClass == ratingClass }?.constant?.let { constant = it }
+    // The constant comes from the external chart info database and may not
+    // cover the selection (songlist leads); fall back to 0.
+    LaunchedEffect(selectedSongId, selectedRatingClass) {
+        val songId = selectedSongId
+        val ratingClass = selectedRatingClass
+        if (songId != null && ratingClass != null) {
+            constant = chartInfoRepo.find(songId, ratingClass).firstOrNull()?.constant ?: 0
         }
     }
 

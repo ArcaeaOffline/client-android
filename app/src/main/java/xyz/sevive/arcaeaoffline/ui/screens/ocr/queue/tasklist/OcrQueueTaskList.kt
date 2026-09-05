@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 
@@ -17,7 +17,7 @@ internal fun OcrQueueTaskList(
     uiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
     onSaveTask: (Long) -> Unit,
     onDeleteTask: (Long) -> Unit,
-    onEditChart: (Long, Chart) -> Unit,
+    onEditChart: (Long, Difficulty) -> Unit,
     onEditPlayResult: (Long, PlayResult) -> Unit,
     modifier: Modifier = Modifier,
 ) {

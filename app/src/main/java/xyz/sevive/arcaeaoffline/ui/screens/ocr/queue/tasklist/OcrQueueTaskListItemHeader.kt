@@ -204,7 +204,7 @@ private fun OcrQueueTaskListItemHeaderPreview() {
                                     status = OcrQueueTaskStatus.DONE,
                                     insertedAt = Clock.System.now(),
                                 ),
-                            chart = null,
+                            display = null,
                         ),
                     onShowImagePreview = {},
                     onSaveTask = {},

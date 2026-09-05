@@ -27,32 +27,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartInfo
+import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaDifficultyWithSong
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
 private fun SelectChartDialog(
     onDismiss: () -> Unit,
-    chart: Chart?,
-    onChartChange: (Chart?) -> Unit,
+    songId: String?,
+    ratingClass: ArcaeaRatingClass?,
+    onDifficultyChange: (Difficulty) -> Unit,
 ) {
     BasicAlertDialogSurface(onDismissRequest = onDismiss) {
         ArcaeaChartSelector(
-            chart = chart,
-            onChartChange = onChartChange,
-            allowFakeChart = true,
+            songId = songId,
+            ratingClass = ratingClass,
+            onDifficultyChange = onDifficultyChange,
         )
     }
 }
 
 @Composable
 internal fun DatabaseAddPlayResultChartAction(
-    chart: Chart?,
-    onChartChange: (Chart?) -> Unit,
+    difficulty: Difficulty?,
+    onDifficultyChange: (Difficulty) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showSelectChartDialog by rememberSaveable { mutableStateOf(false) }
@@ -60,15 +65,19 @@ internal fun DatabaseAddPlayResultChartAction(
     if (showSelectChartDialog) {
         SelectChartDialog(
             onDismiss = { showSelectChartDialog = false },
-            chart = chart,
-            onChartChange = { onChartChange(it) },
+            songId = difficulty?.songId,
+            ratingClass = difficulty?.ratingClass,
+            onDifficultyChange = onDifficultyChange,
         )
     }
 
+    val difficultyWithSong by rememberArcaeaDifficultyWithSong(difficulty?.songId, difficulty?.ratingClass)
+    val chartInfo by rememberArcaeaChartInfo(difficulty?.songId, difficulty?.ratingClass)
+
     Row(modifier, verticalAlignment = Alignment.Bottom) {
         Box(modifier = Modifier.weight(1f)) {
-            if (chart != null) {
-                ArcaeaChartCard(chart = chart, Modifier.fillMaxWidth())
+            if (difficultyWithSong != null) {
+                ArcaeaChartCard(difficultyWithSong!!, Modifier.fillMaxWidth(), chartInfo = chartInfo)
             } else {
                 Card(
                     onClick = { showSelectChartDialog = true },
@@ -97,34 +106,40 @@ internal fun DatabaseAddPlayResultChartAction(
 @PreviewLightDark
 @Composable
 private fun PlayResultActionPreview() {
-    val chart =
-        Chart(
-            songIdx = 0,
+    val difficulty =
+        Difficulty(
             songId = "test",
             ratingClass = ArcaeaRatingClass.FUTURE,
+            ratingClassAlias = null,
             rating = 9,
             ratingPlus = true,
-            title = "Preview",
-            artist = "Preview",
-            set = "preview",
+            chartDesigner = null,
+            jacketDesigner = null,
             audioOverride = false,
             jacketOverride = false,
-            constant = 90,
-            side = 0,
+            jacketNight = null,
+            title = "Preview",
+            artist = "Preview",
+            bg = null,
+            bgInverse = null,
+            bpm = null,
+            bpmBase = null,
+            version = null,
+            date = null,
         )
 
     ArcaeaOfflineTheme {
         Surface {
             Column {
                 DatabaseAddPlayResultChartAction(
-                    chart = null,
-                    onChartChange = {},
+                    difficulty = null,
+                    onDifficultyChange = {},
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 DatabaseAddPlayResultChartAction(
-                    chart = chart,
-                    onChartChange = {},
+                    difficulty = difficulty,
+                    onDifficultyChange = {},
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

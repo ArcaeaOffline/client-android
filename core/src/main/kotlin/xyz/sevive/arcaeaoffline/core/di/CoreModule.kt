@@ -24,12 +24,12 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
@@ -48,8 +48,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
@@ -119,6 +117,5 @@ val coreModule =
         single<PlayResultCalculatedRepositoryImpl>().bind(PlayResultCalculatedRepository::class)
         single<PlayResultBestRepositoryImpl>().bind(PlayResultBestRepository::class)
         single<R30EntryRepositoryImpl>().bind(R30EntryRepository::class)
-        single<RelationshipsRepositoryImpl>().bind(RelationshipsRepository::class)
         single<PotentialRepositoryImpl>().bind(PotentialRepository::class)
     }

@@ -23,9 +23,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.io.asOutputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
@@ -42,7 +40,6 @@ import kotlin.time.Clock
 
 class OcrFromShareViewModel(
     private val playResultRepo: PlayResultRepository,
-    private val chartRepo: ChartRepository,
     private val ocrHistoryRepo: OcrHistoryRepository,
 ) : ViewModel() {
     class OcrDependencyViewersUiState(
@@ -122,9 +119,6 @@ class OcrFromShareViewModel(
                 }
             }
     }
-
-    private val _chart = MutableStateFlow<Chart?>(null)
-    val chart = _chart.asStateFlow()
 
     private val _playResult = MutableStateFlow<PlayResult?>(null)
     val playResult = _playResult.asStateFlow()
@@ -228,8 +222,6 @@ class OcrFromShareViewModel(
 
                 _playResult.value = playResult
                 _exception.value = null
-
-                _chart.value = chartRepo.find(playResult).firstOrNull()
             } catch (e: Exception) {
                 _playResult.value = null
                 _exception.value = e

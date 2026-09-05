@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +17,8 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
@@ -31,12 +27,11 @@ data class UtilitiesChartRecommendScreenUiState(
     val isLoading: Boolean = true,
     val scoreRange: IntRange = 9_800_000..9_899_999,
     val targetPlayRating: Double = 0.0,
-    val charts: List<Chart> = emptyList(),
+    val charts: List<DifficultyWithSongAndInfo> = emptyList(),
 )
 
 class UtilitiesChartRecommendScreenViewModel(
-    private val chartInfoRepo: ChartInfoRepository,
-    private val chartRepo: ChartRepository,
+    private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val potentialRepo: PotentialRepository,
 ) : ViewModel() {
     private val logger = Logger.withTag("UtilitiesChartRecommendScreenVM")
@@ -62,33 +57,24 @@ class UtilitiesChartRecommendScreenViewModel(
         combine(scoreRange, targetPlayRating) { sr, tpr ->
             FilterParams(sr, tpr)
         }.flatMapLatest { params ->
-            chartInfoRepo
-                .findAll()
-                .map { infoList ->
+            // One joined query (ordered by constant) instead of fetching the
+            // chart of each chart info row separately.
+            difficultyWithSongRepo
+                .findAllWithInfo()
+                .map { rows ->
                     val filtered =
-                        infoList
-                            .filter { info ->
-                                val min = calculatePlayRating(score = params.scoreRange.first, constant = info.constant)
-                                val max = calculatePlayRating(score = params.scoreRange.last, constant = info.constant)
+                        rows
+                            .filter { row ->
+                                val min = calculatePlayRating(score = params.scoreRange.first, constant = row.constant)
+                                val max = calculatePlayRating(score = params.scoreRange.last, constant = row.constant)
                                 params.targetPlayRating in min..max
                             }
-
-                    // Fetch charts in parallel
-                    val charts =
-                        coroutineScope {
-                            filtered
-                                .map { info ->
-                                    async { chartRepo.find(info.songId, info.ratingClass).firstOrNull() }
-                                }.awaitAll()
-                                .filterNotNull()
-                                .sortedBy { it.constant }
-                        }
 
                     UtilitiesChartRecommendScreenUiState(
                         isLoading = false,
                         scoreRange = params.scoreRange,
                         targetPlayRating = params.targetPlayRating,
-                        charts = charts,
+                        charts = filtered,
                     )
                 }.onStart {
                     emit(

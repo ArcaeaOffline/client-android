@@ -31,8 +31,7 @@ class ChartInfoDatabaseImporterTest {
                     "`constant` INT NOT NULL, " +
                     "`notes` INT, " +
                     "PRIMARY KEY(`song_id`, `rating_class`))",
-            )
-            .use { it.step() }
+            ).use { it.step() }
     }
 
     private fun insert(
