@@ -50,18 +50,25 @@ fun UtilitiesCalculatorScreen(
             value = difficultyRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
         }
     }
+    val chartInfos by produceState(initialValue = listOf(), selectedSongId) {
+        selectedSongId?.let {
+            value = chartInfoRepo.findAllBySongId(it).firstOrNull() ?: emptyList()
+        }
+    }
     val selectorItems =
-        remember(difficulties) {
-            difficulties.toRatingClassSelectorItems()
+        remember(difficulties, chartInfos) {
+            // Filter out items without chart info data
+            val ratingClassesWithInfo = chartInfos.map { it.ratingClass }.toSet()
+            difficulties.filter { it.ratingClass in ratingClassesWithInfo }.toRatingClassSelectorItems()
         }
 
-    // The constant comes from the external chart info database and may not
-    // cover the selection (songlist leads); fall back to 0.
     LaunchedEffect(selectedSongId, selectedRatingClass) {
         val songId = selectedSongId
         val ratingClass = selectedRatingClass
         if (songId != null && ratingClass != null) {
-            constant = chartInfoRepo.find(songId, ratingClass).firstOrNull()?.constant ?: 0
+            chartInfoRepo.find(songId, ratingClass).firstOrNull()?.let {
+                constant = it.constant
+            }
         }
     }
 
