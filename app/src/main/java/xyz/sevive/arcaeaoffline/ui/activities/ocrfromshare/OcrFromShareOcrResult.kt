@@ -27,8 +27,6 @@ import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaDifficultyWithSong
 internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
     val score by viewModel.playResult.collectAsStateWithLifecycle()
     val exception by viewModel.exception.collectAsStateWithLifecycle()
-    // Display data is derived from the play result's identity: songlist-driven,
-    // independent of whether chart info covers the chart yet.
     val difficultyWithSong by rememberArcaeaDifficultyWithSong(score?.songId, score?.ratingClass)
     val chartInfo by rememberArcaeaChartInfo(score?.songId, score?.ratingClass)
 

@@ -10,10 +10,10 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import kotlin.time.measureTime
 
-// Caches the display data for a set of play results: songlist-driven
-// DifficultyWithSong plus the optional ChartInfo. Entries exist for every
-// queried (songId, ratingClass) regardless of chart info availability -
-// only the ChartInfo part may be null.
+/**
+ * Caches the display data for a set of play results, using [DifficultyWithSong]
+ * and nullable [ChartInfo] as key.
+ */
 class UiDisplayChartCacheHolder {
     data class Entry(
         val difficultyWithSong: DifficultyWithSong,

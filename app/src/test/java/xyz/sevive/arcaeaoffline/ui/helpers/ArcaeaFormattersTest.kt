@@ -133,10 +133,9 @@ class ArcaeaFormattersTest {
             artist = "Test",
         )
 
-        // No constant: the level falls back to rating + ratingPlus.
+        // No constant, falling back to rating + ratingPlus.
         assertEquals("FUTURE 10+", ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true)))
 
-        // Chart info covered: the constant form wins.
         assertEquals(
             "FUTURE 10.8",
             ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true), 108),

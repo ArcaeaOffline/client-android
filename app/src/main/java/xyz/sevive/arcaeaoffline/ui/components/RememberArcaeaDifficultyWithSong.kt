@@ -16,7 +16,7 @@ internal fun rememberArcaeaDifficultyWithSong(
     ratingClass: ArcaeaRatingClass?,
 ): State<DifficultyWithSong?> {
     val repo = koinInject<DifficultyWithSongRepository>()
-    return produceState<DifficultyWithSong?>(initialValue = null, songId, ratingClass) {
+    return produceState(initialValue = null, songId, ratingClass) {
         if (songId != null && ratingClass != null) {
             repo.find(songId, ratingClass).collect { value = it }
         } else {
@@ -31,7 +31,7 @@ internal fun rememberArcaeaChartInfo(
     ratingClass: ArcaeaRatingClass?,
 ): State<ChartInfo?> {
     val repo = koinInject<ChartInfoRepository>()
-    return produceState<ChartInfo?>(initialValue = null, songId, ratingClass) {
+    return produceState(initialValue = null, songId, ratingClass) {
         if (songId != null && ratingClass != null) {
             repo.find(songId, ratingClass).collect { value = it }
         } else {

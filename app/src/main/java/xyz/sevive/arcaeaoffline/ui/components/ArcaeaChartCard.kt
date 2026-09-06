@@ -46,8 +46,6 @@ import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 fun ArcaeaChartCard(
     difficultyWithSong: DifficultyWithSong,
     modifier: Modifier = Modifier,
-    // Null chart info degrades the level text to the "10+" form (songlist
-    // leading the external chart info database is the normal case).
     chartInfo: ChartInfo? = null,
     shape: Shape = CardDefaults.shape,
 ) {

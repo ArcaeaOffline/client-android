@@ -31,7 +31,7 @@ private fun rememberArcaeaSong(
     songRepo: SongRepository,
     songId: String?,
 ): State<Song?> =
-    produceState<Song?>(initialValue = null, songId) {
+    produceState(initialValue = null, songId) {
         songId?.let {
             songRepo.find(songId).collect { value = it }
         }
@@ -48,8 +48,6 @@ private fun rememberArcaeaDifficulties(
         }
     }
 
-// Songlist-driven: every difficulty of the selected song is selectable,
-// regardless of chart info availability.
 @Composable
 fun ArcaeaChartSelector(
     songId: String?,
