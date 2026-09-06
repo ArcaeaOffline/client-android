@@ -34,6 +34,7 @@ class UiDisplayChartCacheHolder {
         chartInfoRepo: ChartInfoRepository,
     ) {
         cache.clear()
+        if (keys.isEmpty()) return
 
         measureTime {
             val keySet = keys.toSet()
@@ -44,8 +45,8 @@ class UiDisplayChartCacheHolder {
                 if (key in keySet) cache[key] = Entry(dws)
             }
 
-            // Single-pass lookup instead of per-key queries.
-            chartInfoRepo.findAll().firstOrNull()?.forEach { info ->
+            // Scoped to the queried songs instead of scanning the whole table.
+            chartInfoRepo.findAllBySongIds(songIds).firstOrNull()?.forEach { info ->
                 val key = info.songId to info.ratingClass
                 cache[key]?.let { cache[key] = it.copy(chartInfo = info) }
             }

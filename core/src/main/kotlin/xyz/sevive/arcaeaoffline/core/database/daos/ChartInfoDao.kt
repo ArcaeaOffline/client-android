@@ -23,6 +23,9 @@ interface ChartInfoDao {
     @Query("SELECT * FROM charts_info WHERE song_id = :songId")
     fun findAllBySongId(songId: String): Flow<List<ChartInfo>>
 
+    @Query("SELECT * FROM charts_info WHERE song_id IN (:songIds)")
+    fun findAllBySongIds(songIds: List<String>): Flow<List<ChartInfo>>
+
     @Query("SELECT COUNT(*) FROM charts_info")
     fun count(): Flow<Int>
 
