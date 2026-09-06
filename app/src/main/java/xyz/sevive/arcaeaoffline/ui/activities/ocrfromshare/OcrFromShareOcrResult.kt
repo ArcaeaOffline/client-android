@@ -20,12 +20,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 
 @Composable
 internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
     val score by viewModel.playResult.collectAsStateWithLifecycle()
     val exception by viewModel.exception.collectAsStateWithLifecycle()
-    val chart by viewModel.chart.collectAsStateWithLifecycle()
+    val display by rememberArcaeaChartDisplay(score?.songId, score?.ratingClass)
 
     var showScoreEditorDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -45,7 +46,8 @@ internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
             ArcaeaPlayResultCard(
                 playResult = score!!,
                 modifier = Modifier.weight(1f),
-                chart = chart,
+                difficultyWithSong = display?.difficultyWithSong,
+                chartInfo = display?.chartInfo,
             )
 
             AnimatedVisibility(visible = !scoreSaved && !scoreCached) {

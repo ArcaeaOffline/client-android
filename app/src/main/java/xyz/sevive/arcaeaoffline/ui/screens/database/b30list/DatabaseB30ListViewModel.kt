@@ -8,19 +8,26 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
-import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultBestRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
 class DatabaseB30ListViewModel(
-    private val relationshipsRepo: RelationshipsRepository,
+    playResultBestRepo: PlayResultBestRepository,
+    difficultyWithSongRepo: DifficultyWithSongRepository,
+    chartInfoRepo: ChartInfoRepository,
 ) : ViewModel() {
     data class ListItem(
         val index: Int,
         val playResultBest: PlayResultCalculated,
-        val chart: Chart?,
+        val difficultyWithSong: DifficultyWithSong?,
+        val chartInfo: ChartInfo?,
         val playRatingText: String = ArcaeaFormatters.potentialToText(playResultBest.playRating),
     )
 
@@ -38,15 +45,25 @@ class DatabaseB30ListViewModel(
             .transformLatest { limit ->
                 emit(UiState(isLoading = true, limit = limit))
 
-                relationshipsRepo
-                    .playResultsBestWithCharts(limit)
+                playResultBestRepo
+                    .orderDescWithLimit(limit)
                     .collectLatest { dbItems ->
+                        val chartCacheHolder = UiDisplayChartCacheHolder()
+                        chartCacheHolder.updateCache(
+                            dbItems.map { it.playResult.songId to it.playResult.ratingClass },
+                            difficultyWithSongRepo,
+                            chartInfoRepo,
+                        )
+
                         val listItems =
                             dbItems.mapIndexed { i, dbItem ->
+                                val display = chartCacheHolder.get(dbItem.playResult)
+
                                 ListItem(
                                     index = i,
-                                    playResultBest = dbItem.playResultBest,
-                                    chart = dbItem.chart,
+                                    playResultBest = dbItem,
+                                    difficultyWithSong = display?.difficultyWithSong,
+                                    chartInfo = display?.chartInfo,
                                 )
                             }
 

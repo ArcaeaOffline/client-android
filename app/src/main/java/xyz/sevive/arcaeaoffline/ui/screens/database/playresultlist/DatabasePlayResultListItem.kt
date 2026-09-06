@@ -52,7 +52,8 @@ internal fun DatabasePlayResultListItem(
             warnings = item.warnings,
             modifier = Modifier.weight(1f),
             onClick = { onSelectedChange(!selected) },
-            chart = item.chart,
+            difficultyWithSong = item.display?.difficultyWithSong,
+            chartInfo = item.display?.chartInfo,
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

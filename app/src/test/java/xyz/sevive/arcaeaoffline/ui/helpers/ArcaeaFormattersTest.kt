@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 
 class ArcaeaFormattersTest {
     @Test
@@ -43,41 +44,6 @@ class ArcaeaFormattersTest {
         assertEquals("D", ArcaeaFormatters.scoreToLevelText(8_000_000))
         assertEquals("D", ArcaeaFormatters.scoreToLevelText(5_000_000))
         assertEquals("D", ArcaeaFormatters.scoreToLevelText(0))
-    }
-
-    @Test
-    fun constantToRatingClassTextTest() {
-        val ranges =
-            mapOf(
-                10..19 to "1",
-                20..29 to "2",
-                30..39 to "3",
-                40..49 to "4",
-                50..59 to "5",
-                60..69 to "6",
-                70..76 to "7",
-                77..79 to "7+",
-                80..86 to "8",
-                87..89 to "8+",
-                90..96 to "9",
-                97..99 to "9+",
-                100..106 to "10",
-                107..109 to "10+",
-                110..116 to "11",
-                117..119 to "11+",
-                120..126 to "12",
-            )
-
-        ranges.forEach { (range, expected) ->
-            range.forEach { constant ->
-                val actual = ArcaeaFormatters.constantToRatingClassText(constant)
-                assertEquals(
-                    "constant [$constant] should be converted to [$expected], but was [$actual]",
-                    expected,
-                    actual,
-                )
-            }
-        }
     }
 
     @Test
@@ -147,6 +113,37 @@ class ArcaeaFormattersTest {
                 12,
                 false,
             ),
+        )
+    }
+
+    @Test
+    fun ratingTextDifficultyWithSongTest() {
+        fun difficultyWithSong(
+            ratingClass: ArcaeaRatingClass,
+            rating: Int,
+            ratingPlus: Boolean,
+            ratingClassAlias: Int? = null,
+        ) = DifficultyWithSong(
+            songId = "test",
+            ratingClass = ratingClass,
+            ratingClassAlias = ratingClassAlias,
+            rating = rating,
+            ratingPlus = ratingPlus,
+            title = "Test",
+            artist = "Test",
+        )
+
+        // No constant, falling back to rating + ratingPlus.
+        assertEquals("FUTURE 10+", ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true)))
+
+        assertEquals(
+            "FUTURE 10.8",
+            ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true), 108),
+        )
+
+        assertEquals(
+            "INSCRIBED 11.5",
+            ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.BEYOND, 11, false, ratingClassAlias = 1), 115),
         )
     }
 }

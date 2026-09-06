@@ -23,8 +23,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,18 +35,55 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.combine
+import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
+// Display data resolved as one atomic unit. Swapping the pair together is
+// what keeps the card consistent (title/level text and constant change in
+// the same frame) and lets the card's AnimatedContent keep its old -> new
+// transition: the previous pair is held while the next one is resolving,
+// instead of dropping the card to its placeholder.
+data class DifficultyWithSongDisplay(
+    val difficultyWithSong: DifficultyWithSong,
+    val chartInfo: ChartInfo?,
+)
+
+@Composable
+internal fun rememberArcaeaChartDisplay(
+    songId: String?,
+    ratingClass: ArcaeaRatingClass?,
+): State<DifficultyWithSongDisplay?> {
+    val difficultyWithSongRepo = koinInject<DifficultyWithSongRepository>()
+    val chartInfoRepo = koinInject<ChartInfoRepository>()
+
+    return produceState(initialValue = null, songId, ratingClass) {
+        if (songId != null && ratingClass != null) {
+            difficultyWithSongRepo
+                .find(songId, ratingClass)
+                .combine(chartInfoRepo.find(songId, ratingClass)) { dws, info ->
+                    dws?.let { DifficultyWithSongDisplay(it, info) }
+                }.collect { value = it }
+        } else {
+            value = null
+        }
+    }
+}
+
 @Composable
 fun ArcaeaChartCard(
-    chart: Chart,
+    difficultyWithSong: DifficultyWithSong,
     modifier: Modifier = Modifier,
+    chartInfo: ChartInfo? = null,
     shape: Shape = CardDefaults.shape,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -71,16 +110,19 @@ fun ArcaeaChartCard(
             )
 
             Column(Modifier.weight(1f)) {
-                Text(chart.title, style = MaterialTheme.typography.titleMedium)
+                Text(difficultyWithSong.title, style = MaterialTheme.typography.titleMedium)
 
                 AnimatedVisibility(visible = expanded) {
-                    Text(chart.artist)
+                    Text(difficultyWithSong.artist)
                 }
 
+                // The chart info rides along in the target state: each
+                // transition side renders with its own constant, otherwise the
+                // outgoing text would instantly pick up the new constant.
                 AnimatedContent(
-                    targetState = chart,
+                    targetState = difficultyWithSong to chartInfo,
                     transitionSpec = {
-                        if (targetState.ratingClass > initialState.ratingClass) {
+                        if (targetState.first.ratingClass > initialState.first.ratingClass) {
                             slideInVertically { height -> height } togetherWith
                                 slideOutVertically { height -> -height }
                         } else {
@@ -89,13 +131,13 @@ fun ArcaeaChartCard(
                         }
                     },
                     label = "ratingClassFlipping",
-                ) {
+                ) { (dws, info) ->
                     Text(
-                        text = ArcaeaFormatters.ratingText(it),
+                        text = ArcaeaFormatters.ratingText(dws, info?.constant ?: 0),
                         modifier = Modifier.fillMaxWidth(),
                         color =
                             ratingClassColor(
-                                ArcaeaRatingClassDisplay.of(it.ratingClass, it.ratingClassAlias),
+                                ArcaeaRatingClassDisplay.of(dws.ratingClass, dws.ratingClassAlias),
                             ),
                     )
                 }
@@ -114,42 +156,34 @@ fun ArcaeaChartCard(
 @Preview
 @Composable
 private fun ArcaeaChartCardPreview() {
-    val chart =
-        Chart(
-            songIdx = 1,
+    val difficulty =
+        DifficultyWithSong(
             songId = "example",
             ratingClass = ArcaeaRatingClass.FUTURE,
             rating = 10,
             ratingPlus = true,
             title = "Example",
             artist = "Artist",
-            set = "example",
-            side = 1,
-            audioOverride = false,
-            jacketOverride = false,
-            constant = 109,
         )
 
-    val chartLongTitle =
-        Chart(
-            songIdx = 2,
+    val difficultyLongTitle =
+        DifficultyWithSong(
             songId = "verylong",
             ratingClass = ArcaeaRatingClass.FUTURE,
             rating = 10,
             ratingPlus = true,
             title = "SolarOrbit -release in the Masterbranch road- Misdake -ra de et de mall-",
             artist = "Example VS Case VS Lorem VS Ipsum VS dolor VS sit VS amet feat. Preview",
-            set = "example",
-            side = 1,
-            audioOverride = false,
-            jacketOverride = false,
-            constant = 109,
         )
 
     ArcaeaOfflineTheme {
         Column {
-            ArcaeaChartCard(chart = chart, Modifier.fillMaxWidth())
-            ArcaeaChartCard(chart = chartLongTitle, Modifier.fillMaxWidth())
+            ArcaeaChartCard(
+                difficulty,
+                Modifier.fillMaxWidth(),
+                chartInfo = ChartInfo("example", ArcaeaRatingClass.FUTURE, constant = 109, notes = null),
+            )
+            ArcaeaChartCard(difficultyLongTitle, Modifier.fillMaxWidth())
         }
     }
 }

@@ -62,7 +62,8 @@ internal fun DatabaseR30ListItem(
         ArcaeaPlayResultCard(
             playResult = item.playResult,
             Modifier.weight(1f),
-            chart = item.chart,
+            difficultyWithSong = item.display?.difficultyWithSong,
+            chartInfo = item.display?.chartInfo,
         )
 
         Column(

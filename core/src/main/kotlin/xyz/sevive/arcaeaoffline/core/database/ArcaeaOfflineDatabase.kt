@@ -14,17 +14,17 @@ import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaPlayResultModifie
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaRatingClassConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
 import xyz.sevive.arcaeaoffline.core.database.converters.UuidByteArrayConverters
-import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
-import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -92,17 +92,17 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
 
     abstract fun difficultyDao(): DifficultyDao
 
+    abstract fun difficultyWithSongDao(): DifficultyWithSongDao
+
     abstract fun difficultyLocalizedDao(): DifficultyLocalizedDao
 
     abstract fun chartInfoDao(): ChartInfoDao
 
     abstract fun playResultDao(): PlayResultDao
 
-    abstract fun relationshipsDao(): RelationshipsDao
+    abstract fun playResultBestDao(): PlayResultBestDao
 
     abstract fun r30EntryDao(): R30EntryDao
-
-    abstract fun chartDao(): ChartDao
 
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"

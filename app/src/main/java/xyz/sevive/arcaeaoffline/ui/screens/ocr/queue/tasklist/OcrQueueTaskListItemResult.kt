@@ -23,7 +23,8 @@ internal fun OcrQueueTaskListItemResult(
                     ArcaeaPlayResultCard(
                         playResult = playResult,
                         warnings = uiItem.warnings.orEmpty(),
-                        chart = uiItem.chart,
+                        difficultyWithSong = uiItem.display?.difficultyWithSong,
+                        chartInfo = uiItem.display?.chartInfo,
                         modifier = modifier,
                     )
                 }

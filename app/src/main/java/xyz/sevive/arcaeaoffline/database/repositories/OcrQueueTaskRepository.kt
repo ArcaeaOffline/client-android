@@ -5,7 +5,7 @@ import androidx.room.Transactor
 import androidx.room.useWriterConnection
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
@@ -34,7 +34,7 @@ interface OcrQueueTaskRepository {
 
     suspend fun updateChart(
         id: Long,
-        chart: Chart,
+        difficulty: Difficulty,
     ): Int?
 
     suspend fun updatePlayResult(
@@ -85,7 +85,7 @@ class OcrQueueTaskRepositoryImpl(
 
     override suspend fun updateChart(
         id: Long,
-        chart: Chart,
+        difficulty: Difficulty,
     ): Int? {
         var item = findById(id) ?: return null
 
@@ -94,8 +94,8 @@ class OcrQueueTaskRepositoryImpl(
         }
 
         val newPlayResult =
-            item.playResult?.copy(songId = chart.songId, ratingClass = chart.ratingClass)
-                ?: PlayResult(songId = chart.songId, ratingClass = chart.ratingClass, score = 0)
+            item.playResult?.copy(songId = difficulty.songId, ratingClass = difficulty.ratingClass)
+                ?: PlayResult(songId = difficulty.songId, ratingClass = difficulty.ratingClass, score = 0)
 
         return update(
             item.copy(playResult = newPlayResult),

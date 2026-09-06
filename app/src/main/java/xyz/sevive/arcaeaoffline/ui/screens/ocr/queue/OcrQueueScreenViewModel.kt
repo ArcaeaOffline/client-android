@@ -19,11 +19,10 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
@@ -37,9 +36,8 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(ExperimentalCoroutinesApi::class)
 class OcrQueueScreenViewModel(
     context: Context,
-    private val songRepo: SongRepository,
-    private val difficultyRepo: DifficultyRepository,
-    private val chartRepo: ChartRepository,
+    private val difficultyWithSongRepo: DifficultyWithSongRepository,
+    private val chartInfoRepo: ChartInfoRepository,
     private val ocrQueueTaskRepo: OcrQueueTaskRepositoryImpl,
     preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
@@ -58,9 +56,10 @@ class OcrQueueScreenViewModel(
 
     data class TaskUiItem(
         val dbItem: OcrQueueTask,
-        val chart: Chart? = null,
+        val display: UiDisplayChartCacheHolder.Entry? = null,
     ) {
-        val warnings = dbItem.playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chart = chart) }
+        val warnings =
+            dbItem.playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }
         val hasWarnings = warnings?.isNotEmpty() == true
 
         val canEditChart = dbItem.status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)
@@ -92,13 +91,17 @@ class OcrQueueScreenViewModel(
 
     private suspend fun mapDbItemsToUiItems(dbItems: List<OcrQueueTask>): List<TaskUiItem> {
         val chartCacheHolder = UiDisplayChartCacheHolder()
-        chartCacheHolder.updateCache(dbItems.mapNotNull { it.playResult }, songRepo, difficultyRepo, chartRepo)
+        chartCacheHolder.updateCache(
+            dbItems.mapNotNull { it.playResult }.map { it.songId to it.ratingClass },
+            difficultyWithSongRepo,
+            chartInfoRepo,
+        )
 
         return dbItems.map {
             if (it.playResult == null) {
                 TaskUiItem(dbItem = it)
             } else {
-                TaskUiItem(dbItem = it, chart = chartCacheHolder.get(it.playResult))
+                TaskUiItem(dbItem = it, display = chartCacheHolder.get(it.playResult))
             }
         }
     }
@@ -206,10 +209,10 @@ class OcrQueueScreenViewModel(
 
     fun modifyTaskChart(
         taskId: Long,
-        chart: Chart,
+        difficulty: Difficulty,
     ) {
         viewModelScope.launch {
-            ocrQueueTaskRepo.updateChart(taskId, chart)
+            ocrQueueTaskRepo.updateChart(taskId, difficulty)
         }
     }
 

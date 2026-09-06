@@ -102,8 +102,8 @@ internal fun DatabaseAddPlayResultScreen(
 
                 item {
                     DatabaseAddPlayResultChartAction(
-                        chart = uiState.chart,
-                        onChartChange = { viewModel.setChart(it) },
+                        difficulty = uiState.difficulty,
+                        onDifficultyChange = { viewModel.setDifficulty(it) },
                         modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding)),
                     )
                 }

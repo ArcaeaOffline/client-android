@@ -6,27 +6,27 @@ import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
 import org.koin.plugin.module.dsl.single
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.daos.ChartDao
 import xyz.sevive.arcaeaoffline.core.database.daos.ChartInfoDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PackLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultBestDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
-import xyz.sevive.arcaeaoffline.core.database.daos.RelationshipsDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.MetaRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
@@ -45,8 +45,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.RelationshipsRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
@@ -74,11 +72,11 @@ internal fun chartInfoDao(db: ArcaeaOfflineDatabase) = db.chartInfoDao()
 
 internal fun playResultDao(db: ArcaeaOfflineDatabase) = db.playResultDao()
 
-internal fun relationshipsDao(db: ArcaeaOfflineDatabase) = db.relationshipsDao()
+internal fun playResultBestDao(db: ArcaeaOfflineDatabase) = db.playResultBestDao()
 
 internal fun r30EntryDao(db: ArcaeaOfflineDatabase) = db.r30EntryDao()
 
-internal fun chartDao(db: ArcaeaOfflineDatabase) = db.chartDao()
+internal fun difficultyWithSongDao(db: ArcaeaOfflineDatabase) = db.difficultyWithSongDao()
 
 val coreModule =
     module {
@@ -94,9 +92,9 @@ val coreModule =
         single<DifficultyLocalizedDao> { create(::difficultyLocalizedDao) }
         single<ChartInfoDao> { create(::chartInfoDao) }
         single<PlayResultDao> { create(::playResultDao) }
-        single<RelationshipsDao> { create(::relationshipsDao) }
+        single<PlayResultBestDao> { create(::playResultBestDao) }
         single<R30EntryDao> { create(::r30EntryDao) }
-        single<ChartDao> { create(::chartDao) }
+        single<DifficultyWithSongDao> { create(::difficultyWithSongDao) }
 
         single<MetaRepositoryImpl>().bind(MetaRepository::class)
         single<PropertyRepositoryImpl>().bind(PropertyRepository::class)
@@ -107,11 +105,10 @@ val coreModule =
         single<DifficultyRepositoryImpl>().bind(DifficultyRepository::class)
         single<DifficultyLocalizedRepositoryImpl>().bind(DifficultyLocalizedRepository::class)
         single<ChartInfoRepositoryImpl>().bind(ChartInfoRepository::class)
-        single<ChartRepositoryImpl>().bind(ChartRepository::class)
+        single<DifficultyWithSongRepositoryImpl>().bind(DifficultyWithSongRepository::class)
         single<PlayResultRepositoryImpl>().bind(PlayResultRepository::class)
         single<PlayResultCalculatedRepositoryImpl>().bind(PlayResultCalculatedRepository::class)
         single<PlayResultBestRepositoryImpl>().bind(PlayResultBestRepository::class)
         single<R30EntryRepositoryImpl>().bind(R30EntryRepository::class)
-        single<RelationshipsRepositoryImpl>().bind(RelationshipsRepository::class)
         single<PotentialRepositoryImpl>().bind(PotentialRepository::class)
     }

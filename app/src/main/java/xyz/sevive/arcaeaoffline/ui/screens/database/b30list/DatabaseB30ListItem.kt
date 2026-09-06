@@ -23,8 +23,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
@@ -66,7 +66,8 @@ internal fun DatabaseB30ListItem(
         ArcaeaPlayResultCard(
             playResult = item.playResultBest.playResult,
             Modifier.weight(1f),
-            chart = item.chart,
+            difficultyWithSong = item.difficultyWithSong,
+            chartInfo = item.chartInfo,
         )
 
         Column(
@@ -90,7 +91,7 @@ internal fun DatabaseB30ListItem(
 private fun DatabaseB30ListItemPreview() {
     fun fakeListItem(
         index: Int,
-        withChart: Boolean = true,
+        withDifficulty: Boolean = true,
     ): DatabaseB30ListViewModel.ListItem =
         DatabaseB30ListViewModel.ListItem(
             index = index,
@@ -120,22 +121,22 @@ private fun DatabaseB30ListItemPreview() {
                             notes = null,
                         ),
                 ),
-            chart =
-                if (withChart) {
-                    Chart(
-                        songIdx = 0,
+            difficultyWithSong =
+                if (withDifficulty) {
+                    DifficultyWithSong(
                         songId = "test",
                         ratingClass = ArcaeaRatingClass.FUTURE,
                         rating = 11,
                         ratingPlus = true,
                         title = "Preview",
                         artist = "Preview",
-                        set = "preview",
-                        audioOverride = false,
-                        jacketOverride = false,
-                        constant = 115,
-                        side = 0,
                     )
+                } else {
+                    null
+                },
+            chartInfo =
+                if (withDifficulty) {
+                    ChartInfo("test", ArcaeaRatingClass.FUTURE, constant = 115, notes = null)
                 } else {
                     null
                 },
@@ -145,7 +146,7 @@ private fun DatabaseB30ListItemPreview() {
         Surface {
             Column {
                 DatabaseB30ListItem(fakeListItem(index = 0))
-                DatabaseB30ListItem(fakeListItem(index = 1, withChart = true))
+                DatabaseB30ListItem(fakeListItem(index = 1, withDifficulty = true))
             }
         }
     }

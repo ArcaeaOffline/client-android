@@ -85,6 +85,7 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
     testImplementation(androidx.room.testing)
+    testImplementation(androidx.sqlite.bundled.jvm)
     androidTestImplementation(androidx.test.runner)
     androidTestImplementation(androidx.room.testing)
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
+import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
@@ -24,13 +24,13 @@ class DatabaseAddPlayResultViewModel(
     private val playResultRepo: PlayResultRepository,
 ) : ViewModel() {
     data class UiState(
-        val chart: Chart? = null,
+        val difficulty: Difficulty? = null,
         val playResult: PlayResult? = null,
         val warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
     )
 
-    private val _chart = MutableStateFlow<Chart?>(null)
-    val chart = _chart.asStateFlow()
+    private val _difficulty = MutableStateFlow<Difficulty?>(null)
+    val difficulty = _difficulty.asStateFlow()
 
     private val _playResult = MutableStateFlow<PlayResult?>(null)
     val playResult = _playResult.asStateFlow()
@@ -43,9 +43,9 @@ class DatabaseAddPlayResultViewModel(
     }
 
     val uiState =
-        combine(chart, playResult) { chart, playResult ->
+        combine(difficulty, playResult) { difficulty, playResult ->
             UiState(
-                chart = chart,
+                difficulty = difficulty,
                 playResult = playResult,
                 warnings = getPlayResultWarnings(playResult),
             )
@@ -55,14 +55,14 @@ class DatabaseAddPlayResultViewModel(
             UiState(),
         )
 
-    fun setChart(chart: Chart?) {
-        _chart.value = chart
+    fun setDifficulty(difficulty: Difficulty?) {
+        _difficulty.value = difficulty
         initPlayResult()
     }
 
     private fun initPlayResult() {
         setPlayResult(
-            _chart.value?.let {
+            _difficulty.value?.let {
                 _playResult.value?.copy(songId = it.songId, ratingClass = it.ratingClass)
                     ?: PlayResult(songId = it.songId, ratingClass = it.ratingClass, score = 0)
             },
@@ -74,7 +74,7 @@ class DatabaseAddPlayResultViewModel(
     }
 
     fun reset() {
-        _chart.value = null
+        _difficulty.value = null
         _playResult.value = null
     }
 

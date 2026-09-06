@@ -18,11 +18,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.database.entities.Chart
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.playRating
-import xyz.sevive.arcaeaoffline.core.database.repositories.ChartRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
@@ -34,8 +33,8 @@ import kotlin.uuid.Uuid
 class DatabasePlayResultListViewModel(
     private val playResultRepo: PlayResultRepository,
     private val songRepo: SongRepository,
-    private val difficultyRepo: DifficultyRepository,
-    private val chartRepo: ChartRepository,
+    private val difficultyWithSongRepo: DifficultyWithSongRepository,
+    private val chartInfoRepo: ChartInfoRepository,
 ) : ViewModel() {
     enum class SortOrder {
         ASC,
@@ -49,11 +48,11 @@ class DatabasePlayResultListViewModel(
 
     data class ListItem(
         val playResult: PlayResult,
-        val chart: Chart? = null,
+        val display: UiDisplayChartCacheHolder.Entry? = null,
         val isDeletedInGame: Boolean = false,
     ) {
         val uuid = playResult.uuid
-        val playRating = chart?.let { playResult.playRating(it) }
+        val playRating = display?.chartInfo?.let { playResult.playRating(it) }
         val potentialText =
             buildAnnotatedString {
                 val baseText = ArcaeaFormatters.potentialToText(playRating)
@@ -68,7 +67,7 @@ class DatabasePlayResultListViewModel(
                 }
                 append(baseText)
             }
-        val warnings = ArcaeaPlayResultValidator.validate(playResult, chart)
+        val warnings = ArcaeaPlayResultValidator.validate(playResult, display?.chartInfo)
     }
 
     data class UiState(
@@ -89,7 +88,11 @@ class DatabasePlayResultListViewModel(
             isLoading.value = true
 
             val chartCache = UiDisplayChartCacheHolder()
-            chartCache.updateCache(dbItems, songRepo, difficultyRepo, chartRepo)
+            chartCache.updateCache(
+                dbItems.map { it.songId to it.ratingClass },
+                difficultyWithSongRepo,
+                chartInfoRepo,
+            )
 
             val deletedSongIds =
                 songRepo
@@ -99,11 +102,11 @@ class DatabasePlayResultListViewModel(
                     ?: emptyList()
             val listItems =
                 dbItems.map { playResult ->
-                    val chart = chartCache.get(playResult)
+                    val display = chartCache.get(playResult)
 
                     ListItem(
                         playResult = playResult,
-                        chart = chart,
+                        display = display,
                         isDeletedInGame = playResult.songId in deletedSongIds,
                     )
                 }
