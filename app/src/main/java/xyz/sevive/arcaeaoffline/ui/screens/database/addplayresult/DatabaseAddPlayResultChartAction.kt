@@ -32,8 +32,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartInfo
-import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaDifficultyWithSong
+import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
@@ -69,13 +68,16 @@ internal fun DatabaseAddPlayResultChartAction(
         )
     }
 
-    val difficultyWithSong by rememberArcaeaDifficultyWithSong(difficulty?.songId, difficulty?.ratingClass)
-    val chartInfo by rememberArcaeaChartInfo(difficulty?.songId, difficulty?.ratingClass)
+    val display by rememberArcaeaChartDisplay(difficulty?.songId, difficulty?.ratingClass)
 
     Row(modifier, verticalAlignment = Alignment.Bottom) {
         Box(modifier = Modifier.weight(1f)) {
-            if (difficultyWithSong != null) {
-                ArcaeaChartCard(difficultyWithSong!!, Modifier.fillMaxWidth(), chartInfo = chartInfo)
+            if (display != null) {
+                ArcaeaChartCard(
+                    display!!.difficultyWithSong,
+                    Modifier.fillMaxWidth(),
+                    chartInfo = display!!.chartInfo,
+                )
             } else {
                 Card(
                     onClick = { showSelectChartDialog = true },

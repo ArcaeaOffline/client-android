@@ -23,8 +23,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,14 +35,49 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.combine
+import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
+
+// Display data resolved as one atomic unit. Swapping the pair together is
+// what keeps the card consistent (title/level text and constant change in
+// the same frame) and lets the card's AnimatedContent keep its old -> new
+// transition: the previous pair is held while the next one is resolving,
+// instead of dropping the card to its placeholder.
+data class DifficultyWithSongDisplay(
+    val difficultyWithSong: DifficultyWithSong,
+    val chartInfo: ChartInfo?,
+)
+
+@Composable
+internal fun rememberArcaeaChartDisplay(
+    songId: String?,
+    ratingClass: ArcaeaRatingClass?,
+): State<DifficultyWithSongDisplay?> {
+    val difficultyWithSongRepo = koinInject<DifficultyWithSongRepository>()
+    val chartInfoRepo = koinInject<ChartInfoRepository>()
+
+    return produceState(initialValue = null, songId, ratingClass) {
+        if (songId != null && ratingClass != null) {
+            difficultyWithSongRepo
+                .find(songId, ratingClass)
+                .combine(chartInfoRepo.find(songId, ratingClass)) { dws, info ->
+                    dws?.let { DifficultyWithSongDisplay(it, info) }
+                }.collect { value = it }
+        } else {
+            value = null
+        }
+    }
+}
 
 @Composable
 fun ArcaeaChartCard(
@@ -79,10 +116,13 @@ fun ArcaeaChartCard(
                     Text(difficultyWithSong.artist)
                 }
 
+                // The chart info rides along in the target state: each
+                // transition side renders with its own constant, otherwise the
+                // outgoing text would instantly pick up the new constant.
                 AnimatedContent(
-                    targetState = difficultyWithSong,
+                    targetState = difficultyWithSong to chartInfo,
                     transitionSpec = {
-                        if (targetState.ratingClass > initialState.ratingClass) {
+                        if (targetState.first.ratingClass > initialState.first.ratingClass) {
                             slideInVertically { height -> height } togetherWith
                                 slideOutVertically { height -> -height }
                         } else {
@@ -91,13 +131,13 @@ fun ArcaeaChartCard(
                         }
                     },
                     label = "ratingClassFlipping",
-                ) {
+                ) { (dws, info) ->
                     Text(
-                        text = ArcaeaFormatters.ratingText(it, chartInfo?.constant ?: 0),
+                        text = ArcaeaFormatters.ratingText(dws, info?.constant ?: 0),
                         modifier = Modifier.fillMaxWidth(),
                         color =
                             ratingClassColor(
-                                ArcaeaRatingClassDisplay.of(it.ratingClass, it.ratingClassAlias),
+                                ArcaeaRatingClassDisplay.of(dws.ratingClass, dws.ratingClassAlias),
                             ),
                     )
                 }
