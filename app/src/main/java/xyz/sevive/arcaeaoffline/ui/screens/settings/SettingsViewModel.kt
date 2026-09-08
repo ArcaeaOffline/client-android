@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
 import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
 
 class SettingsViewModel(
@@ -14,7 +15,7 @@ class SettingsViewModel(
 ) : ViewModel() {
     data class AppPreferencesUiState(
         val autoSendCrashReports: Boolean = false,
-        val resourcesApiBaseUrl: String = "",
+        val resourcesApiBaseUrl: String = ArcaeaResourcesApiClient.DEFAULT_BASE_URL,
     )
 
     val appPreferencesUiState =

@@ -48,7 +48,9 @@ fun RemoteResourceDownloadItem(
 
     TextPreferencesWidget(
         onClick = onDownload,
-        enabled = !infoState.isFetching && !isDownloading && (fileInfo?.isAvailable ?: true),
+        // fileInfo is null only while remote info is unknown (refresh failed or not yet fetched);
+        // downloading on an unprobed path would just 404, so wait for a successful refresh.
+        enabled = !infoState.isFetching && !isDownloading && fileInfo?.isAvailable == true,
         title = title,
         content = contentFor(fileInfo, isDownloading, downloadErrorText, infoState.errorText),
         leadingSlot = {

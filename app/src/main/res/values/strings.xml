@@ -334,6 +334,7 @@ CC BY-SA 3.0
     <string name="settings_general_title">General</string>
     <string name="settings_general_pref_resources_api_base_url">Resources API base URL</string>
     <string name="settings_general_pref_resources_api_base_url_dialog_title">Edit resources API base URL</string>
+    <string name="settings_general_pref_resources_api_base_url_invalid">Must start with http:// or https://</string>
     <string name="settings_about_title">About</string>
     <string name="settings_about_application_id">Application ID</string>
     <string name="settings_about_version">Version</string>

@@ -39,6 +39,9 @@ private fun ResourcesApiBaseUrlEditDialog(
 ) {
     var value by rememberSaveable { mutableStateOf(initialValue) }
 
+    val trimmed = value.trim()
+    val isValid = trimmed.startsWith("http://") || trimmed.startsWith("https://")
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.settings_general_pref_resources_api_base_url_dialog_title)) },
@@ -48,6 +51,12 @@ private fun ResourcesApiBaseUrlEditDialog(
                 onValueChange = { value = it },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                isError = value.isNotBlank() && !isValid,
+                supportingText = {
+                    if (value.isNotBlank() && !isValid) {
+                        Text(stringResource(R.string.settings_general_pref_resources_api_base_url_invalid))
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
         },
@@ -64,10 +73,10 @@ private fun ResourcesApiBaseUrlEditDialog(
         confirmButton = {
             DialogConfirmButton(
                 onClick = {
-                    onConfirm(value.trim())
+                    onConfirm(trimmed)
                     onDismiss()
                 },
-                enabled = value.isNotBlank(),
+                enabled = isValid,
                 customIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
                 customLabel = { Text(stringResource(R.string.general_save)) },
             )
@@ -85,7 +94,7 @@ internal fun SettingsGeneralScreen(
     var showBaseUrlEditDialog by rememberSaveable { mutableStateOf(false) }
     if (showBaseUrlEditDialog) {
         ResourcesApiBaseUrlEditDialog(
-            initialValue = uiState.resourcesApiBaseUrl.ifBlank { ArcaeaResourcesApiClient.DEFAULT_BASE_URL },
+            initialValue = uiState.resourcesApiBaseUrl,
             onConfirm = onSetResourcesApiBaseUrl,
             onReset = { onSetResourcesApiBaseUrl(ArcaeaResourcesApiClient.DEFAULT_BASE_URL) },
             onDismiss = { showBaseUrlEditDialog = false },

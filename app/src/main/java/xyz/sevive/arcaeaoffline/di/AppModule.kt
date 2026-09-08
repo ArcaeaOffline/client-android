@@ -4,6 +4,8 @@ import android.content.Context
 import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.MemoryCache
 import com.github.panpf.sketch.util.Logger
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
@@ -56,6 +58,15 @@ internal fun createAppDatabase(context: Context): AppDatabase = AppDatabase.getD
 internal fun createArcaeaResourcesApiClient(appPreferencesRepository: AppPreferencesRepository) =
     ArcaeaResourcesApiClient(appPreferencesRepository.resourcesApiBaseUrlFlow)
 
+internal fun createRemoteResourcesInfoStateHolder(
+    resourcesApiClient: ArcaeaResourcesApiClient,
+    appPreferencesRepository: AppPreferencesRepository,
+) = RemoteResourcesInfoStateHolder(
+    resourcesApiClient = resourcesApiClient,
+    // Skip the initial emission: the holder refreshes on construction anyway.
+    baseUrlChanges = appPreferencesRepository.resourcesApiBaseUrlFlow.drop(1).distinctUntilChanged(),
+)
+
 internal fun ocrHistoryDao(db: AppDatabase) = db.ocrHistoryDao()
 
 internal fun createOcrQueueDatabase(context: Context): OcrQueueDatabase = OcrQueueDatabase.getDatabase(context)
@@ -103,7 +114,7 @@ val appModule =
         single<UnstableFlavorPreferencesRepository>()
 
         single<ArcaeaResourcesApiClient> { create(::createArcaeaResourcesApiClient) }
-        single<RemoteResourcesInfoStateHolder>()
+        single<RemoteResourcesInfoStateHolder> { create(::createRemoteResourcesInfoStateHolder) }
 
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()

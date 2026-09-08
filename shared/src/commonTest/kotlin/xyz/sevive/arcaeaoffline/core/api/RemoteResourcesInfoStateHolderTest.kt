@@ -2,15 +2,22 @@ package xyz.sevive.arcaeaoffline.core.api
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,44 +26,62 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class RemoteResourcesInfoStateHolderTest {
     // Example index.json response (2026-09-07)
     private val indexJson =
         """{"latest": "7.0.255", "versions": [{"version": "7.0.255", "built_at": "2026-09-06T23:46:11+00:00"}]}"""
 
-    // The ktor engine executes requests on its own dispatcher; both fields are
-    // written by the test thread and read by the engine thread.
-    @Volatile
     private var handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData =
         { respondOk("") }
 
-    @Volatile
-    private var fail = false
-
     private val clients = mutableListOf<HttpClient>()
+    private val scopeJobs = mutableListOf<Job>()
+
+    // The engine defaults to a real IO dispatcher; pin it to the test scheduler so the tests stay
+    // single-threaded and deterministic.
+    private val testDispatcher = StandardTestDispatcher()
+
+    private fun engine() =
+        MockEngine(
+            MockEngineConfig().apply {
+                dispatcher = testDispatcher
+                addHandler { request -> handler(request) }
+            },
+        )
 
     private fun client() =
         ArcaeaResourcesApiClient(
             baseUrlFlow = MutableStateFlow("https://example.test/publish"),
-            httpClient = HttpClient(MockEngine { handler(it) }).also { clients.add(it) },
+            httpClient = HttpClient(engine()).also { clients.add(it) },
         )
+
+    // A plain scope, not backgroundScope: advanceUntilIdle stops while only background-scope tasks
+    // remain, which would leave the init refresh unfinished.
+    private fun holderScope(): CoroutineScope {
+        val job = SupervisorJob()
+        scopeJobs += job
+        return CoroutineScope(job + testDispatcher)
+    }
 
     @AfterTest
     fun tearDown() {
         clients.forEach { it.close() }
         clients.clear()
+        scopeJobs.forEach { it.cancel() }
+        scopeJobs.clear()
     }
 
     @Test
     fun successfulInitRefreshPopulatesState() =
-        runTest {
+        runTest(testDispatcher) {
             handler = { request ->
                 if (request.url.toString().endsWith("index.json")) respondOk(indexJson) else respondOk("")
             }
-            val holder = RemoteResourcesInfoStateHolder(client())
+            val holder = RemoteResourcesInfoStateHolder(client(), holderScope())
+            advanceUntilIdle()
 
-            // The refresh runs on the engine's dispatcher; wait for the outcome instead of asserting timing.
-            val state = holder.state.first { it.info != null || it.errorText != null }
+            val state = holder.state.value
 
             assertFalse(state.isFetching)
             assertNull(state.errorText)
@@ -65,52 +90,133 @@ class RemoteResourcesInfoStateHolderTest {
 
     @Test
     fun refreshWithFailingIndexSurfacesPerFileErrorText() =
-        runTest {
+        runTest(testDispatcher) {
+            var fail = false
             handler = { request ->
                 if (fail) throw java.io.IOException("network down")
                 if (request.url.toString().endsWith("index.json")) respondOk(indexJson) else respondOk("")
             }
-            val holder = RemoteResourcesInfoStateHolder(client())
-            holder.state.first { it.info != null }
+            val holder = RemoteResourcesInfoStateHolder(client(), holderScope())
+            advanceUntilIdle()
+            assertNotNull(holder.state.value.info)
 
             fail = true
             holder.refresh()
-            val state = holder.state.first { it.info?.packlist?.errorText != null }
+            advanceUntilIdle()
+            val state = holder.state.value
 
             assertFalse(state.isFetching)
             // An index failure degrades the info (per-file error text) instead of throwing to the holder.
-            assertEquals(false, state.info!!.packlist.isAvailable)
+            assertFalse(state.info!!.packlist.isAvailable)
             assertTrue(
                 state.info
                     .packlist.errorText!!
                     .contains("IOException"),
             )
-            assertEquals(null, state.errorText)
+            assertNull(state.errorText)
         }
 
     @Test
     fun refreshWhileFetchingIsIgnored() =
-        runTest {
+        runTest(testDispatcher) {
             val gate = CompletableDeferred<Unit>()
-            val indexRequests = AtomicInteger()
+            var indexRequests = 0
             handler = { request ->
                 if (request.url.toString().endsWith("index.json")) {
-                    indexRequests.incrementAndGet()
+                    indexRequests++
                     gate.await()
                     respondOk(indexJson)
                 } else {
                     respondOk("")
                 }
             }
-            val holder = RemoteResourcesInfoStateHolder(client())
-            // Wait until the init refresh is provably in flight.
-            holder.state.first { it.isFetching }
+            val holder = RemoteResourcesInfoStateHolder(client(), holderScope())
+            // Run until the init refresh suspends on the gate.
+            runCurrent()
+            assertTrue(holder.state.value.isFetching)
 
             holder.refresh()
             gate.complete(Unit)
-            val state = holder.state.first { it.info != null }
+            advanceUntilIdle()
 
-            assertEquals(1, indexRequests.get(), "a refresh call during an in-flight refresh must be dropped")
+            assertEquals(1, indexRequests, "a refresh call during an in-flight refresh must be dropped")
+            assertFalse(holder.state.value.isFetching)
+        }
+
+    @Test
+    fun refreshFailureKeepsPreviousInfoAndSetsErrorText() =
+        runTest(testDispatcher) {
+            var fail = false
+            val flakyClient =
+                object : ArcaeaResourcesApiClient(
+                    baseUrlFlow = MutableStateFlow("https://example.test/publish"),
+                    httpClient = HttpClient(engine()).also { clients.add(it) },
+                ) {
+                    override suspend fun fetchRemoteInfo(): ArcaeaResourcesRemoteInfo {
+                        if (fail) throw java.io.IOException("boom")
+                        return ArcaeaResourcesRemoteInfo(
+                            packlist = ArcaeaResourcesRemoteFileInfo(true, "7.0.255", 1L, null),
+                            songlist = ArcaeaResourcesRemoteFileInfo(true, "7.0.255", 1L, null),
+                            chartInfoDatabase = ArcaeaResourcesRemoteFileInfo(true, "7.0.255", 1L, null),
+                            imageHashesDatabase = ArcaeaResourcesRemoteFileInfo(true, "7.0.255", 1L, null),
+                        )
+                    }
+                }
+            val holder = RemoteResourcesInfoStateHolder(flakyClient, holderScope())
+            advanceUntilIdle()
+            val knownInfo = assertNotNull(holder.state.value.info)
+
+            fail = true
+            holder.refresh()
+            advanceUntilIdle()
+            val state = holder.state.value
+
             assertFalse(state.isFetching)
+            assertEquals(knownInfo, state.info)
+            assertTrue(state.errorText!!.contains("IOException"))
+        }
+
+    @Test
+    fun baseUrlChangeDuringRefreshRerunsAfterSettle() =
+        runTest(testDispatcher) {
+            val gate = CompletableDeferred<Unit>()
+            val urls = mutableListOf<String>()
+            val urlFlow = MutableStateFlow("https://example.test/publish")
+            val changingClient =
+                ArcaeaResourcesApiClient(
+                    baseUrlFlow = urlFlow,
+                    httpClient = HttpClient(engine()).also { clients.add(it) },
+                )
+            handler = { request ->
+                urls.add(request.url.toString())
+                if (request.url.toString().endsWith("index.json")) {
+                    gate.await()
+                    respondOk(indexJson)
+                } else {
+                    respondOk("")
+                }
+            }
+            // The flow's initial emission must be dropped upstream; start reacting from the first change.
+            val holder =
+                RemoteResourcesInfoStateHolder(
+                    changingClient,
+                    holderScope(),
+                    baseUrlChanges = urlFlow.drop(1),
+                )
+            // Run until the init refresh suspends on the gate.
+            runCurrent()
+            assertTrue(holder.state.value.isFetching)
+
+            urlFlow.value = "https://other.example/publish"
+            gate.complete(Unit)
+            advanceUntilIdle()
+
+            // The first refresh probed the old URL; the queued rerun must have probed the new one.
+            val indexUrls = urls.filter { it.endsWith("index.json") }
+            assertEquals(
+                listOf("https://example.test/publish/index.json", "https://other.example/publish/index.json"),
+                indexUrls,
+            )
+            assertFalse(holder.state.value.isFetching)
         }
 }

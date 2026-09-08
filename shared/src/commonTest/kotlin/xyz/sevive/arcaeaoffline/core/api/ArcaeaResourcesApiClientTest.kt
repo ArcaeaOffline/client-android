@@ -3,18 +3,26 @@ package xyz.sevive.arcaeaoffline.core.api
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.files.SystemTemporaryDirectory
+import kotlinx.io.readByteArray
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class ArcaeaResourcesApiClientTest {
@@ -49,7 +57,18 @@ class ArcaeaResourcesApiClientTest {
         runTest {
             val client =
                 client { request ->
-                    if (request.url.toString().endsWith("index.json")) respondOk(indexJson) else respondOk("")
+                    when {
+                        request.url.toString().endsWith("index.json") -> {
+                            assertEquals(HttpMethod.Get, request.method)
+                            respondOk(indexJson)
+                        }
+
+                        else -> {
+                            // Probes must stay HEAD: probing with GET would pull the whole file just to test existence.
+                            assertEquals(HttpMethod.Head, request.method)
+                            respondOk("")
+                        }
+                    }
                 }
 
             val info = client.fetchRemoteInfo()
@@ -166,4 +185,79 @@ class ArcaeaResourcesApiClientTest {
         assertEquals(expectedBuiltAt, parseBuiltAt("2026-09-06T23:46:11+00:00"))
         assertEquals(null, parseBuiltAt("not a date"))
     }
+
+    @Test
+    fun fetchRemoteInfoHandlesLatestMissingFromVersions() =
+        runTest {
+            val client =
+                client { request ->
+                    if (request.url.toString().endsWith("index.json")) {
+                        respondOk(
+                            """{"latest": "7.0.255", "versions": [{"version": "7.0.0", "built_at": "2026-01-01T00:00:00+00:00"}]}""",
+                        )
+                    } else {
+                        respondOk("")
+                    }
+                }
+
+            val info = client.fetchRemoteInfo()
+
+            for (file in listOf(info.packlist, info.songlist, info.chartInfoDatabase, info.imageHashesDatabase)) {
+                assertEquals("7.0.255", file.version)
+                assertEquals(null, file.builtAt)
+            }
+        }
+
+    @Test
+    fun fetchRemoteInfoPicksBuiltAtOfMatchingVersion() =
+        runTest {
+            val client =
+                client { request ->
+                    if (request.url.toString().endsWith("index.json")) {
+                        respondOk(
+                            """{"latest": "7.0.255", "versions": [""" +
+                                """{"version": "7.0.0", "built_at": "2026-01-01T00:00:00+00:00"}, """ +
+                                """{"version": "7.0.255", "built_at": "2026-09-06T23:46:11+00:00"}]}""",
+                        )
+                    } else {
+                        respondOk("")
+                    }
+                }
+
+            val info = client.fetchRemoteInfo()
+
+            for (file in listOf(info.packlist, info.songlist, info.chartInfoDatabase, info.imageHashesDatabase)) {
+                assertEquals("7.0.255", file.version)
+                assertEquals(expectedBuiltAt, file.builtAt)
+            }
+        }
+
+    @Test
+    fun downloadWritesChunkedBodyToFile() =
+        runTest {
+            // Two full download chunks plus a tail, to pin down the copy loop's boundaries.
+            val expected = ByteArray(2 * 64 * 1024 + 17) { (it % 251).toByte() }
+            val client =
+                client { request ->
+                    when {
+                        request.url.toString().endsWith("index.json") -> respondOk(indexJson)
+                        request.url.toString().endsWith("ci.db") -> respond(expected)
+                        else -> respondError(HttpStatusCode.NotFound)
+                    }
+                }
+
+            val dir = Path(SystemTemporaryDirectory, "arcaea-resources-client-test")
+            val dest = Path(dir, "ci.db")
+            SystemFileSystem.createDirectories(dir)
+            try {
+                client.downloadChartInfoDatabase(dest)
+
+                val actual = SystemFileSystem.source(dest).buffered().use { it.readByteArray() }
+                assertEquals(expected.size, actual.size)
+                assertTrue(expected.contentEquals(actual))
+            } finally {
+                SystemFileSystem.delete(dest, mustExist = false)
+                SystemFileSystem.delete(dir, mustExist = false)
+            }
+        }
 }

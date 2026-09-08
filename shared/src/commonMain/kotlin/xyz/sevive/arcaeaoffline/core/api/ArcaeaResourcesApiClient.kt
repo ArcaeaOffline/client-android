@@ -81,7 +81,8 @@ data class ArcaeaResourcesRemoteInfo(
         }
 }
 
-class ArcaeaResourcesApiClient(
+// open for testing: holder tests override fetchRemoteInfo to exercise the holder's failure path.
+open class ArcaeaResourcesApiClient(
     private val baseUrlFlow: Flow<String>,
     private val httpClient: HttpClient = platformHttpClient(),
 ) {
@@ -96,7 +97,7 @@ class ArcaeaResourcesApiClient(
     suspend fun songlist(): String = publishText(versionedPath(DownloadableResource.SONGLIST))
 
     /** Fetches the index first, then probes every published file in parallel; one file's failure does not affect the others. */
-    suspend fun fetchRemoteInfo(): ArcaeaResourcesRemoteInfo =
+    open suspend fun fetchRemoteInfo(): ArcaeaResourcesRemoteInfo =
         coroutineScope {
             val (index, indexErrorText) =
                 try {

@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
-import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
@@ -42,8 +41,12 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUi
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import java.io.IOException
 
+/**
+ * Holds the application context injected by Koin (androidContext() resolves to the Application,
+ * not an Activity), so keeping it for the ViewModel lifetime does not leak UI.
+ */
 class OcrDependenciesScreenViewModel(
-    private val context: Context,
+    context: Context,
     private val resourcesApiClient: ArcaeaResourcesApiClient,
     private val remoteResourcesInfoStateHolder: RemoteResourcesInfoStateHolder,
 ) : ViewModel() {
@@ -115,10 +118,8 @@ class OcrDependenciesScreenViewModel(
                 ImageHashesDatabaseRemoteDownloadUiState(isWorking = true)
 
             val paths = OcrDependencyPaths()
-            val cachePath =
-                Path((context.externalCacheDir ?: context.cacheDir).absolutePath) /
-                    "image-hashes-db-download.db"
-            // Staged next to the destination so the final move stays on one filesystem.
+            // Staged next to the destination so the final move stays on one filesystem; the download
+            // itself truncates the staging file, so no separate scratch copy is needed.
             val stagingPath = paths.parentDir / "image-hashes.db.staging"
 
             try {
@@ -126,18 +127,11 @@ class OcrDependenciesScreenViewModel(
                     throw IllegalStateException("Create dependencies parent directory failed!")
                 }
 
-                resourcesApiClient.downloadImageHashesDatabase(cachePath)
+                resourcesApiClient.downloadImageHashesDatabase(stagingPath)
 
                 // Same as manual import: the file is only promoted after it opens read-only and builds an ImageHashesDatabase.
-                OcrDependencyLoader.imageHashesSQLiteDatabase(cachePath).use { sqliteDb ->
+                OcrDependencyLoader.imageHashesSQLiteDatabase(stagingPath).use { sqliteDb ->
                     ImageHashesDatabase(sqliteDb)
-                }
-
-                // Copy to a staging file first: an interrupted direct copy would truncate the current ih.db.
-                SystemFileSystem.source(cachePath).buffered().use { src ->
-                    SystemFileSystem.sink(stagingPath).buffered().use { dst ->
-                        src.transferTo(dst)
-                    }
                 }
 
                 // atomicMove does not overwrite; remove the current file first.
@@ -156,10 +150,8 @@ class OcrDependenciesScreenViewModel(
                 _imageHashesDatabaseRemoteDownloadUiState.value =
                     ImageHashesDatabaseRemoteDownloadUiState(error = throwableToErrorText(e))
             } finally {
-                for (path in listOf(cachePath, stagingPath)) {
-                    if (SystemFileSystem.metadataOrNull(path) != null) {
-                        SystemFileSystem.delete(path)
-                    }
+                if (SystemFileSystem.metadataOrNull(stagingPath) != null) {
+                    SystemFileSystem.delete(stagingPath)
                 }
             }
         }

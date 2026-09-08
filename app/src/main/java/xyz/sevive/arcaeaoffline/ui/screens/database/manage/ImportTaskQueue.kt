@@ -7,9 +7,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
 
@@ -30,17 +31,22 @@ internal class ImportTaskQueue(
         val action: suspend CoroutineScope.() -> Unit,
     )
 
+    // Consumer and tasks anchor to parentScope's Job: cancelling parentScope cancels queued and running tasks.
+    private val parentJob =
+        checkNotNull(parentScope.coroutineContext[Job]) { "parentScope must carry a Job in its context" }
+
     private val taskScope =
-        CoroutineScope(SupervisorJob(parentScope.coroutineContext[Job]!!) + Dispatchers.IO)
+        CoroutineScope(SupervisorJob(parentJob) + Dispatchers.IO)
     private val taskChannel = Channel<Task>(Channel.UNLIMITED)
 
-    private val _isWorking = MutableStateFlow(false)
-    val isWorking: StateFlow<Boolean> = _isWorking.asStateFlow()
+    private val pendingTaskCount = MutableStateFlow(0)
+
+    /** True from the moment a task is submitted until it settles, so the UI never flickers between queued tasks. */
+    val isWorking: Flow<Boolean> = pendingTaskCount.map { it > 0 }
 
     init {
         parentScope.launch(Dispatchers.Default) {
             taskChannel.consumeEach { task ->
-                _isWorking.value = true
                 logger.d { "Processing task ${task.uuid}" }
                 taskScope
                     .launch {
@@ -54,12 +60,13 @@ internal class ImportTaskQueue(
                             )
                         }
                     }.join()
-                _isWorking.value = false
+                pendingTaskCount.update { it - 1 }
             }
         }
     }
 
     suspend fun send(action: suspend CoroutineScope.() -> Unit) {
+        pendingTaskCount.update { it + 1 }
         val task = Task(action = action)
         taskChannel.send(task)
         logger.d { "Task ${task.uuid} sent" }
