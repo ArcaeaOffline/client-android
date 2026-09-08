@@ -10,6 +10,8 @@ import org.koin.plugin.module.dsl.create
 import org.koin.plugin.module.dsl.single
 import org.koin.plugin.module.dsl.viewModel
 import org.koin.plugin.module.dsl.worker
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
+import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
 import xyz.sevive.arcaeaoffline.core.di.coreModule
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
@@ -50,6 +52,9 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstab
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
 
 internal fun createAppDatabase(context: Context): AppDatabase = AppDatabase.getDatabase(context)
+
+internal fun createArcaeaResourcesApiClient(appPreferencesRepository: AppPreferencesRepository) =
+    ArcaeaResourcesApiClient(appPreferencesRepository.resourcesApiBaseUrlFlow)
 
 internal fun ocrHistoryDao(db: AppDatabase) = db.ocrHistoryDao()
 
@@ -96,6 +101,9 @@ val appModule =
         single<EmergencyModePreferencesRepository>()
         single<OcrQueuePreferencesRepository>()
         single<UnstableFlavorPreferencesRepository>()
+
+        single<ArcaeaResourcesApiClient> { create(::createArcaeaResourcesApiClient) }
+        single<RemoteResourcesInfoStateHolder>()
 
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()

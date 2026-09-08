@@ -20,6 +20,8 @@
     <string name="general_no_results">无结果</string>
     <string name="general_updated_at">更新于 %s</string>
     <string name="general_unknown_error">未知错误</string>
+    <string name="general_unknown">未知</string>
+    <string name="general_downloading">正在下载……</string>
 
     <string name="general_sort_ascending">升序</string>
     <string name="general_sort_ascending_short">升序</string>
@@ -139,7 +141,12 @@
     <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
 
+    <string name="database_manage_download_title">从网络下载…</string>
     <string name="database_manage_refresh_remote_info">刷新远端状态</string>
+    <string name="database_manage_download_packlist">packlist</string>
+    <string name="database_manage_download_songlist">songlist</string>
+    <string name="database_manage_download_chart_info_database">谱面信息数据库</string>
+    <string name="database_manage_download_started">正在下载……</string>
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_play_results">游玩记录</string>
 

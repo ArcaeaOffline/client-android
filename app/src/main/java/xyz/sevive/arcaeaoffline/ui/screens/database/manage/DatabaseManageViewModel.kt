@@ -10,20 +10,25 @@ import androidx.sqlite.driver.bundled.SQLITE_OPEN_READONLY
 import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import org.apache.commons.compress.archivers.zip.ZipFile
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
+import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
+import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
+import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoUiState
+import xyz.sevive.arcaeaoffline.core.api.throwableToErrorText
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaPacklistImporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSonglistImporter
@@ -46,7 +51,6 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import kotlin.time.Duration.Companion.seconds
-import kotlin.uuid.Uuid
 
 class DatabaseManageViewModel(
     private val packRepo: PackRepository,
@@ -57,6 +61,8 @@ class DatabaseManageViewModel(
     private val difficultyLocalizedRepo: DifficultyLocalizedRepository,
     private val chartInfoRepo: ChartInfoRepository,
     private val playResultRepo: PlayResultRepository,
+    private val resourcesApiClient: ArcaeaResourcesApiClient,
+    private val remoteResourcesInfoStateHolder: RemoteResourcesInfoStateHolder,
 ) : ViewModel() {
     companion object {
         private const val LOG_TAG = "DatabaseManageVM"
@@ -68,6 +74,9 @@ class DatabaseManageViewModel(
         private const val LOG_TAG_IMPORT_CHART_INFO_DATABASE = "I-CIDb"
         private const val LOG_TAG_IMPORT_ST3 = "I-St3"
         private const val LOG_TAG_EXPORT_PLAY_RESULTS = "E-PR"
+        private const val LOG_TAG_DOWNLOAD_PACKLIST = "D-Pklst"
+        private const val LOG_TAG_DOWNLOAD_SONGLIST = "D-Slst"
+        private const val LOG_TAG_DOWNLOAD_CHART_INFO_DATABASE = "D-CIDb"
     }
 
     private val importLogManager = ImportLogManager()
@@ -75,45 +84,37 @@ class DatabaseManageViewModel(
     internal data class UiState(
         val isWorking: Boolean = false,
         val logs: List<ImportLogObject> = emptyList(),
-    )
-
-    data class Task(
-        val uuid: Uuid = Uuid.generateV4(),
-        val action: suspend CoroutineScope.() -> Unit,
+        val remoteResourcesInfoState: RemoteResourcesInfoUiState = RemoteResourcesInfoUiState(),
+        val downloadingResources: Set<DownloadableResource> = emptySet(),
     )
 
     private val logger = Logger.withTag(LOG_TAG)
 
-    private val taskChannelActive = MutableStateFlow(false)
-    private val taskScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val taskQueue =
+        ImportTaskQueue(
+            parentScope = viewModelScope,
+            importLogManager = importLogManager,
+            logger = logger,
+        )
 
-    private val taskChannel = Channel<Task>(Channel.UNLIMITED)
+    /** Resources with a download requested (queued or running); removed when the task settles. */
+    private val downloadingResources = MutableStateFlow<Set<DownloadableResource>>(emptySet())
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            taskChannel.consumeEach {
-                taskChannelActive.value = true
-                logger.d { "Processing task ${it.uuid}" }
-                taskScope
-                    .launch {
-                        try {
-                            it.action(this)
-                        } catch (e: Throwable) {
-                            logger.e(e) { "Error processing task ${it.uuid}" }
-                            importLogManager.append(
-                                tag = null,
-                                event = ImportLogEvent.Raw(e.toString()),
-                            )
-                        }
-                    }.join()
-                taskChannelActive.value = false
-            }
-        }
-    }
+    fun refreshRemoteResourcesInfo() = remoteResourcesInfoStateHolder.refresh()
 
     internal val uiState =
-        combine(taskChannelActive, importLogManager.logs) { isWorking, logs ->
-            UiState(isWorking = isWorking, logs = logs.sortedByDescending { it.timestamp })
+        combine(
+            taskQueue.isWorking,
+            importLogManager.logs,
+            remoteResourcesInfoStateHolder.state,
+            downloadingResources,
+        ) { isWorking, logs, remoteResourcesInfoState, downloadingResources ->
+            UiState(
+                isWorking = isWorking,
+                logs = logs.sortedByDescending { it.timestamp },
+                remoteResourcesInfoState = remoteResourcesInfoState,
+                downloadingResources = downloadingResources,
+            )
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
@@ -123,10 +124,7 @@ class DatabaseManageViewModel(
     private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = bufferedReader(charset).use { it.readText() }
 
     private suspend fun sendTask(action: suspend CoroutineScope.() -> Unit) {
-        Task(action = action).let {
-            taskChannel.send(it)
-            logger.d { "Task ${it.uuid} sent" }
-        }
+        taskQueue.send(action)
     }
 
     private suspend fun importPacklistTask(packlistContent: String) {
@@ -389,6 +387,71 @@ class DatabaseManageViewModel(
             sendTask {
                 context.contentResolver.openOutputStream(uri)?.use {
                     exportPlayResults(it)
+                }
+            }
+        }
+    }
+
+    /**
+     * Queues a download task: marks the resource busy from submission (so the item
+     * shows "downloading" and stays disabled while queued or running), and logs
+     * start and failure under [logTag] so errors stay associated with their entry.
+     */
+    private fun enqueueDownloadTask(
+        resource: DownloadableResource,
+        logTag: String,
+        action: suspend CoroutineScope.() -> Unit,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Read-modify-write on a dispatcher shared with other downloads: value += is not atomic.
+            downloadingResources.update { it + resource }
+            sendTask {
+                importLogManager.append(
+                    logTag,
+                    ImportLogEvent.SimpleString(R.string.database_manage_download_started),
+                )
+
+                try {
+                    action()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    logger.e(e) { "Error downloading $resource" }
+                    importLogManager.append(logTag, ImportLogEvent.Raw(throwableToErrorText(e)))
+                } finally {
+                    downloadingResources.update { it - resource }
+                }
+            }
+        }
+    }
+
+    fun downloadPacklist() {
+        enqueueDownloadTask(DownloadableResource.PACKLIST, LOG_TAG_DOWNLOAD_PACKLIST) {
+            importPacklistTask(resourcesApiClient.packlist())
+        }
+    }
+
+    fun downloadSonglist(context: Context) {
+        enqueueDownloadTask(DownloadableResource.SONGLIST, LOG_TAG_DOWNLOAD_SONGLIST) {
+            val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
+            val songlistContent = resourcesApiClient.songlist()
+            importSonglistTask(songlistContent, supplementSonglistContent)
+        }
+    }
+
+    fun downloadChartInfoDatabase(context: Context) {
+        enqueueDownloadTask(DownloadableResource.CHART_INFO_DATABASE, LOG_TAG_DOWNLOAD_CHART_INFO_DATABASE) {
+            val dest = Path(context.cacheDir.resolve("chart_info_database_download.db").absolutePath)
+            try {
+                resourcesApiClient.downloadChartInfoDatabase(dest)
+
+                BundledSQLiteDriver()
+                    .open(dest.toString(), SQLITE_OPEN_READONLY)
+                    .use { conn -> importChartsInfoDatabase(conn) }
+            } finally {
+                // The download may not have created dest; deleting a missing file throws and masks the real error.
+                if (SystemFileSystem.metadataOrNull(dest) != null) {
+                    SystemFileSystem.delete(dest)
                 }
             }
         }

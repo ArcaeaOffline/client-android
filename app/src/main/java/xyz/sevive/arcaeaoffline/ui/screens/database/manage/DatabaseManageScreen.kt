@@ -2,15 +2,19 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PendingActions
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,12 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
 @Composable
 fun DatabaseManageScreen(
@@ -80,6 +86,48 @@ fun DatabaseManageScreen(
                     onImportFromInstalledArcaea = { viewModel.importArcaeaApkFromInstalled(context) },
                     onImportChartInfoDatabase = { viewModel.importChartsInfoDatabase(it, context) },
                     onImportSt3 = { viewModel.importSt3(it, context) },
+                    Modifier.fillMaxWidth(),
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                ListGroupHeader {
+                    IconRow {
+                        Icon(Icons.Default.CloudDownload, contentDescription = null)
+                        Text(stringResource(R.string.database_manage_download_title))
+                    }
+                }
+            }
+
+            item {
+                val isFetchingRemoteInfo = uiState.remoteResourcesInfoState.isFetching
+                TextPreferencesWidget(
+                    onClick = { viewModel.refreshRemoteResourcesInfo() },
+                    enabled = !isFetchingRemoteInfo,
+                    leadingSlot = {
+                        if (isFetchingRemoteInfo) {
+                            CircularProgressIndicator(Modifier.size(24.dp))
+                        } else {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    },
+                    title = stringResource(R.string.database_manage_refresh_remote_info),
+                )
+            }
+
+            item {
+                DatabaseManageDownload(
+                    remoteResourcesInfoState = uiState.remoteResourcesInfoState,
+                    downloadingResources = uiState.downloadingResources,
+                    onDownloadPacklist = { viewModel.downloadPacklist() },
+                    onDownloadSonglist = { viewModel.downloadSonglist(context) },
+                    onDownloadChartInfoDatabase = { viewModel.downloadChartInfoDatabase(context) },
                     Modifier.fillMaxWidth(),
                 )
             }
