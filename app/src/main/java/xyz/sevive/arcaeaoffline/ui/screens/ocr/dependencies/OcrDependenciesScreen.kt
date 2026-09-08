@@ -61,7 +61,12 @@ fun OcrDependenciesScreen(
             }
 
             item {
+                val importRunning by viewModel.imageHashesDatabaseImportRunning.collectAsStateWithLifecycle()
+                val remoteDownloadUiState by
+                    viewModel.imageHashesDatabaseRemoteDownloadUiState.collectAsStateWithLifecycle()
+
                 TextPreferencesWidget(
+                    enabled = !importRunning && !remoteDownloadUiState.isWorking,
                     onClick = { imageHashesDatabaseFileChooserLauncher.launch("*/*") },
                     leadingIcon = Icons.Default.FileOpen,
                     title = stringResource(R.string.general_import),
@@ -72,11 +77,13 @@ fun OcrDependenciesScreen(
                 val remoteInfoState by viewModel.remoteResourcesInfoState.collectAsStateWithLifecycle()
                 val remoteDownloadUiState by
                     viewModel.imageHashesDatabaseRemoteDownloadUiState.collectAsStateWithLifecycle()
+                val importRunning by viewModel.imageHashesDatabaseImportRunning.collectAsStateWithLifecycle()
 
                 RemoteResourceDownloadItem(
                     resource = DownloadableResource.IMAGE_HASHES_DATABASE,
                     infoState = remoteInfoState,
                     isDownloading = remoteDownloadUiState.isWorking,
+                    isOtherWriteRunning = importRunning,
                     downloadErrorText = remoteDownloadUiState.error,
                     title = stringResource(R.string.ocr_dependencies_download_from_network),
                     onDownload = { viewModel.requestImageHashesDatabaseDownload() },

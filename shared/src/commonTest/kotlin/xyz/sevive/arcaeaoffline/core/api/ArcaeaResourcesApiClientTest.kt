@@ -8,10 +8,13 @@ import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import kotlinx.io.IOException
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
@@ -36,6 +39,7 @@ class ArcaeaResourcesApiClientTest {
 
     private fun client(
         baseUrl: String = "https://example.test/publish",
+        maxResourceBytes: Long = 20L * 1024 * 1024,
         handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData,
     ): ArcaeaResourcesApiClient {
         val httpClient = HttpClient(MockEngine { handler(it) })
@@ -43,6 +47,7 @@ class ArcaeaResourcesApiClientTest {
         return ArcaeaResourcesApiClient(
             baseUrlFlow = MutableStateFlow(baseUrl),
             httpClient = httpClient,
+            maxResourceBytes = maxResourceBytes,
         )
     }
 
@@ -260,6 +265,65 @@ class ArcaeaResourcesApiClientTest {
                 val actual = SystemFileSystem.source(dest).buffered().use { it.readByteArray() }
                 assertEquals(expected.size, actual.size)
                 assertTrue(expected.contentEquals(actual))
+            } finally {
+                SystemFileSystem.delete(dest, mustExist = false)
+                SystemFileSystem.delete(dir, mustExist = false)
+            }
+        }
+
+    @Test
+    fun publishTextRejectsOversizedDeclaredBody() =
+        runTest {
+            // The declared length must match the body, or ktor rejects the response itself before
+            // the client's own size check runs.
+            val oversized = ByteArray(2048) { 'x'.code.toByte() }
+            val client =
+                client(maxResourceBytes = 1024) { request ->
+                    when {
+                        request.url.toString().endsWith("index.json") -> respondOk(indexJson)
+                        else -> respond(oversized, HttpStatusCode.OK, headersOf(HttpHeaders.ContentLength, "2048"))
+                    }
+                }
+
+            val e = assertFailsWith<IOException> { client.packlist() }
+
+            assertContains(e.message!!, "exceeds")
+        }
+
+    @Test
+    fun publishTextRejectsOversizedStreamedBody() =
+        runTest {
+            // No Content-Length on the response: the streamed byte count is the bound.
+            val client =
+                client(maxResourceBytes = 1024) { request ->
+                    when {
+                        request.url.toString().endsWith("index.json") -> respondOk(indexJson)
+                        else -> respond(ByteArray(2048) { 'x'.code.toByte() })
+                    }
+                }
+
+            val e = assertFailsWith<IOException> { client.packlist() }
+
+            assertContains(e.message!!, "exceeds")
+        }
+
+    @Test
+    fun downloadRejectsOversizedBody() =
+        runTest {
+            val client =
+                client(maxResourceBytes = 1024) { request ->
+                    when {
+                        request.url.toString().endsWith("index.json") -> respondOk(indexJson)
+                        request.url.toString().endsWith("ci.db") -> respond(ByteArray(2048) { 'x'.code.toByte() })
+                        else -> respondError(HttpStatusCode.NotFound)
+                    }
+                }
+
+            val dir = Path(SystemTemporaryDirectory, "arcaea-resources-client-test-oversize")
+            val dest = Path(dir, "ci.db")
+            SystemFileSystem.createDirectories(dir)
+            try {
+                assertFailsWith<IOException> { client.downloadChartInfoDatabase(dest) }
             } finally {
                 SystemFileSystem.delete(dest, mustExist = false)
                 SystemFileSystem.delete(dir, mustExist = false)

@@ -34,6 +34,10 @@ class RemoteResourcesInfoStateHolder(
     @Volatile
     private var rerunPending = false
 
+    // Bumped on every base URL change: a probe started against the previous URL must not publish its result.
+    @Volatile
+    private var baseUrlGeneration = 0
+
     init {
         // fetch latest data once constructed
         // this requires [RemoteResourcesInfoUiState.isFetching] defaulting to false,
@@ -41,6 +45,10 @@ class RemoteResourcesInfoStateHolder(
         refresh()
         scope.launch {
             baseUrlChanges.collect {
+                // Info probed against the previous URL would misreport the new one: drop it before re-probing.
+                baseUrlGeneration++
+                _state.value = RemoteResourcesInfoUiState(isFetching = _state.value.isFetching)
+
                 // A refresh in flight probes the previous URL; queue a rerun instead of
                 // dropping the change on the isFetching guard.
                 if (_state.value.isFetching) {
@@ -56,17 +64,32 @@ class RemoteResourcesInfoStateHolder(
         if (_state.value.isFetching) return
 
         _state.value = _state.value.copy(isFetching = true)
+        val generation = baseUrlGeneration
         scope.launch {
+            var result: ArcaeaResourcesRemoteInfo? = null
+            var failureText: String? = null
             try {
-                val info = resourcesApiClient.fetchRemoteInfo()
-                _state.value = RemoteResourcesInfoUiState(isFetching = false, info = info)
+                result = resourcesApiClient.fetchRemoteInfo()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 logger.e(e) { "Error refreshing remote resources info" }
-                // Keep the previously fetched info: a transient failure must not wipe known metadata.
-                _state.value = _state.value.copy(isFetching = false, errorText = throwableToErrorText(e))
+                failureText = throwableToErrorText(e)
             }
+
+            if (generation == baseUrlGeneration) {
+                _state.value =
+                    if (result != null) {
+                        RemoteResourcesInfoUiState(isFetching = false, info = result)
+                    } else {
+                        // Keep the previously fetched info: a transient failure must not wipe known metadata.
+                        _state.value.copy(isFetching = false, errorText = failureText)
+                    }
+            } else {
+                // The collector already cleared the state; just release the guard so the rerun can start.
+                _state.value = _state.value.copy(isFetching = false)
+            }
+
             if (rerunPending) {
                 rerunPending = false
                 refresh()

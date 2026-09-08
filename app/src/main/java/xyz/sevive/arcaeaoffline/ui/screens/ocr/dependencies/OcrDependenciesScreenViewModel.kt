@@ -103,6 +103,10 @@ class OcrDependenciesScreenViewModel(
     val imageHashesDatabaseRemoteDownloadUiState =
         _imageHashesDatabaseRemoteDownloadUiState.asStateFlow()
 
+    /** True while a manual ih.db import runs; both import and download write the same files. */
+    private val _imageHashesDatabaseImportRunning = MutableStateFlow(false)
+    val imageHashesDatabaseImportRunning = _imageHashesDatabaseImportRunning.asStateFlow()
+
     init {
         reloadAll(context)
     }
@@ -112,6 +116,7 @@ class OcrDependenciesScreenViewModel(
     /** Downloads ih.db into cache, validates it the same way as manual import, then swaps it into place. */
     fun requestImageHashesDatabaseDownload() {
         if (_imageHashesDatabaseRemoteDownloadUiState.value.isWorking) return
+        if (_imageHashesDatabaseImportRunning.value) return
 
         viewModelScope.launch(Dispatchers.IO) {
             _imageHashesDatabaseRemoteDownloadUiState.value =
@@ -134,10 +139,8 @@ class OcrDependenciesScreenViewModel(
                     ImageHashesDatabase(sqliteDb)
                 }
 
-                // atomicMove does not overwrite; remove the current file first.
-                if (SystemFileSystem.metadataOrNull(paths.imageHashesDatabaseFile) != null) {
-                    SystemFileSystem.delete(paths.imageHashesDatabaseFile)
-                }
+                // atomicMove replaces an existing destination (REPLACE_EXISTING), so no pre-delete
+                // is needed - a pre-delete would leave ih.db missing if the process died in between.
                 SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
 
                 _imageHashesDatabaseRemoteDownloadUiState.value =
@@ -190,48 +193,54 @@ class OcrDependenciesScreenViewModel(
         uri: Uri,
         context: Context,
     ) {
+        if (_imageHashesDatabaseRemoteDownloadUiState.value.isWorking) return
+        if (_imageHashesDatabaseImportRunning.value) return
+
         val paths = OcrDependencyPaths()
         if (!mkOcrDependencyParentDirs(paths)) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (isFileTooLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
-
-            val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
-            // Staged next to the destination so the final move stays on one filesystem.
-            val stagingPath = paths.parentDir / "image-hashes.db.staging"
+            _imageHashesDatabaseImportRunning.value = true
             try {
-                // test if the input is a valid database
-                OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile).use { sqliteDb ->
-                    ImageHashesDatabase(sqliteDb)
-                }
+                if (isFileTooLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
 
-                // Copy to a staging file first: an interrupted direct copy would truncate the current ih.db.
-                SystemFileSystem.source(cacheFile).buffered().use { src ->
-                    SystemFileSystem.sink(stagingPath).buffered().use { dst ->
-                        src.transferTo(dst)
+                val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
+                // Staged next to the destination so the final move stays on one filesystem.
+                val stagingPath = paths.parentDir / "image-hashes.db.staging"
+                try {
+                    // test if the input is a valid database
+                    OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile).use { sqliteDb ->
+                        ImageHashesDatabase(sqliteDb)
+                    }
+
+                    // Copy to a staging file first: an interrupted direct copy would truncate the current ih.db.
+                    SystemFileSystem.source(cacheFile).buffered().use { src ->
+                        SystemFileSystem.sink(stagingPath).buffered().use { dst ->
+                            src.transferTo(dst)
+                        }
+                    }
+
+                    // atomicMove replaces an existing destination (REPLACE_EXISTING), so no pre-delete
+                    // is needed - a pre-delete would leave ih.db missing if the process died in between.
+                    SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
+                } catch (e: Exception) {
+                    if (e is SQLiteException) {
+                        logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
+                    } else {
+                        logger.e(e) { "Error importing image hashes database" }
+                    }
+                } finally {
+                    for (path in listOf(cacheFile, stagingPath)) {
+                        if (SystemFileSystem.metadataOrNull(path) != null) {
+                            SystemFileSystem.delete(path)
+                        }
                     }
                 }
 
-                // atomicMove does not overwrite; remove the current file first.
-                if (SystemFileSystem.metadataOrNull(paths.imageHashesDatabaseFile) != null) {
-                    SystemFileSystem.delete(paths.imageHashesDatabaseFile)
-                }
-                SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
-            } catch (e: Exception) {
-                if (e is SQLiteException) {
-                    logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
-                } else {
-                    logger.e(e) { "Error importing image hashes database" }
-                }
+                reloadImageHashesDatabaseStatusDetailUiState()
             } finally {
-                for (path in listOf(cacheFile, stagingPath)) {
-                    if (SystemFileSystem.metadataOrNull(path) != null) {
-                        SystemFileSystem.delete(path)
-                    }
-                }
+                _imageHashesDatabaseImportRunning.value = false
             }
-
-            reloadImageHashesDatabaseStatusDetailUiState()
         }
     }
 

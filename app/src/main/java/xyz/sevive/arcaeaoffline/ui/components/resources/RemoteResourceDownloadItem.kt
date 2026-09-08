@@ -41,6 +41,8 @@ fun RemoteResourceDownloadItem(
     onDownload: () -> Unit,
     modifier: Modifier = Modifier,
     isDownloading: Boolean = false,
+    /** Another ih.db writer (manual import) is running; the two flows share the staging file. */
+    isOtherWriteRunning: Boolean = false,
     downloadErrorText: String? = null,
     trailingSlot: (@Composable () -> Unit)? = null,
 ) {
@@ -50,7 +52,7 @@ fun RemoteResourceDownloadItem(
         onClick = onDownload,
         // fileInfo is null only while remote info is unknown (refresh failed or not yet fetched);
         // downloading on an unprobed path would just 404, so wait for a successful refresh.
-        enabled = !infoState.isFetching && !isDownloading && fileInfo?.isAvailable == true,
+        enabled = !infoState.isFetching && !isDownloading && !isOtherWriteRunning && fileInfo?.isAvailable == true,
         title = title,
         content = contentFor(fileInfo, isDownloading, downloadErrorText, infoState.errorText),
         leadingSlot = {

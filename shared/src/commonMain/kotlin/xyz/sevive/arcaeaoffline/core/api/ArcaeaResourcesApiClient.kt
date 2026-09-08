@@ -6,8 +6,8 @@ import io.ktor.client.request.head
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readRemaining
@@ -16,9 +16,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.io.Buffer
+import kotlinx.io.IOException
+import kotlinx.io.Sink
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.readByteArray
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -85,11 +89,13 @@ data class ArcaeaResourcesRemoteInfo(
 open class ArcaeaResourcesApiClient(
     private val baseUrlFlow: Flow<String>,
     private val httpClient: HttpClient = platformHttpClient(),
+    private val maxResourceBytes: Long = DEFAULT_MAX_RESOURCE_BYTES,
 ) {
     companion object {
         const val DEFAULT_BASE_URL = "https://arcaeaoffline.sevive.xyz/publish"
         private const val INDEX_FILE_NAME = "index.json"
         private const val DOWNLOAD_CHUNK_SIZE = 64 * 1024
+        private const val DEFAULT_MAX_RESOURCE_BYTES = 20L * 1024 * 1024
     }
 
     suspend fun packlist(): String = publishText(versionedPath(DownloadableResource.PACKLIST))
@@ -155,7 +161,11 @@ open class ArcaeaResourcesApiClient(
         val url = publishUrl(path)
         val response = httpClient.get(url)
         response.checkStatus(url)
-        return response.bodyAsText()
+        response.checkDeclaredSize(url)
+
+        val buffer = Buffer()
+        copyBodyWithinLimit(response.bodyAsChannel(), buffer, url)
+        return buffer.readByteArray().decodeToString()
     }
 
     /** HEAD-probes a file; network failures count as unavailable with the reason recorded, never thrown. */
@@ -210,23 +220,36 @@ open class ArcaeaResourcesApiClient(
         val url = publishUrl(versionedPath(resource))
         httpClient.prepareGet(url).execute { response ->
             response.checkStatus(url)
-            copyBodyToFile(response.bodyAsChannel(), dest)
-        }
-    }
-
-    private suspend fun copyBodyToFile(
-        channel: ByteReadChannel,
-        dest: Path,
-    ) {
-        SystemFileSystem.sink(dest).buffered().use { sink ->
-            val buffer = ByteArray(DOWNLOAD_CHUNK_SIZE)
-            while (!channel.isClosedForRead) {
-                val chunk = channel.readRemaining(DOWNLOAD_CHUNK_SIZE.toLong())
-                while (!chunk.exhausted()) {
-                    val read = chunk.readAtMostTo(buffer)
-                    sink.write(buffer, 0, read)
-                }
+            response.checkDeclaredSize(url)
+            SystemFileSystem.sink(dest).buffered().use { sink ->
+                copyBodyWithinLimit(response.bodyAsChannel(), sink, url)
             }
         }
     }
+
+    /** Fails fast on a declared oversized body; chunked responses have no Content-Length and rely on the streamed bound. */
+    private fun HttpResponse.checkDeclaredSize(url: String) {
+        val declared = contentLength() ?: return
+        if (declared > maxResourceBytes) throw oversizedException(url)
+    }
+
+    private suspend fun copyBodyWithinLimit(
+        channel: ByteReadChannel,
+        sink: Sink,
+        url: String,
+    ) {
+        val buffer = ByteArray(DOWNLOAD_CHUNK_SIZE)
+        var total = 0L
+        while (!channel.isClosedForRead) {
+            val chunk = channel.readRemaining(DOWNLOAD_CHUNK_SIZE.toLong())
+            while (!chunk.exhausted()) {
+                val read = chunk.readAtMostTo(buffer)
+                total += read
+                if (total > maxResourceBytes) throw oversizedException(url)
+                sink.write(buffer, 0, read)
+            }
+        }
+    }
+
+    private fun oversizedException(url: String) = IOException("Resource at $url exceeds the $maxResourceBytes byte limit")
 }

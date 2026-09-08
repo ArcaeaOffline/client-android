@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -50,9 +51,9 @@ class RemoteResourcesInfoStateHolderTest {
             },
         )
 
-    private fun client() =
+    private fun client(baseUrlFlow: Flow<String> = MutableStateFlow("https://example.test/publish")) =
         ArcaeaResourcesApiClient(
-            baseUrlFlow = MutableStateFlow("https://example.test/publish"),
+            baseUrlFlow = baseUrlFlow,
             httpClient = HttpClient(engine()).also { clients.add(it) },
         )
 
@@ -218,5 +219,34 @@ class RemoteResourcesInfoStateHolderTest {
                 indexUrls,
             )
             assertFalse(holder.state.value.isFetching)
+        }
+
+    @Test
+    fun baseUrlChangeClearsInfoWhenReprobeFails() =
+        runTest(testDispatcher) {
+            val urlFlow = MutableStateFlow("https://example.test/publish")
+            handler = { request ->
+                if (request.url.toString().contains("other.example")) throw java.io.IOException("new host down")
+                if (request.url.toString().endsWith("index.json")) respondOk(indexJson) else respondOk("")
+            }
+            val holder =
+                RemoteResourcesInfoStateHolder(
+                    client(urlFlow),
+                    holderScope(),
+                    baseUrlChanges = urlFlow.drop(1),
+                )
+            advanceUntilIdle()
+            assertNotNull(holder.state.value.info)
+
+            urlFlow.value = "https://other.example/publish"
+            advanceUntilIdle()
+            val state = holder.state.value
+
+            // The info object must describe the new URL: no version/built_at carried over from the old one.
+            val info = assertNotNull(state.info)
+            assertNull(info.packlist.version)
+            assertFalse(info.packlist.isAvailable)
+            assertTrue(info.packlist.errorText!!.contains("IOException"))
+            assertFalse(state.isFetching)
         }
 }
