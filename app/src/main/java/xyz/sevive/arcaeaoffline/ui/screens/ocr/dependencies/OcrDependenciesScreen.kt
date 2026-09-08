@@ -1,9 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -12,9 +14,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -22,6 +26,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.resources.RemoteResourceDownloadItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 
 @Composable
@@ -60,6 +65,30 @@ fun OcrDependenciesScreen(
                     onClick = { imageHashesDatabaseFileChooserLauncher.launch("*/*") },
                     leadingIcon = Icons.Default.FileOpen,
                     title = stringResource(R.string.general_import),
+                )
+            }
+
+            item {
+                val remoteInfoState by viewModel.remoteResourcesInfoState.collectAsStateWithLifecycle()
+                val remoteDownloadUiState by
+                    viewModel.imageHashesDatabaseRemoteDownloadUiState.collectAsStateWithLifecycle()
+
+                RemoteResourceDownloadItem(
+                    resource = DownloadableResource.IMAGE_HASHES_DATABASE,
+                    infoState = remoteInfoState,
+                    isDownloading = remoteDownloadUiState.isWorking,
+                    downloadErrorText = remoteDownloadUiState.error,
+                    title = stringResource(R.string.ocr_dependencies_download_from_network),
+                    onDownload = { viewModel.requestImageHashesDatabaseDownload() },
+                    trailingSlot = {
+                        if (remoteInfoState.isFetching) {
+                            CircularProgressIndicator(Modifier.size(24.dp))
+                        } else {
+                            IconButton(onClick = { viewModel.refreshRemoteResourcesInfo() }) {
+                                Icon(Icons.Default.Refresh, contentDescription = null)
+                            }
+                        }
+                    },
                 )
             }
 

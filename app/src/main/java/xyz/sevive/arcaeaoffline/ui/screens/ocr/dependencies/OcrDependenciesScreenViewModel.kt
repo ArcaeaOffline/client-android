@@ -11,6 +11,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.utils.div
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,8 +22,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
+import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.Progress
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
+import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
+import xyz.sevive.arcaeaoffline.core.api.throwableToErrorText
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
@@ -37,7 +43,9 @@ import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDataba
 import java.io.IOException
 
 class OcrDependenciesScreenViewModel(
-    context: Context,
+    private val context: Context,
+    private val resourcesApiClient: ArcaeaResourcesApiClient,
+    private val remoteResourcesInfoStateHolder: RemoteResourcesInfoStateHolder,
 ) : ViewModel() {
     companion object {
         private const val STOP_TIME_MILLIS = 5000L
@@ -79,8 +87,82 @@ class OcrDependenciesScreenViewModel(
     private val _crnnModelUiState = MutableStateFlow(OcrDependencyCrnnModelStatusUiState())
     val crnnModelUiState = _crnnModelUiState.asStateFlow()
 
+    /** Remote metadata of the published directory containing ih.db; items are disabled with an indicator while isFetching. */
+    val remoteResourcesInfoState = remoteResourcesInfoStateHolder.state
+
+    data class ImageHashesDatabaseRemoteDownloadUiState(
+        val isWorking: Boolean = false,
+        val error: String? = null,
+    )
+
+    private val _imageHashesDatabaseRemoteDownloadUiState =
+        MutableStateFlow(ImageHashesDatabaseRemoteDownloadUiState())
+    val imageHashesDatabaseRemoteDownloadUiState =
+        _imageHashesDatabaseRemoteDownloadUiState.asStateFlow()
+
     init {
         reloadAll(context)
+    }
+
+    fun refreshRemoteResourcesInfo() = remoteResourcesInfoStateHolder.refresh()
+
+    /** Downloads ih.db into cache, validates it the same way as manual import, then swaps it into place. */
+    fun requestImageHashesDatabaseDownload() {
+        if (_imageHashesDatabaseRemoteDownloadUiState.value.isWorking) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _imageHashesDatabaseRemoteDownloadUiState.value =
+                ImageHashesDatabaseRemoteDownloadUiState(isWorking = true)
+
+            val paths = OcrDependencyPaths()
+            val cachePath =
+                Path((context.externalCacheDir ?: context.cacheDir).absolutePath) /
+                    "image-hashes-db-download.db"
+            // Staged next to the destination so the final move stays on one filesystem.
+            val stagingPath = paths.parentDir / "image-hashes.db.staging"
+
+            try {
+                if (!mkOcrDependencyParentDirs(paths)) {
+                    throw IllegalStateException("Create dependencies parent directory failed!")
+                }
+
+                resourcesApiClient.downloadImageHashesDatabase(cachePath)
+
+                // Same as manual import: the file is only promoted after it opens read-only and builds an ImageHashesDatabase.
+                OcrDependencyLoader.imageHashesSQLiteDatabase(cachePath).use { sqliteDb ->
+                    ImageHashesDatabase(sqliteDb)
+                }
+
+                // Copy to a staging file first: an interrupted direct copy would truncate the current ih.db.
+                SystemFileSystem.source(cachePath).buffered().use { src ->
+                    SystemFileSystem.sink(stagingPath).buffered().use { dst ->
+                        src.transferTo(dst)
+                    }
+                }
+
+                // atomicMove does not overwrite; remove the current file first.
+                if (SystemFileSystem.metadataOrNull(paths.imageHashesDatabaseFile) != null) {
+                    SystemFileSystem.delete(paths.imageHashesDatabaseFile)
+                }
+                SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
+
+                _imageHashesDatabaseRemoteDownloadUiState.value =
+                    ImageHashesDatabaseRemoteDownloadUiState()
+                reloadImageHashesDatabaseStatusDetailUiState()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(e) { "Error downloading image hashes database" }
+                _imageHashesDatabaseRemoteDownloadUiState.value =
+                    ImageHashesDatabaseRemoteDownloadUiState(error = throwableToErrorText(e))
+            } finally {
+                for (path in listOf(cachePath, stagingPath)) {
+                    if (SystemFileSystem.metadataOrNull(path) != null) {
+                        SystemFileSystem.delete(path)
+                    }
+                }
+            }
+        }
     }
 
     private fun mkOcrDependencyParentDirs(ocrDependencyPaths: OcrDependencyPaths): Boolean =
@@ -123,17 +205,26 @@ class OcrDependenciesScreenViewModel(
             if (isFileTooLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
 
             val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
+            // Staged next to the destination so the final move stays on one filesystem.
+            val stagingPath = paths.parentDir / "image-hashes.db.staging"
             try {
                 // test if the input is a valid database
                 OcrDependencyLoader.imageHashesSQLiteDatabase(cacheFile).use { sqliteDb ->
                     ImageHashesDatabase(sqliteDb)
                 }
 
+                // Copy to a staging file first: an interrupted direct copy would truncate the current ih.db.
                 SystemFileSystem.source(cacheFile).buffered().use { src ->
-                    SystemFileSystem.sink(paths.imageHashesDatabaseFile).buffered().use { dst ->
+                    SystemFileSystem.sink(stagingPath).buffered().use { dst ->
                         src.transferTo(dst)
                     }
                 }
+
+                // atomicMove does not overwrite; remove the current file first.
+                if (SystemFileSystem.metadataOrNull(paths.imageHashesDatabaseFile) != null) {
+                    SystemFileSystem.delete(paths.imageHashesDatabaseFile)
+                }
+                SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
             } catch (e: Exception) {
                 if (e is SQLiteException) {
                     logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
@@ -141,7 +232,11 @@ class OcrDependenciesScreenViewModel(
                     logger.e(e) { "Error importing image hashes database" }
                 }
             } finally {
-                SystemFileSystem.delete(cacheFile)
+                for (path in listOf(cacheFile, stagingPath)) {
+                    if (SystemFileSystem.metadataOrNull(path) != null) {
+                        SystemFileSystem.delete(path)
+                    }
+                }
             }
 
             reloadImageHashesDatabaseStatusDetailUiState()

@@ -147,6 +147,8 @@
     <string name="database_manage_download_songlist">songlist</string>
     <string name="database_manage_download_chart_info_database">谱面信息数据库</string>
     <string name="database_manage_download_started">正在下载……</string>
+    <string name="ocr_dependencies_download_from_network">从网络下载</string>
+
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_play_results">游玩记录</string>
 
