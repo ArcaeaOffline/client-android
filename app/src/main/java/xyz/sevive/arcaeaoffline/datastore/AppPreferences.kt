@@ -5,18 +5,22 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
 import com.akuleshov7.ktoml.Toml
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import okio.BufferedSink
 import okio.BufferedSource
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
 
 @Serializable
 data class AppPreferences(
     val metadata: PreferencesMetadata = PreferencesMetadata(),
     @SerialName("auto_send_crash_reports")
     val autoSendCrashReports: Boolean = false,
+    @SerialName("resources_api_base_url")
+    val resourcesApiBaseUrl: String = ArcaeaResourcesApiClient.DEFAULT_BASE_URL,
 )
 
 object AppPreferencesSerializer : OkioSerializer<AppPreferences> {
@@ -45,9 +49,18 @@ class AppPreferencesRepository(
     private val dataStore = AppDataStoreProvider.appPreferences(context)
     val preferencesFlow = dataStore.data
 
+    val resourcesApiBaseUrlFlow =
+        preferencesFlow.map { it.resourcesApiBaseUrl }
+
     suspend fun setAutoSendCrashReports(value: Boolean) {
         dataStore.updateData { preferences ->
             preferences.copy(autoSendCrashReports = value)
+        }
+    }
+
+    suspend fun setResourcesApiBaseUrl(value: String) {
+        dataStore.updateData { preferences ->
+            preferences.copy(resourcesApiBaseUrl = value)
         }
     }
 }

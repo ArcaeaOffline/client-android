@@ -14,6 +14,7 @@ class SettingsViewModel(
 ) : ViewModel() {
     data class AppPreferencesUiState(
         val autoSendCrashReports: Boolean = false,
+        val resourcesApiBaseUrl: String = "",
     )
 
     val appPreferencesUiState =
@@ -21,12 +22,19 @@ class SettingsViewModel(
             .map {
                 AppPreferencesUiState(
                     autoSendCrashReports = it.autoSendCrashReports,
+                    resourcesApiBaseUrl = it.resourcesApiBaseUrl,
                 )
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(2500L), AppPreferencesUiState())
 
     fun setAutoSendCrashReports(value: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             appPreferencesRepository.setAutoSendCrashReports(value)
+        }
+    }
+
+    fun setResourcesApiBaseUrl(value: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appPreferencesRepository.setResourcesApiBaseUrl(value)
         }
     }
 }

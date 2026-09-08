@@ -139,6 +139,7 @@
     <string name="database_manage_import_from_arcaea_installed">从 Arcaea 导入</string>
     <string name="database_manage_import_chart_info_database">谱面信息数据库</string>
 
+    <string name="database_manage_refresh_remote_info">刷新远端状态</string>
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_play_results">游玩记录</string>
 
@@ -289,6 +290,8 @@
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">发送崩溃报告</string>
     <string name="settings_general_title">通用</string>
+    <string name="settings_general_pref_resources_api_base_url">资源 API base URL</string>
+    <string name="settings_general_pref_resources_api_base_url_dialog_title">编辑资源 API base URL</string>
     <string name="settings_about_title">关于</string>
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>
