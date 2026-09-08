@@ -142,25 +142,30 @@ class ArcaeaResourcesApiClientTest {
     @Test
     fun publishUrlNormalizesBaseUrl() =
         runTest {
-            val urls = mutableListOf<String>()
-            val client =
-                client("  https://example.test/publish/  ") { request ->
-                    urls.add(request.url.toString())
+            val engine =
+                MockEngine { request ->
                     if (request.url.toString().endsWith("index.json")) respondOk(indexJson) else respondOk("")
                 }
+            val httpClient = HttpClient(engine).also { httpClients.add(it) }
+            val client = ArcaeaResourcesApiClient(MutableStateFlow("  https://example.test/publish/  "), httpClient)
 
             client.fetchRemoteInfo()
 
+            // requestHistory is the engine's own thread-safe log: the four probes run concurrently,
+            // so collecting URLs from the handlers would race and their order is not a contract.
+            val urls = engine.requestHistory.map { it.url.toString() }
+            assertEquals("https://example.test/publish/index.json", urls.first())
             assertEquals(
-                listOf(
+                setOf(
                     "https://example.test/publish/index.json",
                     "https://example.test/publish/7.0.255/packlist",
                     "https://example.test/publish/7.0.255/songlist",
                     "https://example.test/publish/7.0.255/ci.db",
                     "https://example.test/publish/7.0.255/ih.db",
                 ),
-                urls,
+                urls.toSet(),
             )
+            assertEquals(5, urls.size)
         }
 
     @Test
