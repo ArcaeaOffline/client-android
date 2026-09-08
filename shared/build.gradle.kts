@@ -67,15 +67,26 @@ kotlin {
             implementation(libs.kotlinx.serialization)
 
             implementation(libs.bignum)
+            implementation(libs.kermit)
+
+            implementation(libs.ktor.client.core)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
         }
 
         jvmMain.dependencies {
             implementation(libs.jSystemThemeDetector)
+            implementation(libs.ktor.client.cio)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.compose.ui.test)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
         }
 
         jvmTest.dependencies {
