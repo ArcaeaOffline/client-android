@@ -125,6 +125,12 @@
     <!-- Database manage pane -->
     <string name="database_manage_title">管理</string>
 
+    <string name="database_manage_scoring_mode_title">计分方式</string>
+    <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
+    <string name="database_manage_scoring_mode_b30_r10_description">旧版潜力值规则</string>
+    <string name="database_manage_scoring_mode_b50">B50</string>
+    <string name="database_manage_scoring_mode_b50_description">现行潜力值规则（v7.0+）</string>
+
     <string name="database_manage_import_title">导入</string>
     <string name="database_manage_import_pack_entries">曲包</string>
     <string name="database_manage_import_pack_localized_entries">曲包本地化对象</string>

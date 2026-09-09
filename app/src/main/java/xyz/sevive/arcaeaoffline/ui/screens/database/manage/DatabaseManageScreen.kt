@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PendingActions
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -29,9 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesOption
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 
 @Composable
@@ -147,6 +151,40 @@ fun DatabaseManageScreen(
             item {
                 DatabaseManageExport(
                     onExportPlayResults = { viewModel.exportPlayResults(it, context) },
+                    Modifier.fillMaxWidth(),
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                ListGroupHeader {
+                    IconRow {
+                        Icon(Icons.Default.Tune, contentDescription = null)
+                        Text(stringResource(R.string.database_manage_scoring_mode_title))
+                    }
+                }
+            }
+
+            item {
+                val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
+
+                SelectPreferencesWidget(
+                    options =
+                        listOf(
+                            SelectPreferencesOption(
+                                value = ArcaeaScoringMode.B30_R10,
+                                label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
+                                description = stringResource(R.string.database_manage_scoring_mode_b30_r10_description),
+                            ),
+                            SelectPreferencesOption(
+                                value = ArcaeaScoringMode.B50,
+                                label = stringResource(R.string.database_manage_scoring_mode_b50),
+                                description = stringResource(R.string.database_manage_scoring_mode_b50_description),
+                            ),
+                        ),
+                    selected = scoringMode,
+                    onSelect = viewModel::setScoringMode,
                     Modifier.fillMaxWidth(),
                 )
             }

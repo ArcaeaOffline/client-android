@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
@@ -30,6 +31,7 @@ import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoUiState
 import xyz.sevive.arcaeaoffline.core.api.throwableToErrorText
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaPacklistImporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSonglistImporter
@@ -41,6 +43,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
@@ -63,6 +66,7 @@ class DatabaseManageViewModel(
     private val difficultyLocalizedRepo: DifficultyLocalizedRepository,
     private val chartInfoRepo: ChartInfoRepository,
     private val playResultRepo: PlayResultRepository,
+    private val propertyRepo: PropertyRepository,
     private val resourcesApiClient: ArcaeaResourcesApiClient,
     private val remoteResourcesInfoStateHolder: RemoteResourcesInfoStateHolder,
 ) : ViewModel() {
@@ -107,6 +111,19 @@ class DatabaseManageViewModel(
     private val downloadErrorTexts = MutableStateFlow<Map<DownloadableResource, String>>(emptyMap())
 
     fun refreshRemoteResourcesInfo() = remoteResourcesInfoStateHolder.refresh()
+
+    val scoringMode: StateFlow<ArcaeaScoringMode> =
+        propertyRepo
+            .scoringMode()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+                ArcaeaScoringMode.B50,
+            )
+
+    fun setScoringMode(mode: ArcaeaScoringMode) {
+        viewModelScope.launch { propertyRepo.setScoringMode(mode) }
+    }
 
     internal val uiState =
         combine(

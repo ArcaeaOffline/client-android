@@ -146,6 +146,12 @@ CC BY-SA 3.0
     <!-- Database manage pane -->
     <string name="database_manage_title">Manage</string>
 
+    <string name="database_manage_scoring_mode_title">Scoring mode</string>
+    <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
+    <string name="database_manage_scoring_mode_b30_r10_description">Legacy potential rules</string>
+    <string name="database_manage_scoring_mode_b50">B50</string>
+    <string name="database_manage_scoring_mode_b50_description">Current potential rules (v7.0+)</string>
+
     <string name="database_manage_import_title">Import…</string>
     <string name="database_manage_import_pack_entries">Packs</string>
     <string name="database_manage_import_pack_localized_entries">Pack Localized Objects</string>
