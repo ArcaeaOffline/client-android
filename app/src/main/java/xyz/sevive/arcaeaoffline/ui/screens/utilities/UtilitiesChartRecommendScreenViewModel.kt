@@ -17,9 +17,11 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
@@ -33,6 +35,7 @@ data class UtilitiesChartRecommendScreenUiState(
 class UtilitiesChartRecommendScreenViewModel(
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val potentialRepo: PotentialRepository,
+    private val propertyRepo: PropertyRepository,
 ) : ViewModel() {
     private val logger = Logger.withTag("UtilitiesChartRecommendScreenVM")
 
@@ -46,7 +49,15 @@ class UtilitiesChartRecommendScreenViewModel(
 
     init {
         viewModelScope.launch {
-            potentialRepo.b30().firstOrNull()?.let {
+            // Seed the target with the current level of the active scoring rules
+            val mode = propertyRepo.scoringMode().firstOrNull() ?: ArcaeaScoringMode.B50
+            val currentPotential =
+                when (mode) {
+                    ArcaeaScoringMode.B30_R10 -> potentialRepo.b30().firstOrNull()
+                    ArcaeaScoringMode.B50 -> potentialRepo.b50().firstOrNull()
+                }
+
+            currentPotential?.let {
                 targetPlayRating.value = ((it + 0.05) * 100).roundToInt() / 100.0
             }
         }
