@@ -125,6 +125,7 @@ fun DatabaseManageScreen(
                 DatabaseManageDownload(
                     remoteResourcesInfoState = uiState.remoteResourcesInfoState,
                     downloadingResources = uiState.downloadingResources,
+                    downloadErrorTexts = uiState.downloadErrorTexts,
                     onDownloadPacklist = { viewModel.downloadPacklist() },
                     onDownloadSonglist = { viewModel.downloadSonglist(context) },
                     onDownloadChartInfoDatabase = { viewModel.downloadChartInfoDatabase(context) },

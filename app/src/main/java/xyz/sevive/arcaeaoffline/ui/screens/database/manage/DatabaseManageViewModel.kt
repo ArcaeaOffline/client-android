@@ -88,6 +88,7 @@ class DatabaseManageViewModel(
         val logs: List<ImportLogObject> = emptyList(),
         val remoteResourcesInfoState: RemoteResourcesInfoUiState = RemoteResourcesInfoUiState(),
         val downloadingResources: Set<DownloadableResource> = emptySet(),
+        val downloadErrorTexts: Map<DownloadableResource, String> = emptyMap(),
     )
 
     private val logger = Logger.withTag(LOG_TAG)
@@ -102,6 +103,9 @@ class DatabaseManageViewModel(
     /** Resources with a download requested (queued or running); removed when the task settles. */
     private val downloadingResources = MutableStateFlow<Set<DownloadableResource>>(emptySet())
 
+    /** Last failure per downloaded resource; cleared on re-submission so the item can show the error inline. */
+    private val downloadErrorTexts = MutableStateFlow<Map<DownloadableResource, String>>(emptyMap())
+
     fun refreshRemoteResourcesInfo() = remoteResourcesInfoStateHolder.refresh()
 
     internal val uiState =
@@ -110,12 +114,14 @@ class DatabaseManageViewModel(
             importLogManager.logs,
             remoteResourcesInfoStateHolder.state,
             downloadingResources,
-        ) { isWorking, logs, remoteResourcesInfoState, downloadingResources ->
+            downloadErrorTexts,
+        ) { isWorking, logs, remoteResourcesInfoState, downloadingResources, downloadErrorTexts ->
             UiState(
                 isWorking = isWorking,
                 logs = logs.sortedByDescending { it.timestamp },
                 remoteResourcesInfoState = remoteResourcesInfoState,
                 downloadingResources = downloadingResources,
+                downloadErrorTexts = downloadErrorTexts,
             )
         }.stateIn(
             viewModelScope,
@@ -437,6 +443,7 @@ class DatabaseManageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             // Read-modify-write on a dispatcher shared with other downloads: value += is not atomic.
             downloadingResources.update { it + resource }
+            downloadErrorTexts.update { it - resource }
             sendTask {
                 importLogManager.append(
                     logTag,
@@ -449,6 +456,7 @@ class DatabaseManageViewModel(
                     throw e
                 } catch (e: Exception) {
                     logger.e(e) { "Error downloading $resource" }
+                    downloadErrorTexts.update { it + (resource to throwableToErrorText(e)) }
                     importLogManager.append(logTag, ImportLogEvent.Raw(throwableToErrorText(e)))
                 } finally {
                     downloadingResources.update { it - resource }

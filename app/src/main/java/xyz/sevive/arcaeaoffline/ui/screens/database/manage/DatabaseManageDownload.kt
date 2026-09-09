@@ -13,6 +13,7 @@ import xyz.sevive.arcaeaoffline.ui.components.resources.RemoteResourceDownloadIt
 fun DatabaseManageDownload(
     remoteResourcesInfoState: RemoteResourcesInfoUiState,
     downloadingResources: Set<DownloadableResource>,
+    downloadErrorTexts: Map<DownloadableResource, String>,
     onDownloadPacklist: () -> Unit,
     onDownloadSonglist: () -> Unit,
     onDownloadChartInfoDatabase: () -> Unit,
@@ -23,6 +24,7 @@ fun DatabaseManageDownload(
             resource = DownloadableResource.PACKLIST,
             infoState = remoteResourcesInfoState,
             isDownloading = DownloadableResource.PACKLIST in downloadingResources,
+            downloadErrorText = downloadErrorTexts[DownloadableResource.PACKLIST],
             title = stringResource(R.string.database_manage_download_packlist),
             onDownload = onDownloadPacklist,
         )
@@ -31,6 +33,7 @@ fun DatabaseManageDownload(
             resource = DownloadableResource.SONGLIST,
             infoState = remoteResourcesInfoState,
             isDownloading = DownloadableResource.SONGLIST in downloadingResources,
+            downloadErrorText = downloadErrorTexts[DownloadableResource.SONGLIST],
             title = stringResource(R.string.database_manage_download_songlist),
             onDownload = onDownloadSonglist,
         )
@@ -39,6 +42,7 @@ fun DatabaseManageDownload(
             resource = DownloadableResource.CHART_INFO_DATABASE,
             infoState = remoteResourcesInfoState,
             isDownloading = DownloadableResource.CHART_INFO_DATABASE in downloadingResources,
+            downloadErrorText = downloadErrorTexts[DownloadableResource.CHART_INFO_DATABASE],
             title = stringResource(R.string.database_manage_download_chart_info_database),
             onDownload = onDownloadChartInfoDatabase,
         )
