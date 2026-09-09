@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import kotlin.time.Instant
@@ -19,6 +20,10 @@ interface PropertyRepository {
     fun databaseVersion(): Flow<Int?>
 
     suspend fun setDatabaseVersion(ver: Int)
+
+    fun scoringMode(): Flow<ArcaeaScoringMode>
+
+    suspend fun setScoringMode(mode: ArcaeaScoringMode)
 
     suspend fun r30LastUpdatedAt(): Instant?
 
@@ -46,6 +51,18 @@ class PropertyRepositoryImpl(
 
     override suspend fun setDatabaseVersion(ver: Int) {
         this.upsert(Property(Property.KEY_VERSION, ver.toString()))
+    }
+
+    // The scoring mode describes how this database's play results are
+    // interpreted, so it lives in the database itself and travels with the
+    // database file. Falls back to the latest mode when unset or unknown.
+    override fun scoringMode(): Flow<ArcaeaScoringMode> =
+        this.find(Property.KEY_SCORING_MODE).map { property ->
+            property?.value?.toIntOrNull()?.let { ArcaeaScoringMode.fromKey(it) } ?: ArcaeaScoringMode.B50
+        }
+
+    override suspend fun setScoringMode(mode: ArcaeaScoringMode) {
+        this.upsert(Property(Property.KEY_SCORING_MODE, mode.key.toString()))
     }
 
     override suspend fun r30LastUpdatedAt(): Instant? {
