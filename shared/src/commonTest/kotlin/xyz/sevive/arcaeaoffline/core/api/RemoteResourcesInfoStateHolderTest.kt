@@ -136,11 +136,13 @@ class RemoteResourcesInfoStateHolderTest {
             runCurrent()
             assertTrue(holder.state.value.isFetching)
 
+            // Two overlapping calls: both must be dropped by the guard, not just the first one.
+            holder.refresh()
             holder.refresh()
             gate.complete(Unit)
             advanceUntilIdle()
 
-            assertEquals(1, indexRequests, "a refresh call during an in-flight refresh must be dropped")
+            assertEquals(1, indexRequests, "refresh calls during an in-flight refresh must be dropped")
             assertFalse(holder.state.value.isFetching)
         }
 
