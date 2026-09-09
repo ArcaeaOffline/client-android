@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.helpers
 
-import com.ionspin.kotlin.bignum.decimal.DecimalMode
 import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -22,18 +21,18 @@ object ArcaeaFormatters {
     }
 
     /**
-     * Format the given potential to text.
-     * If the potential is null, return "-.--" instead.
+     * Format the given potential to text, truncated (towards zero) to [scale] decimal places.
+     * If the potential is null, return a placeholder of the same width.
      */
     fun potentialToText(
         potential: Double?,
-        decimalMode: DecimalMode = DecimalMode(roundingMode = RoundingMode.TOWARDS_ZERO, scale = 2),
+        scale: Int = 3,
     ): String =
         potential
             ?.toBigDecimal()
-            ?.roundToDigitPositionAfterDecimalPoint(decimalMode.scale, decimalMode.roundingMode)
-            ?.scale(decimalMode.scale)
-            ?.toPlainString() ?: "-.--"
+            ?.roundToDigitPositionAfterDecimalPoint(scale.toLong(), RoundingMode.TOWARDS_ZERO)
+            ?.scale(scale.toLong())
+            ?.toPlainString() ?: "-." + "-".repeat(scale)
 
     /**
      * Format the given playResult to a level text.
