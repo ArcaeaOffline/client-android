@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
@@ -38,6 +39,7 @@ fun DatabaseNavEntry(
 ) {
     val navContext = LocalListDetailNavigationContext.current
     val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
+    val scoringMode by vm.scoringMode.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier,
@@ -88,21 +90,29 @@ fun DatabaseNavEntry(
                 }
             }
 
+            // The B50 route reuses the best list screen with B50 rules
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.B30.title,
+                    titleResId =
+                        when (scoringMode) {
+                            ArcaeaScoringMode.B30_R10 -> DatabaseSubScreen.B30.title
+                            ArcaeaScoringMode.B50 -> R.string.database_b50_list_title
+                        },
                     icon = Icons.Default.Star,
                 ) {
                     navContext.navigateToDetail(DatabaseSubScreen.B30.route)
                 }
             }
 
-            item {
-                NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.R30.title,
-                    icon = Icons.Default.History,
-                ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.R30.route)
+            // The recent queue only exists under the B30 + R10 rules
+            if (scoringMode == ArcaeaScoringMode.B30_R10) {
+                item {
+                    NavEntryNavigateButton(
+                        titleResId = DatabaseSubScreen.R30.title,
+                        icon = Icons.Default.History,
+                    ) {
+                        navContext.navigateToDetail(DatabaseSubScreen.R30.route)
+                    }
                 }
             }
 

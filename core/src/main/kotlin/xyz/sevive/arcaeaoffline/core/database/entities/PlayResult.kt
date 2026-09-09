@@ -9,6 +9,7 @@ import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.extensions.PlayResultSerializer
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -40,3 +41,12 @@ data class PlayResult(
 fun PlayResult.playRating(constant: Int): Double = calculatePlayRating(this.score, constant)
 
 fun PlayResult.playRating(chartInfo: ChartInfo) = playRating(chartInfo.constant)
+
+fun PlayResult.playRating(
+    chartInfo: ChartInfo,
+    scoringMode: ArcaeaScoringMode,
+): Double =
+    when (scoringMode) {
+        ArcaeaScoringMode.B30_R10 -> playRating(chartInfo)
+        ArcaeaScoringMode.B50 -> calculatePlayRating(score, chartInfo.constant, clearType)
+    }

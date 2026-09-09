@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
@@ -45,6 +46,12 @@ import kotlin.math.round
 @Composable
 fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
+
+    val titleResId = when (scoringMode) {
+        ArcaeaScoringMode.B30_R10 -> DatabaseSubScreen.B30.title
+        ArcaeaScoringMode.B50 -> R.string.database_b50_list_title
+    }
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
     if (showOptions) {
@@ -80,7 +87,7 @@ fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel())
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                title = { Text(stringResource(DatabaseSubScreen.B30.title)) },
+                title = { Text(stringResource(titleResId)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {
                         Icon(Icons.Default.Refresh, null)

@@ -134,6 +134,7 @@ private fun DatabaseB30ListItemPreview() {
                 } else {
                     null
                 },
+            playRatingText = "13.000",
             chartInfo =
                 if (withDifficulty) {
                     ChartInfo("test", ArcaeaRatingClass.FUTURE, constant = 115, notes = null)

@@ -3,8 +3,10 @@ package xyz.sevive.arcaeaoffline.ui.screens.database
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
@@ -77,4 +79,13 @@ class DatabaseNavEntryViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 1000L
     }
+
+    val scoringMode: StateFlow<ArcaeaScoringMode> =
+        propertyRepo
+            .scoringMode()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                ArcaeaScoringMode.B50,
+            )
 }

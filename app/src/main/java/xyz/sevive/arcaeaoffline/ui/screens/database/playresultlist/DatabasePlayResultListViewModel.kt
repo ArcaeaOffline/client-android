@@ -18,11 +18,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
@@ -35,6 +37,7 @@ class DatabasePlayResultListViewModel(
     private val songRepo: SongRepository,
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val chartInfoRepo: ChartInfoRepository,
+    private val propertyRepo: PropertyRepository,
 ) : ViewModel() {
     enum class SortOrder {
         ASC,
@@ -50,9 +53,10 @@ class DatabasePlayResultListViewModel(
         val playResult: PlayResult,
         val display: UiDisplayChartCacheHolder.Entry? = null,
         val isDeletedInGame: Boolean = false,
+        val scoringMode: ArcaeaScoringMode,
     ) {
         val uuid = playResult.uuid
-        val playRating = display?.chartInfo?.let { playResult.playRating(it) }
+        val playRating = display?.chartInfo?.let { playResult.playRating(it, scoringMode) }
         val potentialText =
             buildAnnotatedString {
                 val baseText = ArcaeaFormatters.potentialToText(playRating)
@@ -84,7 +88,9 @@ class DatabasePlayResultListViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rawListItems =
-        playResultRepo.findAll().transformLatest { dbItems ->
+        combine(playResultRepo.findAll(), propertyRepo.scoringMode()) { dbItems, scoringMode ->
+            dbItems to scoringMode
+        }.transformLatest { (dbItems, scoringMode) ->
             isLoading.value = true
 
             val chartCache = UiDisplayChartCacheHolder()
@@ -108,6 +114,7 @@ class DatabasePlayResultListViewModel(
                         playResult = playResult,
                         display = display,
                         isDeletedInGame = playResult.songId in deletedSongIds,
+                        scoringMode = scoringMode,
                     )
                 }
 
