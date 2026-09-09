@@ -55,6 +55,10 @@ private fun ResourcesApiBaseUrlEditDialog(
                 supportingText = {
                     if (value.isNotBlank() && !isValid) {
                         Text(stringResource(R.string.settings_general_pref_resources_api_base_url_invalid))
+                    } else if (trimmed.startsWith("http://")) {
+                        // Android 9+ silently blocks cleartext: an http URL is "valid" here, but
+                        // every probe and download would fail with a generic network error.
+                        Text(stringResource(R.string.settings_general_pref_resources_api_base_url_http_hint))
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -302,6 +302,7 @@
     <string name="settings_general_pref_resources_api_base_url">资源 API base URL</string>
     <string name="settings_general_pref_resources_api_base_url_dialog_title">编辑资源 API base URL</string>
     <string name="settings_general_pref_resources_api_base_url_invalid">必须以 http:// 或 https:// 开头</string>
+    <string name="settings_general_pref_resources_api_base_url_http_hint">Android 9 及以上默认禁止明文（http://）流量，非 HTTPS 服务器可能无法访问</string>
     <string name="settings_about_title">关于</string>
     <string name="settings_about_application_id">应用 ID</string>
     <string name="settings_about_version">版本</string>
