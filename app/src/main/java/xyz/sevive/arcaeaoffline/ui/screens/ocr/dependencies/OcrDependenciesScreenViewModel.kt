@@ -120,10 +120,12 @@ class OcrDependenciesScreenViewModel(
         if (_imageHashesDatabaseRemoteDownloadUiState.value.isWorking) return
         if (_imageHashesDatabaseImportRunning.value) return
 
-        viewModelScope.launch(Dispatchers.IO) {
-            _imageHashesDatabaseRemoteDownloadUiState.value =
-                ImageHashesDatabaseRemoteDownloadUiState(isWorking = true)
+        // Set before dispatching: the IO coroutine runs later, and a double tap in that window
+        // would otherwise pass the guard twice and race on the shared staging file.
+        _imageHashesDatabaseRemoteDownloadUiState.value =
+            ImageHashesDatabaseRemoteDownloadUiState(isWorking = true)
 
+        viewModelScope.launch(Dispatchers.IO) {
             val paths = OcrDependencyPaths()
             // Staged next to the destination so the final move stays on one filesystem; the download
             // itself truncates the staging file, so no separate scratch copy is needed.
@@ -201,8 +203,11 @@ class OcrDependenciesScreenViewModel(
         val paths = OcrDependencyPaths()
         if (!mkOcrDependencyParentDirs(paths)) return
 
+        // Set before dispatching, same as [requestImageHashesDatabaseDownload]: both flows write
+        // the same files, so the flag must be visible to the next click before any suspension.
+        _imageHashesDatabaseImportRunning.value = true
+
         viewModelScope.launch(Dispatchers.IO) {
-            _imageHashesDatabaseImportRunning.value = true
             try {
                 context.uriSizeIfTooLarge(uri)?.let { actualSize ->
                     logger.w {

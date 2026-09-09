@@ -440,10 +440,12 @@ class DatabaseManageViewModel(
         logTag: String,
         action: suspend CoroutineScope.() -> Unit,
     ) {
+        // Read-modify-write on a dispatcher shared with other downloads: value += is not atomic.
+        // Set before dispatching so the item shows "downloading" immediately and a double tap
+        // cannot re-enter before the queued task starts.
+        downloadingResources.update { it + resource }
+        downloadErrorTexts.update { it - resource }
         viewModelScope.launch(Dispatchers.IO) {
-            // Read-modify-write on a dispatcher shared with other downloads: value += is not atomic.
-            downloadingResources.update { it + resource }
-            downloadErrorTexts.update { it - resource }
             sendTask {
                 importLogManager.append(
                     logTag,

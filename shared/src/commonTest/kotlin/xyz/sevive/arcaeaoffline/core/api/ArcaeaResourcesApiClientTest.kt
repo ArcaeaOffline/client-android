@@ -329,4 +329,39 @@ class ArcaeaResourcesApiClientTest {
                 SystemFileSystem.delete(dir, mustExist = false)
             }
         }
+
+    @Test
+    fun fetchRemoteInfoRejectsFileWhenHeadReportsOversize() =
+        runTest {
+            // The HEAD response carries no body; the client must reject on the declared
+            // Content-Length alone, before any download is attempted.
+            val client =
+                client(maxResourceBytes = 1024) { request ->
+                    when {
+                        request.url.toString().endsWith("index.json") -> {
+                            respondOk(indexJson)
+                        }
+
+                        request.url.toString().endsWith("packlist") -> {
+                            respond("", HttpStatusCode.OK, headersOf(HttpHeaders.ContentLength, "2048"))
+                        }
+
+                        request.url.toString().endsWith("songlist") -> {
+                            respond("", HttpStatusCode.OK, headersOf(HttpHeaders.ContentLength, "1024"))
+                        }
+
+                        else -> {
+                            respondOk("")
+                        }
+                    }
+                }
+
+            val info = client.fetchRemoteInfo()
+
+            assertEquals(false, info.packlist.isAvailable)
+            assertContains(info.packlist.errorText!!, "exceeds")
+            // Content-Length exactly at the limit is still available.
+            assertEquals(true, info.songlist.isAvailable)
+            assertEquals(true, info.chartInfoDatabase.isAvailable)
+        }
 }

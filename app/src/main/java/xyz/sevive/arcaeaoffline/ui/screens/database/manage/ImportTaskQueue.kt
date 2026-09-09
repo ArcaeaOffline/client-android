@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import co.touchlab.kermit.Logger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,7 +18,8 @@ import kotlin.uuid.Uuid
 /**
  * Serial task queue: tasks run one at a time in submission order, never concurrently.
  *
- * Any [Throwable] thrown inside a task is caught and written to [ImportLogManager]; the queue
+ * Any [Throwable] thrown inside a task is caught and written to [ImportLogManager] (except
+ * [CancellationException], which is rethrown: cancellation is not a task failure); the queue
  * keeps processing later tasks. [taskScope] is a child of [parentScope]'s Job, so cancelling
  * parentScope (e.g. ViewModel destruction) cancels both queued and running tasks.
  */
@@ -52,6 +54,10 @@ internal class ImportTaskQueue(
                     .launch {
                         try {
                             task.action(this)
+                        } catch (e: CancellationException) {
+                            // Rethrow: the append below would itself throw on the cancelled coroutine,
+                            // and cancellation must not be logged as a task failure.
+                            throw e
                         } catch (e: Throwable) {
                             logger.e(e) { "Error processing task ${task.uuid}" }
                             importLogManager.append(

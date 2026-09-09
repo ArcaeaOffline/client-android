@@ -187,10 +187,21 @@ open class ArcaeaResourcesApiClient(
                 val url = publishUrl("$version/${resource.fileName}")
                 val response = httpClient.head(url)
 
-                if (response.status.isSuccess()) {
-                    true to null
-                } else {
-                    false to response.status.value.toString()
+                when {
+                    !response.status.isSuccess() -> {
+                        false to response.status.value.toString()
+                    }
+
+                    else -> {
+                        val declared = response.contentLength()
+                        if (declared != null && declared > maxResourceBytes) {
+                            // Reject at probe time: the download would hit the streamed size
+                            // bound anyway, so surface the reason where the item is shown.
+                            false to "Content-Length $declared exceeds the $maxResourceBytes byte limit"
+                        } else {
+                            true to null
+                        }
+                    }
                 }
             } catch (e: CancellationException) {
                 throw e
