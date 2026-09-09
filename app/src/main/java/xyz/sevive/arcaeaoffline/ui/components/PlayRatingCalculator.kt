@@ -102,7 +102,7 @@ fun PlayRatingCalculator(
             scoreValue ?: return@derivedStateOf null
             constantValue ?: return@derivedStateOf null
 
-            calculatePlayRating(scoreValue!!, constantValue!!)
+            calculatePlayRating(scoreValue!!, constantValue!!, clearType)
         }
     }
 
@@ -132,10 +132,32 @@ fun PlayRatingCalculator(
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
+            // A tool output: shown to 6 decimals, independent of the official
+            // display precision
             Text(
-                potential?.let { String.format(null, "%.4f", it) } ?: "?",
+                potential?.let { ArcaeaFormatters.potentialToText(it, scale = 6) } ?: "?",
                 Modifier.weight(1f),
                 style = MaterialTheme.typography.titleLarge,
+            )
+        }
+
+        Row(
+            Modifier.padding(top = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                stringResource(R.string.arcaea_play_result_clear_type),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Text(
+                clearType?.toDisplayString()
+                    ?: stringResource(R.string.play_result_no_clear_type),
+                Modifier
+                    .weight(1f)
+                    .clickable { showClearTypeSelectDialog = true },
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }
