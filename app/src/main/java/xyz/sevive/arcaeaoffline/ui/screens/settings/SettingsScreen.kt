@@ -36,6 +36,7 @@ fun SettingsScreen(vm: SettingsViewModel = koinViewModel()) {
                     SettingsGeneralScreen(
                         uiState = generalUiState,
                         onSetAutoSendCrashReports = { vm.setAutoSendCrashReports(it) },
+                        onSetResourcesApiBaseUrl = { vm.setResourcesApiBaseUrl(it) },
                     )
                 }
 

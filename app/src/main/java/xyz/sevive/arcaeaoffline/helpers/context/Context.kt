@@ -13,6 +13,7 @@ import io.github.vinceglb.filekit.source
 import io.github.vinceglb.filekit.utils.div
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
 
 // find activity from context
 // https://stackoverflow.com/a/69235067/16484891
@@ -45,6 +46,19 @@ fun Context.copyToCache(
 }
 
 fun Context.getFileSize(uri: Uri): Long? = runCatching { PlatformFile(uri).size() }.getOrNull()
+
+/**
+ * Returns the file size when it exceeds [limit], null when it is within the limit or when the size
+ * cannot be resolved (an unresolvable size is allowed through, same as the pre-extraction
+ * [Context.getFileSize]-based check). Logging and user feedback are the caller's job.
+ */
+fun Context.uriSizeIfTooLarge(
+    uri: Uri,
+    limit: Long = ArcaeaResourcesApiClient.DEFAULT_MAX_RESOURCE_BYTES,
+): Long? {
+    val fileSize = getFileSize(uri) ?: return null
+    return fileSize.takeIf { it > limit }
+}
 
 fun Context.persistUriPermissions(
     uri: Uri,

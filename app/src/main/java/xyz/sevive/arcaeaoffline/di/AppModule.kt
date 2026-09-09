@@ -4,12 +4,16 @@ import android.content.Context
 import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.MemoryCache
 import com.github.panpf.sketch.util.Logger
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.bind
 import org.koin.plugin.module.dsl.create
 import org.koin.plugin.module.dsl.single
 import org.koin.plugin.module.dsl.viewModel
 import org.koin.plugin.module.dsl.worker
+import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
+import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
 import xyz.sevive.arcaeaoffline.core.di.coreModule
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
@@ -50,6 +54,18 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstab
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
 
 internal fun createAppDatabase(context: Context): AppDatabase = AppDatabase.getDatabase(context)
+
+internal fun createArcaeaResourcesApiClient(appPreferencesRepository: AppPreferencesRepository) =
+    ArcaeaResourcesApiClient(appPreferencesRepository.resourcesApiBaseUrlFlow)
+
+internal fun createRemoteResourcesInfoStateHolder(
+    resourcesApiClient: ArcaeaResourcesApiClient,
+    appPreferencesRepository: AppPreferencesRepository,
+) = RemoteResourcesInfoStateHolder(
+    resourcesApiClient = resourcesApiClient,
+    // Skip the initial emission: the holder refreshes on construction anyway.
+    baseUrlChanges = appPreferencesRepository.resourcesApiBaseUrlFlow.drop(1).distinctUntilChanged(),
+)
 
 internal fun ocrHistoryDao(db: AppDatabase) = db.ocrHistoryDao()
 
@@ -96,6 +112,9 @@ val appModule =
         single<EmergencyModePreferencesRepository>()
         single<OcrQueuePreferencesRepository>()
         single<UnstableFlavorPreferencesRepository>()
+
+        single<ArcaeaResourcesApiClient> { create(::createArcaeaResourcesApiClient) }
+        single<RemoteResourcesInfoStateHolder> { create(::createRemoteResourcesInfoStateHolder) }
 
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()

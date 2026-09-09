@@ -31,6 +31,8 @@ CC BY-SA 3.0
     <string name="general_no_results">No results</string>
     <string name="general_updated_at">Updated at %s</string>
     <string name="general_unknown_error">Unknown error.</string>
+    <string name="general_unknown">Unknown</string>
+    <string name="general_downloading">Downloading…</string>
 
     <string name="general_sort_ascending">Ascending</string>
     <string name="general_sort_ascending_short">ASC</string>
@@ -159,6 +161,14 @@ CC BY-SA 3.0
     <string name="database_manage_import_reading_apk">Reading apk, this might take a while…</string>
     <string name="database_manage_import_from_arcaea_installed">From installed Arcaea</string>
     <string name="database_manage_import_chart_info_database">Chart Info Database</string>
+
+    <string name="database_manage_download_title">Download from network…</string>
+    <string name="database_manage_refresh_remote_info">Refresh remote status</string>
+    <string name="database_manage_download_packlist">packlist</string>
+    <string name="database_manage_download_songlist">songlist</string>
+    <string name="database_manage_download_chart_info_database">Chart Info Database</string>
+    <string name="database_manage_download_started">Downloading…</string>
+    <string name="ocr_dependencies_download_from_network">Download from network</string>
 
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_play_results">Play Results</string>
@@ -322,6 +332,10 @@ CC BY-SA 3.0
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">Send crash reports</string>
     <string name="settings_general_title">General</string>
+    <string name="settings_general_pref_resources_api_base_url">Resources API base URL</string>
+    <string name="settings_general_pref_resources_api_base_url_dialog_title">Edit resources API base URL</string>
+    <string name="settings_general_pref_resources_api_base_url_invalid">Must start with http:// or https://</string>
+    <string name="settings_general_pref_resources_api_base_url_http_hint">Android 9 and above block cleartext (http://) traffic; a non-HTTPS server may be unreachable.</string>
     <string name="settings_about_title">About</string>
     <string name="settings_about_application_id">Application ID</string>
     <string name="settings_about_version">Version</string>
