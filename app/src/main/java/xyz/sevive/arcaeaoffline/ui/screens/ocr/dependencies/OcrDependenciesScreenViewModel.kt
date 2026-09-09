@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.io.buffered
+import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
@@ -39,6 +40,7 @@ import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
+import java.io.File
 import java.io.IOException
 
 /**
@@ -139,9 +141,9 @@ class OcrDependenciesScreenViewModel(
                     ImageHashesDatabase(sqliteDb)
                 }
 
-                // atomicMove replaces an existing destination (REPLACE_EXISTING), so no pre-delete
-                // is needed - a pre-delete would leave ih.db missing if the process died in between.
-                SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
+                // Atomic replace, no pre-delete: a pre-delete would leave ih.db missing if the
+                // process died in between.
+                atomicReplace(stagingPath, paths.imageHashesDatabaseFile)
 
                 _imageHashesDatabaseRemoteDownloadUiState.value =
                     ImageHashesDatabaseRemoteDownloadUiState()
@@ -156,6 +158,26 @@ class OcrDependenciesScreenViewModel(
                 if (SystemFileSystem.metadataOrNull(stagingPath) != null) {
                     SystemFileSystem.delete(stagingPath)
                 }
+            }
+        }
+    }
+
+    /**
+     * Atomically replaces [target] with [source]; both paths must be on the same filesystem.
+     *
+     * java.nio.file needs API 26+ and cannot be desugared (kotlinx-io probes it via reflection),
+     * so on API 24/25 [SystemFileSystem.atomicMove] always throws UnsupportedOperationException.
+     * File.renameTo maps to rename(2) on Android: atomic, and it replaces an existing target.
+     */
+    private fun atomicReplace(
+        source: Path,
+        target: Path,
+    ) {
+        try {
+            SystemFileSystem.atomicMove(source, target)
+        } catch (e: UnsupportedOperationException) {
+            if (!File(source.toString()).renameTo(File(target.toString()))) {
+                throw IOException("renameTo failed for $source -> $target")
             }
         }
     }
@@ -209,9 +231,9 @@ class OcrDependenciesScreenViewModel(
                         }
                     }
 
-                    // atomicMove replaces an existing destination (REPLACE_EXISTING), so no pre-delete
-                    // is needed - a pre-delete would leave ih.db missing if the process died in between.
-                    SystemFileSystem.atomicMove(stagingPath, paths.imageHashesDatabaseFile)
+                    // Atomic replace, no pre-delete: a pre-delete would leave ih.db missing if the
+                    // process died in between.
+                    atomicReplace(stagingPath, paths.imageHashesDatabaseFile)
                 } catch (e: Exception) {
                     if (e is SQLiteException) {
                         logger.w(e) { "Input file doesn't seem like to be a SQLite database" }
