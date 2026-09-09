@@ -71,7 +71,7 @@ class DatabasePlayResultListViewModel(
                 }
                 append(baseText)
             }
-        val warnings = ArcaeaPlayResultValidator.validate(playResult, display?.chartInfo)
+        val warnings = ArcaeaPlayResultValidator.validate(playResult, display?.chartInfo, scoringMode)
     }
 
     data class UiState(

@@ -326,6 +326,8 @@
 
     <string name="play_result_validator_SCORE_IS_ZERO_title">分数为零</string>
     <string name="play_result_validator_SCORE_IS_ZERO_message">分数为 0。</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_title">缺少通关状态</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_message">B50 规则下，缺少通关状态的成绩按 TRACK LOST 计，无法获得通关奖励。</string>
 
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>

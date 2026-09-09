@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.helpers
 
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
@@ -30,5 +31,26 @@ object ArcaeaPlayResultValidator {
         }
 
         return warnings.toList()
+    }
+
+    /**
+     * Display-oriented validation: on top of [validate], flags records whose
+     * missing clear type changes their B50 rating, so the user can fill it in.
+     */
+    fun validate(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+        scoringMode: ArcaeaScoringMode,
+    ): List<ArcaeaPlayResultValidatorWarning> {
+        val warnings = validate(playResult, chartInfo).toMutableList()
+
+        if (
+            scoringMode == ArcaeaScoringMode.B50 &&
+            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(playResult, chartInfo)
+        ) {
+            warnings.add(ArcaeaPlayResultValidatorClearTypeMissingWarning)
+        }
+
+        return warnings
     }
 }
