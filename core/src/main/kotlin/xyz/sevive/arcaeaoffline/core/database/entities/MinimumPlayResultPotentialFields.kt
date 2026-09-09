@@ -11,5 +11,5 @@ data class MinimumPlayResultPotentialFields(
     @ColumnInfo(name = "rating_class") val ratingClass: ArcaeaRatingClass,
     val score: Int,
     val constant: Int,
-    val clearType: ArcaeaPlayResultClearType?,
+    @ColumnInfo(name = "clear_type") val clearType: ArcaeaPlayResultClearType?,
 )

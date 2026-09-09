@@ -18,6 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -28,6 +29,7 @@ private fun PotentialLabel(
     modifier: Modifier = Modifier,
     titleTextStyle: TextStyle = MaterialTheme.typography.titleLarge,
     potentialTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
+    scale: Int = 3,
 ) {
     Column(modifier) {
         Text(
@@ -36,7 +38,7 @@ private fun PotentialLabel(
             fontWeight = FontWeight.Light,
         )
         Text(
-            ArcaeaFormatters.potentialToText(potential),
+            ArcaeaFormatters.potentialToText(potential, scale),
             style = potentialTextStyle,
         )
     }
@@ -47,6 +49,12 @@ internal fun OverviewPotentialCard(
     uiState: OverviewViewModel.UiState,
     modifier: Modifier = Modifier,
 ) {
+    // The official display precision is 0.01 for B30 + R10 and 0.001 for B50
+    val mainScale = when (uiState.scoringMode) {
+        ArcaeaScoringMode.B30_R10 -> 2
+        ArcaeaScoringMode.B50 -> 3
+    }
+
     Card(modifier) {
         Row(Modifier.padding(dimensionResource(R.dimen.page_padding))) {
             PotentialLabel(
@@ -54,6 +62,7 @@ internal fun OverviewPotentialCard(
                 potential = uiState.potential,
                 titleTextStyle = MaterialTheme.typography.headlineSmall,
                 potentialTextStyle = MaterialTheme.typography.displayLarge,
+                scale = mainScale,
                 modifier =
                     Modifier
                         .align(Alignment.Bottom)
@@ -63,15 +72,31 @@ internal fun OverviewPotentialCard(
             Column(
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
-                PotentialLabel(
-                    title = "B30",
-                    potential = uiState.b30,
-                )
+                when (uiState.scoringMode) {
+                    ArcaeaScoringMode.B30_R10 -> {
+                        PotentialLabel(
+                            title = "B30",
+                            potential = uiState.b30,
+                        )
 
-                PotentialLabel(
-                    title = "R10",
-                    potential = uiState.r10,
-                )
+                        PotentialLabel(
+                            title = "R10",
+                            potential = uiState.r10,
+                        )
+                    }
+
+                    ArcaeaScoringMode.B50 -> {
+                        PotentialLabel(
+                            title = "B50",
+                            potential = uiState.b50,
+                        )
+
+                        PotentialLabel(
+                            title = "B10",
+                            potential = uiState.b10,
+                        )
+                    }
+                }
             }
         }
     }
@@ -85,8 +110,9 @@ private fun OverviewPotentialCardPreview() {
             OverviewPotentialCard(
                 OverviewViewModel.UiState(
                     isLoading = false,
-                    b30 = 13.00,
-                    r10 = 13.00,
+                    scoringMode = ArcaeaScoringMode.B50,
+                    b50 = 13.00,
+                    b10 = 13.00,
                     potential = 13.00,
                 ),
                 Modifier.fillMaxWidth(),
