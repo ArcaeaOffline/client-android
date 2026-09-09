@@ -22,6 +22,10 @@ data class PlayResultCalculated(
     val comment = playResult.comment
 
     val playRating = calculatePlayRating(score = score, constant = chartInfo.constant)
+
+    /** Single-play potential under the v7.0 (B50) rules. */
+    val playRatingWithClearBonus =
+        calculatePlayRating(score = score, constant = chartInfo.constant, clearType = clearType)
     val shinyPure =
         if (chartInfo.notes == null || chartInfo.notes == 0 || pure == null || far == null || lost == null) {
             null

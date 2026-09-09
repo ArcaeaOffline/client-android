@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
@@ -46,7 +47,7 @@ class DatabaseB30ListViewModel(
                 emit(UiState(isLoading = true, limit = limit))
 
                 playResultBestRepo
-                    .orderDescWithLimit(limit)
+                    .orderDescWithLimit(limit, ArcaeaScoringMode.B30_R10)
                     .collectLatest { dbItems ->
                         val chartCacheHolder = UiDisplayChartCacheHolder()
                         chartCacheHolder.updateCache(
