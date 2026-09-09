@@ -440,6 +440,10 @@ class DatabaseManageViewModel(
         logTag: String,
         action: suspend CoroutineScope.() -> Unit,
     ) {
+        // The UI disables the item via recomposition, which lags the click: guard here so a
+        // double tap cannot enqueue the same resource twice.
+        if (resource in downloadingResources.value) return
+
         // Read-modify-write on a dispatcher shared with other downloads: value += is not atomic.
         // Set before dispatching so the item shows "downloading" immediately and a double tap
         // cannot re-enter before the queued task starts.
