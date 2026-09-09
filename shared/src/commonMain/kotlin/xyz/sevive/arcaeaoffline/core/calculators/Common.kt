@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.calculators
 
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -26,6 +27,37 @@ fun calculatePlayRating(
         constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0
     } else {
         max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0)
+    }
+}
+
+/** Bonus added to single-play potential by the v7.0 rules (B50 scoring). */
+const val PLAY_RATING_CLEAR_BONUS = 0.2
+
+/**
+ * Clear-type bonus of a single play. Any state other than TRACK_LOST earns the
+ * bonus; a missing clear type is treated as TRACK_LOST, i.e. no bonus.
+ */
+fun calculateClearBonus(clearType: ArcaeaPlayResultClearType?): Double =
+    if (clearType == null || clearType == ArcaeaPlayResultClearType.TRACK_LOST) 0.0 else PLAY_RATING_CLEAR_BONUS
+
+/**
+ * Single-play potential under the v7.0 rules: the score-based value plus the
+ * clear-type bonus, with the whole sum floored at zero.
+ */
+fun calculatePlayRating(
+    score: Int,
+    constant: Int,
+    clearType: ArcaeaPlayResultClearType?,
+): Double {
+    if (constant < 0) return 0.0
+
+    val bonus = calculateClearBonus(clearType)
+    return if (score >= 10_000_000) {
+        constant / 10.0 + 2 + bonus
+    } else if (score >= 9_800_000) {
+        constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0 + bonus
+    } else {
+        max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0 + bonus)
     }
 }
 
