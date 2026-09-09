@@ -79,7 +79,7 @@ fun DatabaseManageScreen(
 
             item {
                 DatabaseManageImport(
-                    onImportPacklist = { viewModel.importPacklist(it) },
+                    onImportPacklist = { viewModel.importPacklist(it, context) },
                     onImportSonglist = { viewModel.importSonglist(it, context) },
                     onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it, context) },
                     canImportLists = canImportLists,

@@ -95,7 +95,9 @@ open class ArcaeaResourcesApiClient(
         const val DEFAULT_BASE_URL = "https://arcaeaoffline.sevive.xyz/publish"
         private const val INDEX_FILE_NAME = "index.json"
         private const val DOWNLOAD_CHUNK_SIZE = 64 * 1024
-        private const val DEFAULT_MAX_RESOURCE_BYTES = 20L * 1024 * 1024
+
+        /** Also the cap for manual imports; app-side helpers reference it so both paths move together. */
+        const val DEFAULT_MAX_RESOURCE_BYTES = 20L * 1024 * 1024
     }
 
     suspend fun packlist(): String = publishText(versionedPath(DownloadableResource.PACKLIST))

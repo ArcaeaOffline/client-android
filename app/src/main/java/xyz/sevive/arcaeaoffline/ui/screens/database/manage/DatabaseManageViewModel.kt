@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.manage
 
 import android.content.Context
 import android.net.Uri
+import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.sqlite.SQLiteConnection
@@ -45,6 +46,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
+import xyz.sevive.arcaeaoffline.helpers.context.uriSizeIfTooLarge
 import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -127,6 +129,25 @@ class DatabaseManageViewModel(
         taskQueue.send(action)
     }
 
+    /**
+     * Returns true when [uri] exceeds the import size cap, appending a log entry under [logTag];
+     * the caller returns early on true.
+     */
+    private suspend fun Context.importFileTooLarge(
+        uri: Uri,
+        logTag: String,
+    ): Boolean {
+        val actualSize = uriSizeIfTooLarge(uri) ?: return false
+        importLogManager.append(
+            logTag,
+            ImportLogEvent.Raw(
+                "input file too large, limit is ${Formatter.formatFileSize(this, ArcaeaResourcesApiClient.DEFAULT_MAX_RESOURCE_BYTES)} " +
+                    "while input is ${Formatter.formatFileSize(this, actualSize)}!",
+            ),
+        )
+        return true
+    }
+
     private suspend fun importPacklistTask(packlistContent: String) {
         val importer = ArcaeaPacklistImporter(packlistContent)
 
@@ -148,9 +169,14 @@ class DatabaseManageViewModel(
         )
     }
 
-    fun importPacklist(uri: Uri) {
+    fun importPacklist(
+        uri: Uri,
+        context: Context,
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                if (context.importFileTooLarge(uri, LOG_TAG_IMPORT_PACKLIST)) return@sendTask
+
                 val packlistContent = PlatformFile(uri).readBytes().decodeToString()
                 importPacklistTask(packlistContent)
             }
@@ -226,6 +252,8 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                if (context.importFileTooLarge(uri, LOG_TAG_IMPORT_SONGLIST)) return@sendTask
+
                 val songlistContent = PlatformFile(uri).readBytes().decodeToString()
                 val supplementSonglistContent = context.assets.open("songlist.json").use { it.readText() }
                 importSonglistTask(songlistContent, supplementSonglistContent)
@@ -327,6 +355,8 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                if (context.importFileTooLarge(fileUri, LOG_TAG_IMPORT_CHART_INFO_DATABASE)) return@sendTask
+
                 val databaseCopied =
                     context.copyToCache(fileUri, "chart_info_database_copy.db") ?: return@sendTask
 
@@ -356,6 +386,8 @@ class DatabaseManageViewModel(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
+                if (context.importFileTooLarge(fileUri, LOG_TAG_IMPORT_ST3)) return@sendTask
+
                 val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
 
                 BundledSQLiteDriver()

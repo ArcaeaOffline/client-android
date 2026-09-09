@@ -34,7 +34,7 @@ import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
-import xyz.sevive.arcaeaoffline.helpers.context.getFileSize
+import xyz.sevive.arcaeaoffline.helpers.context.uriSizeIfTooLarge
 import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
@@ -169,26 +169,6 @@ class OcrDependenciesScreenViewModel(
             false
         }
 
-    private fun isFileTooLarge(
-        uri: Uri,
-        context: Context,
-        limit: Long = 20 * 1024 * 1024,
-        logName: String? = null,
-    ): Boolean {
-        val fileSize = context.getFileSize(uri) ?: return false
-        if (fileSize <= limit) return false
-
-        logger.w {
-            buildString {
-                logName?.let { append("[$logName] ") }
-                append("Input file too large, ")
-                append("limit is ${Formatter.formatFileSize(context, limit)} ")
-                append("while input is ${Formatter.formatFileSize(context, fileSize)}!")
-            }
-        }
-        return true
-    }
-
     fun importImageHashesDatabase(
         uri: Uri,
         context: Context,
@@ -202,7 +182,16 @@ class OcrDependenciesScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _imageHashesDatabaseImportRunning.value = true
             try {
-                if (isFileTooLarge(uri, context, logName = "ImageHashesDatabase")) return@launch
+                context.uriSizeIfTooLarge(uri)?.let { actualSize ->
+                    logger.w {
+                        "[ImageHashesDatabase] Input file too large, limit is ${Formatter.formatFileSize(
+                            context,
+                            ArcaeaResourcesApiClient.DEFAULT_MAX_RESOURCE_BYTES,
+                        )} " +
+                            "while input is ${Formatter.formatFileSize(context, actualSize)}!"
+                    }
+                    return@launch
+                }
 
                 val cacheFile = context.copyToCache(uri, "image_hashes_db_import_temp") ?: return@launch
                 // Staged next to the destination so the final move stays on one filesystem.
