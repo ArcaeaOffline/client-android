@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.b30list
+package xyz.sevive.arcaeaoffline.ui.screens.database.bestlist
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
@@ -44,14 +43,8 @@ import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel()) {
+fun DatabaseBestListScreen(viewModel: DatabaseBestListViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
-
-    val titleResId = when (scoringMode) {
-        ArcaeaScoringMode.B30_R10 -> DatabaseSubScreen.B30.title
-        ArcaeaScoringMode.B50 -> R.string.database_b50_list_title
-    }
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
     if (showOptions) {
@@ -87,7 +80,7 @@ fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel())
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                title = { Text(stringResource(titleResId)) },
+                title = { Text(stringResource(DatabaseSubScreen.BestList.title)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {
                         Icon(Icons.Default.Refresh, null)
@@ -111,7 +104,7 @@ fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel())
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 items(uiState.listItems, key = { it.index }) {
-                    DatabaseB30ListItem(it, Modifier.animateItem())
+                    DatabaseBestListItem(it, Modifier.animateItem())
                 }
             }
         }

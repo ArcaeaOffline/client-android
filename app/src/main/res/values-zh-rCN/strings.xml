@@ -173,8 +173,7 @@
     <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
     <!-- Database b30 list pane -->
-    <string name="database_b30_list_title">B30 列表</string>
-    <string name="database_b50_list_title">B50 列表</string>
+    <string name="database_best_list_title">最佳记录列表</string>
 
     <!-- Database r30 list pane -->
     <string name="database_r30_list_title">R30 列表</string>

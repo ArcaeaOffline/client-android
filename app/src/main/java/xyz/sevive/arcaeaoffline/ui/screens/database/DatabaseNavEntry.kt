@@ -90,17 +90,13 @@ fun DatabaseNavEntry(
                 }
             }
 
-            // The B50 route reuses the best list screen with B50 rules
+            // The best list screen applies the active scoring mode's rules
             item {
                 NavEntryNavigateButton(
-                    titleResId =
-                        when (scoringMode) {
-                            ArcaeaScoringMode.B30_R10 -> DatabaseSubScreen.B30.title
-                            ArcaeaScoringMode.B50 -> R.string.database_b50_list_title
-                        },
+                    titleResId = DatabaseSubScreen.BestList.title,
                     icon = Icons.Default.Star,
                 ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.B30.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.BestList.route)
                 }
             }
 

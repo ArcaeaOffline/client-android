@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.b30list
+package xyz.sevive.arcaeaoffline.ui.screens.database.bestlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +21,7 @@ import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import kotlin.time.Duration.Companion.seconds
 
-class DatabaseB30ListViewModel(
+class DatabaseBestListViewModel(
     playResultBestRepo: PlayResultBestRepository,
     difficultyWithSongRepo: DifficultyWithSongRepository,
     chartInfoRepo: ChartInfoRepository,
@@ -42,15 +42,6 @@ class DatabaseB30ListViewModel(
     )
 
     private val limit = MutableStateFlow(INIT_LIMIT)
-
-    val scoringMode =
-        propertyRepo
-            .scoringMode()
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-                ArcaeaScoringMode.B50,
-            )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState =
