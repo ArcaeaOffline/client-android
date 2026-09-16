@@ -1,12 +1,12 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,6 +32,7 @@ import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -141,25 +142,14 @@ fun PlayRatingCalculator(
             )
         }
 
-        Row(
-            Modifier.padding(top = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                stringResource(R.string.arcaea_play_result_clear_type),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-
-            Text(
+        TextPreferencesWidget(
+            title = stringResource(R.string.arcaea_play_result_clear_type),
+            content =
                 clearType?.toDisplayString()
                     ?: stringResource(R.string.play_result_no_clear_type),
-                Modifier
-                    .weight(1f)
-                    .clickable { showClearTypeSelectDialog = true },
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
+            trailingIcon = Icons.Default.ExpandMore,
+            onClick = { showClearTypeSelectDialog = true },
+        )
     }
 }
 
