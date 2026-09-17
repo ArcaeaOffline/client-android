@@ -31,7 +31,7 @@ import kotlin.time.Instant
  *
  * @param [ts] The `date` value from st3
  */
-private fun fixSt3Timestamp(ts: Long?): Long? {
+internal fun fixSt3Timestamp(ts: Long?): Long? {
     if (ts == null || ts > 1489017600) return ts
 
     val isFixable = (ts in 1489..9999) || ts > 14889
@@ -40,7 +40,7 @@ private fun fixSt3Timestamp(ts: Long?): Long? {
     return ts.toString().padEnd(10, '0').toLong()
 }
 
-private data class St3PlayResult(
+internal data class St3PlayResult(
     val songId: String,
     val ratingClass: Int,
     val score: Int,
