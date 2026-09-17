@@ -51,18 +51,6 @@ private data class St3PlayResult(
     val modifier: Int?,
     val clearType: Int?,
 ) {
-    val isClearTypeReliable: Boolean
-        get() {
-            if (clearType == ArcaeaPlayResultClearType.FULL_RECALL.value && lost != 0) {
-                return false
-            }
-            if (clearType == ArcaeaPlayResultClearType.PURE_MEMORY.value && lost != 0 && far != 0) {
-                return false
-            }
-
-            return true
-        }
-
     fun toPlayResult(importDate: LocalDate): PlayResult {
         val commentDateString = importDate.format(LocalDate.Formats.ISO)
 
@@ -75,14 +63,7 @@ private data class St3PlayResult(
             lost = lost,
             date = date?.let { Instant.fromEpochSeconds(it) },
             modifier = modifier?.let { ArcaeaPlayResultModifier.fromInt(modifier) },
-            clearType =
-                if (!isClearTypeReliable) {
-                    null
-                } else {
-                    clearType?.let {
-                        ArcaeaPlayResultClearType.fromInt(it)
-                    }
-                },
+            clearType = clearType?.let { ArcaeaPlayResultClearType.fromInt(it) },
             comment = "Imported from st3 at $commentDateString",
         )
     }
@@ -111,8 +92,7 @@ object ArcaeaSt3PlayResultImporter {
   ct.clearType
 FROM
   scores s
-  JOIN cleartypes ct ON s.songId = ct.songId
-  AND s.songDifficulty = ct.songDifficulty""",
+  LEFT JOIN cleartypes ct ON s.songId = ct.songId AND s.songDifficulty = ct.songDifficulty""",
             ).use { stmt ->
                 while (stmt.step()) {
                     val st3PlayResult =
@@ -130,15 +110,26 @@ FROM
 
                     var playResult = st3PlayResult.toPlayResult(importDate)
 
-                    if (playResult.clearType == ArcaeaPlayResultClearType.FULL_RECALL) {
-                        playResult =
-                            playResult.copy(
-                                maxRecall = playResult.pure!! + playResult.far!!,
-                            )
+                    val pure = playResult.pure
+                    val far = playResult.far
+                    val lost = playResult.lost
+
+                    if (
+                        playResult.clearType == ArcaeaPlayResultClearType.FULL_RECALL &&
+                        lost == 0 &&
+                        pure != null &&
+                        far != null
+                    ) {
+                        playResult = playResult.copy(maxRecall = pure + far)
                     }
 
-                    if (playResult.clearType == ArcaeaPlayResultClearType.PURE_MEMORY) {
-                        playResult = playResult.copy(maxRecall = playResult.pure)
+                    if (
+                        playResult.clearType == ArcaeaPlayResultClearType.PURE_MEMORY &&
+                        far == 0 &&
+                        lost == 0 &&
+                        pure != null
+                    ) {
+                        playResult = playResult.copy(maxRecall = pure)
                     }
 
                     items.add(playResult)
