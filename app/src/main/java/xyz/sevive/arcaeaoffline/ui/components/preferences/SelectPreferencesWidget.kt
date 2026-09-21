@@ -30,15 +30,16 @@ fun <T> SelectPreferencesWidget(
             BasePreferencesWidget(
                 onClick = { onSelect(option.value) },
                 title = { Text(option.label) },
-                content = option.description?.let { description ->
-                    {
-                        Text(
-                            description,
-                            Modifier.secondaryItemAlpha(),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                },
+                content =
+                    option.description?.let { description ->
+                        {
+                            Text(
+                                description,
+                                Modifier.secondaryItemAlpha(),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    },
                 leadingSlot = {
                     RadioButton(
                         selected = option.value == selected,

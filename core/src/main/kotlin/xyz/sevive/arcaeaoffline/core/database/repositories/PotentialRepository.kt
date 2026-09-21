@@ -31,11 +31,9 @@ class PotentialRepositoryImpl(
     private val r30EntryRepo: R30EntryRepository,
     private val propertyRepo: PropertyRepository,
 ) : PotentialRepository {
-    private fun b30Entries(): Flow<List<PlayResultCalculated>> =
-        playResultBestRepo.orderDescWithLimit(30, ArcaeaScoringMode.B30_R10)
+    private fun b30Entries(): Flow<List<PlayResultCalculated>> = playResultBestRepo.orderDescWithLimit(30, ArcaeaScoringMode.B30_R10)
 
-    private fun b50Entries(): Flow<List<PlayResultCalculated>> =
-        playResultBestRepo.orderDescWithLimit(50, ArcaeaScoringMode.B50)
+    private fun b50Entries(): Flow<List<PlayResultCalculated>> = playResultBestRepo.orderDescWithLimit(50, ArcaeaScoringMode.B50)
 
     private fun r10Entries(): Flow<List<R30EntryCombined>> =
         r30EntryRepo.findAllCombined().mapLatest {
@@ -82,12 +80,13 @@ class PotentialRepositoryImpl(
     override fun potential() =
         propertyRepo.scoringMode().flatMapLatest { mode ->
             when (mode) {
-                ArcaeaScoringMode.B30_R10 ->
+                ArcaeaScoringMode.B30_R10 -> {
                     combine(b30(), r10()) { b30, r10 ->
                         b30 * 0.75 + r10 * 0.25
                     }
+                }
 
-                ArcaeaScoringMode.B50 ->
+                ArcaeaScoringMode.B50 -> {
                     // Official v7.0 formula: the best 10 entries count twice,
                     // i.e. (best50 sum + best10 sum) / 60
                     b50Entries().mapLatest { entries ->
@@ -95,6 +94,7 @@ class PotentialRepositoryImpl(
                         val b10Sum = entries.take(10).sumOf { it.playRatingWithClearBonus }
                         (b50Sum + b10Sum) / 60
                     }
+                }
             }
         }
 }

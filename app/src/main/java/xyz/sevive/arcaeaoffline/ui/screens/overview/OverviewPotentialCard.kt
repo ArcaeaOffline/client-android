@@ -50,10 +50,11 @@ internal fun OverviewPotentialCard(
     modifier: Modifier = Modifier,
 ) {
     // The official display precision is 0.01 for B30 + R10 and 0.001 for B50
-    val mainScale = when (uiState.scoringMode) {
-        ArcaeaScoringMode.B30_R10 -> 2
-        ArcaeaScoringMode.B50 -> 3
-    }
+    val mainScale =
+        when (uiState.scoringMode) {
+            ArcaeaScoringMode.B30_R10 -> 2
+            ArcaeaScoringMode.B50 -> 3
+        }
 
     Card(modifier) {
         Row(Modifier.padding(dimensionResource(R.dimen.page_padding))) {

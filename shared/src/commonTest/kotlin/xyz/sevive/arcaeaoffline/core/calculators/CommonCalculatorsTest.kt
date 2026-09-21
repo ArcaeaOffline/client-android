@@ -1,10 +1,10 @@
 package xyz.sevive.arcaeaoffline.core.calculators
 
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 
 class CommonCalculatorsTest {
     @Test
@@ -68,14 +68,16 @@ class CommonCalculatorsTest {
         assertEquals(calculatePlayRating(score, constant, null), 12.0, 0.0)
         assertEquals(calculatePlayRating(score, constant, ArcaeaPlayResultClearType.TRACK_LOST), 12.0, 0.0)
 
-        for (clearType in
-            listOf(
-                ArcaeaPlayResultClearType.NORMAL_CLEAR,
-                ArcaeaPlayResultClearType.FULL_RECALL,
-                ArcaeaPlayResultClearType.PURE_MEMORY,
-                ArcaeaPlayResultClearType.EASY_CLEAR,
-                ArcaeaPlayResultClearType.HARD_CLEAR,
-            )) {
+        for (
+        clearType in
+        listOf(
+            ArcaeaPlayResultClearType.NORMAL_CLEAR,
+            ArcaeaPlayResultClearType.FULL_RECALL,
+            ArcaeaPlayResultClearType.PURE_MEMORY,
+            ArcaeaPlayResultClearType.EASY_CLEAR,
+            ArcaeaPlayResultClearType.HARD_CLEAR,
+        )
+        ) {
             assertEquals(calculatePlayRating(score, constant, clearType), 12.2, 0.0)
         }
 
