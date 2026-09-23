@@ -40,6 +40,13 @@ class CommonCalculatorsTest {
             0.0,
             0.0,
         )
+
+        // A missing chart info reads as constant 0
+        assertEquals(
+            calculatePlayRating(10_000_000, 0),
+            0.0,
+            0.0,
+        )
     }
 
     @Test
@@ -57,6 +64,7 @@ class CommonCalculatorsTest {
         assert(10_002_221 in result3) { "10_002_221 [12.0] > 14.0" }
 
         assertNull(calculateInvertScoreRange(targetPlayRating = 14.0, constant = 80))
+        assertNull(calculateInvertScoreRange(targetPlayRating = 12.0, constant = 0))
     }
 
     @Test
@@ -85,5 +93,8 @@ class CommonCalculatorsTest {
         // bonus stays above zero, while TRACK_LOST floors at zero
         assertEquals(calculatePlayRating(8_000_000, 50, null), 0.0, 0.0)
         assertEquals(calculatePlayRating(8_000_000, 50, ArcaeaPlayResultClearType.NORMAL_CLEAR), 0.2, 0.0)
+
+        // An invalid constant earns no bonus either
+        assertEquals(calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0, 0.0)
     }
 }

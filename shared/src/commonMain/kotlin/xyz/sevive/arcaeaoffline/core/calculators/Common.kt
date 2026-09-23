@@ -19,7 +19,8 @@ fun calculatePlayRating(
     score: Int,
     constant: Int,
 ): Double {
-    if (constant < 0) return 0.0
+    // Chart constants are positive; 0 is what a missing chart info reads as.
+    if (constant <= 0) return 0.0
 
     return if (score >= 10_000_000) {
         constant / 10.0 + 2
@@ -49,7 +50,7 @@ fun calculatePlayRating(
     constant: Int,
     clearType: ArcaeaPlayResultClearType?,
 ): Double {
-    if (constant < 0) return 0.0
+    if (constant <= 0) return 0.0
 
     val bonus = calculateClearBonus(clearType)
     return if (score >= 10_000_000) {
@@ -64,7 +65,8 @@ fun calculatePlayRating(
 /**
  * Calculate a possible score [IntRange] from specified [targetPlayRating] and [constant].
  *
- * If the [targetPlayRating] is invalid or too high, null result will be returned.
+ * If the [targetPlayRating] is invalid or too high, or [constant] is not a valid chart
+ * constant, null result will be returned.
  *
  * The core algorithm is provided by Google Gemini.
  */
@@ -73,7 +75,7 @@ fun calculateInvertScoreRange(
     constant: Int,
     tolerance: Double = 1e-3,
 ): IntRange? {
-    if (constant < 0 || targetPlayRating < 0.0) return null
+    if (constant <= 0 || targetPlayRating < 0.0) return null
 
     val base = constant / 10.0
 
