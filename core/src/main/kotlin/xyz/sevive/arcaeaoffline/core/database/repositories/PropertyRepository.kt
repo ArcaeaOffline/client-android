@@ -9,6 +9,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import kotlin.time.Instant
 
 interface PropertyRepository {
+    companion object {
+        /** The default mode when database has no corresponding property, or one the app cannot recognize. */
+        val DEFAULT_SCORING_MODE = ArcaeaScoringMode.B50
+    }
+
     fun find(key: String): Flow<Property?>
 
     suspend fun upsert(item: Property)
@@ -58,7 +63,8 @@ class PropertyRepositoryImpl(
     // database file. Falls back to the latest mode when unset or unknown.
     override fun scoringMode(): Flow<ArcaeaScoringMode> =
         this.find(Property.KEY_SCORING_MODE).map { property ->
-            property?.value?.toIntOrNull()?.let { ArcaeaScoringMode.fromKey(it) } ?: ArcaeaScoringMode.B50
+            property?.value?.toIntOrNull()?.let { ArcaeaScoringMode.fromKey(it) }
+                ?: PropertyRepository.DEFAULT_SCORING_MODE
         }
 
     override suspend fun setScoringMode(mode: ArcaeaScoringMode) {
