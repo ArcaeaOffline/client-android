@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import xyz.sevive.arcaeaoffline.ui.AdaptiveEntryScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
-import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListScreen
+import xyz.sevive.arcaeaoffline.ui.screens.database.bestlist.DatabaseBestListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListScreen
@@ -19,7 +19,7 @@ fun DatabaseEntryScreen() =
                 DatabaseSubScreen.Manage.route -> DatabaseManageScreen()
                 DatabaseSubScreen.AddPlayResult.route -> DatabaseAddPlayResultScreen()
                 DatabaseSubScreen.ScoreList.route -> DatabasePlayResultListScreen()
-                DatabaseSubScreen.B30.route -> DatabaseB30ListScreen()
+                DatabaseSubScreen.BestList.route -> DatabaseBestListScreen()
                 DatabaseSubScreen.R30.route -> DatabaseR30ListScreen()
                 DatabaseSubScreen.Deduplicator.route -> DatabaseDeduplicatorScreen()
             }

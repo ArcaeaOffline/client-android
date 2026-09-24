@@ -17,34 +17,16 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.Progress
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
-import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.database.entities.playRating
+import xyz.sevive.arcaeaoffline.core.database.r30.ChartKey
+import xyz.sevive.arcaeaoffline.core.database.r30.R30QueueUpdater
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.helpers.toWorkData
 import kotlin.time.Clock
-
-private fun PlayResult.triggersConditionalWrite(): Boolean {
-    // score >= EX
-    if (score >= 9_800_000) return true
-    // is hard lost
-    if (clearType == ArcaeaPlayResultClearType.TRACK_LOST && modifier == ArcaeaPlayResultModifier.HARD) return true
-
-    return false
-}
-
-private fun List<R30EntryCombined>.minByPlayRating(): R30EntryCombined? =
-    this.minByOrNull { entry ->
-        entry.chartInfo?.let { entry.playResult.playRating(it) } ?: Double.MAX_VALUE
-    }
 
 class R30UpdateJob(
     context: Context,
@@ -56,6 +38,8 @@ class R30UpdateJob(
     private val playResultRepo: PlayResultRepository,
     private val chartInfoRepo: ChartInfoRepository,
 ) : CoroutineWorker(context, params) {
+    private val r30QueueUpdater = R30QueueUpdater { chartInfoRepo.find(it).firstOrNull() }
+
     companion object {
         private const val LOG_TAG = "R30UpdateJob"
         const val WORK_NAME = "R30UpdateJob"
@@ -105,28 +89,47 @@ class R30UpdateJob(
                     }
 
                 val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
+                val cutoff = r30LastUpdatedAt.takeUnless { workOptions.runMode == RunMode.REBUILD }
 
                 var r30EntryCombinedList =
-                    when (workOptions.runMode) {
-                        RunMode.REBUILD -> emptyList()
-                        else -> r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
+                    if (cutoff == null) {
+                        emptyList()
+                    } else {
+                        r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
                     }
 
+                // Records of the plays outside the batch, so an incremental run decides on a
+                // new chart record the same way a rebuild from the whole history would.
+                val previousBestScores =
+                    cutoff
+                        ?.let { playResultRepo.bestScoresUntil(it) }
+                        ?.associate { ChartKey(it.songId, it.ratingClass) to it.score }
+                        .orEmpty()
+
                 val playResults =
-                    when (workOptions.runMode) {
-                        RunMode.REBUILD -> playResultRepo.findAll().firstOrNull()
-                        else -> r30LastUpdatedAt?.let { playResultRepo.findLaterThan(it).firstOrNull() }
-                    } ?: emptyList()
+                    if (cutoff == null) {
+                        playResultRepo.findAll().firstOrNull() ?: emptyList()
+                    } else {
+                        playResultRepo.findLaterThan(cutoff).firstOrNull() ?: emptyList()
+                    }
                 val deletedSongIds = songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-                val newPlayResults = playResults.filter { it.date != null && it.songId !in deletedSongIds }.sortedBy { it.date }
+                val newPlayResults =
+                    playResults
+                        .filter { it.date != null && it.songId !in deletedSongIds }
+                        .sortedWith(compareBy({ it.date }, { it.id }))
 
                 progressFlow.update { Progress(current = 0, total = newPlayResults.size) }
                 logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
-                newPlayResults.forEach {
-                    ensureActive()
-                    r30EntryCombinedList = updateR30List(it, r30EntryCombinedList)
-                    progressFlow.update { progress -> progress.increment() }
-                }
+                r30EntryCombinedList =
+                    r30QueueUpdater.replay(
+                        plays = newPlayResults,
+                        entries = r30EntryCombinedList,
+                        previousBestScores = previousBestScores,
+                        onPlay = {
+                            ensureActive()
+                            progressFlow.update { progress -> progress.increment() }
+                        },
+                    )
 
                 // Room3 possibly has a convenient extension function for this
                 // see https://issuetracker.google.com/issues/416306996
@@ -149,92 +152,5 @@ class R30UpdateJob(
             Sentry.captureException(e)
             return Result.failure()
         }
-    }
-
-    /**
-     * Wrapper of [updateR30ListByDirectWrite] and [updateR30ListByConditionalWrite] that automatically
-     * choose one of them depending on the [playResult]'s state.
-     */
-    private suspend fun updateR30List(
-        playResult: PlayResult,
-        oldR30List: List<R30EntryCombined>,
-    ): List<R30EntryCombined> {
-        if (oldR30List.size < 30) {
-            val mutableR30List = oldR30List.toMutableList()
-            mutableR30List.add(R30EntryCombined.build(playResult, chartInfoRepo))
-            return mutableR30List
-        }
-
-        val newR30Entries =
-            if (playResult.triggersConditionalWrite()) {
-                // now check if the play result play rating is higher than the lowest play rating r30 entry
-                // if any chart info is missing, return the old r30 entries directly
-                val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return oldR30List
-                updateR30ListByConditionalWrite(playResult, chartInfo, oldR30List)
-            } else {
-                // otherwise, just update the entries by date
-                updateR30ListByDirectWrite(playResult, oldR30List)
-            }
-
-        // ensure the new r30 should have at least 10 unique charts
-        // otherwise keep the entries unmodified
-        val uniqueChartsCount = newR30Entries.distinctBy { "${it.playResult.songId}|${it.playResult.ratingClass.value}" }.count()
-        return if (uniqueChartsCount < 10) {
-            oldR30List
-        } else {
-            newR30Entries
-        }
-    }
-
-    /**
-     * Update the R30 entries under the "conditional" circumstance.
-     *
-     * This will replace the lowest play rating entry with the new play result.
-     *
-     * @param playResult The play result to be inserted
-     * @param chartInfo The [ChartInfo] of [playResult]
-     * @param oldR30List Old R30 entries
-     * @return The new R30 entries
-     */
-    private fun updateR30ListByConditionalWrite(
-        playResult: PlayResult,
-        chartInfo: ChartInfo,
-        oldR30List: List<R30EntryCombined>,
-    ): List<R30EntryCombined> {
-        // try getting the min play rating item in old list
-        // otherwise leave the old list untouched
-        val minRatingEntry = oldR30List.minByPlayRating() ?: return oldR30List
-        val minRatingEntryRating = minRatingEntry.playRating() ?: return oldR30List
-
-        if (playResult.playRating(chartInfo) < minRatingEntryRating) return oldR30List
-
-        val newR30Entries = oldR30List.toMutableList()
-        newR30Entries.remove(minRatingEntry)
-        newR30Entries.add(R30EntryCombined.build(playResult, chartInfo))
-        return newR30Entries
-    }
-
-    /**
-     * Update the R30 entries as usual.
-     *
-     * This will replace the oldest entry with the new play result.
-     *
-     * @param playResult The play result to be inserted
-     * @param oldR30List Old R30 entries
-     * @return The new R30 entries
-     */
-    private suspend fun updateR30ListByDirectWrite(
-        playResult: PlayResult,
-        oldR30List: List<R30EntryCombined>,
-    ): List<R30EntryCombined> {
-        val oldestR30Entry =
-            oldR30List.minByOrNull {
-                it.playResult.date?.toEpochMilliseconds() ?: Long.MAX_VALUE
-            } ?: return oldR30List
-
-        val newR30Entries = oldR30List.toMutableList()
-        newR30Entries.remove(oldestR30Entry)
-        newR30Entries.add(R30EntryCombined.build(playResult, chartInfoRepo))
-        return newR30Entries
     }
 }

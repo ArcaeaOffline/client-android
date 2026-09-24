@@ -223,7 +223,7 @@ private fun ResultsListItem(
 
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
-            Text("%.2f".format(state.actualPlayRating), fontWeight = FontWeight.Bold)
+            Text(ArcaeaFormatters.potentialToText(state.actualPlayRating), fontWeight = FontWeight.Bold)
 
             Spacer(Modifier.weight(1f))
 

@@ -146,6 +146,12 @@ CC BY-SA 3.0
     <!-- Database manage pane -->
     <string name="database_manage_title">Manage</string>
 
+    <string name="database_manage_scoring_mode_title">Scoring mode</string>
+    <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
+    <string name="database_manage_scoring_mode_b30_r10_description">Legacy potential rules</string>
+    <string name="database_manage_scoring_mode_b50">B50</string>
+    <string name="database_manage_scoring_mode_b50_description">Current potential rules (v7.0+)</string>
+
     <string name="database_manage_import_title">Import…</string>
     <string name="database_manage_import_pack_entries">Packs</string>
     <string name="database_manage_import_pack_localized_entries">Pack Localized Objects</string>
@@ -189,7 +195,7 @@ CC BY-SA 3.0
     <string name="database_play_result_updated">Play result %s updated</string>
 
     <!-- Database b30 list pane -->
-    <string name="database_b30_list_title">Best30 List</string>
+    <string name="database_best_list_title">Best Records List</string>
 
     <!-- Database r30 list pane -->
     <string name="database_r30_list_title">Recent30 List</string>
@@ -353,6 +359,8 @@ CC BY-SA 3.0
 
     <string name="play_result_validator_SCORE_IS_ZERO_title">Score is zero</string>
     <string name="play_result_validator_SCORE_IS_ZERO_message">Score is zero.</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_title">Clear type missing</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_message">The B50 rules count a play without a clear type as TRACK LOST, so it earns no clear bonus.</string>
 
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>

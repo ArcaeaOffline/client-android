@@ -125,6 +125,12 @@
     <!-- Database manage pane -->
     <string name="database_manage_title">管理</string>
 
+    <string name="database_manage_scoring_mode_title">计分方式</string>
+    <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
+    <string name="database_manage_scoring_mode_b30_r10_description">旧版潜力值规则</string>
+    <string name="database_manage_scoring_mode_b50">B50</string>
+    <string name="database_manage_scoring_mode_b50_description">现行潜力值规则（v7.0+）</string>
+
     <string name="database_manage_import_title">导入</string>
     <string name="database_manage_import_pack_entries">曲包</string>
     <string name="database_manage_import_pack_localized_entries">曲包本地化对象</string>
@@ -167,7 +173,7 @@
     <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
     <!-- Database b30 list pane -->
-    <string name="database_b30_list_title">B30 列表</string>
+    <string name="database_best_list_title">最佳记录列表</string>
 
     <!-- Database r30 list pane -->
     <string name="database_r30_list_title">R30 列表</string>
@@ -319,6 +325,8 @@
 
     <string name="play_result_validator_SCORE_IS_ZERO_title">分数为零</string>
     <string name="play_result_validator_SCORE_IS_ZERO_message">分数为 0。</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_title">缺少通关状态</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_message">B50 规则下，缺少通关状态的成绩按 TRACK LOST 计，无法获得通关奖励。</string>
 
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>

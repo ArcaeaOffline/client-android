@@ -244,3 +244,20 @@ data object ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning :
         (playResult.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.EASY) ||
             (playResult.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.HARD)
 }
+
+data object ArcaeaPlayResultValidatorClearTypeMissingWarning :
+    ArcaeaPlayResultValidatorWarning {
+    override val id = "CLEAR_TYPE_MISSING"
+
+    override val title = "Clear type missing"
+    override val titleId = R.string.play_result_validator_CLEAR_TYPE_MISSING_title
+
+    override val message =
+        "The B50 rules count a play without a clear type as TRACK LOST, so it earns no clear bonus."
+    override val messageId = R.string.play_result_validator_CLEAR_TYPE_MISSING_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean = playResult.clearType == null
+}

@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.core.database.repositories
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.daos.PlayResultDao
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartBestScore
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -16,6 +17,9 @@ interface PlayResultRepository {
     fun findByUuid(uuid: Uuid): Flow<PlayResult?>
 
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
+
+    /** Best score per chart over plays at or before [date], for an incremental recent-queue run. */
+    suspend fun bestScoresUntil(date: Instant): List<ChartBestScore>
 
     fun findAll(): Flow<List<PlayResult>>
 
@@ -45,6 +49,8 @@ class PlayResultRepositoryImpl(
     override fun findByUuid(uuid: Uuid): Flow<PlayResult?> = dao.findByUuid(uuid)
 
     override fun findLaterThan(date: Instant): Flow<List<PlayResult>> = dao.findLaterThan(date)
+
+    override suspend fun bestScoresUntil(date: Instant): List<ChartBestScore> = dao.bestScoresUntil(date)
 
     override fun findAll(): Flow<List<PlayResult>> = dao.findAll()
 

@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartBestScore
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -23,6 +24,13 @@ interface PlayResultDao {
 
     @Query("SELECT * FROM play_results WHERE date > :date")
     fun findLaterThan(date: Instant): Flow<List<PlayResult>>
+
+    @Query(
+        """SELECT song_id, rating_class, MAX(score) AS score
+        FROM play_results WHERE `date` <= :date
+        GROUP BY song_id, rating_class""",
+    )
+    suspend fun bestScoresUntil(date: Instant): List<ChartBestScore>
 
     @Query("SELECT * FROM play_results")
     fun findAll(): Flow<List<PlayResult>>

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,18 +15,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
+import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 @Composable
@@ -37,6 +45,28 @@ fun PlayRatingCalculator(
     initialFocusScoreTextField: Boolean = false,
 ) {
     val scoreTextFieldFocusRequester = remember { FocusRequester() }
+
+    // No clear type means no clear bonus (same as TRACK_LOST)
+    var clearType by remember { mutableStateOf<ArcaeaPlayResultClearType?>(null) }
+
+    var showClearTypeSelectDialog by rememberSaveable { mutableStateOf(false) }
+    if (showClearTypeSelectDialog) {
+        val values = remember { ArcaeaPlayResultClearType.entries.sortedBy { it.value } }
+        SelectDialog(
+            // Index 0 is the no-clear-type option; the entries follow from index 1
+            labels =
+                buildList {
+                    add(AnnotatedString(stringResource(R.string.play_result_no_clear_type)))
+                    values.forEach { add(AnnotatedString(it.toDisplayString())) }
+                },
+            onDismiss = { showClearTypeSelectDialog = false },
+            onSelect = {
+                clearType = if (it == 0) null else values[it - 1]
+                showClearTypeSelectDialog = false
+            },
+            selectedOptionIndex = clearType?.let { values.indexOf(it) + 1 },
+        )
+    }
 
     val scoreTextFieldState =
         rememberArcaeaScoreTextFieldState(
@@ -73,7 +103,7 @@ fun PlayRatingCalculator(
             scoreValue ?: return@derivedStateOf null
             constantValue ?: return@derivedStateOf null
 
-            calculatePlayRating(scoreValue!!, constantValue!!)
+            calculatePlayRating(scoreValue!!, constantValue!!, clearType)
         }
     }
 
@@ -103,12 +133,23 @@ fun PlayRatingCalculator(
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
+            // A tool output: shown to 6 decimals, independent of the official
+            // display precision
             Text(
-                potential?.let { String.format(null, "%.4f", it) } ?: "?",
+                potential?.let { ArcaeaFormatters.potentialToText(it, scale = 6) } ?: "?",
                 Modifier.weight(1f),
                 style = MaterialTheme.typography.titleLarge,
             )
         }
+
+        TextPreferencesWidget(
+            title = stringResource(R.string.arcaea_play_result_clear_type),
+            content =
+                clearType?.toDisplayString()
+                    ?: stringResource(R.string.play_result_no_clear_type),
+            trailingIcon = Icons.Default.ExpandMore,
+            onClick = { showClearTypeSelectDialog = true },
+        )
     }
 }
 

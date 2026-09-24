@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.calculators
 
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -39,6 +40,13 @@ class CommonCalculatorsTest {
             0.0,
             0.0,
         )
+
+        // A missing chart info reads as constant 0
+        assertEquals(
+            calculatePlayRating(10_000_000, 0),
+            0.0,
+            0.0,
+        )
     }
 
     @Test
@@ -56,5 +64,37 @@ class CommonCalculatorsTest {
         assert(10_002_221 in result3) { "10_002_221 [12.0] > 14.0" }
 
         assertNull(calculateInvertScoreRange(targetPlayRating = 14.0, constant = 80))
+        assertNull(calculateInvertScoreRange(targetPlayRating = 12.0, constant = 0))
+    }
+
+    @Test
+    fun testPlayRatingClearBonus() {
+        val score = 10_000_000
+        val constant = 100
+
+        // A missing clear type counts as TRACK_LOST: no bonus
+        assertEquals(calculatePlayRating(score, constant, null), 12.0, 0.0)
+        assertEquals(calculatePlayRating(score, constant, ArcaeaPlayResultClearType.TRACK_LOST), 12.0, 0.0)
+
+        for (
+        clearType in
+        listOf(
+            ArcaeaPlayResultClearType.NORMAL_CLEAR,
+            ArcaeaPlayResultClearType.FULL_RECALL,
+            ArcaeaPlayResultClearType.PURE_MEMORY,
+            ArcaeaPlayResultClearType.EASY_CLEAR,
+            ArcaeaPlayResultClearType.HARD_CLEAR,
+        )
+        ) {
+            assertEquals(calculatePlayRating(score, constant, clearType), 12.2, 0.0)
+        }
+
+        // The bonus participates in the floor at zero: a negative base plus
+        // bonus stays above zero, while TRACK_LOST floors at zero
+        assertEquals(calculatePlayRating(8_000_000, 50, null), 0.0, 0.0)
+        assertEquals(calculatePlayRating(8_000_000, 50, ArcaeaPlayResultClearType.NORMAL_CLEAR), 0.2, 0.0)
+
+        // An invalid constant earns no bonus either
+        assertEquals(calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0, 0.0)
     }
 }
