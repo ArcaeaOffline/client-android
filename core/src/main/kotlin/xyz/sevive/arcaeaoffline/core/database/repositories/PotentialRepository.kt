@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
+import xyz.sevive.arcaeaoffline.core.database.r30.ChartKey
 
 interface PotentialRepository {
     /** Average single-play potential of the best 30 entries (legacy display value). */
@@ -36,8 +37,12 @@ class PotentialRepositoryImpl(
     private fun b50Entries(): Flow<List<PlayResultCalculated>> = playResultBestRepo.orderDescWithLimit(50, ArcaeaScoringMode.B50)
 
     private fun r10Entries(): Flow<List<R30EntryCombined>> =
-        r30EntryRepo.findAllCombined().mapLatest {
-            it.sortedByDescending { it.playRating() ?: -1.0 }.take(10)
+        r30EntryRepo.findAllCombined().mapLatest { entries ->
+            // One entry per chart: the highest-rated of its plays in the queue
+            entries
+                .sortedByDescending { it.playRating() ?: -1.0 }
+                .distinctBy { ChartKey(it.playResult.songId, it.playResult.ratingClass) }
+                .take(10)
         }
 
     override fun b30() =
