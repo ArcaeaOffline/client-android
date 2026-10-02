@@ -14,13 +14,10 @@ data class ChartKey(
     val ratingClass: ArcaeaRatingClass,
 )
 
-/** Best score of a chart before the play being written; absent while the chart has no record. */
-typealias ChartBestScores = Map<ChartKey, Int>
-
 /**
  * Rebuilds the recent-30 queue under the B30 + R10 rules from play results.
  *
- * [replay] applies one play at a time, in play order:
+ * [rebuild] applies one play at a time, in play order:
  * * a play enters the queue directly, evicting the entry with the earliest play time, or
  *   conditionally, evicting the entry with the lowest single-play potential and being discarded
  *   when no entry is lower;
@@ -34,19 +31,14 @@ class R30QueueUpdater(
     private val chartInfoOf: suspend (PlayResult) -> ChartInfo?,
 ) {
     /**
-     * Applies [plays] in order onto [entries].
-     *
-     * [previousBestScores] carries the chart records of plays that came before [plays], so an
-     * incremental run sees what a rebuild from the whole history would.
+     * Applies [plays] in order onto an empty queue.
      */
-    suspend fun replay(
+    suspend fun rebuild(
         plays: List<PlayResult>,
-        entries: List<R30EntryCombined> = emptyList(),
-        previousBestScores: ChartBestScores = emptyMap(),
         onPlay: suspend () -> Unit = {},
     ): List<R30EntryCombined> {
-        var queue = entries
-        val bestScores = previousBestScores.toMutableMap()
+        var queue = emptyList<R30EntryCombined>()
+        val bestScores = mutableMapOf<ChartKey, Int>()
 
         plays.forEach { play ->
             val chart = ChartKey(play.songId, play.ratingClass)

@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
@@ -98,24 +97,15 @@ class DatabaseR30ListViewModel(
                 null,
             )
 
-    private fun enqueueWork(runMode: R30UpdateJob.RunMode) {
-        val workRequest =
-            OneTimeWorkRequestBuilder<R30UpdateJob>().setInputData(
-                workDataOf(R30UpdateJob.DATA_RUN_MODE to runMode.value),
-            )
-
+    private fun enqueueWork() {
         workManager.enqueueUniqueWork(
             R30UpdateJob.WORK_NAME,
             ExistingWorkPolicy.REPLACE,
-            workRequest.build(),
+            OneTimeWorkRequestBuilder<R30UpdateJob>().build(),
         )
     }
 
-    fun requestUpdate() {
-        enqueueWork(R30UpdateJob.RunMode.NORMAL)
-    }
-
     fun requestRebuild() {
-        enqueueWork(R30UpdateJob.RunMode.REBUILD)
+        enqueueWork()
     }
 }

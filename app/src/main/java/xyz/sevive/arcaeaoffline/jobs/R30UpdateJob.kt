@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
-import xyz.sevive.arcaeaoffline.core.database.r30.ChartKey
 import xyz.sevive.arcaeaoffline.core.database.r30.R30QueueUpdater
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
@@ -43,44 +42,13 @@ class R30UpdateJob(
     companion object {
         private const val LOG_TAG = "R30UpdateJob"
         const val WORK_NAME = "R30UpdateJob"
-
-        const val DATA_RUN_MODE = "run_mode"
     }
 
     private val logger = Logger.withTag(LOG_TAG)
 
-    enum class RunMode(
-        val value: Int,
-    ) {
-        NORMAL(0),
-        REBUILD(1), ;
-
-        companion object {
-            fun fromInt(value: Int) = entries.firstOrNull { it.value == value }
-        }
-    }
-
-    private data class WorkOptions(
-        val runMode: RunMode,
-    )
-
-    private fun parseRunMode(): RunMode {
-        val runModeInput = inputData.getInt(DATA_RUN_MODE, 0)
-        val result = RunMode.fromInt(runModeInput)
-        if (result == null) logger.w { "Invalid RunMode $runModeInput, falling back to ${RunMode.NORMAL}" }
-        return result ?: RunMode.NORMAL
-    }
-
-    private fun getWorkOptions(): WorkOptions =
-        WorkOptions(
-            runMode = parseRunMode(),
-        )
-
     private val progressFlow = MutableStateFlow(Progress.INDETERMINATE)
 
     override suspend fun doWork(): Result {
-        val workOptions = getWorkOptions()
-
         try {
             return coroutineScope {
                 val progressPublishJob =
@@ -88,43 +56,17 @@ class R30UpdateJob(
                         progressFlow.collectLatest { setProgress(it.toWorkData()) }
                     }
 
-                val r30LastUpdatedAt = propertyRepo.r30LastUpdatedAt()
-                val cutoff = r30LastUpdatedAt.takeUnless { workOptions.runMode == RunMode.REBUILD }
-
-                var r30EntryCombinedList =
-                    if (cutoff == null) {
-                        emptyList()
-                    } else {
-                        r30EntryRepo.findAllCombined().firstOrNull() ?: emptyList()
-                    }
-
-                // Records of the plays outside the batch, so an incremental run decides on a
-                // new chart record the same way a rebuild from the whole history would.
-                val previousBestScores =
-                    cutoff
-                        ?.let { playResultRepo.bestScoresUntil(it) }
-                        ?.associate { ChartKey(it.songId, it.ratingClass) to it.score }
-                        .orEmpty()
-
-                val playResults =
-                    if (cutoff == null) {
-                        playResultRepo.findAll().firstOrNull() ?: emptyList()
-                    } else {
-                        playResultRepo.findLaterThan(cutoff).firstOrNull() ?: emptyList()
-                    }
                 val deletedSongIds = songRepo.findDeletedInGame().firstOrNull()?.map { it.id } ?: emptyList()
-                val newPlayResults =
-                    playResults
+                val playResults =
+                    (playResultRepo.findAll().firstOrNull() ?: emptyList())
                         .filter { it.date != null && it.songId !in deletedSongIds }
                         .sortedWith(compareBy({ it.date }, { it.id }))
 
-                progressFlow.update { Progress(current = 0, total = newPlayResults.size) }
-                logger.d { "Updating r30 list with ${newPlayResults.size} new play results" }
-                r30EntryCombinedList =
-                    r30QueueUpdater.replay(
-                        plays = newPlayResults,
-                        entries = r30EntryCombinedList,
-                        previousBestScores = previousBestScores,
+                progressFlow.update { Progress(current = 0, total = playResults.size) }
+                logger.d { "Rebuilding r30 list from ${playResults.size} play results" }
+                val r30EntryCombinedList =
+                    r30QueueUpdater.rebuild(
+                        plays = playResults,
                         onPlay = {
                             ensureActive()
                             progressFlow.update { progress -> progress.increment() }

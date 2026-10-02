@@ -116,13 +116,6 @@ internal fun DatabaseR30ListScreen(viewModel: DatabaseR30ListViewModel = koinVie
                     ) {
                         Icon(Icons.Default.SyncProblem, null)
                     }
-
-                    IconButton(
-                        onClick = { viewModel.requestUpdate() },
-                        enabled = !isUpdating,
-                    ) {
-                        Icon(Icons.Default.Sync, null)
-                    }
                 },
             )
         },

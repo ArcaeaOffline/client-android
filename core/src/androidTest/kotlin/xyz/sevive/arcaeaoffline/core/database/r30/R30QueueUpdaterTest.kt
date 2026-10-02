@@ -81,7 +81,7 @@ class R30QueueUpdaterTest {
         return stream.bufferedReader().use { it.readText() }
     }
 
-    private suspend fun replayQueue(): List<R30EntryCombined> {
+    private suspend fun rebuildQueue(): List<R30EntryCombined> {
         val chartInfoRepository = ChartInfoRepositoryImpl(db.chartInfoDao())
         val playResults =
             PlayResultRepositoryImpl(db.playResultDao())
@@ -89,7 +89,7 @@ class R30QueueUpdaterTest {
                 .first()
                 .sortedWith(compareBy({ it.date }, { it.id }))
 
-        return R30QueueUpdater { chartInfoRepository.find(it).firstOrNull() }.replay(playResults)
+        return R30QueueUpdater { chartInfoRepository.find(it).firstOrNull() }.rebuild(playResults)
     }
 
     private data class QueueEntry(
@@ -110,15 +110,15 @@ class R30QueueUpdaterTest {
         }.sortedWith(compareBy({ it.songId }, { it.ratingClass }, { it.score }, { it.date }))
 
     @Test
-    fun replayRebuildsTheQueueOfTheSave() =
+    fun rebuildRebuildsTheQueueOfTheSave() =
         runBlocking {
-            assertEquals(EXPECTED_QUEUE, replayQueue().toQueueEntries())
+            assertEquals(EXPECTED_QUEUE, rebuildQueue().toQueueEntries())
         }
 
     @Test
     fun recentTopTenCountsEachChartOnce() =
         runBlocking {
-            val queue = replayQueue()
+            val queue = rebuildQueue()
 
             // 18 of the 30 entries are distinct charts, so whether they are counted once or per
             // play decides the sum below.

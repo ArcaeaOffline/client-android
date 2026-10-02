@@ -33,8 +33,6 @@ interface PropertyRepository {
     suspend fun r30LastUpdatedAt(): Instant?
 
     suspend fun setR30LastUpdatedAt(instant: Instant)
-
-    suspend fun deleteR30LastUpdatedAt()
 }
 
 class PropertyRepositoryImpl(
@@ -78,9 +76,5 @@ class PropertyRepositoryImpl(
 
     override suspend fun setR30LastUpdatedAt(instant: Instant) {
         this.upsert(Property(Property.KEY_R30_LAST_UPDATED_AT, instant.toEpochMilliseconds().toString()))
-    }
-
-    override suspend fun deleteR30LastUpdatedAt() {
-        this.delete(Property.KEY_R30_LAST_UPDATED_AT)
     }
 }
