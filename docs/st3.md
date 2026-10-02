@@ -17,8 +17,6 @@
 
 沉痛悼念：
 ```kotlin
-// git show 853a633bc53701933fc112fece9d4037531fd70b:core/src/main/kotlin/xyz/sevive/arcaeaoffline/core/database/externals/importers/ArcaeaSt3PlayResultImporter.kt | sed -n '/val isClearTypeReliable/,+34p'
-
 val isClearTypeReliable: Boolean
     get() {
         if (clearType == ArcaeaPlayResultClearType.FULL_RECALL.value && lost != 0) return false
