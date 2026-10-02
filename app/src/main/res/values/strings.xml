@@ -116,6 +116,13 @@ CC BY-SA 3.0
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
+    <!-- Potential completeness warnings -->
+    <string name="potential_completeness_warning_b10">Fewer than 10 charts in the best list.</string>
+    <string name="potential_completeness_warning_b30">Fewer than 30 charts in the best list.</string>
+    <string name="potential_completeness_warning_b50">Fewer than 50 charts in the best list.</string>
+    <string name="potential_completeness_warning_r10">Fewer than 10 charts in the recent queue.</string>
+    <string name="potential_completeness_warning_recent_inaccuracy">R10 may differ greatly due to limited score history.</string>
+
     <!-- Database info/status labels -->
     <string name="database_version_label">Version %d</string>
     <plurals name="database_pack_entries">

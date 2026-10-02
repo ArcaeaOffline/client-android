@@ -24,7 +24,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultCalculatedR
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepositoryImpl
-import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
 
@@ -50,7 +49,6 @@ class R30QueueUpdaterTest {
                     PlayResultCalculatedRepositoryImpl(db.playResultDao(), db.songDao(), db.chartInfoDao()),
                 ),
                 R30EntryRepositoryImpl(db.r30EntryDao()),
-                PropertyRepositoryImpl(db.propertyDao()),
             )
 
         runBlocking { seed() }
@@ -123,11 +121,18 @@ class R30QueueUpdaterTest {
             val queue = replayQueue()
 
             // 18 of the 30 entries are distinct charts, so whether they are counted once or per
-            // play decides the average below.
+            // play decides the sum below.
             assertEquals(18, queue.map { ChartKey(it.playResult.songId, it.playResult.ratingClass) }.distinct().size)
             db.r30EntryDao().insertBatch(*queue.map { it.entry }.toTypedArray())
 
-            assertEquals(12.524324, potentialRepository.r10().first(), TOLERANCE)
+            assertEquals(
+                125.24324,
+                potentialRepository
+                    .groups()
+                    .first()
+                    .r10.total,
+                TOLERANCE,
+            )
         }
 
     private companion object {

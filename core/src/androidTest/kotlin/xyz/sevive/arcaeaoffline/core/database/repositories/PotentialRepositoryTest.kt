@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,11 +30,7 @@ class PotentialRepositoryTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db =
-            Room
-                .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
-                .setDriver(BundledSQLiteDriver())
-                .build()
+        db = Room.inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java).setDriver(BundledSQLiteDriver()).build()
 
         potentialRepository =
             PotentialRepositoryImpl(
@@ -41,11 +39,17 @@ class PotentialRepositoryTest {
                     PlayResultCalculatedRepositoryImpl(db.playResultDao(), db.songDao(), db.chartInfoDao()),
                 ),
                 R30EntryRepositoryImpl(db.r30EntryDao()),
-                PropertyRepositoryImpl(db.propertyDao()),
             )
 
         runBlocking { seed() }
     }
+
+    private suspend fun trimPlaysTo(count: Int) =
+        db.useWriterConnection { connection ->
+            connection.immediateTransaction {
+                execSQL("DELETE FROM play_results WHERE id NOT IN (SELECT id FROM play_results ORDER BY id LIMIT $count)")
+            }
+        }
 
     @After
     fun tearDown() {
@@ -77,22 +81,55 @@ class PotentialRepositoryTest {
     @Test
     fun b50MatchesTheSave() =
         runBlocking {
-            // 12.595 truncated to three decimals, the value the app displays
-            assertEquals(12.595672633333333, potentialRepository.b50().first(), TOLERANCE)
+            assertEquals(
+                629.7836316666667,
+                potentialRepository
+                    .groups()
+                    .first()
+                    .b50.total,
+                TOLERANCE,
+            )
         }
 
     @Test
     fun b10MatchesTheSave() =
         runBlocking {
-            // 12.764
-            assertEquals(12.764543, potentialRepository.b10().first(), TOLERANCE)
+            assertEquals(
+                127.64542999999999,
+                potentialRepository
+                    .groups()
+                    .first()
+                    .b10.total,
+                TOLERANCE,
+            )
         }
 
     @Test
-    fun potentialMatchesTheSave() =
+    fun completenessTracksHowManyChartsHavePlayResults() =
         runBlocking {
-            // 12.623
-            assertEquals(12.623817694444446, potentialRepository.potential().first(), TOLERANCE)
+            val full = potentialRepository.groups().first()
+            assertEquals(50, full.b50.items.size)
+            assertEquals(10, full.b10.items.size)
+            assertEquals(30, full.b30.items.size)
+            assertEquals(0, full.r10.items.size)
+            assertTrue(full.b50.isComplete)
+            assertTrue(full.b10.isComplete)
+            assertTrue(full.b30.isComplete)
+            assertFalse(full.r10.isComplete)
+
+            // Completeness tests
+            trimPlaysTo(12)
+            val partial = potentialRepository.groups().first()
+            assertEquals(10, partial.b10.items.size)
+            assertTrue(partial.b10.isComplete)
+            assertFalse(partial.b50.isComplete)
+            assertFalse(partial.b30.isComplete)
+
+            trimPlaysTo(5)
+            val few = potentialRepository.groups().first()
+            assertEquals(5, few.b50.items.size)
+            assertFalse(few.b10.isComplete)
+            assertFalse(few.b50.isComplete)
         }
 
     private companion object {
