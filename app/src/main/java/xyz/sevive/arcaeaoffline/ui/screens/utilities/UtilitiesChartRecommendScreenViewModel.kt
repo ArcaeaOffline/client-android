@@ -22,6 +22,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
+import xyz.sevive.arcaeaoffline.helpers.calculatePotential
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
@@ -51,14 +52,9 @@ class UtilitiesChartRecommendScreenViewModel(
         viewModelScope.launch {
             // Seed the target with the current level of the active scoring rules
             val mode = propertyRepo.scoringMode().firstOrNull() ?: ArcaeaScoringMode.B50
-            val currentPotential =
-                when (mode) {
-                    ArcaeaScoringMode.B30_R10 -> potentialRepo.b30().firstOrNull()
-                    ArcaeaScoringMode.B50 -> potentialRepo.b50().firstOrNull()
-                }
-
-            currentPotential?.let {
-                targetPlayRating.value = ((it + 0.05) * 100).roundToInt() / 100.0
+            potentialRepo.groups().firstOrNull()?.let {
+                val potential = mode.calculatePotential(it)
+                targetPlayRating.value = ((potential + 0.05) * 100).roundToInt() / 100.0
             }
         }
     }
