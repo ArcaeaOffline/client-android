@@ -42,15 +42,16 @@ object ArcaeaPlayResultValidator {
         chartInfo: ChartInfo?,
         scoringMode: ArcaeaScoringMode,
     ): List<ArcaeaPlayResultValidatorWarning> {
-        val warnings = validate(playResult, chartInfo).toMutableList()
+        val clearTypeMissing =
+            if (
+                scoringMode == ArcaeaScoringMode.B50 &&
+                ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(playResult, chartInfo)
+            ) {
+                listOf(ArcaeaPlayResultValidatorClearTypeMissingWarning)
+            } else {
+                emptyList()
+            }
 
-        if (
-            scoringMode == ArcaeaScoringMode.B50 &&
-            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(playResult, chartInfo)
-        ) {
-            warnings.add(ArcaeaPlayResultValidatorClearTypeMissingWarning)
-        }
-
-        return warnings
+        return validate(playResult, chartInfo) + clearTypeMissing
     }
 }

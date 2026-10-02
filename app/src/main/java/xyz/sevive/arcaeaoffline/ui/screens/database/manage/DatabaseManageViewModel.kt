@@ -122,7 +122,10 @@ class DatabaseManageViewModel(
             )
 
     fun setScoringMode(mode: ArcaeaScoringMode) {
-        viewModelScope.launch { propertyRepo.setScoringMode(mode) }
+        viewModelScope.launch {
+            runCatching { propertyRepo.setScoringMode(mode) }
+                .onFailure { logger.e(it) { "Failed to set scoring mode" } }
+        }
     }
 
     internal val uiState =

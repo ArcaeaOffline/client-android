@@ -171,9 +171,6 @@
     </plurals>
     <string name="database_play_result_updated">Play result %s updated</string>
 
-    <!-- Database b30 list pane -->
-    <string name="database_b30_list_title">Best30 List</string>
-
     <!-- Database r30 list pane -->
     <string name="database_r30_list_title">Recent30 List</string>
     <string name="database_r30_rebuild_dialog_title">Rebuild Recent30 List</string>
