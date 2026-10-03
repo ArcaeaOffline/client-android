@@ -10,41 +10,41 @@ class CommonCalculatorsTest {
     @Test
     fun testScoreRange() {
         assertEquals(
-            calculateScoreRange(2221, 2221, 0),
             10_000_000..10_002_221,
+            calculateScoreRange(2221, 2221, 0),
         )
     }
 
     @Test
     fun testPlayRating() {
         assertEquals(
-            calculatePlayRating(10_002_221, 120),
             14.0,
+            calculatePlayRating(10_002_221, 120),
             0.0,
         )
 
         assertEquals(
-            calculatePlayRating(9_949_633, 111),
             12.848165,
+            calculatePlayRating(9_949_633, 111),
             1e-4,
         )
 
         assertEquals(
-            calculatePlayRating(9_849_089, 111),
             12.345445,
+            calculatePlayRating(9_849_089, 111),
             1e-4,
         )
 
         assertEquals(
-            calculatePlayRating(5_500_000, 120),
             0.0,
+            calculatePlayRating(5_500_000, 120),
             0.0,
         )
 
         // A missing chart info reads as constant 0
         assertEquals(
-            calculatePlayRating(10_000_000, 0),
             0.0,
+            calculatePlayRating(10_000_000, 0),
             0.0,
         )
     }
@@ -96,8 +96,8 @@ class CommonCalculatorsTest {
         val constant = 100
 
         // A missing clear type counts as TRACK_LOST: no bonus
-        assertEquals(calculatePlayRating(score, constant, null), 12.0, 0.0)
-        assertEquals(calculatePlayRating(score, constant, ArcaeaPlayResultClearType.TRACK_LOST), 12.0, 0.0)
+        assertEquals(12.0, calculatePlayRating(score, constant, null), 0.0)
+        assertEquals(12.0, calculatePlayRating(score, constant, ArcaeaPlayResultClearType.TRACK_LOST), 0.0)
 
         for (
         clearType in
@@ -109,19 +109,19 @@ class CommonCalculatorsTest {
             ArcaeaPlayResultClearType.HARD_CLEAR,
         )
         ) {
-            assertEquals(calculatePlayRating(score, constant, clearType), 12.2, 0.0)
+            assertEquals(12.2, calculatePlayRating(score, constant, clearType), 0.0)
         }
 
         // The bonus participates in the floor at zero: a negative base plus
         // bonus stays above zero, while TRACK_LOST floors at zero
-        assertEquals(calculatePlayRating(8_000_000, 50, null), 0.0, 0.0)
-        assertEquals(calculatePlayRating(8_000_000, 50, ArcaeaPlayResultClearType.NORMAL_CLEAR), 0.2, 0.0)
+        assertEquals(0.0, calculatePlayRating(8_000_000, 50, null), 0.0)
+        assertEquals(0.2, calculatePlayRating(8_000_000, 50, ArcaeaPlayResultClearType.NORMAL_CLEAR), 0.0)
 
         // An invalid constant earns no bonus either
-        assertEquals(calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0, 0.0)
+        assertEquals(0.0, calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0)
 
         // The bonus overload is the primitive the clear-type overload maps onto
-        assertEquals(calculatePlayRating(score, constant, 0.2), 12.2, 0.0)
-        assertEquals(calculatePlayRating(score, constant, 0.0), 12.0, 0.0)
+        assertEquals(12.2, calculatePlayRating(score, constant, 0.2), 0.0)
+        assertEquals(12.0, calculatePlayRating(score, constant, 0.0), 0.0)
     }
 }
