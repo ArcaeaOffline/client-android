@@ -94,6 +94,8 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_lost" translatable="false">LOST</string>
     <string name="arcaea_play_result_max_recall">MAX RECALL</string>
     <string name="arcaea_play_result_clear_type">Clear Type</string>
+    <string name="play_rating_cleared">Cleared</string>
+    <string name="play_rating_cleared_description">Counts the +0.2 clear bonus</string>
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">Comment</string>
     <string name="arcaea_st3" translatable="false">st3</string>

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,15 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.calculators.PLAY_RATING_CLEAR_BONUS
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -43,30 +41,12 @@ fun PlayRatingCalculator(
     constant: Int = 0,
     isConstantReadonly: Boolean = true,
     initialFocusScoreTextField: Boolean = false,
+    initialCleared: Boolean = false,
+    countClearBonus: Boolean = true,
 ) {
     val scoreTextFieldFocusRequester = remember { FocusRequester() }
 
-    // No clear type means no clear bonus (same as TRACK_LOST)
-    var clearType by remember { mutableStateOf<ArcaeaPlayResultClearType?>(null) }
-
-    var showClearTypeSelectDialog by rememberSaveable { mutableStateOf(false) }
-    if (showClearTypeSelectDialog) {
-        val values = remember { ArcaeaPlayResultClearType.entries.sortedBy { it.value } }
-        SelectDialog(
-            // Index 0 is the no-clear-type option; the entries follow from index 1
-            labels =
-                buildList {
-                    add(AnnotatedString(stringResource(R.string.play_result_no_clear_type)))
-                    values.forEach { add(AnnotatedString(it.toDisplayString())) }
-                },
-            onDismiss = { showClearTypeSelectDialog = false },
-            onSelect = {
-                clearType = if (it == 0) null else values[it - 1]
-                showClearTypeSelectDialog = false
-            },
-            selectedOptionIndex = clearType?.let { values.indexOf(it) + 1 },
-        )
-    }
+    var cleared by rememberSaveable { mutableStateOf(initialCleared) }
 
     val scoreTextFieldState =
         rememberArcaeaScoreTextFieldState(
@@ -103,7 +83,8 @@ fun PlayRatingCalculator(
             scoreValue ?: return@derivedStateOf null
             constantValue ?: return@derivedStateOf null
 
-            calculatePlayRating(scoreValue!!, constantValue!!, clearType)
+            val clearBonus = if (countClearBonus && cleared) PLAY_RATING_CLEAR_BONUS else 0.0
+            calculatePlayRating(scoreValue!!, constantValue!!, clearBonus)
         }
     }
 
@@ -142,14 +123,14 @@ fun PlayRatingCalculator(
             )
         }
 
-        TextPreferencesWidget(
-            title = stringResource(R.string.arcaea_play_result_clear_type),
-            content =
-                clearType?.toDisplayString()
-                    ?: stringResource(R.string.play_result_no_clear_type),
-            trailingIcon = Icons.Default.ExpandMore,
-            onClick = { showClearTypeSelectDialog = true },
-        )
+        if (countClearBonus) {
+            SwitchPreferencesWidget(
+                value = cleared,
+                onValueChange = { cleared = it },
+                title = stringResource(R.string.play_rating_cleared),
+                description = stringResource(R.string.play_rating_cleared_description),
+            )
+        }
     }
 }
 

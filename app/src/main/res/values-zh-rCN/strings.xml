@@ -79,6 +79,8 @@
     <string name="arcaea_play_result_score">分数</string>
     <string name="arcaea_play_result_max_recall">MAX RECALL</string>
     <string name="arcaea_play_result_clear_type">通关状态</string>
+    <string name="play_rating_cleared">通关</string>
+    <string name="play_rating_cleared_description">计入 +0.2 通关奖励</string>
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">备注</string>
     <string name="arcaea_potential">潜力值</string>

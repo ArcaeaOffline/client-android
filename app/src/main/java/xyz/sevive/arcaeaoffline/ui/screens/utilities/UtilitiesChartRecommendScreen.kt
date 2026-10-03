@@ -52,8 +52,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.calculators.PLAY_RATING_CLEAR_BONUS
 import xyz.sevive.arcaeaoffline.core.calculators.calculateInvertScoreRange
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -64,6 +66,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayRatingCalculator
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.rememberDecimalStepperTextFieldState
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
@@ -138,6 +141,8 @@ data class PlayRatingCalculatorDialogState(
 private fun PlayRatingCalculatorDialog(
     onDismissRequest: () -> Unit,
     state: PlayRatingCalculatorDialogState,
+    countClearBonus: Boolean,
+    cleared: Boolean,
 ) {
     BasicAlertDialogSurface(onDismissRequest) { contentPadding ->
         Column(
@@ -168,6 +173,8 @@ private fun PlayRatingCalculatorDialog(
                 constant = state.constant,
                 isConstantReadonly = true,
                 initialFocusScoreTextField = true,
+                countClearBonus = countClearBonus,
+                initialCleared = cleared,
             )
         }
     }
@@ -177,12 +184,14 @@ data class ResultsListItemState(
     val item: DifficultyWithSongAndInfo,
     val scoreRange: IntRange,
     val targetPlayRating: Double,
+    val cleared: Boolean = false,
 ) {
     val targetScoreRange by lazy {
         calculateInvertScoreRange(
             targetPlayRating = targetPlayRating,
             constant = item.constant,
             tolerance = 1e-6,
+            clearBonus = if (cleared) PLAY_RATING_CLEAR_BONUS else 0.0,
         )
     }
 
@@ -195,7 +204,7 @@ data class ResultsListItemState(
     }
 
     val actualPlayRating by lazy {
-        calculatePlayRating(score, item.constant)
+        calculatePlayRating(score, item.constant, if (cleared) PLAY_RATING_CLEAR_BONUS else 0.0)
     }
 }
 
@@ -274,6 +283,8 @@ fun UtilitiesChartRecommendScreen(
         PlayRatingCalculatorDialog(
             onDismissRequest = { showCalculatorDialog = false },
             state = calculatorDialogState,
+            countClearBonus = uiState.scoringMode == ArcaeaScoringMode.B50,
+            cleared = uiState.cleared,
         )
     }
 
@@ -356,6 +367,15 @@ fun UtilitiesChartRecommendScreen(
                             TextButton({ viewModel.setScoreRange(9_500_000..9_799_999) }) { Text("AA") }
                         }
                     }
+
+                    if (uiState.scoringMode == ArcaeaScoringMode.B50) {
+                        SwitchPreferencesWidget(
+                            value = uiState.cleared,
+                            onValueChange = viewModel::setCleared,
+                            title = stringResource(R.string.play_rating_cleared),
+                            description = stringResource(R.string.play_rating_cleared_description),
+                        )
+                    }
                 }
             }
 
@@ -383,7 +403,7 @@ fun UtilitiesChartRecommendScreen(
                     }
                 } else {
                     items(uiState.charts, { it.difficultyWithSong.songId + it.difficultyWithSong.ratingClass.name }) { item ->
-                        val state = ResultsListItemState(item, scoreRange, targetPlayRating)
+                        val state = ResultsListItemState(item, scoreRange, targetPlayRating, uiState.cleared)
 
                         ResultsListItem(
                             state = state,

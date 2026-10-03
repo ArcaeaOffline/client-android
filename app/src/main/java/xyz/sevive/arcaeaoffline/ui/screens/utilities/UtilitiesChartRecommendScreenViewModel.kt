@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.calculators.PLAY_RATING_CLEAR_BONUS
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
@@ -30,8 +31,29 @@ data class UtilitiesChartRecommendScreenUiState(
     val isLoading: Boolean = true,
     val scoreRange: IntRange = 9_800_000..9_899_999,
     val targetPlayRating: Double = 0.0,
+    val scoringMode: ArcaeaScoringMode = PropertyRepository.DEFAULT_SCORING_MODE,
+    val cleared: Boolean = false,
     val charts: List<DifficultyWithSongAndInfo> = emptyList(),
 )
+
+/**
+ * Charts whose single-play rating within [scoreRange], with the clear bonus
+ * added when [cleared], can reach [targetPlayRating].
+ */
+internal fun filterChartsByTarget(
+    rows: List<DifficultyWithSongAndInfo>,
+    scoreRange: IntRange,
+    targetPlayRating: Double,
+    cleared: Boolean,
+): List<DifficultyWithSongAndInfo> {
+    val clearBonus = if (cleared) PLAY_RATING_CLEAR_BONUS else 0.0
+
+    return rows.filter { row ->
+        val min = calculatePlayRating(score = scoreRange.first, constant = row.constant, clearBonus = clearBonus)
+        val max = calculatePlayRating(score = scoreRange.last, constant = row.constant, clearBonus = clearBonus)
+        targetPlayRating in min..max
+    }
+}
 
 class UtilitiesChartRecommendScreenViewModel(
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
@@ -43,10 +65,13 @@ class UtilitiesChartRecommendScreenViewModel(
     private data class FilterParams(
         val scoreRange: IntRange,
         val targetPlayRating: Double,
+        val cleared: Boolean,
+        val scoringMode: ArcaeaScoringMode,
     )
 
     private val scoreRange = MutableStateFlow(9_800_000..9_899_999)
     private val targetPlayRating = MutableStateFlow(0.0)
+    private val cleared = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -61,27 +86,23 @@ class UtilitiesChartRecommendScreenViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<UtilitiesChartRecommendScreenUiState> =
-        combine(scoreRange, targetPlayRating) { sr, tpr ->
-            FilterParams(sr, tpr)
+        combine(scoreRange, targetPlayRating, cleared, propertyRepo.scoringMode()) { sr, tpr, c, mode ->
+            FilterParams(sr, tpr, c, mode)
         }.flatMapLatest { params ->
             // One joined query (ordered by constant) instead of fetching the
             // chart of each chart info row separately.
             difficultyWithSongRepo
                 .findAllWithInfo()
                 .map { rows ->
-                    val filtered =
-                        rows
-                            .filter { row ->
-                                val min = calculatePlayRating(score = params.scoreRange.first, constant = row.constant)
-                                val max = calculatePlayRating(score = params.scoreRange.last, constant = row.constant)
-                                params.targetPlayRating in min..max
-                            }
+                    val effectiveCleared = if (params.scoringMode == ArcaeaScoringMode.B50) params.cleared else false
 
                     UtilitiesChartRecommendScreenUiState(
                         isLoading = false,
                         scoreRange = params.scoreRange,
                         targetPlayRating = params.targetPlayRating,
-                        charts = filtered,
+                        scoringMode = params.scoringMode,
+                        cleared = effectiveCleared,
+                        charts = filterChartsByTarget(rows, params.scoreRange, params.targetPlayRating, effectiveCleared),
                     )
                 }.onStart {
                     emit(
@@ -89,6 +110,8 @@ class UtilitiesChartRecommendScreenViewModel(
                             isLoading = true,
                             scoreRange = params.scoreRange,
                             targetPlayRating = params.targetPlayRating,
+                            scoringMode = params.scoringMode,
+                            cleared = params.cleared,
                         ),
                     )
                 }.catch { e ->
@@ -98,6 +121,8 @@ class UtilitiesChartRecommendScreenViewModel(
                             isLoading = false,
                             scoreRange = params.scoreRange,
                             targetPlayRating = params.targetPlayRating,
+                            scoringMode = params.scoringMode,
+                            cleared = params.cleared,
                             charts = emptyList(),
                         ),
                     )
@@ -117,5 +142,9 @@ class UtilitiesChartRecommendScreenViewModel(
 
     fun setTargetPlayRating(newValue: Double) {
         targetPlayRating.value = newValue
+    }
+
+    fun setCleared(newValue: Boolean) {
+        cleared.value = newValue
     }
 }

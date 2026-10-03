@@ -15,50 +15,47 @@ fun calculateScoreRange(
     return actualScore..actualScore + pure
 }
 
-fun calculatePlayRating(
-    score: Int,
-    constant: Int,
-): Double {
-    // Chart constants are positive; 0 is what a missing chart info reads as.
-    if (constant <= 0) return 0.0
-
-    return if (score >= 10_000_000) {
-        constant / 10.0 + 2
-    } else if (score >= 9_800_000) {
-        constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0
-    } else {
-        max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0)
-    }
-}
-
-/** Bonus added to single-play potential by the v7.0 rules (B50 scoring). */
+/** Bonus added to single-play potential by the B50 scoring. */
 const val PLAY_RATING_CLEAR_BONUS = 0.2
 
 /**
- * Clear-type bonus of a single play. Any state other than TRACK_LOST earns the
- * bonus; a missing clear type is treated as TRACK_LOST, i.e. no bonus.
+ * [ArcaeaPlayResultClearType] bonus of a single play.
+ *
+ * Any state other than [ArcaeaPlayResultClearType.TRACK_LOST] earns the bonus. A missing clear type is treated as no bonus.
  */
 fun calculateClearBonus(clearType: ArcaeaPlayResultClearType?): Double =
     if (clearType == null || clearType == ArcaeaPlayResultClearType.TRACK_LOST) 0.0 else PLAY_RATING_CLEAR_BONUS
 
 /**
- * Single-play potential under the v7.0 rules: the score-based value plus the
- * clear-type bonus, with the whole sum floored at zero.
+ * Single-play potential under the legacy rules (no clear bonus).
+ */
+fun calculatePlayRating(
+    score: Int,
+    constant: Int,
+): Double = calculatePlayRating(score, constant, 0.0)
+
+/**
+ * Single-play potential under the B50 rules (with clear bonus).
  */
 fun calculatePlayRating(
     score: Int,
     constant: Int,
     clearType: ArcaeaPlayResultClearType?,
+): Double = calculatePlayRating(score, constant, calculateClearBonus(clearType))
+
+fun calculatePlayRating(
+    score: Int,
+    constant: Int,
+    clearBonus: Double,
 ): Double {
     if (constant <= 0) return 0.0
 
-    val bonus = calculateClearBonus(clearType)
     return if (score >= 10_000_000) {
-        constant / 10.0 + 2 + bonus
+        constant / 10.0 + 2 + clearBonus
     } else if (score >= 9_800_000) {
-        constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0 + bonus
+        constant / 10.0 + 1 + (score - 9_800_000) / 200_000.0 + clearBonus
     } else {
-        max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0 + bonus)
+        max(0.0, constant / 10.0 + (score - 9_500_000) / 300_000.0 + clearBonus)
     }
 }
 
@@ -69,19 +66,23 @@ fun calculatePlayRating(
  * constant, null result will be returned.
  *
  * The core algorithm is provided by Google Gemini.
+ *
+ * @param clearBonus The clear-type bonus the play is expected to earn.
  */
 fun calculateInvertScoreRange(
     targetPlayRating: Double,
     constant: Int,
     tolerance: Double = 1e-3,
+    clearBonus: Double = 0.0,
 ): IntRange? {
     if (constant <= 0 || targetPlayRating < 0.0) return null
 
+    val effectiveTarget = targetPlayRating - clearBonus
     val base = constant / 10.0
 
     // Actual constraint of play rating
-    val prMin = max(0.0, targetPlayRating - tolerance)
-    val prMax = targetPlayRating + tolerance
+    val prMin = max(0.0, effectiveTarget - tolerance)
+    val prMax = effectiveTarget + tolerance
 
     if (base + 2.0 < prMin) return null
 

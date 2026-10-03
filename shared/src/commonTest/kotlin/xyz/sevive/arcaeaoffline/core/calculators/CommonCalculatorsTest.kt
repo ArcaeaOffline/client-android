@@ -68,6 +68,29 @@ class CommonCalculatorsTest {
     }
 
     @Test
+    fun testInvertPlayRatingWithClearBonus() {
+        for (
+        (target, constant) in
+        listOf(
+            12.2 to 100,
+            12.465 to 107,
+            14.0 to 120,
+        )
+        ) {
+            assertEquals(
+                calculateInvertScoreRange(target, constant, clearBonus = PLAY_RATING_CLEAR_BONUS),
+                calculateInvertScoreRange(target - PLAY_RATING_CLEAR_BONUS, constant),
+            )
+        }
+
+        // A cleared play reaches a target the bonus-free play cannot
+        assertNotNull(calculateInvertScoreRange(12.1, 100, clearBonus = PLAY_RATING_CLEAR_BONUS))
+
+        // Too high stays unsolvable regardless of the bonus
+        assertNull(calculateInvertScoreRange(14.0, 80, clearBonus = PLAY_RATING_CLEAR_BONUS))
+    }
+
+    @Test
     fun testPlayRatingClearBonus() {
         val score = 10_000_000
         val constant = 100
@@ -96,5 +119,9 @@ class CommonCalculatorsTest {
 
         // An invalid constant earns no bonus either
         assertEquals(calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0, 0.0)
+
+        // The bonus overload is the primitive the clear-type overload maps onto
+        assertEquals(calculatePlayRating(score, constant, PLAY_RATING_CLEAR_BONUS), 12.2, 0.0)
+        assertEquals(calculatePlayRating(score, constant, 0.0), 12.0, 0.0)
     }
 }
