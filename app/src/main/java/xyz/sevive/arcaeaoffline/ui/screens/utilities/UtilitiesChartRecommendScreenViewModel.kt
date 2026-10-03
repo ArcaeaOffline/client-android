@@ -16,8 +16,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.core.calculators.PLAY_RATING_CLEAR_BONUS
+import xyz.sevive.arcaeaoffline.core.calculators.calculateClearBonus
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
@@ -32,21 +33,21 @@ data class UtilitiesChartRecommendScreenUiState(
     val scoreRange: IntRange = 9_800_000..9_899_999,
     val targetPlayRating: Double = 0.0,
     val scoringMode: ArcaeaScoringMode = PropertyRepository.DEFAULT_SCORING_MODE,
-    val cleared: Boolean = false,
+    val clearType: ArcaeaPlayResultClearType? = null,
     val charts: List<DifficultyWithSongAndInfo> = emptyList(),
 )
 
 /**
- * Charts whose single-play rating within [scoreRange], with the clear bonus
- * added when [cleared], can reach [targetPlayRating].
+ * Charts whose single-play rating within [scoreRange], with the clear bonus of
+ * [clearType], can reach [targetPlayRating].
  */
 internal fun filterChartsByTarget(
     rows: List<DifficultyWithSongAndInfo>,
     scoreRange: IntRange,
     targetPlayRating: Double,
-    cleared: Boolean,
+    clearType: ArcaeaPlayResultClearType?,
 ): List<DifficultyWithSongAndInfo> {
-    val clearBonus = if (cleared) PLAY_RATING_CLEAR_BONUS else 0.0
+    val clearBonus = calculateClearBonus(clearType)
 
     return rows.filter { row ->
         val min = calculatePlayRating(score = scoreRange.first, constant = row.constant, clearBonus = clearBonus)
@@ -65,13 +66,13 @@ class UtilitiesChartRecommendScreenViewModel(
     private data class FilterParams(
         val scoreRange: IntRange,
         val targetPlayRating: Double,
-        val cleared: Boolean,
+        val clearType: ArcaeaPlayResultClearType?,
         val scoringMode: ArcaeaScoringMode,
     )
 
     private val scoreRange = MutableStateFlow(9_800_000..9_899_999)
     private val targetPlayRating = MutableStateFlow(0.0)
-    private val cleared = MutableStateFlow(false)
+    private val clearType = MutableStateFlow<ArcaeaPlayResultClearType?>(null)
 
     init {
         viewModelScope.launch {
@@ -86,23 +87,23 @@ class UtilitiesChartRecommendScreenViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<UtilitiesChartRecommendScreenUiState> =
-        combine(scoreRange, targetPlayRating, cleared, propertyRepo.scoringMode()) { sr, tpr, c, mode ->
-            FilterParams(sr, tpr, c, mode)
+        combine(scoreRange, targetPlayRating, clearType, propertyRepo.scoringMode()) { sr, tpr, ct, mode ->
+            FilterParams(sr, tpr, ct, mode)
         }.flatMapLatest { params ->
             // One joined query (ordered by constant) instead of fetching the
             // chart of each chart info row separately.
             difficultyWithSongRepo
                 .findAllWithInfo()
                 .map { rows ->
-                    val effectiveCleared = if (params.scoringMode == ArcaeaScoringMode.B50) params.cleared else false
+                    val effectiveClearType = if (params.scoringMode == ArcaeaScoringMode.B50) params.clearType else null
 
                     UtilitiesChartRecommendScreenUiState(
                         isLoading = false,
                         scoreRange = params.scoreRange,
                         targetPlayRating = params.targetPlayRating,
                         scoringMode = params.scoringMode,
-                        cleared = effectiveCleared,
-                        charts = filterChartsByTarget(rows, params.scoreRange, params.targetPlayRating, effectiveCleared),
+                        clearType = effectiveClearType,
+                        charts = filterChartsByTarget(rows, params.scoreRange, params.targetPlayRating, effectiveClearType),
                     )
                 }.onStart {
                     emit(
@@ -111,7 +112,7 @@ class UtilitiesChartRecommendScreenViewModel(
                             scoreRange = params.scoreRange,
                             targetPlayRating = params.targetPlayRating,
                             scoringMode = params.scoringMode,
-                            cleared = params.cleared,
+                            clearType = params.clearType,
                         ),
                     )
                 }.catch { e ->
@@ -122,7 +123,7 @@ class UtilitiesChartRecommendScreenViewModel(
                             scoreRange = params.scoreRange,
                             targetPlayRating = params.targetPlayRating,
                             scoringMode = params.scoringMode,
-                            cleared = params.cleared,
+                            clearType = params.clearType,
                             charts = emptyList(),
                         ),
                     )
@@ -144,7 +145,7 @@ class UtilitiesChartRecommendScreenViewModel(
         targetPlayRating.value = newValue
     }
 
-    fun setCleared(newValue: Boolean) {
-        cleared.value = newValue
+    fun setClearType(newValue: ArcaeaPlayResultClearType?) {
+        clearType.value = newValue
     }
 }

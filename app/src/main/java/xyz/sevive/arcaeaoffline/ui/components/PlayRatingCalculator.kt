@@ -26,8 +26,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.calculators.PLAY_RATING_CLEAR_BONUS
+import xyz.sevive.arcaeaoffline.core.calculators.calculateClearBonus
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
@@ -41,12 +42,12 @@ fun PlayRatingCalculator(
     constant: Int = 0,
     isConstantReadonly: Boolean = true,
     initialFocusScoreTextField: Boolean = false,
-    initialCleared: Boolean = false,
+    initialClearType: ArcaeaPlayResultClearType? = null,
     countClearBonus: Boolean = true,
 ) {
     val scoreTextFieldFocusRequester = remember { FocusRequester() }
 
-    var cleared by rememberSaveable { mutableStateOf(initialCleared) }
+    var clearType by rememberSaveable { mutableStateOf(initialClearType) }
 
     val scoreTextFieldState =
         rememberArcaeaScoreTextFieldState(
@@ -83,7 +84,7 @@ fun PlayRatingCalculator(
             scoreValue ?: return@derivedStateOf null
             constantValue ?: return@derivedStateOf null
 
-            val clearBonus = if (countClearBonus && cleared) PLAY_RATING_CLEAR_BONUS else 0.0
+            val clearBonus = calculateClearBonus(if (countClearBonus) clearType else null)
             calculatePlayRating(scoreValue!!, constantValue!!, clearBonus)
         }
     }
@@ -125,8 +126,8 @@ fun PlayRatingCalculator(
 
         if (countClearBonus) {
             SwitchPreferencesWidget(
-                value = cleared,
-                onValueChange = { cleared = it },
+                value = clearType != null && clearType != ArcaeaPlayResultClearType.TRACK_LOST,
+                onValueChange = { cleared -> clearType = if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null },
                 title = stringResource(R.string.play_rating_cleared),
                 description = stringResource(R.string.play_rating_cleared_description),
             )

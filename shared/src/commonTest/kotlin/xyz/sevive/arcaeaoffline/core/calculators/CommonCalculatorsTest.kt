@@ -78,16 +78,16 @@ class CommonCalculatorsTest {
         )
         ) {
             assertEquals(
-                calculateInvertScoreRange(target, constant, clearBonus = PLAY_RATING_CLEAR_BONUS),
-                calculateInvertScoreRange(target - PLAY_RATING_CLEAR_BONUS, constant),
+                calculateInvertScoreRange(target, constant, clearBonus = 0.2),
+                calculateInvertScoreRange(target - 0.2, constant),
             )
         }
 
         // A cleared play reaches a target the bonus-free play cannot
-        assertNotNull(calculateInvertScoreRange(12.1, 100, clearBonus = PLAY_RATING_CLEAR_BONUS))
+        assertNotNull(calculateInvertScoreRange(12.1, 100, clearBonus = 0.2))
 
         // Too high stays unsolvable regardless of the bonus
-        assertNull(calculateInvertScoreRange(14.0, 80, clearBonus = PLAY_RATING_CLEAR_BONUS))
+        assertNull(calculateInvertScoreRange(14.0, 80, clearBonus = 0.2))
     }
 
     @Test
@@ -121,7 +121,7 @@ class CommonCalculatorsTest {
         assertEquals(calculatePlayRating(score, 0, ArcaeaPlayResultClearType.PURE_MEMORY), 0.0, 0.0)
 
         // The bonus overload is the primitive the clear-type overload maps onto
-        assertEquals(calculatePlayRating(score, constant, PLAY_RATING_CLEAR_BONUS), 12.2, 0.0)
+        assertEquals(calculatePlayRating(score, constant, 0.2), 12.2, 0.0)
         assertEquals(calculatePlayRating(score, constant, 0.0), 12.0, 0.0)
     }
 }
