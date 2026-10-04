@@ -17,7 +17,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 /**
  * B50 calculation over the play results of a real save.
@@ -103,6 +106,67 @@ class PotentialRepositoryTest {
                 TOLERANCE,
             )
         }
+
+    @Test
+    fun b30MatchesTheSave() =
+        runBlocking {
+            assertEquals(
+                373.8710750000001,
+                potentialRepository
+                    .groups()
+                    .first()
+                    .b30.total,
+                TOLERANCE,
+            )
+        }
+
+    @Test
+    fun b50PrefersTheClearedPlayOverTheHigherScoredTrackLost() =
+        runBlocking {
+            db.playResultDao().upsertBatch(
+                trackLostPlay(),
+                clearedPlay(),
+            )
+
+            val groups = potentialRepository.groups().first()
+
+            val b50Entry = groups.b50.items.single { it.playResult.songId == "grievouslady" }
+            assertEquals(9_970_000, b50Entry.playResult.score)
+            val b30Entry = groups.b30.items.single { it.playResult.songId == "grievouslady" }
+            assertEquals(10_000_000, b30Entry.playResult.score)
+        }
+
+    private fun trackLostPlay() =
+        PlayResult(
+            id = 0,
+            songId = "grievouslady",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            score = 10_000_000,
+            pure = 10_000,
+            far = 0,
+            lost = 0,
+            date = null,
+            maxRecall = 10_000,
+            modifier = null,
+            clearType = ArcaeaPlayResultClearType.TRACK_LOST,
+            comment = null,
+        )
+
+    private fun clearedPlay() =
+        PlayResult(
+            id = 0,
+            songId = "grievouslady",
+            ratingClass = ArcaeaRatingClass.FUTURE,
+            score = 9_970_000,
+            pure = 9_940,
+            far = 30,
+            lost = 0,
+            date = null,
+            maxRecall = 9_940,
+            modifier = null,
+            clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
+            comment = null,
+        )
 
     @Test
     fun completenessTracksHowManyChartsHavePlayResults() =
