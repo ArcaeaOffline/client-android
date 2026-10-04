@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,7 +30,6 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialGroup
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialGroups
 import xyz.sevive.arcaeaoffline.helpers.calculatePotential
-import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
@@ -62,17 +58,11 @@ private fun PotentialRow(
     PotentialRow(
         label = { Text(label, Modifier.alignByBaseline()) },
         value = {
-            IconRow(Modifier.alignByBaseline()) {
+            Row(Modifier.alignByBaseline()) {
                 Text(
-                    "${ArcaeaFormatters.potentialToText(value, 4)} ÷ $divideBy",
+                    "${ArcaeaFormatters.potentialToText(value, 4)} / $divideBy = ",
                     Modifier.alignByBaseline(),
                     style = MaterialTheme.typography.bodyMedium,
-                )
-
-                Icon(
-                    Icons.Default.ChevronRight,
-                    contentDescription = null,
-                    Modifier.size(18.dp),
                 )
 
                 Text(
@@ -153,10 +143,7 @@ internal fun OverviewPotentialCard(
         PotentialRow(
             label = stringResource(R.string.arcaea_potential),
             value = ArcaeaFormatters.potentialToText(uiState.potential, mainScale),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.page_padding)),
+            modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.page_padding)),
             labelTextStyle = MaterialTheme.typography.headlineSmall,
             valueTextStyle = MaterialTheme.typography.displayLarge,
         )

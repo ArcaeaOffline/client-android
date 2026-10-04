@@ -75,6 +75,40 @@ fun DatabaseManageScreen(
             item {
                 ListGroupHeader {
                     IconRow {
+                        Icon(Icons.Default.Tune, contentDescription = null)
+                        Text(stringResource(R.string.database_manage_scoring_mode_title))
+                    }
+                }
+            }
+
+            item {
+                val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
+
+                SelectPreferencesWidget(
+                    options =
+                        listOf(
+                            SelectPreferencesOption(
+                                value = ArcaeaScoringMode.B30_R10,
+                                label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
+                                description = ArcaeaScoringMode.B30_R10.key.toString(),
+                            ),
+                            SelectPreferencesOption(
+                                value = ArcaeaScoringMode.B50,
+                                label = stringResource(R.string.database_manage_scoring_mode_b50),
+                                description = ArcaeaScoringMode.B50.key.toString(),
+                            ),
+                        ),
+                    selected = scoringMode,
+                    onSelect = viewModel::setScoringMode,
+                    Modifier.fillMaxWidth(),
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                ListGroupHeader {
+                    IconRow {
                         Icon(Icons.Default.Download, contentDescription = null)
                         Text(stringResource(R.string.database_manage_import_title))
                     }
@@ -151,40 +185,6 @@ fun DatabaseManageScreen(
             item {
                 DatabaseManageExport(
                     onExportPlayResults = { viewModel.exportPlayResults(it, context) },
-                    Modifier.fillMaxWidth(),
-                )
-            }
-
-            item { HorizontalDivider() }
-
-            item {
-                ListGroupHeader {
-                    IconRow {
-                        Icon(Icons.Default.Tune, contentDescription = null)
-                        Text(stringResource(R.string.database_manage_scoring_mode_title))
-                    }
-                }
-            }
-
-            item {
-                val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
-
-                SelectPreferencesWidget(
-                    options =
-                        listOf(
-                            SelectPreferencesOption(
-                                value = ArcaeaScoringMode.B30_R10,
-                                label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
-                                description = stringResource(R.string.database_manage_scoring_mode_b30_r10_description),
-                            ),
-                            SelectPreferencesOption(
-                                value = ArcaeaScoringMode.B50,
-                                label = stringResource(R.string.database_manage_scoring_mode_b50),
-                                description = stringResource(R.string.database_manage_scoring_mode_b50_description),
-                            ),
-                        ),
-                    selected = scoringMode,
-                    onSelect = viewModel::setScoringMode,
                     Modifier.fillMaxWidth(),
                 )
             }
