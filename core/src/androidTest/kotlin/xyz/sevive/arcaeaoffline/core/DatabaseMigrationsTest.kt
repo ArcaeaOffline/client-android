@@ -10,6 +10,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_15_16
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 import java.io.IOException
 
@@ -17,6 +18,8 @@ import java.io.IOException
 class DatabaseMigrationsTest {
     private val testDatabaseName7To8 = "arcaea-offline-7-8"
     private val testDatabaseName14To15 = "arcaea-offline-14-15"
+    private val testDatabaseName15To16Empty = "arcaea-offline-15-16-empty"
+    private val testDatabaseName15To16Kept = "arcaea-offline-15-16-kept"
 
     @get:Rule
     val helper: MigrationTestHelper =
@@ -111,6 +114,41 @@ class DatabaseMigrationsTest {
             .use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertEquals(0, cursor.getInt(0))
+            }
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate15To16() {
+        helper.createDatabase(testDatabaseName15To16Empty, 15).close()
+
+        val db =
+            helper.runMigrationsAndValidate(testDatabaseName15To16Empty, 16, true, Migration_15_16)
+
+        db
+            .query("SELECT `value` FROM properties WHERE `key` = 'scoring_mode'")
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("20260827", cursor.getString(0))
+            }
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate15To16KeepsAChosenMode() {
+        helper.createDatabase(testDatabaseName15To16Kept, 15).apply {
+            execSQL("INSERT INTO properties (`key`, `value`) VALUES ('scoring_mode', '20170602')")
+            close()
+        }
+
+        val db =
+            helper.runMigrationsAndValidate(testDatabaseName15To16Kept, 16, true, Migration_15_16)
+
+        db
+            .query("SELECT `value` FROM properties WHERE `key` = 'scoring_mode'")
+            .use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("20170602", cursor.getString(0))
             }
     }
 

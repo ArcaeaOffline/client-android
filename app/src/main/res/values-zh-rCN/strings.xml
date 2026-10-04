@@ -79,6 +79,8 @@
     <string name="arcaea_play_result_score">分数</string>
     <string name="arcaea_play_result_max_recall">MAX RECALL</string>
     <string name="arcaea_play_result_clear_type">通关状态</string>
+    <string name="play_rating_cleared">通关</string>
+    <string name="play_rating_cleared_description">计入 +0.2 通关奖励</string>
     <string name="arcaea_play_result_modifier">Modifier</string>
     <string name="arcaea_play_result_comment">备注</string>
     <string name="arcaea_potential">潜力值</string>
@@ -99,6 +101,13 @@
     <string name="nav_utilities">小工具</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">设置</string>
+
+    <!-- Potential completeness warnings -->
+    <string name="potential_completeness_warning_b10">最佳列表不足 10 种谱面</string>
+    <string name="potential_completeness_warning_b30">最佳列表不足 30 种谱面</string>
+    <string name="potential_completeness_warning_b50">最佳列表不足 50 种谱面</string>
+    <string name="potential_completeness_warning_r10">最近队列不足 10 种谱面</string>
+    <string name="potential_completeness_warning_recent_inaccuracy">由于分数历史记录完整度限制，R10 结果可能不准确</string>
 
     <!-- Database info/status labels -->
     <string name="database_version_label">版本 %d</string>
@@ -124,6 +133,10 @@
 
     <!-- Database manage pane -->
     <string name="database_manage_title">管理</string>
+
+    <string name="database_manage_scoring_mode_title">计分方式</string>
+    <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
+    <string name="database_manage_scoring_mode_b50">B50</string>
 
     <string name="database_manage_import_title">导入</string>
     <string name="database_manage_import_pack_entries">曲包</string>
@@ -167,7 +180,7 @@
     <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
     <!-- Database b30 list pane -->
-    <string name="database_b30_list_title">B30 列表</string>
+    <string name="database_best_list_title">最佳记录列表</string>
 
     <!-- Database r30 list pane -->
     <string name="database_r30_list_title">R30 列表</string>
@@ -319,6 +332,8 @@
 
     <string name="play_result_validator_SCORE_IS_ZERO_title">分数为零</string>
     <string name="play_result_validator_SCORE_IS_ZERO_message">分数为 0。</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_title">缺少通关状态</string>
+    <string name="play_result_validator_CLEAR_TYPE_MISSING_message">B50 规则下，缺少通关状态的成绩按 TRACK LOST 计，无法获得通关奖励。</string>
 
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>

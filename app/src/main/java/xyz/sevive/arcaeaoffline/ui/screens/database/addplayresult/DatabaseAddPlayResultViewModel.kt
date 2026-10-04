@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import kotlin.time.Duration.Companion.seconds
@@ -22,6 +24,7 @@ import kotlin.time.Duration.Companion.seconds
 class DatabaseAddPlayResultViewModel(
     private val chartInfoRepo: ChartInfoRepository,
     private val playResultRepo: PlayResultRepository,
+    private val propertyRepo: PropertyRepository,
 ) : ViewModel() {
     data class UiState(
         val difficulty: Difficulty? = null,
@@ -35,19 +38,26 @@ class DatabaseAddPlayResultViewModel(
     private val _playResult = MutableStateFlow<PlayResult?>(null)
     val playResult = _playResult.asStateFlow()
 
-    private suspend fun getPlayResultWarnings(playResult: PlayResult?): List<ArcaeaPlayResultValidatorWarning> {
+    private suspend fun getPlayResultWarnings(
+        playResult: PlayResult?,
+        scoringMode: ArcaeaScoringMode,
+    ): List<ArcaeaPlayResultValidatorWarning> {
         if (playResult == null) return emptyList()
 
         val chartInfo = chartInfoRepo.find(playResult).firstOrNull()
-        return ArcaeaPlayResultValidator.validate(playResult, chartInfo)
+        return ArcaeaPlayResultValidator.validate(playResult, chartInfo, scoringMode)
     }
 
     val uiState =
-        combine(difficulty, playResult) { difficulty, playResult ->
+        combine(
+            difficulty,
+            playResult,
+            propertyRepo.scoringMode(),
+        ) { difficulty, playResult, scoringMode ->
             UiState(
                 difficulty = difficulty,
                 playResult = playResult,
-                warnings = getPlayResultWarnings(playResult),
+                warnings = getPlayResultWarnings(playResult, scoringMode),
             )
         }.stateIn(
             viewModelScope,

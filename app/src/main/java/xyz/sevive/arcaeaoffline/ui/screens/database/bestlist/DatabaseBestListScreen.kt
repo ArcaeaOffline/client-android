@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.b30list
+package xyz.sevive.arcaeaoffline.ui.screens.database.bestlist
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -43,7 +43,7 @@ import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel()) {
+fun DatabaseBestListScreen(viewModel: DatabaseBestListViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var showOptions by rememberSaveable { mutableStateOf(false) }
@@ -80,7 +80,7 @@ fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel())
     SubScreenContainer(
         topBar = {
             SubScreenTopAppBar(
-                title = { Text(stringResource(DatabaseSubScreen.B30.title)) },
+                title = { Text(stringResource(DatabaseSubScreen.BestList.title)) },
                 actions = {
                     IconButton(onClick = { viewModel.forceReload() }) {
                         Icon(Icons.Default.Refresh, null)
@@ -104,7 +104,7 @@ fun DatabaseB30ListScreen(viewModel: DatabaseB30ListViewModel = koinViewModel())
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
             ) {
                 items(uiState.listItems, key = { it.index }) {
-                    DatabaseB30ListItem(it, Modifier.animateItem())
+                    DatabaseBestListItem(it, Modifier.animateItem())
                 }
             }
         }

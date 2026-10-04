@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -52,8 +51,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.calculators.calculateClearBonus
 import xyz.sevive.arcaeaoffline.core.calculators.calculateInvertScoreRange
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
@@ -64,6 +66,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayRatingCalculator
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
+import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.rememberDecimalStepperTextFieldState
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
@@ -133,11 +136,12 @@ data class PlayRatingCalculatorDialogState(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlayRatingCalculatorDialog(
     onDismissRequest: () -> Unit,
     state: PlayRatingCalculatorDialogState,
+    countClearBonus: Boolean,
+    clearType: ArcaeaPlayResultClearType? = null,
 ) {
     BasicAlertDialogSurface(onDismissRequest) { contentPadding ->
         Column(
@@ -168,6 +172,8 @@ private fun PlayRatingCalculatorDialog(
                 constant = state.constant,
                 isConstantReadonly = true,
                 initialFocusScoreTextField = true,
+                countClearBonus = countClearBonus,
+                initialClearType = clearType,
             )
         }
     }
@@ -177,12 +183,14 @@ data class ResultsListItemState(
     val item: DifficultyWithSongAndInfo,
     val scoreRange: IntRange,
     val targetPlayRating: Double,
+    val clearType: ArcaeaPlayResultClearType? = null,
 ) {
     val targetScoreRange by lazy {
         calculateInvertScoreRange(
             targetPlayRating = targetPlayRating,
             constant = item.constant,
             tolerance = 1e-6,
+            clearBonus = calculateClearBonus(clearType),
         )
     }
 
@@ -195,7 +203,7 @@ data class ResultsListItemState(
     }
 
     val actualPlayRating by lazy {
-        calculatePlayRating(score, item.constant)
+        calculatePlayRating(score, item.constant, clearType)
     }
 }
 
@@ -223,7 +231,7 @@ private fun ResultsListItem(
 
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
-            Text("%.2f".format(state.actualPlayRating), fontWeight = FontWeight.Bold)
+            Text(ArcaeaFormatters.potentialToText(state.actualPlayRating), fontWeight = FontWeight.Bold)
 
             Spacer(Modifier.weight(1f))
 
@@ -274,6 +282,8 @@ fun UtilitiesChartRecommendScreen(
         PlayRatingCalculatorDialog(
             onDismissRequest = { showCalculatorDialog = false },
             state = calculatorDialogState,
+            countClearBonus = uiState.scoringMode == ArcaeaScoringMode.B50,
+            clearType = uiState.clearType,
         )
     }
 
@@ -356,6 +366,17 @@ fun UtilitiesChartRecommendScreen(
                             TextButton({ viewModel.setScoreRange(9_500_000..9_799_999) }) { Text("AA") }
                         }
                     }
+
+                    if (uiState.scoringMode == ArcaeaScoringMode.B50) {
+                        SwitchPreferencesWidget(
+                            value = uiState.clearType != null && uiState.clearType != ArcaeaPlayResultClearType.TRACK_LOST,
+                            onValueChange = { cleared ->
+                                viewModel.setClearType(if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null)
+                            },
+                            title = stringResource(R.string.play_rating_cleared),
+                            description = stringResource(R.string.play_rating_cleared_description),
+                        )
+                    }
                 }
             }
 
@@ -383,7 +404,7 @@ fun UtilitiesChartRecommendScreen(
                     }
                 } else {
                     items(uiState.charts, { it.difficultyWithSong.songId + it.difficultyWithSong.ratingClass.name }) { item ->
-                        val state = ResultsListItemState(item, scoreRange, targetPlayRating)
+                        val state = ResultsListItemState(item, scoreRange, targetPlayRating, uiState.clearType)
 
                         ResultsListItem(
                             state = state,

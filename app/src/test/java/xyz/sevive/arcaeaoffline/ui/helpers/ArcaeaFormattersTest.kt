@@ -17,14 +17,17 @@ class ArcaeaFormattersTest {
 
     @Test
     fun potentialToTextTest() {
-        assertEquals("0.00", ArcaeaFormatters.potentialToText(0.0))
-        assertEquals("12.00", ArcaeaFormatters.potentialToText(12.0))
-        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.05))
-        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.054))
-        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.055))
-        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.056))
-        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.057))
-        assertEquals("-.--", ArcaeaFormatters.potentialToText(null))
+        assertEquals("0.000", ArcaeaFormatters.potentialToText(0.0))
+        assertEquals("12.000", ArcaeaFormatters.potentialToText(12.0))
+        assertEquals("12.050", ArcaeaFormatters.potentialToText(12.05))
+        assertEquals("12.054", ArcaeaFormatters.potentialToText(12.054))
+        assertEquals("12.055", ArcaeaFormatters.potentialToText(12.055))
+        assertEquals("12.055", ArcaeaFormatters.potentialToText(12.0559))
+        assertEquals("-.---", ArcaeaFormatters.potentialToText(null))
+
+        // Truncation towards zero at the requested scale
+        assertEquals("12.05", ArcaeaFormatters.potentialToText(12.0559, scale = 2))
+        assertEquals("-.--", ArcaeaFormatters.potentialToText(null, scale = 2))
     }
 
     @Test

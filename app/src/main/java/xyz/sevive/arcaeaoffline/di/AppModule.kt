@@ -38,7 +38,7 @@ import xyz.sevive.arcaeaoffline.ui.activities.EmergencyModeActivityViewModel
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.database.b30list.DatabaseB30ListViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.bestlist.DatabaseBestListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListViewModel
@@ -122,7 +122,7 @@ val appModule =
         viewModel<DatabaseManageViewModel>()
         viewModel<DatabaseAddPlayResultViewModel>()
         viewModel<DatabasePlayResultListViewModel>()
-        viewModel<DatabaseB30ListViewModel>()
+        viewModel<DatabaseBestListViewModel>()
         viewModel<DatabaseR30ListViewModel>()
         viewModel<DatabaseDeduplicatorViewModel>()
         viewModel<OcrDependenciesScreenViewModel>()

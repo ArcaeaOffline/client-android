@@ -9,14 +9,16 @@ import xyz.sevive.arcaeaoffline.core.database.entities.MinimumPlayResultPotentia
 interface PlayResultBestDao {
     // Minimum fields to compute play rating per play result; full
     // PlayResultCalculated rows are fetched afterwards for the best
-    // uuids only (see PlayResultBestRepository).
+    // uuids only (see PlayResultBestRepository). clear_type is needed for
+    // the clear bonus of the B50 rules.
     @Query(
         """SELECT
     pr.uuid,
     pr.song_id,
     pr.rating_class,
     pr.score,
-    ci.constant
+    ci.constant,
+    pr.clear_type
 FROM
     play_results AS pr
     LEFT JOIN charts_info AS ci ON pr.song_id = ci.song_id

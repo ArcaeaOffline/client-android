@@ -7,7 +7,6 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Dao
@@ -20,9 +19,6 @@ interface PlayResultDao {
 
     @Query("SELECT * FROM play_results WHERE uuid = :uuid")
     fun findByUuid(uuid: Uuid): Flow<PlayResult?>
-
-    @Query("SELECT * FROM play_results WHERE date > :date")
-    fun findLaterThan(date: Instant): Flow<List<PlayResult>>
 
     @Query("SELECT * FROM play_results")
     fun findAll(): Flow<List<PlayResult>>

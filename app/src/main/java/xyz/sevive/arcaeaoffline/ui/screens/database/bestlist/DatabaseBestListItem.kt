@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.b30list
+package xyz.sevive.arcaeaoffline.ui.screens.database.bestlist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,8 +33,8 @@ import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Composable
-internal fun DatabaseB30ListItem(
-    item: DatabaseB30ListViewModel.ListItem,
+internal fun DatabaseBestListItem(
+    item: DatabaseBestListViewModel.ListItem,
     modifier: Modifier = Modifier,
 ) {
     val indexTextStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -88,12 +88,12 @@ internal fun DatabaseB30ListItem(
 
 @Preview
 @Composable
-private fun DatabaseB30ListItemPreview() {
+private fun DatabaseBestListItemPreview() {
     fun fakeListItem(
         index: Int,
         withDifficulty: Boolean = true,
-    ): DatabaseB30ListViewModel.ListItem =
-        DatabaseB30ListViewModel.ListItem(
+    ): DatabaseBestListViewModel.ListItem =
+        DatabaseBestListViewModel.ListItem(
             index = index,
             playResultBest =
                 PlayResultCalculated(
@@ -134,6 +134,7 @@ private fun DatabaseB30ListItemPreview() {
                 } else {
                     null
                 },
+            playRatingText = "13.000",
             chartInfo =
                 if (withDifficulty) {
                     ChartInfo("test", ArcaeaRatingClass.FUTURE, constant = 115, notes = null)
@@ -145,8 +146,8 @@ private fun DatabaseB30ListItemPreview() {
     ArcaeaOfflineTheme {
         Surface {
             Column {
-                DatabaseB30ListItem(fakeListItem(index = 0))
-                DatabaseB30ListItem(fakeListItem(index = 1, withDifficulty = true))
+                DatabaseBestListItem(fakeListItem(index = 0))
+                DatabaseBestListItem(fakeListItem(index = 1, withDifficulty = true))
             }
         }
     }

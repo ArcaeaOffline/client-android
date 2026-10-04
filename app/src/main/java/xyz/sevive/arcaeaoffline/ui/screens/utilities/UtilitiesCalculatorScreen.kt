@@ -22,12 +22,15 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.firstOrNull
 import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPackAndSongQuickSearch
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaRatingClassSelector
@@ -41,7 +44,13 @@ fun UtilitiesCalculatorScreen(
     modifier: Modifier = Modifier,
     difficultyRepo: DifficultyRepository = koinInject(),
     chartInfoRepo: ChartInfoRepository = koinInject(),
+    propertyRepo: PropertyRepository = koinInject(),
 ) {
+    val scoringMode by
+        propertyRepo
+            .scoringMode()
+            .collectAsStateWithLifecycle(initialValue = PropertyRepository.DEFAULT_SCORING_MODE)
+
     var constant by remember { mutableIntStateOf(0) }
     var selectedSongId by remember { mutableStateOf<String?>(null) }
     var selectedRatingClass by remember { mutableStateOf<ArcaeaRatingClass?>(null) }
@@ -112,6 +121,7 @@ fun UtilitiesCalculatorScreen(
                 PlayRatingCalculator(
                     constant = constant,
                     isConstantReadonly = false,
+                    countClearBonus = scoringMode == ArcaeaScoringMode.B50,
                 )
             }
         }
