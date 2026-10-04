@@ -128,8 +128,8 @@ internal fun OverviewPotentialCard(
     modifier: Modifier = Modifier,
 ) {
     val warningResIds =
-        remember(uiState.entries, uiState.scoringMode) {
-            dataCompletenessWarningResIds(uiState.entries, uiState.scoringMode)
+        remember(uiState.groups, uiState.scoringMode) {
+            dataCompletenessWarningResIds(uiState.groups, uiState.scoringMode)
         }
     val warnings = warningResIds.map { stringResource(it) }
 
@@ -156,13 +156,13 @@ internal fun OverviewPotentialCard(
         ) {
             when (uiState.scoringMode) {
                 ArcaeaScoringMode.B50 -> {
-                    PotentialRow("B10", uiState.entries?.b10?.total, 10, Modifier.fillMaxWidth())
-                    PotentialRow("B50", uiState.entries?.b50?.total, 50, Modifier.fillMaxWidth())
+                    PotentialRow("B10", uiState.groups?.b10?.total, 10, Modifier.fillMaxWidth())
+                    PotentialRow("B50", uiState.groups?.b50?.total, 50, Modifier.fillMaxWidth())
                 }
 
                 ArcaeaScoringMode.B30_R10 -> {
-                    PotentialRow("B30", uiState.entries?.b30?.total, 30, Modifier.fillMaxWidth())
-                    PotentialRow("R10", uiState.entries?.r10?.total, 10, Modifier.fillMaxWidth())
+                    PotentialRow("B30", uiState.groups?.b30?.total, 30, Modifier.fillMaxWidth())
+                    PotentialRow("R10", uiState.groups?.r10?.total, 10, Modifier.fillMaxWidth())
                 }
             }
 
@@ -190,7 +190,7 @@ internal fun OverviewPotentialCard(
 @PreviewLightDark
 @Composable
 private fun OverviewPotentialCardPreview() {
-    val entries =
+    val groups =
         PotentialGroups(
             b10 = PotentialGroup(items = listOf(), total = 125.0, isComplete = true),
             b50 = PotentialGroup(items = listOf(), total = 630.0, isComplete = false),
@@ -198,7 +198,7 @@ private fun OverviewPotentialCardPreview() {
             r10 = PotentialGroup(items = listOf(), total = 130.0, isComplete = true),
         )
     val scoringMode = ArcaeaScoringMode.B30_R10
-    val potential = scoringMode.calculatePotential(entries)
+    val potential = scoringMode.calculatePotential(groups)
 
     ArcaeaOfflineTheme {
         Surface {
@@ -206,7 +206,7 @@ private fun OverviewPotentialCardPreview() {
                 OverviewViewModel.UiState(
                     isLoading = false,
                     scoringMode = scoringMode,
-                    entries = entries,
+                    groups = groups,
                     potential = potential,
                 ),
                 Modifier.fillMaxWidth(),

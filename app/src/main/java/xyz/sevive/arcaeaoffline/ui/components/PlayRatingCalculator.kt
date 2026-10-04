@@ -115,8 +115,6 @@ fun PlayRatingCalculator(
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
-            // A tool output: shown to 6 decimals, independent of the official
-            // display precision
             Text(
                 potential?.let { ArcaeaFormatters.potentialToText(it, scale = 6) } ?: "?",
                 Modifier.weight(1f),

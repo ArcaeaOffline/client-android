@@ -19,7 +19,7 @@ class OverviewViewModel(
     data class UiState(
         val isLoading: Boolean = true,
         val scoringMode: ArcaeaScoringMode = ArcaeaScoringMode.B50,
-        val entries: PotentialGroups? = null,
+        val groups: PotentialGroups? = null,
         val potential: Double? = null,
     )
 
@@ -27,12 +27,12 @@ class OverviewViewModel(
         combine(
             propertyRepository.scoringMode(),
             potentialRepository.groups(),
-        ) { scoringMode, entries ->
+        ) { scoringMode, groups ->
             UiState(
                 isLoading = false,
                 scoringMode = scoringMode,
-                entries = entries,
-                potential = scoringMode.calculatePotential(entries),
+                groups = groups,
+                potential = scoringMode.calculatePotential(groups),
             )
         }.stateIn(
             viewModelScope,

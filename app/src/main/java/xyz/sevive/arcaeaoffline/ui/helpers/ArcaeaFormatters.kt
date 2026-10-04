@@ -32,7 +32,7 @@ object ArcaeaFormatters {
             ?.toBigDecimal()
             ?.roundToDigitPositionAfterDecimalPoint(scale.toLong(), RoundingMode.TOWARDS_ZERO)
             ?.scale(scale.toLong())
-            ?.toPlainString() ?: "-." + "-".repeat(scale)
+            ?.toPlainString() ?: ("-." + "-".repeat(scale))
 
     /**
      * Format the given playResult to a level text.
