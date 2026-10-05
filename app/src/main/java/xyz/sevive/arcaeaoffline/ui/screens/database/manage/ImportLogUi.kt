@@ -37,12 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
@@ -50,8 +50,7 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -81,7 +80,7 @@ private fun ImportLogObjectUi(
 
     Row(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.Top,
     ) {
         Column(
@@ -138,7 +137,7 @@ internal fun ImportLogBottomSheet(
                 Modifier
                     .fillMaxSize()
                     .consumeWindowInsets(innerPadding)
-                    .padding(horizontal = dimensionResource(R.dimen.page_padding)),
+                    .padding(horizontal = MaterialTheme.spacing.pagePadding),
                 contentPadding = innerPadding,
                 state = lazyColumnState,
             ) {
@@ -153,7 +152,7 @@ internal fun ImportLogBottomSheet(
                         it,
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = dimensionResource(R.dimen.list_padding))
+                            .padding(vertical = MaterialTheme.spacing.sm)
                             .animateItem(),
                     )
                 }

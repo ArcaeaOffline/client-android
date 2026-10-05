@@ -15,13 +15,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import xyz.sevive.arcaeaoffline.R
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
@@ -29,8 +29,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResultCalculated
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun DatabaseBestListItem(
@@ -60,7 +59,7 @@ internal fun DatabaseBestListItem(
 
     Row(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
         ArcaeaPlayResultCard(
@@ -78,7 +77,7 @@ internal fun DatabaseBestListItem(
         ) {
             Text(indexText)
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
+            Spacer(Modifier.height(MaterialTheme.spacing.sm))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
             Text(item.playRatingText, style = MaterialTheme.typography.labelMedium)

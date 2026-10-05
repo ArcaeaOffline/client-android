@@ -34,6 +34,7 @@ import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFiel
 import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 fun PlayRatingCalculator(
@@ -92,7 +93,7 @@ fun PlayRatingCalculator(
     Column(modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             OutlinedArcaeaScoreTextField(
                 scoreTextFieldState,
@@ -110,7 +111,7 @@ fun PlayRatingCalculator(
         }
 
         Row(
-            Modifier.padding(top = 16.dp),
+            Modifier.padding(top = MaterialTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)

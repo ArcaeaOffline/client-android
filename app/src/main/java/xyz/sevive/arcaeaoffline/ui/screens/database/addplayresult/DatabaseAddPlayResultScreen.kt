@@ -25,7 +25,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
@@ -34,6 +33,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun BottomActionsBar(
@@ -86,7 +86,7 @@ internal fun DatabaseAddPlayResultScreen(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.page_padding)),
+                            .padding(MaterialTheme.spacing.pagePadding),
                 )
             },
         ) { innerPadding ->
@@ -104,13 +104,13 @@ internal fun DatabaseAddPlayResultScreen(
                     DatabaseAddPlayResultChartAction(
                         difficulty = uiState.difficulty,
                         onDifficultyChange = { viewModel.setDifficulty(it) },
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding)),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
 
                 item {
                     // Just adding a padding
-                    Box(Modifier.padding(vertical = dimensionResource(R.dimen.list_padding))) {}
+                    Box(Modifier.padding(vertical = MaterialTheme.spacing.sm)) {}
                 }
 
                 item {
@@ -122,7 +122,7 @@ internal fun DatabaseAddPlayResultScreen(
                         playResult = uiState.playResult,
                         onPlayResultChange = { viewModel.setPlayResult(it) },
                         warnings = uiState.warnings,
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding)),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
             }

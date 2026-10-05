@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,13 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun DatabaseStatusIconRow(
@@ -35,7 +36,7 @@ private fun DatabaseStatusIconRow(
     deletedItemCount: Int? = null,
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
         IconRow {
@@ -92,8 +93,8 @@ fun DatabaseStatus(
 
         Card(modifier) {
             Column(
-                Modifier.padding(dimensionResource(R.dimen.card_padding)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                Modifier.padding(MaterialTheme.spacing.cardPadding),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
                 DatabaseStatusIconRow(
                     icon = ImageVector.vectorResource(R.drawable.ic_database),

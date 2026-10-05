@@ -12,9 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 fun SliderPreferencesWidget(
@@ -33,7 +32,7 @@ fun SliderPreferencesWidget(
         trailingSlot = trailingSlot,
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             content?.invoke(this@Column)
             Slider(

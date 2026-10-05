@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButtonDefaults
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun NullableNumberInputEditDialog(
@@ -55,7 +56,7 @@ private fun NullableNumberInputEditDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xs)) {
                 TextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },

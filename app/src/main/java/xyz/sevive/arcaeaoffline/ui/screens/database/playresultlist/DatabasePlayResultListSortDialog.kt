@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -20,7 +21,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -28,6 +28,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun DatabasePlayResultListSortDialogOrderSwitch(
@@ -39,13 +40,13 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
         Modifier
             .clickable { onSortOrderChange(sortOrder.reverse()) }
             .padding(
-                horizontal = dimensionResource(R.dimen.pref_widget_horizontal_padding),
-                vertical = dimensionResource(R.dimen.pref_widget_vertical_padding),
+                horizontal = MaterialTheme.spacing.lg,
+                vertical = MaterialTheme.spacing.lg,
             ).then(modifier),
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconRow {

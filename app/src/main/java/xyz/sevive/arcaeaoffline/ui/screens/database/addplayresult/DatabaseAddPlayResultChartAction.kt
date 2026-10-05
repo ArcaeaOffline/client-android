@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -22,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
@@ -34,6 +34,7 @@ import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun SelectChartDialog(
@@ -87,7 +88,7 @@ internal fun DatabaseAddPlayResultChartAction(
                         IconRow(
                             Modifier
                                 .minimumInteractiveComponentSize()
-                                .padding(dimensionResource(R.dimen.card_padding)),
+                                .padding(MaterialTheme.spacing.cardPadding),
                         ) {
                             Icon(Icons.Default.TouchApp, null)
                             Text(stringResource(R.string.database_add_play_result_click_select_chart))

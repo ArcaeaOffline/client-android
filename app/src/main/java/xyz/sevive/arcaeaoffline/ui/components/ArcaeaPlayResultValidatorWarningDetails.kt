@@ -37,11 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorMaxRecallOverflowWarning
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPflOverflowWarning
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning
@@ -49,6 +47,7 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun ArcaeaPlayResultValidatorWarningDetailItem(
@@ -64,7 +63,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
     val context = LocalContext.current
     val density = LocalDensity.current
 
-    val padding = dimensionResource(R.dimen.card_padding)
+    val padding = MaterialTheme.spacing.cardPadding
     val messagePadding =
         remember(density) {
             val start = with(density) { 24.sp.toDp() + padding * 2 }
@@ -87,7 +86,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
             Modifier
                 .minimumInteractiveComponentSize()
                 .padding(padding),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CompositionLocalProvider(

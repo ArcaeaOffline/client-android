@@ -23,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -31,6 +30,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
@@ -63,7 +63,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
     val scoreCached by ocrFromShareViewModel.scoreCached.collectAsStateWithLifecycle()
 
     Column {
-        Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
             Button(
                 onClick = { coroutineScope.launch { ocrFromShareViewModel.saveScore() } },
                 enabled = score != null && !scoreSaved && !scoreCached,

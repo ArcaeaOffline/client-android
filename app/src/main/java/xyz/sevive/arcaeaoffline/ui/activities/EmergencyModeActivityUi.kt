@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +45,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,10 +109,10 @@ fun EmergencyModeActivityUi(
                 .consumeWindowInsets(padding),
             contentPadding =
                 PaddingValues(
-                    top = padding.calculateTopPadding() + dimensionResource(R.dimen.list_padding),
-                    bottom = padding.calculateBottomPadding() + dimensionResource(R.dimen.list_padding),
-                    start = dimensionResource(R.dimen.list_padding),
-                    end = dimensionResource(R.dimen.list_padding),
+                    top = padding.calculateTopPadding() + MaterialTheme.spacing.sm,
+                    bottom = padding.calculateBottomPadding() + MaterialTheme.spacing.sm,
+                    start = MaterialTheme.spacing.sm,
+                    end = MaterialTheme.spacing.sm,
                 ),
         ) {
             item {
@@ -138,7 +138,7 @@ fun EmergencyModeActivityUi(
                             Text(stringResource(R.string.emergency_mode_output_directory_select_button))
                         }
 
-                        Spacer(Modifier.width(dimensionResource(R.dimen.list_padding)))
+                        Spacer(Modifier.width(MaterialTheme.spacing.sm))
 
                         CompositionLocalProvider(
                             LocalContentColor provides

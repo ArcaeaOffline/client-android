@@ -11,17 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 object ListGroupHeaderDefaults {
     val paddingValues
         @Composable get() =
             PaddingValues(
-                horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding),
-                vertical = dimensionResource(R.dimen.list_group_header_vertical_padding),
+                horizontal = MaterialTheme.spacing.lg,
+                vertical = MaterialTheme.spacing.sm,
             )
     val contentColor
         @Composable get() = MaterialTheme.colorScheme.primary

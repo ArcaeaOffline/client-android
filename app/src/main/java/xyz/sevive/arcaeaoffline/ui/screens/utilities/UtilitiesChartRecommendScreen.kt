@@ -43,11 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.math.round
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import xyz.sevive.arcaeaoffline.R
@@ -71,7 +71,7 @@ import xyz.sevive.arcaeaoffline.ui.components.rememberDecimalStepperTextFieldSta
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
-import kotlin.math.round
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private fun IntRange.average() = round((first + last) / 2.0).toInt()
 
@@ -105,7 +105,7 @@ private fun ScoreRangeInput(
     Column(
         modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
         OutlinedArcaeaScoreTextField(
             rangeLastTextFieldState,
@@ -147,7 +147,7 @@ private fun PlayRatingCalculatorDialog(
         Column(
             Modifier.padding(contentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             Icon(
                 Icons.Default.Calculate,
@@ -157,7 +157,7 @@ private fun PlayRatingCalculatorDialog(
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs),
             ) {
                 Text(state.songTitle, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal))
                 Text(
@@ -227,7 +227,7 @@ private fun ResultsListItem(
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(state.scoreText, Modifier.padding(start = 16.dp))
+            Text(state.scoreText, Modifier.padding(start = MaterialTheme.spacing.lg))
 
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
 
@@ -291,7 +291,7 @@ fun UtilitiesChartRecommendScreen(
         modifier = modifier,
         title = stringResource(UtilitiesSubScreen.Recommend.title),
     ) {
-        Column(Modifier.padding(horizontal = dimensionResource(R.dimen.page_padding))) {
+        Column(Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding)) {
             Row(
                 Modifier.clickable { isInputVisible = !isInputVisible },
                 verticalAlignment = Alignment.CenterVertically,
@@ -303,7 +303,7 @@ fun UtilitiesChartRecommendScreen(
                         LocalTextStyle provides MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text("${ArcaeaFormatters.score(scoreRange.first)} ~ ${ArcaeaFormatters.score(scoreRange.last)}")
@@ -334,7 +334,7 @@ fun UtilitiesChartRecommendScreen(
                 Column {
                     Row(
                         Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         ScoreRangeInput(
@@ -357,7 +357,7 @@ fun UtilitiesChartRecommendScreen(
                         )
                     }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding))) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap)) {
                         CompositionLocalProvider(
                             LocalTextStyle provides MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
                         ) {
@@ -395,8 +395,8 @@ fun UtilitiesChartRecommendScreen(
             }
 
             LazyColumn(
-                contentPadding = PaddingValues(vertical = dimensionResource(R.dimen.list_padding)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                contentPadding = PaddingValues(vertical = MaterialTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
                 if (uiState.charts.isEmpty()) {
                     item {

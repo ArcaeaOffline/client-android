@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
@@ -30,6 +29,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildAlertCard
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +58,7 @@ internal fun SettingsNavEntry(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = dimensionResource(R.dimen.page_padding)),
+                                .padding(horizontal = MaterialTheme.spacing.pagePadding),
                         showDetails = true,
                     )
                 }

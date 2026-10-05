@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -37,6 +37,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaRatingClassSelector
 import xyz.sevive.arcaeaoffline.ui.components.PlayRatingCalculator
 import xyz.sevive.arcaeaoffline.ui.components.toRatingClassSelectorItems
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,13 +87,13 @@ fun UtilitiesCalculatorScreen(
         title = stringResource(UtilitiesSubScreen.Calculator.title),
     ) {
         LazyColumn(
-            Modifier.padding(horizontal = dimensionResource(R.dimen.page_padding)),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.lg),
         ) {
             item {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding)),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.pagePadding),
                 ) {
                     Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = null)
 
@@ -105,7 +106,7 @@ fun UtilitiesCalculatorScreen(
             item {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding)),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.pagePadding),
                 ) {
                     Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 

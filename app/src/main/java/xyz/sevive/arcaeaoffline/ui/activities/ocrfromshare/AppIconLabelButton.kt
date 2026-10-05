@@ -10,12 +10,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun AppIconLabelButton(
@@ -34,14 +34,14 @@ internal fun AppIconLabelButton(
         shape = RoundedCornerShape(20.dp),
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.action_button_icon_text_padding)),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             appIcon()
 
             Column(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap),
             ) {
                 appLabel()
 

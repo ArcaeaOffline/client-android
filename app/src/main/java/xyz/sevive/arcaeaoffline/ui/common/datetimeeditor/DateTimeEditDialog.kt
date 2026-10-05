@@ -44,6 +44,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -59,10 +63,7 @@ import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import kotlin.time.Clock
-import kotlin.time.Instant
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun SecondEditor(
@@ -248,7 +249,7 @@ private fun DateTimeEditDialogRealDevicePreview() {
                 )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
                 Text(text = dateTime.format(LocalDateTime.Formats.ISO))
 
                 Button(onClick = { showDialog = true }) {

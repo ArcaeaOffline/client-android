@@ -35,19 +35,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import kotlin.time.Duration.Companion.seconds
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,12 +88,12 @@ private fun PickerButton(
         Modifier
             .clickable(onClick = onClick)
             .height(IntrinsicSize.Min)
-            .padding(vertical = 36.dp)
+            .padding(vertical = MaterialTheme.spacing.xxl)
             .then(modifier),
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
@@ -242,12 +242,12 @@ private fun BottomSheetContent(
                 // Prevents the inner progress indicator's intrinsic width from expanding this column
                 column(GridTrackSize.MinMax(0.dp, 1.fr))
                 column(GridTrackSize.MaxContent)
-                columnGap(24.dp)
-                rowGap(16.dp)
+                columnGap(MaterialTheme.spacing.xl)
+                rowGap(MaterialTheme.spacing.lg)
             },
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp),
+                .padding(horizontal = MaterialTheme.spacing.lg)
+                .padding(bottom = MaterialTheme.spacing.lg),
         ) {
             Text(
                 stringResource(R.string.ocr_queue_staging_status),

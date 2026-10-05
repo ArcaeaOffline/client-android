@@ -14,11 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 /**
  * A simple selection dialog.
@@ -38,7 +37,7 @@ fun SelectDialog(
 ) {
     BasicAlertDialogSurface(onDismissRequest = onDismiss) {
         if (labels.isEmpty()) {
-            Box(Modifier.padding(dimensionResource(R.dimen.page_padding) * 2)) {
+            Box(Modifier.padding(MaterialTheme.spacing.pagePadding * 2)) {
                 Text("No options available.")
             }
         } else {
@@ -60,8 +59,8 @@ fun SelectDialog(
                                 } else {
                                     Modifier
                                 },
-                            ).padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding) * 2),
+                            ).padding(horizontal = MaterialTheme.spacing.lg, vertical = MaterialTheme.spacing.sm),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap * 2),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(

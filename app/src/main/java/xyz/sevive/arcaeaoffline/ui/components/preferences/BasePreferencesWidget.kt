@@ -19,18 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private val HorizontalPadding
     @Composable
-    get() = dimensionResource(R.dimen.pref_widget_horizontal_padding)
+    get() = MaterialTheme.spacing.lg
 private val VerticalPadding
     @Composable
-    get() = dimensionResource(R.dimen.pref_widget_vertical_padding)
+    get() = MaterialTheme.spacing.lg
 
 @Composable
 fun BasePreferencesWidget(
@@ -56,7 +55,7 @@ fun BasePreferencesWidget(
             Modifier
                 .weight(1f)
                 .padding(horizontal = HorizontalPadding, vertical = VerticalPadding),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs),
         ) {
             CompositionLocalProvider(
                 LocalTextStyle provides MaterialTheme.typography.bodyLarge,

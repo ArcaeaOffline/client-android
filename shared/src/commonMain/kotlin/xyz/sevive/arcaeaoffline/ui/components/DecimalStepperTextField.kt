@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,6 +48,7 @@ import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import xyz.sevive.arcaeaoffline.ui.utils.AutoRepeatController
 import xyz.sevive.arcaeaoffline.ui.utils.rememberAutoRepeatController
 
@@ -402,8 +404,8 @@ private fun DecimalStepperTextFieldPreview() {
     ArcaeaOfflineTheme {
         Surface {
             Column(
-                Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                Modifier.padding(MaterialTheme.spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.lg),
             ) {
                 DecimalStepperTextField(state)
 

@@ -22,16 +22,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import xyz.sevive.arcaeaoffline.R
+import kotlin.uuid.Uuid
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import kotlin.uuid.Uuid
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun DatabaseDeduplicatorGroupListItem(
@@ -56,14 +55,14 @@ internal fun DatabaseDeduplicatorGroupListItem(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding))) {
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap)) {
         Row(verticalAlignment = Alignment.Bottom) {
             ListGroupHeader(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(item.index.toString(), fontWeight = FontWeight.Bold)
                     Text(
                         item.key,
-                        Modifier.padding(start = dimensionResource(R.dimen.icon_text_padding)),
+                        Modifier.padding(start = MaterialTheme.spacing.iconTextGap),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Light,
                     )

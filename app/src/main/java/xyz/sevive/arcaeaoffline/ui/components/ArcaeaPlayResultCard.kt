@@ -40,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import kotlin.time.Instant
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
@@ -66,7 +66,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.playResultGradeGradientBrush
-import kotlin.time.Instant
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun pflAnnotatedString(
@@ -194,7 +194,7 @@ fun ArcaeaPlayResultCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 Modifier
-                    .width(exPlusWidthDp + dimensionResource(R.dimen.card_padding))
+                    .width(exPlusWidthDp + MaterialTheme.spacing.cardPadding)
                     .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -254,11 +254,11 @@ fun ArcaeaPlayResultCard(
             Column(
                 Modifier
                     .weight(1f)
-                    .padding(dimensionResource(R.dimen.card_padding)),
+                    .padding(MaterialTheme.spacing.cardPadding),
             ) {
                 Text(scoreText, style = MaterialTheme.typography.titleLarge)
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
                     Text(
                         pflAnnotatedString("P", playResult.pure),
                         color = MaterialTheme.arcaeaColors.pure,
@@ -455,7 +455,7 @@ private fun PlayResultCardPreview() {
                     playResult = playResults[i],
                     difficultyWithSong = if (i >= 1) difficulty else null,
                     chartInfo = if (i >= 1) chartInfo else null,
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = MaterialTheme.spacing.xs),
                 )
             }
         }

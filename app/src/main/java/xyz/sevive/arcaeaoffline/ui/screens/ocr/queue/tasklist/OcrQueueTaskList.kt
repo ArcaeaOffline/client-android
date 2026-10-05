@@ -4,13 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrQueueTaskList(
@@ -22,8 +22,8 @@ internal fun OcrQueueTaskList(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier.padding(horizontal = dimensionResource(R.dimen.page_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        modifier.padding(horizontal = MaterialTheme.spacing.pagePadding),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
         items(uiItems, key = { it.dbItem.id }) {
             OcrQueueTaskListItem(

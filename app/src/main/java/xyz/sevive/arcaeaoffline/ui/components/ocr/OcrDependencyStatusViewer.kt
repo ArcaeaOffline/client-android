@@ -26,6 +26,7 @@ import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 object OcrDependencyStatusViewerDefaults {
     @Composable
@@ -132,10 +133,10 @@ fun OcrDependencyStatusViewer(
 @Composable
 private fun OcrDependencyStatusViewerPreview() {
     ArcaeaOfflineTheme {
-        Card(Modifier.padding(8.dp)) {
+        Card(Modifier.padding(MaterialTheme.spacing.sm)) {
             Text(
                 "Test Dependencies",
-                Modifier.padding(16.dp),
+                Modifier.padding(MaterialTheme.spacing.lg),
                 style = MaterialTheme.typography.titleLarge,
             )
 
