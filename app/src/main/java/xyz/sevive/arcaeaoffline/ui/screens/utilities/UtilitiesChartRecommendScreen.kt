@@ -4,14 +4,19 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +34,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,12 +48,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.math.round
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import xyz.sevive.arcaeaoffline.R
@@ -72,6 +79,7 @@ import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import kotlin.math.round
 
 private fun IntRange.average() = round((first + last) / 2.0).toInt()
 
@@ -242,6 +250,69 @@ private fun ResultsListItem(
     }
 }
 
+private val ParametersCardCollapsedHeight = 48.dp
+private val ParametersCardTopPadding = MaterialTheme.spacing.xs
+
+/**
+ * Floating parameters panel. It overlays the results list, which clears its
+ * collapsed height via [ParametersCardCollapsedHeight].
+ */
+@Composable
+private fun ParametersCard(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    summary: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val arrowRotation by animateFloatAsState(if (expanded) 0f else -90f)
+
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        // M3 elevation level 3 (dialog tier)
+        shadowElevation = 6.dp,
+    ) {
+        Column {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = ParametersCardCollapsedHeight)
+                    .clickable { onExpandedChange(!expanded) }
+                    .padding(horizontal = MaterialTheme.spacing.lg, vertical = ParametersCardTopPadding),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.utilities_recommend_input),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                AnimatedVisibility(!expanded) {
+                    summary()
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                Icon(
+                    Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    Modifier.graphicsLayer { rotationZ = arrowRotation },
+                )
+            }
+
+            AnimatedVisibility(expanded) {
+                Column(
+                    Modifier.padding(top = MaterialTheme.spacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                    content = content,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun UtilitiesChartRecommendScreen(
     modifier: Modifier = Modifier,
@@ -272,9 +343,6 @@ fun UtilitiesChartRecommendScreen(
     }
 
     var isInputVisible by rememberSaveable { mutableStateOf(false) }
-    val expandArrowRotateDegree by animateFloatAsState(
-        if (isInputVisible) 0f else -90f,
-    )
     var showCalculatorDialog by rememberSaveable { mutableStateOf(false) }
     var calculatorDialogState by rememberSerializable { mutableStateOf(PlayRatingCalculatorDialogState()) }
 
@@ -291,14 +359,83 @@ fun UtilitiesChartRecommendScreen(
         modifier = modifier,
         title = stringResource(UtilitiesSubScreen.Recommend.title),
     ) {
-        Column(Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding)) {
-            Row(
-                Modifier.clickable { isInputVisible = !isInputVisible },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                ListGroupHeader(stringResource(R.string.utilities_recommend_input))
+        Box(Modifier.fillMaxSize()) {
+            // The card floats with top padding. The list and the top
+            // scrim both clear the card's bottom edge plus a lg gap.
+            val listTopInset = ParametersCardCollapsedHeight + ParametersCardTopPadding + MaterialTheme.spacing.lg
 
-                AnimatedVisibility(!isInputVisible) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding =
+                    PaddingValues(
+                        top = listTopInset,
+                        bottom = MaterialTheme.spacing.sm,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            ) {
+                item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ListGroupHeader(stringResource(R.string.utilities_recommend_results))
+
+                        Spacer(Modifier.weight(1f))
+
+                        AnimatedVisibility(
+                            visible = uiState.isLoading,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            CircularProgressIndicator(
+                                Modifier
+                                    .padding(end = MaterialTheme.spacing.lg)
+                                    .size(18.dp),
+                            )
+                        }
+                    }
+                }
+
+                if (uiState.charts.isEmpty()) {
+                    item {
+                        EmptyScreen(
+                            Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = MaterialTheme.spacing.pagePadding),
+                        )
+                    }
+                } else {
+                    items(uiState.charts, { it.difficultyWithSong.songId + it.difficultyWithSong.ratingClass.name }) { item ->
+                        val state = ResultsListItemState(item, scoreRange, targetPlayRating, uiState.clearType)
+
+                        ResultsListItem(
+                            state = state,
+                            onOpenCalculator = {
+                                calculatorDialogState = PlayRatingCalculatorDialogState(item, state.score)
+                                showCalculatorDialog = true
+                            },
+                            Modifier
+                                .padding(horizontal = MaterialTheme.spacing.pagePadding)
+                                .animateItem(),
+                        )
+                    }
+                }
+            }
+
+            Box(
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(listTopInset)
+                    .background(
+                        Brush.verticalGradient(
+                            0f to MaterialTheme.colorScheme.background,
+                            1f to Color.Transparent,
+                        ),
+                    ),
+            )
+
+            ParametersCard(
+                expanded = isInputVisible,
+                onExpandedChange = { isInputVisible = it },
+                summary = {
                     CompositionLocalProvider(
                         LocalTextStyle provides MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
                     ) {
@@ -319,102 +456,64 @@ fun UtilitiesChartRecommendScreen(
                             Text(targetPlayRating.toString(), fontWeight = FontWeight.Bold)
                         }
                     }
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    Modifier.graphicsLayer { rotationZ = expandArrowRotateDegree },
-                )
-            }
-
-            AnimatedVisibility(isInputVisible) {
-                Column {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        ScoreRangeInput(
-                            scoreRange = scoreRange,
-                            onRangeFirstChange = { viewModel.setScoreRange(it..scoreRange.last) },
-                            onRangeLastChange = { viewModel.setScoreRange(scoreRange.first..it) },
-                            Modifier.weight(1f),
-                        )
-
-                        Icon(
-                            Icons.Default.Link,
-                            contentDescription = null,
-                            Modifier.rotate(-45f),
-                        )
-
-                        DecimalStepperTextField(
-                            targetPlayRatingTextFieldState,
-                            Modifier.weight(1f),
-                            label = { Text(stringResource(R.string.utilities_recommend_target_play_rating)) },
-                        )
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap)) {
-                        CompositionLocalProvider(
-                            LocalTextStyle provides MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
-                        ) {
-                            TextButton({ viewModel.setScoreRange(9_900_000..10_000_000) }) { Text("EX+") }
-                            TextButton({ viewModel.setScoreRange(9_800_000..9_899_999) }) { Text("EX") }
-                            TextButton({ viewModel.setScoreRange(9_500_000..9_799_999) }) { Text("AA") }
-                        }
-                    }
-
-                    if (uiState.scoringMode == ArcaeaScoringMode.B50) {
-                        SwitchPreferencesWidget(
-                            value = uiState.clearType != null && uiState.clearType != ArcaeaPlayResultClearType.TRACK_LOST,
-                            onValueChange = { cleared ->
-                                viewModel.setClearType(if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null)
-                            },
-                            title = stringResource(R.string.play_rating_cleared),
-                            description = stringResource(R.string.play_rating_cleared_description),
-                        )
-                    }
-                }
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ListGroupHeader(stringResource(R.string.utilities_recommend_results))
-
-                Spacer(Modifier.weight(1f))
-
-                AnimatedVisibility(
-                    visible = uiState.isLoading,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    CircularProgressIndicator(Modifier.size(18.dp))
-                }
-            }
-
-            LazyColumn(
-                contentPadding = PaddingValues(vertical = MaterialTheme.spacing.sm),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(
+                            horizontal = MaterialTheme.spacing.pagePadding,
+                            vertical = MaterialTheme.spacing.sm,
+                        ).fillMaxWidth(),
             ) {
-                if (uiState.charts.isEmpty()) {
-                    item {
-                        EmptyScreen(Modifier.fillMaxSize())
-                    }
-                } else {
-                    items(uiState.charts, { it.difficultyWithSong.songId + it.difficultyWithSong.ratingClass.name }) { item ->
-                        val state = ResultsListItemState(item, scoreRange, targetPlayRating, uiState.clearType)
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ScoreRangeInput(
+                        scoreRange = scoreRange,
+                        onRangeFirstChange = { viewModel.setScoreRange(it..scoreRange.last) },
+                        onRangeLastChange = { viewModel.setScoreRange(scoreRange.first..it) },
+                        Modifier.weight(1f),
+                    )
 
-                        ResultsListItem(
-                            state = state,
-                            onOpenCalculator = {
-                                calculatorDialogState = PlayRatingCalculatorDialogState(item, state.score)
-                                showCalculatorDialog = true
-                            },
-                            Modifier.animateItem(),
-                        )
+                    Icon(
+                        Icons.Default.Link,
+                        contentDescription = null,
+                        Modifier.rotate(-45f),
+                    )
+
+                    DecimalStepperTextField(
+                        targetPlayRatingTextFieldState,
+                        Modifier.weight(1f),
+                        label = { Text(stringResource(R.string.utilities_recommend_target_play_rating)) },
+                    )
+                }
+
+                Row(
+                    Modifier.padding(horizontal = MaterialTheme.spacing.lg),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap),
+                ) {
+                    CompositionLocalProvider(
+                        LocalTextStyle provides MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Normal),
+                    ) {
+                        TextButton({ viewModel.setScoreRange(9_900_000..10_000_000) }) { Text("EX+") }
+                        TextButton({ viewModel.setScoreRange(9_800_000..9_899_999) }) { Text("EX") }
+                        TextButton({ viewModel.setScoreRange(9_500_000..9_799_999) }) { Text("AA") }
                     }
+                }
+
+                if (uiState.scoringMode == ArcaeaScoringMode.B50) {
+                    SwitchPreferencesWidget(
+                        value = uiState.clearType != null && uiState.clearType != ArcaeaPlayResultClearType.TRACK_LOST,
+                        onValueChange = { cleared ->
+                            viewModel.setClearType(if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null)
+                        },
+                        title = stringResource(R.string.play_rating_cleared),
+                        description = stringResource(R.string.play_rating_cleared_description),
+                    )
                 }
             }
         }
