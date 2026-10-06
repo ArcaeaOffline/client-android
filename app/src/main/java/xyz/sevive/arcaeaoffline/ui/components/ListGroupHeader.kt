@@ -9,12 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import xyz.sevive.arcaeaoffline.ui.theme.header
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 /**
- * Section header carrying its own horizontal gutter. Place it directly in an
- * edge-to-edge container instead of a horizontally padded container.
+ * Group header for items in an edge-to-edge scrolling list.
+ * Place it directly in the list, not inside a horizontally padded container.
+ *
+ * For headers above [BaseSettingsItem] rows, prefer [SettingsGroupHeader].
  */
 @Composable
 fun ListGroupHeader(
@@ -29,8 +31,8 @@ fun ListGroupHeader(
             ),
     ) {
         CompositionLocalProvider(
-            LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
-            LocalTextStyle provides MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            LocalContentColor provides MaterialTheme.typography.header.color,
+            LocalTextStyle provides MaterialTheme.typography.header,
         ) {
             content()
         }

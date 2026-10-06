@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
@@ -31,6 +32,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.helpers.DISABLED_ALPHA
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.header
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private val HorizontalPadding
@@ -39,6 +41,46 @@ private val HorizontalPadding
 private val VerticalPadding
     @Composable
     get() = MaterialTheme.spacing.lg
+
+/**
+ * Group header whose text aligns with [BaseSettingsItem] titles by sharing
+ * the same gutter.
+ */
+@Composable
+fun SettingsGroupHeader(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    SettingsGroupHeader(modifier = modifier) {
+        Text(text)
+    }
+}
+
+@Composable
+fun SettingsGroupHeader(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(
+                    top = MaterialTheme.spacing.xl,
+                    bottom = MaterialTheme.spacing.sm,
+                    start = HorizontalPadding,
+                    end = HorizontalPadding,
+                ),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides MaterialTheme.typography.header.color,
+            LocalTextStyle provides MaterialTheme.typography.header,
+        ) {
+            content()
+        }
+    }
+}
 
 @Composable
 fun BaseSettingsItem(

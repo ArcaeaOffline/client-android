@@ -58,7 +58,7 @@ import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.SliderItem
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
@@ -88,7 +88,7 @@ fun OcrPerformanceScreen(
     ) {
         LazyColumn(modifier) {
             item {
-                ListGroupHeader(stringResource(R.string.ocr_performance_images_title))
+                SettingsGroupHeader(stringResource(R.string.ocr_performance_images_title))
             }
 
             item {
@@ -153,7 +153,7 @@ fun OcrPerformanceScreen(
             item { HorizontalDivider() }
 
             item {
-                ListGroupHeader(stringResource(R.string.ocr_performance_concurrency_title))
+                SettingsGroupHeader(stringResource(R.string.ocr_performance_concurrency_title))
             }
 
             item {
@@ -223,7 +223,7 @@ fun OcrPerformanceScreen(
                 item { HorizontalDivider() }
 
                 item {
-                    ListGroupHeader(stringResource(R.string.ocr_performance_result_title))
+                    SettingsGroupHeader(stringResource(R.string.ocr_performance_result_title))
                 }
 
                 item {
@@ -240,7 +240,7 @@ fun OcrPerformanceScreen(
                 item { HorizontalDivider() }
 
                 item {
-                    ListGroupHeader(stringResource(R.string.ocr_performance_history_title))
+                    SettingsGroupHeader(stringResource(R.string.ocr_performance_history_title))
                 }
 
                 // Newest first, easier to compare recent runs

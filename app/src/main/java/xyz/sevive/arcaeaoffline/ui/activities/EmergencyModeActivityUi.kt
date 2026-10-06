@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.activities
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -46,7 +45,7 @@ import io.github.vinceglb.filekit.path
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +77,6 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EmergencyModeActivityUi(
     modifier: Modifier = Modifier,
@@ -116,7 +114,7 @@ fun EmergencyModeActivityUi(
                 ),
         ) {
             item {
-                ListGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))
+                SettingsGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))
             }
             item {
                 Column(Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding)) {
@@ -163,7 +161,7 @@ fun EmergencyModeActivityUi(
             }
 
             item {
-                ListGroupHeader(stringResource(R.string.emergency_mode_ocr_title))
+                SettingsGroupHeader(stringResource(R.string.emergency_mode_ocr_title))
             }
             item {
                 FlowRow(
@@ -187,7 +185,7 @@ fun EmergencyModeActivityUi(
             }
 
             item {
-                ListGroupHeader(stringResource(R.string.emergency_mode_database_title))
+                SettingsGroupHeader(stringResource(R.string.emergency_mode_database_title))
             }
             item {
                 FlowRow(
