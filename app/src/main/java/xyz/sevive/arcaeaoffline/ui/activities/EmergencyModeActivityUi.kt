@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -111,15 +113,13 @@ fun EmergencyModeActivityUi(
                 PaddingValues(
                     top = padding.calculateTopPadding() + MaterialTheme.spacing.sm,
                     bottom = padding.calculateBottomPadding() + MaterialTheme.spacing.sm,
-                    start = MaterialTheme.spacing.sm,
-                    end = MaterialTheme.spacing.sm,
                 ),
         ) {
             item {
                 ListGroupHeader(stringResource(R.string.emergency_mode_output_directory_title))
             }
             item {
-                Column {
+                Column(Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding)) {
                     IconRow {
                         Icon(Icons.Default.Code, contentDescription = null)
                         Text(
@@ -166,7 +166,10 @@ fun EmergencyModeActivityUi(
                 ListGroupHeader(stringResource(R.string.emergency_mode_ocr_title))
             }
             item {
-                FlowRow {
+                FlowRow(
+                    Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                ) {
                     Button(onClick = { viewModel.deleteAllOcrDependencies() }) {
                         IconRow {
                             Icon(Icons.Default.DeleteForever, contentDescription = null)
@@ -187,7 +190,10 @@ fun EmergencyModeActivityUi(
                 ListGroupHeader(stringResource(R.string.emergency_mode_database_title))
             }
             item {
-                FlowRow {
+                FlowRow(
+                    Modifier.padding(horizontal = MaterialTheme.spacing.pagePadding),
+                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                ) {
                     Button(
                         onClick = { viewModel.copyDatabase(context) },
                         enabled = outputDirectoryValid,
