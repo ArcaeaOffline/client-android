@@ -40,8 +40,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import kotlin.time.Instant
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
@@ -51,6 +49,8 @@ import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable

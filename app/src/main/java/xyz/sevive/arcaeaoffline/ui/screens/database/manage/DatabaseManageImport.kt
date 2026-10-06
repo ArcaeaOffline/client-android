@@ -15,7 +15,7 @@ import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 
 @Composable
 private fun joinImportEntries(entries: List<String>): String = remember(entries) { entries.joinToString(" · ") }
@@ -73,21 +73,21 @@ fun DatabaseManageImport(
         )
 
     Column(modifier) {
-        TextPreferencesWidget(
+        TextItem(
             onClick = { importPacklistLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_packlist),
             content = descPacklist,
             leadingIcon = Icons.Default.DataObject,
         )
 
-        TextPreferencesWidget(
+        TextItem(
             onClick = { importSonglistLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_songlist),
             content = descSonglist,
             leadingIcon = Icons.Default.DataObject,
         )
 
-        TextPreferencesWidget(
+        TextItem(
             onClick = { importArcaeaApkLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_from_arcaea_apk),
             content = descArcaeaApk,
@@ -95,28 +95,28 @@ fun DatabaseManageImport(
         )
 
         if (canImportLists) {
-            TextPreferencesWidget(
+            TextItem(
                 onClick = onImportFromInstalledArcaea,
                 title = stringResource(R.string.database_manage_import_from_arcaea_installed),
                 content = descArcaeaApk,
                 leadingSlot = { ArcaeaAppIcon() },
             )
         } else {
-            TextPreferencesWidget(
+            TextItem(
                 title = stringResource(R.string.arcaea_button_resource_unavailable),
                 leadingSlot = { ArcaeaAppIcon(forceDisabled = true) },
                 enabled = false,
             )
         }
 
-        TextPreferencesWidget(
+        TextItem(
             onClick = { importChartInfoDatabaseLauncher.launch("*/*") },
             title = stringResource(R.string.database_manage_import_chart_info_database),
             content = joinImportEntries(listOf(descChartInfoEntries)),
             leadingIcon = ImageVector.vectorResource(R.drawable.ic_database),
         )
 
-        TextPreferencesWidget(
+        TextItem(
             onClick = { importSt3Launcher.launch("*/*") },
             title = stringResource(R.string.arcaea_st3),
             content = joinImportEntries(listOf(descPlayResultEntries)),

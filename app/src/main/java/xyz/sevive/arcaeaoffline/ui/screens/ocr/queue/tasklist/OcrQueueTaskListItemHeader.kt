@@ -43,7 +43,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.time.Clock
@@ -60,14 +60,14 @@ private fun TaskDetailsDialog(
         text = {
             LazyColumn {
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         title = "ID",
                         content = dbItem.id.toString(),
                     )
                 }
 
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         title = "Uri",
                         content = dbItem.fileUri.toString(),
                     )

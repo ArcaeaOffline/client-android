@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
@@ -37,7 +37,7 @@ internal fun OcrQueueCategoryItem(
 ) {
     val countString = remember(count) { count.toString() }
 
-    TextPreferencesWidget(
+    TextItem(
         onClick = onClick,
         title = title,
         modifier = modifier,

@@ -17,10 +17,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 
 @Composable
@@ -69,7 +69,7 @@ internal fun DatabaseDeduplicatorWizardDialog(
         text = {
             LazyColumn {
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         onClick = { onAutoSelect(AutoSelectMode.IDENTICAL) },
                         title = stringResource(R.string.database_deduplicator_auto_select_identical),
                         content = stringResource(R.string.database_deduplicator_description_auto_select_identical),
@@ -77,7 +77,7 @@ internal fun DatabaseDeduplicatorWizardDialog(
                 }
 
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         onClick = { onAutoSelect(AutoSelectMode.PROPERTIES_PRIORITY) },
                         title = stringResource(R.string.database_deduplicator_auto_select_properties_priority),
                         content = stringResource(R.string.database_deduplicator_description_auto_select_properties_priority),
@@ -85,7 +85,7 @@ internal fun DatabaseDeduplicatorWizardDialog(
                 }
 
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         onClick = { onAutoSelect(AutoSelectMode.R30_PRIORITY) },
                         title = stringResource(R.string.database_deduplicator_auto_select_r30_priority),
                         content = stringResource(R.string.database_deduplicator_description_auto_select_r30_priority),
@@ -96,7 +96,7 @@ internal fun DatabaseDeduplicatorWizardDialog(
                     CompositionLocalProvider(
                         LocalContentColor provides MaterialTheme.extendedColorScheme.warning,
                     ) {
-                        TextPreferencesWidget(
+                        TextItem(
                             onClick = { showAutoMergeConfirmDialog = true },
                             leadingIcon = Icons.Default.Merge,
                             leadingIconTint = LocalContentColor.current,

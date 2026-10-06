@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import kotlin.time.Clock
 
 private class CreateJsonDocument : ActivityResultContracts.CreateDocument("application/json")
@@ -26,7 +26,7 @@ fun DatabaseManageExport(
         }
 
     Column(modifier) {
-        TextPreferencesWidget(
+        TextItem(
             onClick = {
                 exportPlayResultsHandler.launch(
                     "arcaea-offline-data-exchange-${Clock.System.now().toEpochMilliseconds()}",

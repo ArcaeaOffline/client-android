@@ -169,7 +169,10 @@ fun ArcaeaPackAndSongQuickSearch(
                             expanded = false
                             focusManager.clearFocus()
                         },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding.plus(PaddingValues(vertical = MaterialTheme.spacing.sm)),
+                        contentPadding =
+                            ExposedDropdownMenuDefaults.ItemContentPadding.plus(
+                                PaddingValues(vertical = MaterialTheme.spacing.sm),
+                            ),
                     )
 
                     if (i != candidates.lastIndex) {

@@ -6,7 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 
 @Composable
 fun NavEntryNavigateButton(
@@ -15,7 +15,7 @@ fun NavEntryNavigateButton(
     icon: ImageVector? = null,
     onClick: () -> Unit,
 ) {
-    TextPreferencesWidget(
+    TextItem(
         title = title,
         content = description,
         leadingIcon = icon,

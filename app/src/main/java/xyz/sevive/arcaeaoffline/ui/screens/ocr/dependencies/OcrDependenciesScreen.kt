@@ -23,9 +23,9 @@ import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.resources.RemoteResourceDownloadItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 
@@ -65,7 +65,7 @@ fun OcrDependenciesScreen(
                 val remoteDownloadUiState by
                     viewModel.imageHashesDatabaseRemoteDownloadUiState.collectAsStateWithLifecycle()
 
-                TextPreferencesWidget(
+                TextItem(
                     enabled = !importRunning && !remoteDownloadUiState.isWorking,
                     onClick = { imageHashesDatabaseFileChooserLauncher.launch("*/*") },
                     leadingIcon = Icons.Default.FileOpen,
@@ -107,7 +107,7 @@ fun OcrDependenciesScreen(
                         R.string.arcaea_button_resource_unavailable
                     }
 
-                TextPreferencesWidget(
+                TextItem(
                     enabled = buildHashesDatabaseButtonEnabled,
                     onClick = { viewModel.requestImageHashesDatabaseBuild() },
                     leadingSlot = { ArcaeaAppIcon(forceDisabled = !canBuildHashesDatabase) },

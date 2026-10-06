@@ -34,9 +34,9 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesOption
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.SelectItem
+import xyz.sevive.arcaeaoffline.ui.components.SelectOption
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 
 @Composable
 fun DatabaseManageScreen(
@@ -84,15 +84,15 @@ fun DatabaseManageScreen(
             item {
                 val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
 
-                SelectPreferencesWidget(
+                SelectItem(
                     options =
                         listOf(
-                            SelectPreferencesOption(
+                            SelectOption(
                                 value = ArcaeaScoringMode.B30_R10,
                                 label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
                                 description = ArcaeaScoringMode.B30_R10.key.toString(),
                             ),
-                            SelectPreferencesOption(
+                            SelectOption(
                                 value = ArcaeaScoringMode.B50,
                                 label = stringResource(R.string.database_manage_scoring_mode_b50),
                                 description = ArcaeaScoringMode.B50.key.toString(),
@@ -141,7 +141,7 @@ fun DatabaseManageScreen(
 
             item {
                 val isFetchingRemoteInfo = uiState.remoteResourcesInfoState.isFetching
-                TextPreferencesWidget(
+                TextItem(
                     onClick = { viewModel.refreshRemoteResourcesInfo() },
                     enabled = !isFetchingRemoteInfo,
                     leadingSlot = {

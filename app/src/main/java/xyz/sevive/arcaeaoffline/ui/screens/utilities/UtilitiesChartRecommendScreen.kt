@@ -71,9 +71,9 @@ import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.DecimalStepperTextField
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.PlayRatingCalculator
+import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.components.rememberDecimalStepperTextFieldState
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.UtilitiesSubScreen
@@ -506,7 +506,7 @@ fun UtilitiesChartRecommendScreen(
                 }
 
                 if (uiState.scoringMode == ArcaeaScoringMode.B50) {
-                    SwitchPreferencesWidget(
+                    SwitchItem(
                         value = uiState.clearType != null && uiState.clearType != ArcaeaPlayResultClearType.TRACK_LOST,
                         onValueChange = { cleared ->
                             viewModel.setClearType(if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null)

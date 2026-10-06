@@ -43,11 +43,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import kotlin.time.Clock
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -59,11 +54,15 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toLocalDateTime
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @Composable
 private fun SecondEditor(
@@ -200,7 +199,7 @@ internal fun DateTimeEditDialog(
         text = {
             LazyColumn {
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         onClick = { showDateEditDialog = true },
                         leadingIcon = Icons.Default.CalendarMonth,
                         leadingIconTint = MaterialTheme.colorScheme.secondary,
@@ -211,7 +210,7 @@ internal fun DateTimeEditDialog(
                 }
 
                 item {
-                    TextPreferencesWidget(
+                    TextItem(
                         onClick = { showTimeEditDialog = true },
                         leadingIcon = Icons.Default.AccessTime,
                         leadingIconTint = MaterialTheme.colorScheme.secondary,

@@ -45,9 +45,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.util.Locale
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
@@ -57,14 +55,15 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
 import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.SliderItem
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import java.util.Locale
 
 @Composable
 fun OcrPerformanceScreen(
@@ -95,7 +94,7 @@ fun OcrPerformanceScreen(
             item {
                 val selectedUris = uiState.selectedImageUris
                 val hasSelection = selectedUris.isNotEmpty()
-                TextPreferencesWidget(
+                TextItem(
                     title = stringResource(R.string.ocr_performance_pick_images_button),
                     content =
                         selectedUris.takeIf { hasSelection }?.let {
@@ -163,7 +162,7 @@ fun OcrPerformanceScreen(
                     label = "benchmarkRunningState",
                 ) { running ->
                     if (!running) {
-                        SliderPreferencesWidget(
+                        SliderItem(
                             value = uiState.parallelCount.toFloat(),
                             onValueChange = viewModel::onParallelCountChange,
                             icon = Icons.AutoMirrored.Default.Sort,
@@ -184,7 +183,7 @@ fun OcrPerformanceScreen(
                             },
                         )
                     } else {
-                        BasePreferencesWidget(
+                        BaseSettingsItem(
                             title = {
                                 uiState.runningParallel?.let { parallel ->
                                     Text(

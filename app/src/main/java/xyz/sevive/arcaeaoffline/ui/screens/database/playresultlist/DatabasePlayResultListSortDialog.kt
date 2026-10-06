@@ -25,8 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
@@ -80,7 +80,7 @@ private fun DatabasePlayResultListSortDialogContent(
         targetSortByValue: DatabasePlayResultListViewModel.SortByValue,
         modifier: Modifier = Modifier,
     ) {
-        BasePreferencesWidget(
+        BaseSettingsItem(
             title = { Text(label) },
             leadingSlot = {
                 RadioButton(selected = sortByValue == targetSortByValue, onClick = null)

@@ -23,10 +23,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 
@@ -110,7 +110,7 @@ internal fun SettingsGeneralScreen(
     ) {
         LazyColumn(modifier) {
             item {
-                SwitchPreferencesWidget(
+                SwitchItem(
                     value = uiState.autoSendCrashReports,
                     onValueChange = { onSetAutoSendCrashReports(it) },
                     icon = Icons.Default.BugReport,
@@ -119,7 +119,7 @@ internal fun SettingsGeneralScreen(
             }
 
             item {
-                TextPreferencesWidget(
+                TextItem(
                     onClick = { showBaseUrlEditDialog = true },
                     leadingIcon = Icons.Default.CloudDownload,
                     title = stringResource(R.string.settings_general_pref_resources_api_base_url),
