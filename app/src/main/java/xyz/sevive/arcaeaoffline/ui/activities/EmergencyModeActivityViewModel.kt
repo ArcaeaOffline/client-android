@@ -1,13 +1,13 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
+import androidx.room.execSQL
+import androidx.room.useWriterConnection
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
@@ -15,6 +15,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
+import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.io.asSource
+import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
@@ -67,6 +70,22 @@ class EmergencyModeActivityViewModel(
 
     private val appContext = context.applicationContext
     private val workManager = WorkManager.getInstance(appContext)
+
+    sealed interface DatabaseBackupState {
+        data object Copying : DatabaseBackupState
+
+        data class Success(
+            val backupFileName: String,
+            val backupFileSizeText: String,
+        ) : DatabaseBackupState
+
+        data class Failure(
+            val message: String?,
+        ) : DatabaseBackupState
+    }
+
+    private val _databaseBackupState = MutableStateFlow<DatabaseBackupState?>(null)
+    val databaseBackupState = _databaseBackupState.asStateFlow()
 
     /**
      * Whether any [ocrQueueDatabaseWorkNames] job is currently running or waiting
@@ -189,32 +208,44 @@ class EmergencyModeActivityViewModel(
     }
 
     fun copyDatabase() {
-        val originalDatabaseFile = appContext.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
-        var toastMessage: String?
+        if (_databaseBackupState.value == DatabaseBackupState.Copying) return
+        val outputDir = outputDirectory.value ?: return
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
-            val outputDir = outputDirectory.value ?: return@launch
-            val backupFile = PlatformFile(outputDir, backupFileName)
+        viewModelScope.launch {
+            _databaseBackupState.value = DatabaseBackupState.Copying
 
-            try {
-                backupFile.write(originalDatabaseFile.inputStream().use { it.readBytes() })
+            _databaseBackupState.value =
+                withContext(Dispatchers.IO) {
+                    try {
+                        // Merge WAL into the main database file, so that copying it alone
+                        // produces a complete backup.
+                        val database = ArcaeaOfflineDatabase.getDatabase(appContext)
+                        database.useWriterConnection { connection ->
+                            connection.execSQL("PRAGMA wal_checkpoint(TRUNCATE)")
+                        }
 
-                val fileSizeReadable = Formatter.formatShortFileSize(appContext, backupFile.size())
-                toastMessage =
-                    appContext.getString(
-                        R.string.emergency_mode_database_copied_message,
-                        backupFile.name,
-                        fileSizeReadable,
-                    )
-            } catch (e: Exception) {
-                logger.e(e) { "Error copying database" }
-                toastMessage = e.message ?: "Error copying database"
-            }
+                        val originalDatabaseFile = appContext.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)
+                        val backupFileName = "arcaea_offline_${System.currentTimeMillis()}.db"
+                        val backupFile = PlatformFile(outputDir, backupFileName)
 
-            Handler(Looper.getMainLooper()).post {
-                Toast.makeText(appContext, toastMessage, Toast.LENGTH_LONG).show()
-            }
+                        originalDatabaseFile
+                            .inputStream()
+                            .asSource()
+                            .buffered()
+                            .use { fileSource ->
+                                backupFile
+                                    .sink(append = false)
+                                    .buffered()
+                                    .use { backupSink -> fileSource.transferTo(backupSink) }
+                            }
+
+                        val backupFileSizeText = Formatter.formatShortFileSize(appContext, backupFile.size())
+                        DatabaseBackupState.Success(backupFile.name, backupFileSizeText)
+                    } catch (e: Exception) {
+                        logger.e(e) { "Error copying database" }
+                        DatabaseBackupState.Failure(e.message)
+                    }
+                }
         }
     }
 }

@@ -124,6 +124,7 @@ fun EmergencyModeActivityUi(
     val outputDirectory by viewModel.outputDirectory.collectAsStateWithLifecycle()
     val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle()
     val isOcrQueueWorkRunning by viewModel.isOcrQueueWorkRunning.collectAsStateWithLifecycle()
+    val databaseBackupState by viewModel.databaseBackupState.collectAsStateWithLifecycle()
 
     var showDeleteOcrDependenciesDialog by remember { mutableStateOf(false) }
     var showDeleteOcrQueueDbDialog by remember { mutableStateOf(false) }
@@ -222,6 +223,28 @@ fun EmergencyModeActivityUi(
             SettingsGroupHeader(stringResource(R.string.emergency_mode_database_title))
             TextItem(
                 title = stringResource(R.string.emergency_mode_database_copy_item_title),
+                content =
+                    when (val state = databaseBackupState) {
+                        null -> {
+                            null
+                        }
+
+                        EmergencyModeActivityViewModel.DatabaseBackupState.Copying -> {
+                            stringResource(R.string.general_please_wait)
+                        }
+
+                        is EmergencyModeActivityViewModel.DatabaseBackupState.Success -> {
+                            stringResource(
+                                R.string.emergency_mode_database_copied_message,
+                                state.backupFileName,
+                                state.backupFileSizeText,
+                            )
+                        }
+
+                        is EmergencyModeActivityViewModel.DatabaseBackupState.Failure -> {
+                            state.message ?: stringResource(R.string.general_unknown_error)
+                        }
+                    },
                 leadingIcon = Icons.Default.FileCopy,
                 enabled = outputDirectoryValid == true,
                 onClick = { viewModel.copyDatabase() },
