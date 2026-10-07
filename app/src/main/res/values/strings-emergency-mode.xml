@@ -3,14 +3,19 @@
     <string name="emergency_mode_title">Emergency Mode</string>
 
     <string name="emergency_mode_output_directory_title">Output Directory</string>
-    <string name="emergency_mode_output_directory_select_button">Select…</string>
-    <string name="emergency_mode_output_directory_valid_label">Valid?</string>
+    <string name="emergency_mode_output_directory_select_item_title">Select output directory…</string>
+    <string name="emergency_mode_output_directory_none">No directory selected</string>
+    <string name="emergency_mode_output_directory_status_valid">Writable</string>
+    <string name="emergency_mode_output_directory_status_invalid">Not writable</string>
 
     <string name="emergency_mode_ocr_title">OCR</string>
-    <string name="emergency_mode_ocr_delete_all_dependencies_button">Delete All Dependencies</string>
+    <string name="emergency_mode_ocr_delete_dependencies_button">Delete OCR Dependencies</string>
+    <string name="emergency_mode_ocr_delete_dependencies_confirm_text">The following files will be deleted:\n%1$s</string>
+    <string name="emergency_mode_irreversible_warning">This action cannot be undone.</string>
 
     <string name="emergency_mode_database_title">Database</string>
-    <string name="emergency_mode_database_copy_button">Copy</string>
+    <string name="emergency_mode_database_copy_item_title">Copy database to output directory</string>
     <string name="emergency_mode_database_copied_message">Database copied to %1$s, size %2$s</string>
     <string name="emergency_mode_delete_ocr_queue_db_button">Delete OCR Queue Database</string>
+    <string name="emergency_mode_delete_ocr_queue_db_confirm_text">Make sure no OCR task is running.</string>
 </resources>

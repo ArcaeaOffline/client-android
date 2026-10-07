@@ -13,6 +13,7 @@
     <string name="general_save">保存</string>
     <string name="general_edit">编辑</string>
     <string name="general_delete">删除</string>
+    <string name="general_cancel">取消</string>
     <string name="general_reset">重置</string>
     <string name="general_please_wait">请稍候……</string>
     <string name="general_import">导入</string>

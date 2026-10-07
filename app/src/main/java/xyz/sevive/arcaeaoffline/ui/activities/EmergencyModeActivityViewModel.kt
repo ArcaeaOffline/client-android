@@ -15,11 +15,14 @@ import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +43,15 @@ class EmergencyModeActivityViewModel(
 
     private val logger = Logger.withTag(LOG_TAG)
 
+    val ocrDependencyFilesToDelete =
+        OcrDependencyPaths().run {
+            listOf(phashDatabaseFile, imageHashesDatabaseFile)
+        }
+
+    /** Filenames of every file deleted by [deleteAllOcrDependencies]. */
+    val ocrDependencyFileNames: List<String>
+        get() = ocrDependencyFilesToDelete.map { it.name }
+
     fun reloadPreferencesOnStartUp() {
         viewModelScope.launch {
             val preferences = preferencesRepository.preferencesFlow.firstOrNull() ?: return@launch
@@ -54,12 +66,26 @@ class EmergencyModeActivityViewModel(
     private val _outputDirectory = MutableStateFlow<PlatformFile?>(null)
     val outputDirectory = _outputDirectory.asStateFlow()
 
-    val outputDirectoryValid =
-        outputDirectory.map { outputDirectoryValidResultProducer(it) }.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
-            initialValue = false,
-        )
+    /**
+     * `null` while checking the directory's writability, otherwise checked result.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val outputDirectoryValid: StateFlow<Boolean?> =
+        outputDirectory
+            .flatMapLatest { directory ->
+                flow {
+                    if (directory == null) {
+                        emit(false)
+                    } else {
+                        emit(null)
+                        emit(outputDirectoryValidResultProducer(directory))
+                    }
+                }
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
+                initialValue = null,
+            )
 
     fun setOutputDirectory(file: PlatformFile) {
         _outputDirectory.value = file
@@ -69,10 +95,8 @@ class EmergencyModeActivityViewModel(
         }
     }
 
-    suspend fun outputDirectoryValidResultProducer(directory: PlatformFile?): Boolean {
-        if (directory == null) return false
-
-        return try {
+    private suspend fun outputDirectoryValidResultProducer(directory: PlatformFile): Boolean =
+        try {
             withContext(Dispatchers.IO) {
                 val testFile = PlatformFile(directory, TEST_FILENAME)
                 testFile.write(ByteArray(0))
@@ -83,14 +107,12 @@ class EmergencyModeActivityViewModel(
         } catch (_: Exception) {
             false
         }
-    }
 
     fun deleteAllOcrDependencies() {
-        val paths = OcrDependencyPaths()
-
         viewModelScope.launch(Dispatchers.IO) {
-            if (SystemFileSystem.exists(paths.phashDatabaseFile)) SystemFileSystem.delete(paths.phashDatabaseFile)
-            if (SystemFileSystem.exists(paths.imageHashesDatabaseFile)) SystemFileSystem.delete(paths.imageHashesDatabaseFile)
+            ocrDependencyFilesToDelete.forEach {
+                if (SystemFileSystem.exists(it)) SystemFileSystem.delete(it)
+            }
         }
     }
 

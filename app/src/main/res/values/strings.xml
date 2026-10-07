@@ -24,6 +24,7 @@ CC BY-SA 3.0
     <string name="general_save">Save</string>
     <string name="general_edit">Edit</string>
     <string name="general_delete">Delete</string>
+    <string name="general_cancel">Cancel</string>
     <string name="general_reset">Reset</string>
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
