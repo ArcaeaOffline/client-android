@@ -41,12 +41,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.toClipEntry
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,13 +55,14 @@ import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
+import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.LinearProgressIndicatorWrapper
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.SliderItem
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import java.util.Locale
 
 @Composable
@@ -89,13 +88,13 @@ fun OcrPerformanceScreen(
     ) {
         LazyColumn(modifier) {
             item {
-                ListGroupHeader(stringResource(R.string.ocr_performance_images_title))
+                SettingsGroupHeader(stringResource(R.string.ocr_performance_images_title))
             }
 
             item {
                 val selectedUris = uiState.selectedImageUris
                 val hasSelection = selectedUris.isNotEmpty()
-                TextPreferencesWidget(
+                TextItem(
                     title = stringResource(R.string.ocr_performance_pick_images_button),
                     content =
                         selectedUris.takeIf { hasSelection }?.let {
@@ -146,7 +145,7 @@ fun OcrPerformanceScreen(
                     Text(
                         stringResource(R.string.ocr_performance_image_load_failed),
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
             }
@@ -154,7 +153,7 @@ fun OcrPerformanceScreen(
             item { HorizontalDivider() }
 
             item {
-                ListGroupHeader(stringResource(R.string.ocr_performance_concurrency_title))
+                SettingsGroupHeader(stringResource(R.string.ocr_performance_concurrency_title))
             }
 
             item {
@@ -163,7 +162,7 @@ fun OcrPerformanceScreen(
                     label = "benchmarkRunningState",
                 ) { running ->
                     if (!running) {
-                        SliderPreferencesWidget(
+                        SliderItem(
                             value = uiState.parallelCount.toFloat(),
                             onValueChange = viewModel::onParallelCountChange,
                             icon = Icons.AutoMirrored.Default.Sort,
@@ -184,7 +183,7 @@ fun OcrPerformanceScreen(
                             },
                         )
                     } else {
-                        BasePreferencesWidget(
+                        BaseSettingsItem(
                             title = {
                                 uiState.runningParallel?.let { parallel ->
                                     Text(
@@ -215,7 +214,7 @@ fun OcrPerformanceScreen(
                     Text(
                         stringResource(R.string.ocr_performance_benchmark_error, message),
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
             }
@@ -224,7 +223,7 @@ fun OcrPerformanceScreen(
                 item { HorizontalDivider() }
 
                 item {
-                    ListGroupHeader(stringResource(R.string.ocr_performance_result_title))
+                    SettingsGroupHeader(stringResource(R.string.ocr_performance_result_title))
                 }
 
                 item {
@@ -232,7 +231,7 @@ fun OcrPerformanceScreen(
                         parallel = uiState.resultParallel ?: uiState.parallelCount,
                         result = result,
                         snackbarHostState = snackbarHostState,
-                        modifier = Modifier.padding(bottom = dimensionResource(R.dimen.list_padding)),
+                        modifier = Modifier.padding(bottom = MaterialTheme.spacing.sm),
                     )
                 }
             }
@@ -241,7 +240,7 @@ fun OcrPerformanceScreen(
                 item { HorizontalDivider() }
 
                 item {
-                    ListGroupHeader(stringResource(R.string.ocr_performance_history_title))
+                    SettingsGroupHeader(stringResource(R.string.ocr_performance_history_title))
                 }
 
                 // Newest first, easier to compare recent runs
@@ -267,10 +266,10 @@ private fun ResultCard(
     val coroutineScope = rememberCoroutineScope()
     val resources = LocalResources.current
 
-    Card(modifier = modifier.padding(horizontal = 16.dp)) {
+    Card(modifier = modifier.padding(horizontal = MaterialTheme.spacing.lg)) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
-            modifier = Modifier.padding(dimensionResource(R.dimen.card_padding)),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            modifier = Modifier.padding(MaterialTheme.spacing.cardPadding),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -299,7 +298,7 @@ private fun ResultCard(
                     )
                 }
             }
-            Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
+            Spacer(Modifier.height(MaterialTheme.spacing.sm))
             KeyValueRow(
                 label = stringResource(R.string.ocr_performance_result_median_label),
                 value = stringResource(R.string.ocr_performance_result_median_value, result.medianPerImageMs),
@@ -380,12 +379,12 @@ private fun HistoryRow(
         }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.Top,
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = dimensionResource(R.dimen.list_padding)),
+                .padding(horizontal = MaterialTheme.spacing.lg, vertical = MaterialTheme.spacing.sm),
     ) {
         Text(
             timestampText,
@@ -394,7 +393,7 @@ private fun HistoryRow(
         )
 
         Column(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs),
             modifier = Modifier.weight(1f),
         ) {
             Text(

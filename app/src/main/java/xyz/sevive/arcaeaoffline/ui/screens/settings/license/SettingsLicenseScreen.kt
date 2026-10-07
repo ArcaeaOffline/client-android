@@ -4,22 +4,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.mikepenz.markdown.compose.LazyMarkdownSuccess
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.model.rememberMarkdownState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private const val LICENSE_FILENAME = "gpl-3.0.md"
 
@@ -52,7 +52,7 @@ internal fun SettingsLicenseScreen(modifier: Modifier = Modifier) {
                     state,
                     components,
                     modifier,
-                    contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding)),
+                    contentPadding = PaddingValues(MaterialTheme.spacing.pagePadding),
                 )
             },
             loading = {

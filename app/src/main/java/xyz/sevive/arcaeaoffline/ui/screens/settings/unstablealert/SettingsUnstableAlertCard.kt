@@ -12,17 +12,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun UnstableBuildAlertCardContent(showDetails: Boolean = true) {
-    Column(Modifier.padding(dimensionResource(R.dimen.action_button_padding))) {
+    Column(Modifier.padding(MaterialTheme.spacing.lg)) {
         IconRow {
             Icon(painterResource(R.drawable.ic_unstable_build), null)
             Text(
@@ -49,9 +49,9 @@ fun UnstableBuildAlertCard(
     shape: Shape =
         CutCornerShape(
             topStart = 0.dp,
-            topEnd = dimensionResource(R.dimen.action_button_padding),
+            topEnd = 16.dp,
             bottomEnd = 0.dp,
-            bottomStart = dimensionResource(R.dimen.action_button_padding),
+            bottomStart = 16.dp,
         ),
     colors: CardColors =
         CardDefaults.cardColors(

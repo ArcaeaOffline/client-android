@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrQueueStagingFloatingActionButton(
@@ -64,7 +65,7 @@ internal fun OcrQueueStagingFloatingActionButton(
 private fun OcrQueueStagingFloatingActionButtonPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
                 OcrQueueStagingFloatingActionButton(
                     onClick = {},
                     isVisible = true,

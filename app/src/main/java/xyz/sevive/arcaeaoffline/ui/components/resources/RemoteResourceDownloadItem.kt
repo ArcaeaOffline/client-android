@@ -11,7 +11,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesRemoteFileInfo
 import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoUiState
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 
 @Composable
 private fun contentFor(
@@ -48,7 +48,7 @@ fun RemoteResourceDownloadItem(
 ) {
     val fileInfo = infoState.info?.get(resource)
 
-    TextPreferencesWidget(
+    TextItem(
         onClick = onDownload,
         // fileInfo is null only while remote info is unknown (refresh failed or not yet fetched);
         // downloading on an unprobed path would just 404, so wait for a successful refresh.

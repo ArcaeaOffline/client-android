@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.compose.LazyMarkdownSuccess
@@ -21,6 +21,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun SettingsUnstableAlertScreen(vm: SettingsUnstableAlertScreenViewModel = koinViewModel()) {
@@ -51,7 +52,7 @@ internal fun SettingsUnstableAlertScreen(vm: SettingsUnstableAlertScreenViewMode
                     state,
                     components,
                     modifier,
-                    contentPadding = PaddingValues(dimensionResource(R.dimen.page_padding)),
+                    contentPadding = PaddingValues(MaterialTheme.spacing.pagePadding),
                 )
             },
             loading = {

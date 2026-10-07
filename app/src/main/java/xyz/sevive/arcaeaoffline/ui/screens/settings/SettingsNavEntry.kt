@@ -19,17 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.data.IS_UNSTABLE_VERSION
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.UnstableBuildAlertCard
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +58,7 @@ internal fun SettingsNavEntry(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = dimensionResource(R.dimen.page_padding)),
+                                .padding(horizontal = MaterialTheme.spacing.pagePadding),
                         showDetails = true,
                     )
                 }
@@ -86,7 +86,7 @@ internal fun SettingsNavEntry(
                 CompositionLocalProvider(
                     LocalContentColor provides MaterialTheme.colorScheme.error,
                 ) {
-                    TextPreferencesWidget(
+                    TextItem(
                         title = stringResource(R.string.emergency_mode_title),
                         leadingIcon = ImageVector.vectorResource(R.drawable.ic_activity_emergency_mode),
                         leadingIconTint = LocalContentColor.current,

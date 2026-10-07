@@ -1,6 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -8,8 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
@@ -17,6 +16,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.ImagePreviewDialogFullscreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrQueueTaskListItem(
@@ -69,7 +69,7 @@ internal fun OcrQueueTaskListItem(
 
         OcrQueueTaskListItemResult(
             uiItem,
-            Modifier.padding(dimensionResource(R.dimen.card_padding)),
+            Modifier.padding(MaterialTheme.spacing.cardPadding),
         )
     }
 }

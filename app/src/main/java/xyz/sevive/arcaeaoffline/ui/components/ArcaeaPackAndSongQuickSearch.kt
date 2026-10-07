@@ -36,6 +36,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 data class FilterResult(
     val packId: String,
@@ -153,7 +154,7 @@ fun ArcaeaPackAndSongQuickSearch(
                 candidates.forEachIndexed { i, candidate ->
                     DropdownMenuItem(
                         text = {
-                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs)) {
                                 Text(candidate.song.title, style = MaterialTheme.typography.labelLarge)
                                 Text(
                                     candidate.pack.name,
@@ -168,7 +169,10 @@ fun ArcaeaPackAndSongQuickSearch(
                             expanded = false
                             focusManager.clearFocus()
                         },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding.plus(PaddingValues(vertical = 8.dp)),
+                        contentPadding =
+                            ExposedDropdownMenuDefaults.ItemContentPadding.plus(
+                                PaddingValues(vertical = MaterialTheme.spacing.sm),
+                            ),
                     )
 
                     if (i != candidates.lastIndex) {

@@ -14,14 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun DatabaseR30ListItem(
@@ -56,7 +55,7 @@ internal fun DatabaseR30ListItem(
 
     Row(
         modifier,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.Bottom,
     ) {
         ArcaeaPlayResultCard(
@@ -74,7 +73,7 @@ internal fun DatabaseR30ListItem(
         ) {
             Text(indexText)
 
-            Spacer(Modifier.height(dimensionResource(R.dimen.list_padding)))
+            Spacer(Modifier.height(MaterialTheme.spacing.sm))
 
             Text("PTT", style = MaterialTheme.typography.labelSmall)
             Text(playRatingText, style = MaterialTheme.typography.labelMedium)

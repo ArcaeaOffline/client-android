@@ -19,7 +19,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +32,7 @@ import xyz.sevive.arcaeaoffline.helpers.calculatePotential
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun PotentialRow(
@@ -143,7 +143,7 @@ internal fun OverviewPotentialCard(
         PotentialRow(
             label = stringResource(R.string.arcaea_potential),
             value = ArcaeaFormatters.potentialToText(uiState.potential, mainScale),
-            modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.page_padding)),
+            modifier = Modifier.fillMaxWidth().padding(MaterialTheme.spacing.pagePadding),
             labelTextStyle = MaterialTheme.typography.headlineSmall,
             valueTextStyle = MaterialTheme.typography.displayLarge,
         )
@@ -151,8 +151,8 @@ internal fun OverviewPotentialCard(
         HorizontalDivider()
 
         Column(
-            Modifier.padding(dimensionResource(R.dimen.page_padding)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            Modifier.padding(MaterialTheme.spacing.pagePadding),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             when (uiState.scoringMode) {
                 ArcaeaScoringMode.B50 -> {
@@ -172,7 +172,7 @@ internal fun OverviewPotentialCard(
                 ) {
                     Row(
                         verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
                     ) {
                         Icon(painterResource(R.drawable.chart_line_alert), contentDescription = null)
 

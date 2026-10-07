@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.components.CheckboxItem
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
-import xyz.sevive.arcaeaoffline.ui.components.preferences.CheckboxPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 private val groupByValueResIdMap =
@@ -40,7 +40,7 @@ private fun DatabaseDeduplicatorGroupByValuesSelectDialogContent(
 ) {
     @Composable
     fun ValueWrapper(targetValue: GroupByValue) {
-        CheckboxPreferencesWidget(
+        CheckboxItem(
             value = values.contains(targetValue),
             onValueChange = { enabled -> onValueChange(targetValue, enabled) },
             title = groupByValueTitle(targetValue),

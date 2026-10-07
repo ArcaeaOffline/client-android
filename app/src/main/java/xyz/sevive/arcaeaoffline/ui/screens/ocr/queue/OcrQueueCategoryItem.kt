@@ -19,12 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrQueueCategoryItem(
@@ -38,7 +37,7 @@ internal fun OcrQueueCategoryItem(
 ) {
     val countString = remember(count) { count.toString() }
 
-    TextPreferencesWidget(
+    TextItem(
         onClick = onClick,
         title = title,
         modifier = modifier,
@@ -48,7 +47,7 @@ internal fun OcrQueueCategoryItem(
         trailingSlot = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
+                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap),
             ) {
                 Text(countString, Modifier.secondaryItemAlpha())
                 tailSlot()

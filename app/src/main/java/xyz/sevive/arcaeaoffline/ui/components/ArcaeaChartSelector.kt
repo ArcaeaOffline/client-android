@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -16,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.R
@@ -25,6 +25,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun rememberArcaeaSong(
@@ -79,8 +80,8 @@ fun ArcaeaChartSelector(
     }
 
     Column(
-        Modifier.padding(dimensionResource(R.dimen.card_padding)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+        Modifier.padding(MaterialTheme.spacing.cardPadding),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
         ArcaeaPackAndSongSelector(
             song = song,
@@ -89,7 +90,7 @@ fun ArcaeaChartSelector(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.icon_text_padding)),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.iconTextGap),
         ) {
             Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null)
 

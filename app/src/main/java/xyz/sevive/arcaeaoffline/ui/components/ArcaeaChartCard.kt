@@ -32,12 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.combine
 import org.koin.compose.koinInject
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
@@ -47,6 +45,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRep
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 // Display data resolved as one atomic unit. Swapping the pair together is
 // what keeps the card consistent (title/level text and constant change in
@@ -99,8 +98,8 @@ fun ArcaeaChartCard(
         shape = shape,
     ) {
         Row(
-            Modifier.padding(dimensionResource(R.dimen.card_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            Modifier.padding(MaterialTheme.spacing.cardPadding),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(

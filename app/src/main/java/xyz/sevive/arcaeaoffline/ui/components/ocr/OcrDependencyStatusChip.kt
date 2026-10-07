@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +40,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 data class OcrDependencyStatusChipUiState(
     val icon: ImageVector = Icons.Default.QuestionMark,
@@ -97,7 +97,7 @@ fun OcrDependencyStatusChip(
     modifier: Modifier = Modifier,
 ) {
     val padding by animateDpAsState(
-        targetValue = if (uiState.expanded) dimensionResource(R.dimen.icon_text_padding) else 0.dp,
+        targetValue = if (uiState.expanded) MaterialTheme.spacing.iconTextGap else 0.dp,
         label = "iconPadding",
     )
 
@@ -144,7 +144,7 @@ private fun OcrDependencyStatusChipSinglePreview() {
         Surface(
             Modifier
                 .width(200.dp)
-                .padding(8.dp),
+                .padding(MaterialTheme.spacing.sm),
         ) {
             OcrDependencyStatusChip(
                 OcrDependencyStatus.UNKNOWN,

@@ -24,16 +24,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.calculators.calculateClearBonus
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 fun PlayRatingCalculator(
@@ -92,7 +91,7 @@ fun PlayRatingCalculator(
     Column(modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             OutlinedArcaeaScoreTextField(
                 scoreTextFieldState,
@@ -110,7 +109,7 @@ fun PlayRatingCalculator(
         }
 
         Row(
-            Modifier.padding(top = 16.dp),
+            Modifier.padding(top = MaterialTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowRight, contentDescription = null)
@@ -123,7 +122,7 @@ fun PlayRatingCalculator(
         }
 
         if (countClearBonus) {
-            SwitchPreferencesWidget(
+            SwitchItem(
                 value = clearType != null && clearType != ArcaeaPlayResultClearType.TRACK_LOST,
                 onValueChange = { cleared -> clearType = if (cleared) ArcaeaPlayResultClearType.NORMAL_CLEAR else null },
                 title = stringResource(R.string.play_rating_cleared),

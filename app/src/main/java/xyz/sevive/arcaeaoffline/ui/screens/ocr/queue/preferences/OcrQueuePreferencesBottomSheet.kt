@@ -19,9 +19,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SliderPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SwitchPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.SliderItem
+import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import kotlin.math.round
 
@@ -34,11 +34,11 @@ private fun Content(
 ) {
     LazyColumn {
         item {
-            ListGroupHeader(stringResource(R.string.ocr_queue_add_image_options_title))
+            SettingsGroupHeader(stringResource(R.string.ocr_queue_add_image_options_title))
         }
 
         item {
-            SwitchPreferencesWidget(
+            SwitchItem(
                 value = uiState.checkIsImage,
                 onValueChange = { onSetCheckIsImage(it) },
                 title = stringResource(R.string.ocr_queue_add_image_options_check_is_image),
@@ -46,7 +46,7 @@ private fun Content(
         }
 
         item {
-            SwitchPreferencesWidget(
+            SwitchItem(
                 value = uiState.checkIsArcaeaImage,
                 onValueChange = { onSetCheckIsArcaeaImage(it) },
                 title = stringResource(R.string.ocr_queue_add_image_options_detect_screenshot),
@@ -54,11 +54,11 @@ private fun Content(
         }
 
         item {
-            ListGroupHeader(stringResource(R.string.ocr_queue_queue_options_title))
+            SettingsGroupHeader(stringResource(R.string.ocr_queue_queue_options_title))
         }
 
         item {
-            SliderPreferencesWidget(
+            SliderItem(
                 value = uiState.parallelCount.toFloat(),
                 onValueChange = { onSetParallelCount(round(it).toInt()) },
                 icon = Icons.AutoMirrored.Default.Sort,

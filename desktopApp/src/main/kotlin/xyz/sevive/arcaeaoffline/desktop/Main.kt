@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextFiel
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
 import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaConstantStepperTextFieldState
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 fun main() =
     application {
@@ -49,8 +51,8 @@ fun CalculatorScreen() {
     val result = calculatePlayRating(score, constant)
 
     Column(
-        Modifier.padding(16.dp).width(400.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        Modifier.padding(MaterialTheme.spacing.lg).width(400.dp),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
         OutlinedArcaeaScoreTextField(scoreTextFieldState)
 

@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,15 +24,15 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun BottomActionsBar(
@@ -86,7 +85,7 @@ internal fun DatabaseAddPlayResultScreen(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.page_padding)),
+                            .padding(MaterialTheme.spacing.pagePadding),
                 )
             },
         ) { innerPadding ->
@@ -97,24 +96,19 @@ internal fun DatabaseAddPlayResultScreen(
                 contentPadding = innerPadding,
             ) {
                 item {
-                    ListGroupHeader(stringResource(R.string.database_add_play_result_select_chart_header))
+                    SettingsGroupHeader(stringResource(R.string.database_add_play_result_select_chart_header))
                 }
 
                 item {
                     DatabaseAddPlayResultChartAction(
                         difficulty = uiState.difficulty,
                         onDifficultyChange = { viewModel.setDifficulty(it) },
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding)),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
 
                 item {
-                    // Just adding a padding
-                    Box(Modifier.padding(vertical = dimensionResource(R.dimen.list_padding))) {}
-                }
-
-                item {
-                    ListGroupHeader(stringResource(R.string.database_add_play_result_edit_play_result_header))
+                    SettingsGroupHeader(stringResource(R.string.database_add_play_result_edit_play_result_header))
                 }
 
                 item {
@@ -122,7 +116,7 @@ internal fun DatabaseAddPlayResultScreen(
                         playResult = uiState.playResult,
                         onPlayResultChange = { viewModel.setPlayResult(it) },
                         warnings = uiState.warnings,
-                        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.list_group_header_horizontal_padding)),
+                        modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg),
                     )
                 }
             }

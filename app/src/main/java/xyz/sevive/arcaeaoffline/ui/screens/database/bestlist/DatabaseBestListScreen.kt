@@ -21,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,15 +31,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.SubScreenTopAppBar
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,8 +100,8 @@ fun DatabaseBestListScreen(viewModel: DatabaseBestListViewModel = koinViewModel(
             EmptyScreen(Modifier.fillMaxSize())
         } else {
             LazyColumn(
-                contentPadding = PaddingValues(all = dimensionResource(R.dimen.page_padding)),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                contentPadding = PaddingValues(all = MaterialTheme.spacing.pagePadding),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
                 items(uiState.listItems, key = { it.index }) {
                     DatabaseBestListItem(it, Modifier.animateItem())

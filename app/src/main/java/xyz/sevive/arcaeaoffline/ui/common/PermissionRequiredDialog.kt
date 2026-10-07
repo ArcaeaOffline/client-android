@@ -17,17 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
-import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 fun rememberPermissionIcon(permission: String): ImageVector? =
@@ -78,7 +78,7 @@ private fun PermissionWidget(
     val content = rememberPermissionDescription(permission)
     val icon = rememberPermissionIcon(permission)
 
-    BasePreferencesWidget(
+    BaseSettingsItem(
         title = { PermissionTitle(permission) },
         content = {
             Text(
@@ -110,7 +110,7 @@ fun PermissionRequiredDialog(
         icon = { Icon(Icons.Default.Flaky, contentDescription = null) },
         title = { Text(stringResource(R.string.permission_required_dialog_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding))) {
+            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
                 Text(
                     pluralStringResource(
                         R.plurals.permission_required_dialog_content,

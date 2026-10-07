@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.core.Progress
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.math.roundToInt
 
 typealias PercentageFormatter = (Float) -> String
@@ -69,7 +69,7 @@ fun LinearProgressIndicatorWrapper(
             Text(text = progressLabel, style = MaterialTheme.typography.bodyMedium)
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
 
         if (isIndeterminate) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

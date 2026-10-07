@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -28,6 +27,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 class AppIconBeingClickedTooManyTimesSoEmbarrassingException : Exception() {
     override val message: String = "(⁄ ⁄•⁄ω⁄•⁄ ⁄)"
@@ -73,7 +73,7 @@ internal fun SettingsAboutScreen(
             item {
                 Column(
                     Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AppIcon(

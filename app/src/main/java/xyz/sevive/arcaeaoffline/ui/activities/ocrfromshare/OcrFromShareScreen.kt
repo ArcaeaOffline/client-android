@@ -25,10 +25,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun OcrFromShareReturnToShareAppButton(
@@ -111,12 +111,12 @@ internal fun OcrFromShareScreenContentMedium(
                 .fillMaxSize()
                 .consumeWindowInsets(innerPadding)
                 .padding(innerPadding)
-                .padding(dimensionResource(R.dimen.page_padding)),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.page_padding)),
+                .padding(MaterialTheme.spacing.pagePadding),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.pagePadding),
         ) {
             Column(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
                 OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)
 
@@ -127,7 +127,7 @@ internal fun OcrFromShareScreenContentMedium(
 
             LazyColumn(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
                 item {
                     OcrFromShareOcrResult(viewModel)
@@ -170,12 +170,12 @@ fun OcrFromShareScreenCompact(
                     .consumeWindowInsets(innerPadding),
             contentPadding =
                 PaddingValues(
-                    top = innerPadding.calculateTopPadding() + dimensionResource(R.dimen.page_padding),
-                    bottom = innerPadding.calculateBottomPadding() + dimensionResource(R.dimen.page_padding),
-                    start = dimensionResource(R.dimen.page_padding),
-                    end = dimensionResource(R.dimen.page_padding),
+                    top = innerPadding.calculateTopPadding() + MaterialTheme.spacing.pagePadding,
+                    bottom = innerPadding.calculateBottomPadding() + MaterialTheme.spacing.pagePadding,
+                    start = MaterialTheme.spacing.pagePadding,
+                    end = MaterialTheme.spacing.pagePadding,
                 ),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.list_padding)),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
             item {
                 OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)

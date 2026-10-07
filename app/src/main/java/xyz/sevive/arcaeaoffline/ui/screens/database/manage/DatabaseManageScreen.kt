@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,10 +32,10 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.ListGroupHeader
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesOption
-import xyz.sevive.arcaeaoffline.ui.components.preferences.SelectPreferencesWidget
-import xyz.sevive.arcaeaoffline.ui.components.preferences.TextPreferencesWidget
+import xyz.sevive.arcaeaoffline.ui.components.SelectItem
+import xyz.sevive.arcaeaoffline.ui.components.SelectOption
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 
 @Composable
 fun DatabaseManageScreen(
@@ -73,7 +72,7 @@ fun DatabaseManageScreen(
     ) {
         LazyColumn(modifier) {
             item {
-                ListGroupHeader {
+                SettingsGroupHeader {
                     IconRow {
                         Icon(Icons.Default.Tune, contentDescription = null)
                         Text(stringResource(R.string.database_manage_scoring_mode_title))
@@ -84,15 +83,15 @@ fun DatabaseManageScreen(
             item {
                 val scoringMode by viewModel.scoringMode.collectAsStateWithLifecycle()
 
-                SelectPreferencesWidget(
+                SelectItem(
                     options =
                         listOf(
-                            SelectPreferencesOption(
+                            SelectOption(
                                 value = ArcaeaScoringMode.B30_R10,
                                 label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
                                 description = ArcaeaScoringMode.B30_R10.key.toString(),
                             ),
-                            SelectPreferencesOption(
+                            SelectOption(
                                 value = ArcaeaScoringMode.B50,
                                 label = stringResource(R.string.database_manage_scoring_mode_b50),
                                 description = ArcaeaScoringMode.B50.key.toString(),
@@ -104,10 +103,8 @@ fun DatabaseManageScreen(
                 )
             }
 
-            item { HorizontalDivider() }
-
             item {
-                ListGroupHeader {
+                SettingsGroupHeader {
                     IconRow {
                         Icon(Icons.Default.Download, contentDescription = null)
                         Text(stringResource(R.string.database_manage_import_title))
@@ -128,10 +125,8 @@ fun DatabaseManageScreen(
                 )
             }
 
-            item { HorizontalDivider() }
-
             item {
-                ListGroupHeader {
+                SettingsGroupHeader {
                     IconRow {
                         Icon(Icons.Default.CloudDownload, contentDescription = null)
                         Text(stringResource(R.string.database_manage_download_title))
@@ -141,7 +136,7 @@ fun DatabaseManageScreen(
 
             item {
                 val isFetchingRemoteInfo = uiState.remoteResourcesInfoState.isFetching
-                TextPreferencesWidget(
+                TextItem(
                     onClick = { viewModel.refreshRemoteResourcesInfo() },
                     enabled = !isFetchingRemoteInfo,
                     leadingSlot = {
@@ -171,10 +166,8 @@ fun DatabaseManageScreen(
                 )
             }
 
-            item { HorizontalDivider() }
-
             item {
-                ListGroupHeader {
+                SettingsGroupHeader {
                     IconRow {
                         Icon(Icons.Default.Upload, contentDescription = null)
                         Text(stringResource(R.string.database_manage_export_title))

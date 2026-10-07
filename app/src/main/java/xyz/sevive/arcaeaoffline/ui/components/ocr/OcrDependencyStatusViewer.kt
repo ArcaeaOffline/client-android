@@ -20,12 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.preferences.BasePreferencesWidget
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 object OcrDependencyStatusViewerDefaults {
     @Composable
@@ -75,7 +75,7 @@ fun OcrDependencyStatusViewer(
         )
     }
 
-    BasePreferencesWidget(
+    BaseSettingsItem(
         onClick = details?.let { { showDetails = true } },
         title = { title() },
         leadingSlot = icon,
@@ -132,10 +132,10 @@ fun OcrDependencyStatusViewer(
 @Composable
 private fun OcrDependencyStatusViewerPreview() {
     ArcaeaOfflineTheme {
-        Card(Modifier.padding(8.dp)) {
+        Card(Modifier.padding(MaterialTheme.spacing.sm)) {
             Text(
                 "Test Dependencies",
-                Modifier.padding(16.dp),
+                Modifier.padding(MaterialTheme.spacing.lg),
                 style = MaterialTheme.typography.titleLarge,
             )
 
