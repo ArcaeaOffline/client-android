@@ -124,6 +124,8 @@ fun EmergencyModeActivityUi(
     val outputDirectory by viewModel.outputDirectory.collectAsStateWithLifecycle()
     val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle()
     val isOcrQueueWorkRunning by viewModel.isOcrQueueWorkRunning.collectAsStateWithLifecycle()
+    val isOcrDependenciesWorkRunning by viewModel.isOcrDependenciesWorkRunning.collectAsStateWithLifecycle()
+    val ocrDependenciesDeleteState by viewModel.ocrDependenciesDeleteState.collectAsStateWithLifecycle()
     val databaseBackupState by viewModel.databaseBackupState.collectAsStateWithLifecycle()
 
     var showDeleteOcrDependenciesDialog by remember { mutableStateOf(false) }
@@ -202,6 +204,24 @@ fun EmergencyModeActivityUi(
             ) {
                 TextItem(
                     title = stringResource(R.string.emergency_mode_ocr_delete_dependencies_button),
+                    content =
+                        when (val state = ocrDependenciesDeleteState) {
+                            EmergencyModeActivityViewModel.OcrDependenciesDeleteState.Deleted -> {
+                                stringResource(R.string.emergency_mode_ocr_dependencies_deleted)
+                            }
+
+                            is EmergencyModeActivityViewModel.OcrDependenciesDeleteState.Failed -> {
+                                state.message ?: stringResource(R.string.general_unknown_error)
+                            }
+
+                            null -> {
+                                if (isOcrDependenciesWorkRunning) {
+                                    stringResource(R.string.emergency_mode_ocr_task_running)
+                                } else {
+                                    null
+                                }
+                            }
+                        },
                     leadingIcon = Icons.Default.DeleteForever,
                     leadingIconTint = MaterialTheme.colorScheme.error,
                     onClick = { showDeleteOcrDependenciesDialog = true },
@@ -210,7 +230,7 @@ fun EmergencyModeActivityUi(
                     title = stringResource(R.string.emergency_mode_delete_ocr_queue_db_button),
                     content =
                         if (isOcrQueueWorkRunning) {
-                            stringResource(R.string.emergency_mode_ocr_queue_task_running)
+                            stringResource(R.string.emergency_mode_ocr_task_running)
                         } else {
                             null
                         },

@@ -43,6 +43,7 @@ import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
+import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueStagingJob
 import kotlin.time.Duration.Companion.milliseconds
@@ -63,6 +64,16 @@ class EmergencyModeActivityViewModel(
             listOf(
                 OcrQueueProcessingJob.WORK_NAME,
                 OcrQueueStagingJob.WORK_NAME,
+            )
+
+        /**
+         * WorkManager unique names of every job that reads or writes the OCR
+         * dependency files.
+         */
+        private val ocrDependencyWorkNames =
+            listOf(
+                OcrQueueProcessingJob.WORK_NAME,
+                ImageHashesDatabaseBuilderJob.NAME,
             )
     }
 
@@ -92,9 +103,7 @@ class EmergencyModeActivityViewModel(
      * to run. `true` before the first report just in case.
      */
     val isOcrQueueWorkRunning: StateFlow<Boolean> =
-        ocrQueueDatabaseWorkNames
-            .map { workManager.getWorkInfosForUniqueWorkLiveData(it).asFlow() }
-            .merge()
+        workInfosFlow(ocrQueueDatabaseWorkNames)
             .map { infos ->
                 infos.any { it.state == WorkInfo.State.RUNNING || it.state == WorkInfo.State.ENQUEUED }
             }.stateIn(
@@ -102,6 +111,24 @@ class EmergencyModeActivityViewModel(
                 SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
                 initialValue = true,
             )
+
+    /**
+     * Same as [isOcrQueueWorkRunning], but for jobs touching the OCR dependency files.
+     */
+    val isOcrDependenciesWorkRunning: StateFlow<Boolean> =
+        workInfosFlow(ocrDependencyWorkNames)
+            .map { infos ->
+                infos.any { it.state == WorkInfo.State.RUNNING || it.state == WorkInfo.State.ENQUEUED }
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(stopTimeoutMillis = 1000L),
+                initialValue = true,
+            )
+
+    private fun workInfosFlow(workNames: List<String>) =
+        workNames
+            .map { workManager.getWorkInfosForUniqueWorkLiveData(it).asFlow() }
+            .merge()
 
     val ocrDependencyFilesToDelete =
         OcrDependencyPaths().run {
@@ -168,11 +195,49 @@ class EmergencyModeActivityViewModel(
             false
         }
 
+    sealed interface OcrDependenciesDeleteState {
+        data object Deleted : OcrDependenciesDeleteState
+
+        data class Failed(
+            val message: String?,
+        ) : OcrDependenciesDeleteState
+    }
+
+    private val _ocrDependenciesDeleteState = MutableStateFlow<OcrDependenciesDeleteState?>(null)
+    val ocrDependenciesDeleteState = _ocrDependenciesDeleteState.asStateFlow()
+
     fun deleteAllOcrDependencies() {
         viewModelScope.launch(Dispatchers.IO) {
-            ocrDependencyFilesToDelete.forEach {
-                if (SystemFileSystem.exists(it)) SystemFileSystem.delete(it)
-            }
+            val error =
+                runCatching {
+                    ocrDependencyWorkNames.forEach { workManager.cancelUniqueWork(it) }
+
+                    // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
+                    // file accesses a moment to land.
+                    withTimeoutOrNull(5.seconds) { isOcrDependenciesWorkRunning.first { !it } }
+                    delay(500.milliseconds)
+
+                    ocrDependencyFilesToDelete.forEach {
+                        if (SystemFileSystem.exists(it)) SystemFileSystem.delete(it)
+                    }
+                    ocrDependencyFilesToDelete.forEach {
+                        check(!SystemFileSystem.exists(it)) {
+                            "dependency file still exists after deletion: ${it.name}"
+                        }
+                    }
+                }.exceptionOrNull()
+
+            _ocrDependenciesDeleteState.value =
+                when (error) {
+                    null -> {
+                        OcrDependenciesDeleteState.Deleted
+                    }
+
+                    else -> {
+                        logger.e(error) { "Error deleting OCR dependencies" }
+                        OcrDependenciesDeleteState.Failed(error.message)
+                    }
+                }
         }
     }
 

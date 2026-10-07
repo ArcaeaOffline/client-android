@@ -9,7 +9,8 @@
     <string name="emergency_mode_output_directory_status_invalid">Not writable</string>
 
     <string name="emergency_mode_ocr_title">OCR</string>
-    <string name="emergency_mode_ocr_queue_task_running">OCR tasks are running</string>
+    <string name="emergency_mode_ocr_task_running">OCR tasks are running</string>
+    <string name="emergency_mode_ocr_dependencies_deleted">OCR dependencies deleted</string>
     <string name="emergency_mode_ocr_delete_dependencies_button">Delete OCR Dependencies</string>
     <string name="emergency_mode_ocr_delete_dependencies_confirm_text">The following files will be deleted:\n%1$s</string>
     <string name="emergency_mode_irreversible_warning">This action cannot be undone.</string>

@@ -9,7 +9,8 @@
     <string name="emergency_mode_output_directory_status_invalid">不可写入</string>
 
     <string name="emergency_mode_ocr_title">OCR</string>
-    <string name="emergency_mode_ocr_queue_task_running">有 OCR 任务正在运行</string>
+    <string name="emergency_mode_ocr_task_running">有 OCR 任务正在运行</string>
+    <string name="emergency_mode_ocr_dependencies_deleted">OCR 依赖项已删除</string>
     <string name="emergency_mode_ocr_delete_dependencies_button">删除 OCR 依赖项</string>
     <string name="emergency_mode_ocr_delete_dependencies_confirm_text">将删除以下文件：\n%1$s</string>
     <string name="emergency_mode_irreversible_warning">此操作无法撤销。</string>
