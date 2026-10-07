@@ -252,6 +252,7 @@ private fun ResultsListItem(
 
 private val ParametersCardCollapsedHeight = 48.dp
 private val ParametersCardTopPadding = MaterialTheme.spacing.xs
+private val ParametersCardOuterVerticalPadding = MaterialTheme.spacing.sm
 
 /**
  * Floating parameters panel. It overlays the results list, which clears its
@@ -362,7 +363,10 @@ fun UtilitiesChartRecommendScreen(
         Box(Modifier.fillMaxSize()) {
             // The card floats with top padding. The list and the top
             // scrim both clear the card's bottom edge plus a lg gap.
-            val listTopInset = ParametersCardCollapsedHeight + ParametersCardTopPadding + MaterialTheme.spacing.lg
+            val listTopInset =
+                ParametersCardCollapsedHeight +
+                    ParametersCardOuterVerticalPadding +
+                    MaterialTheme.spacing.lg
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -462,7 +466,7 @@ fun UtilitiesChartRecommendScreen(
                         .align(Alignment.TopCenter)
                         .padding(
                             horizontal = MaterialTheme.spacing.pagePadding,
-                            vertical = MaterialTheme.spacing.sm,
+                            vertical = ParametersCardOuterVerticalPadding,
                         ).fillMaxWidth(),
             ) {
                 Row(

@@ -49,9 +49,9 @@ fun UnstableBuildAlertCard(
     shape: Shape =
         CutCornerShape(
             topStart = 0.dp,
-            topEnd = MaterialTheme.spacing.lg,
+            topEnd = 16.dp,
             bottomEnd = 0.dp,
-            bottomStart = MaterialTheme.spacing.lg,
+            bottomStart = 16.dp,
         ),
     colors: CardColors =
         CardDefaults.cardColors(
