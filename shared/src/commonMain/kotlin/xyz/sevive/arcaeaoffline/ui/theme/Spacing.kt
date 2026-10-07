@@ -22,5 +22,8 @@ object Spacing {
     val dialogPadding: Dp = xl
 }
 
+/**
+ * Placeholder for future CompositionLocal runtime-varying scale if introduced.
+ */
 val MaterialTheme.spacing: Spacing
     get() = Spacing
