@@ -68,7 +68,7 @@
         <activity
             android:name=".EmergencyModeActivity"
             android:excludeFromRecents="true"
-            android:exported="false"
+            android:exported="true"
             android:finishOnTaskLaunch="true"
             android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustResize" />
