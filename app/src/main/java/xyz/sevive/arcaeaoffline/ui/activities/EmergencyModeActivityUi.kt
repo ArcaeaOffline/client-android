@@ -80,7 +80,7 @@ private fun UiTopAppBar(modifier: Modifier = Modifier) {
 @Composable
 private fun UiConfirmDeleteDialog(
     title: String,
-    text: String,
+    body: String?,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -91,7 +91,7 @@ private fun UiConfirmDeleteDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                Text(text)
+                body?.let { Text(it) }
                 Text(stringResource(R.string.emergency_mode_irreversible_warning))
             }
         },
@@ -123,6 +123,7 @@ fun EmergencyModeActivityUi(
 
     val outputDirectory by viewModel.outputDirectory.collectAsStateWithLifecycle()
     val outputDirectoryValid by viewModel.outputDirectoryValid.collectAsStateWithLifecycle()
+    val isOcrQueueWorkRunning by viewModel.isOcrQueueWorkRunning.collectAsStateWithLifecycle()
 
     var showDeleteOcrDependenciesDialog by remember { mutableStateOf(false) }
     var showDeleteOcrQueueDbDialog by remember { mutableStateOf(false) }
@@ -206,6 +207,12 @@ fun EmergencyModeActivityUi(
                 )
                 TextItem(
                     title = stringResource(R.string.emergency_mode_delete_ocr_queue_db_button),
+                    content =
+                        if (isOcrQueueWorkRunning) {
+                            stringResource(R.string.emergency_mode_ocr_queue_task_running)
+                        } else {
+                            null
+                        },
                     leadingIcon = Icons.Default.DeleteForever,
                     leadingIconTint = MaterialTheme.colorScheme.error,
                     onClick = { showDeleteOcrQueueDbDialog = true },
@@ -217,7 +224,7 @@ fun EmergencyModeActivityUi(
                 title = stringResource(R.string.emergency_mode_database_copy_item_title),
                 leadingIcon = Icons.Default.FileCopy,
                 enabled = outputDirectoryValid == true,
-                onClick = { viewModel.copyDatabase(context) },
+                onClick = { viewModel.copyDatabase() },
             )
         }
     }
@@ -225,7 +232,7 @@ fun EmergencyModeActivityUi(
     if (showDeleteOcrDependenciesDialog) {
         UiConfirmDeleteDialog(
             title = stringResource(R.string.emergency_mode_ocr_delete_dependencies_button),
-            text =
+            body =
                 stringResource(
                     R.string.emergency_mode_ocr_delete_dependencies_confirm_text,
                     viewModel.ocrDependencyFileNames.joinToString(separator = "\n"),
@@ -241,10 +248,15 @@ fun EmergencyModeActivityUi(
     if (showDeleteOcrQueueDbDialog) {
         UiConfirmDeleteDialog(
             title = stringResource(R.string.emergency_mode_delete_ocr_queue_db_button),
-            text = stringResource(R.string.emergency_mode_delete_ocr_queue_db_confirm_text),
+            body =
+                if (isOcrQueueWorkRunning) {
+                    stringResource(R.string.emergency_mode_delete_ocr_queue_db_confirm_text)
+                } else {
+                    null
+                },
             onConfirm = {
                 showDeleteOcrQueueDbDialog = false
-                viewModel.deleteOcrQueueDatabase(context)
+                viewModel.deleteOcrQueueDatabase()
             },
             onDismiss = { showDeleteOcrQueueDbDialog = false },
         )
