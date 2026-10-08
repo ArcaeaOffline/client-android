@@ -14,6 +14,8 @@ CC BY-SA 3.0
     <!-- General icon descriptions -->
     <string name="icon_desc_navigate_back">Go back</string>
     <string name="icon_desc_edit">Edit this</string>
+    <string name="icon_desc_succeeded">Succeeded</string>
+    <string name="icon_desc_failed">Failed</string>
     <string name="icon_desc_delete">Delete this</string>
 
     <string name="develop_placeholder" translatable="false">[DEV] PlAcEhOlDeR</string>
@@ -356,6 +358,8 @@ CC BY-SA 3.0
     <string name="settings_about_version_code">Version code</string>
     <string name="settings_license_title">License</string>
     <string name="settings_aboutlibraries_title">Libraries</string>
+    <string name="diagnostics_export">Export Diagnostics</string>
+    <string name="diagnostics_generated">Diagnostics exported: %1$s</string>
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
 

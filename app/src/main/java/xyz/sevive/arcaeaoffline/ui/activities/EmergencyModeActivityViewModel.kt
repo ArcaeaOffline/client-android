@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline.ui.activities
 
 import android.content.Context
 import android.text.format.Formatter
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
@@ -42,16 +41,21 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
+import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
+import xyz.sevive.arcaeaoffline.helpers.diagnostics.DiagnosticsCollector
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueStagingJob
+import xyz.sevive.arcaeaoffline.ui.components.OperationState
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class EmergencyModeActivityViewModel(
     context: Context,
     private val preferencesRepository: EmergencyModePreferencesRepository,
+    private val diagnosticsCollector: DiagnosticsCollector,
+    private val ocrQueueTaskDao: OcrQueueTaskDao,
 ) : ViewModel() {
     companion object {
         private const val TEST_FILENAME = "arcaea_offline-test_write-1f8a11c6-65ce-4d73-886f-e0b5bc7f5eb9"
@@ -82,21 +86,23 @@ class EmergencyModeActivityViewModel(
     private val appContext = context.applicationContext
     private val workManager = WorkManager.getInstance(appContext)
 
-    sealed interface DatabaseBackupState {
-        data object Copying : DatabaseBackupState
-
-        data class Success(
-            val backupFileName: String,
-            val backupFileSizeText: String,
-        ) : DatabaseBackupState
-
-        data class Failure(
-            val message: String?,
-        ) : DatabaseBackupState
-    }
-
-    private val _databaseBackupState = MutableStateFlow<DatabaseBackupState?>(null)
+    private val _databaseBackupState = MutableStateFlow<OperationState?>(null)
     val databaseBackupState = _databaseBackupState.asStateFlow()
+
+    private val _ocrDependenciesDeleteState = MutableStateFlow<OperationState?>(null)
+    val ocrDependenciesDeleteState = _ocrDependenciesDeleteState.asStateFlow()
+
+    private val _ocrQueueDeleteState = MutableStateFlow<OperationState?>(null)
+    val ocrQueueDeleteState = _ocrQueueDeleteState.asStateFlow()
+
+    private val _ocrQueueClearState = MutableStateFlow<OperationState?>(null)
+    val ocrQueueClearState = _ocrQueueClearState.asStateFlow()
+
+    /**
+     * For any operations that requires an app restart.
+     */
+    private val _restartRequired = MutableStateFlow(false)
+    val restartRequired: StateFlow<Boolean> = _restartRequired.asStateFlow()
 
     /**
      * Whether any [ocrQueueDatabaseWorkNames] job is currently running or waiting
@@ -195,89 +201,155 @@ class EmergencyModeActivityViewModel(
             false
         }
 
-    sealed interface OcrDependenciesDeleteState {
-        data object Deleted : OcrDependenciesDeleteState
-
-        data class Failed(
-            val message: String?,
-        ) : OcrDependenciesDeleteState
-    }
-
-    private val _ocrDependenciesDeleteState = MutableStateFlow<OcrDependenciesDeleteState?>(null)
-    val ocrDependenciesDeleteState = _ocrDependenciesDeleteState.asStateFlow()
-
     fun deleteAllOcrDependencies() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val error =
-                runCatching {
-                    ocrDependencyWorkNames.forEach { workManager.cancelUniqueWork(it) }
+        if (_ocrDependenciesDeleteState.value is OperationState.InProgress) return
 
-                    // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
-                    // file accesses a moment to land.
-                    withTimeoutOrNull(5.seconds) { isOcrDependenciesWorkRunning.first { !it } }
-                    delay(500.milliseconds)
-
-                    ocrDependencyFilesToDelete.forEach {
-                        if (SystemFileSystem.exists(it)) SystemFileSystem.delete(it)
-                    }
-                    ocrDependencyFilesToDelete.forEach {
-                        check(!SystemFileSystem.exists(it)) {
-                            "dependency file still exists after deletion: ${it.name}"
-                        }
-                    }
-                }.exceptionOrNull()
+        viewModelScope.launch {
+            _ocrDependenciesDeleteState.value = OperationState.InProgress
 
             _ocrDependenciesDeleteState.value =
-                when (error) {
-                    null -> {
-                        OcrDependenciesDeleteState.Deleted
-                    }
+                withContext(Dispatchers.IO) {
+                    val error =
+                        runCatching {
+                            ocrDependencyWorkNames.forEach { workManager.cancelUniqueWork(it) }
 
-                    else -> {
-                        logger.e(error) { "Error deleting OCR dependencies" }
-                        OcrDependenciesDeleteState.Failed(error.message)
+                            // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
+                            // file accesses a moment to land.
+                            withTimeoutOrNull(5.seconds) { isOcrDependenciesWorkRunning.first { !it } }
+                            delay(500.milliseconds)
+
+                            ocrDependencyFilesToDelete.forEach {
+                                if (SystemFileSystem.exists(it)) SystemFileSystem.delete(it)
+                            }
+                            ocrDependencyFilesToDelete.forEach {
+                                check(!SystemFileSystem.exists(it)) {
+                                    "dependency file still exists after deletion: ${it.name}"
+                                }
+                            }
+                        }.exceptionOrNull()
+
+                    when (error) {
+                        null -> {
+                            OperationState.Success(
+                                appContext.getString(R.string.emergency_mode_ocr_dependencies_deleted),
+                            )
+                        }
+
+                        else -> {
+                            logger.e(error) { "Error deleting OCR dependencies" }
+                            OperationState.Failed(error.message)
+                        }
+                    }
+                }
+        }
+    }
+
+    fun clearOcrQueue() {
+        if (_ocrQueueClearState.value is OperationState.InProgress) return
+
+        viewModelScope.launch {
+            _ocrQueueClearState.value = OperationState.InProgress
+
+            _ocrQueueClearState.value =
+                withContext(Dispatchers.IO) {
+                    val error =
+                        runCatching {
+                            ocrQueueDatabaseWorkNames.forEach { workManager.cancelUniqueWork(it) }
+
+                            // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
+                            // database accesses a moment to land.
+                            withTimeoutOrNull(5.seconds) { isOcrQueueWorkRunning.first { !it } }
+                            delay(500.milliseconds)
+
+                            ocrQueueTaskDao.deleteAll()
+                        }.exceptionOrNull()
+
+                    when (error) {
+                        null -> {
+                            OperationState.Success(appContext.getString(R.string.general_action_done))
+                        }
+
+                        else -> {
+                            logger.e(error) { "Error clearing OCR queue" }
+                            OperationState.Failed(error.message ?: error::class.simpleName)
+                        }
                     }
                 }
         }
     }
 
     fun deleteOcrQueueDatabase() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val error =
-                runCatching {
-                    ocrQueueDatabaseWorkNames.forEach { workManager.cancelUniqueWork(it) }
+        if (_ocrQueueDeleteState.value is OperationState.InProgress) return
 
-                    // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
-                    // NonCancellable cleanups a moment to land.
-                    withTimeoutOrNull(5.seconds) { isOcrQueueWorkRunning.first { !it } }
-                    delay(500.milliseconds)
+        viewModelScope.launch {
+            _ocrQueueDeleteState.value = OperationState.InProgress
 
-                    OcrQueueDatabase.getDatabase(appContext).close()
+            _ocrQueueDeleteState.value =
+                withContext(Dispatchers.IO) {
+                    val error =
+                        runCatching {
+                            ocrQueueDatabaseWorkNames.forEach { workManager.cancelUniqueWork(it) }
 
-                    appContext.deleteDatabase(OcrQueueDatabase.DATABASE_FILENAME)
-                    check(!appContext.getDatabasePath(OcrQueueDatabase.DATABASE_FILENAME).exists()) {
-                        "database file still exists after deletion"
-                    }
-                }.exceptionOrNull()
+                            // Wait until no tracked job is RUNNING/ENQUEUED, then give in-flight
+                            // NonCancellable cleanups a moment to land.
+                            withTimeoutOrNull(5.seconds) { isOcrQueueWorkRunning.first { !it } }
+                            delay(500.milliseconds)
 
-            launch(Dispatchers.Main) {
-                val message =
+                            OcrQueueDatabase.getDatabase(appContext).close()
+
+                            appContext.deleteDatabase(OcrQueueDatabase.DATABASE_FILENAME)
+                            check(!appContext.getDatabasePath(OcrQueueDatabase.DATABASE_FILENAME).exists()) {
+                                "database file still exists after deletion"
+                            }
+                        }.exceptionOrNull()
+
                     when (error) {
-                        null -> appContext.getString(R.string.general_delete)
-                        else -> error::class.simpleName ?: "ERROR"
-                    }
+                        null -> {
+                            // The Room singleton stays closed behind this, so the app
+                            // must restart for OCR features to work again.
+                            _restartRequired.value = true
+                            OperationState.Success(
+                                appContext.getString(R.string.emergency_mode_delete_ocr_queue_success),
+                            )
+                        }
 
-                Toast.makeText(appContext, message, Toast.LENGTH_LONG).show()
-            }
+                        else -> {
+                            logger.e(error) { "Error deleting OCR queue database" }
+                            OperationState.Failed(error.message ?: error::class.simpleName)
+                        }
+                    }
+                }
+        }
+    }
+
+    private val _diagnosticsExportState = MutableStateFlow<OperationState?>(null)
+    val diagnosticsExportState: StateFlow<OperationState?> = _diagnosticsExportState.asStateFlow()
+
+    fun exportDiagnostics() {
+        if (_diagnosticsExportState.value is OperationState.InProgress) return
+        val outputDir = outputDirectory.value ?: return
+
+        viewModelScope.launch {
+            _diagnosticsExportState.value = OperationState.InProgress
+
+            _diagnosticsExportState.value =
+                try {
+                    val target = diagnosticsCollector.exportTo(outputDir)
+                    OperationState.Success(
+                        appContext.getString(R.string.diagnostics_generated, target.name),
+                    )
+                } catch (e: Exception) {
+                    OperationState.Failed(e.message)
+                }
         }
     }
 
     fun copyDatabase() {
-        if (_databaseBackupState.value == DatabaseBackupState.Copying) return
+        if (_databaseBackupState.value is OperationState.InProgress) return
         val outputDir = outputDirectory.value ?: return
 
         viewModelScope.launch {
-            _databaseBackupState.value = DatabaseBackupState.Copying
+            _databaseBackupState.value = OperationState.InProgress
 
             _databaseBackupState.value =
                 withContext(Dispatchers.IO) {
@@ -305,10 +377,16 @@ class EmergencyModeActivityViewModel(
                             }
 
                         val backupFileSizeText = Formatter.formatShortFileSize(appContext, backupFile.size())
-                        DatabaseBackupState.Success(backupFile.name, backupFileSizeText)
+                        OperationState.Success(
+                            appContext.getString(
+                                R.string.emergency_mode_database_copied_message,
+                                backupFile.name,
+                                backupFileSizeText,
+                            ),
+                        )
                     } catch (e: Exception) {
                         logger.e(e) { "Error copying database" }
-                        DatabaseBackupState.Failure(e.message)
+                        OperationState.Failed(e.message)
                     }
                 }
         }

@@ -18,6 +18,10 @@
     <string name="emergency_mode_database_title">数据库</string>
     <string name="emergency_mode_database_copy_item_title">复制数据库到输出目录</string>
     <string name="emergency_mode_database_copied_message">数据库已复制到 %1$s，大小 %2$s</string>
+    <string name="emergency_mode_clear_ocr_queue_button">清空 OCR 队列</string>
+    <string name="emergency_mode_clear_ocr_queue_confirm_text">将清空 OCR 队列中的全部任务。</string>
     <string name="emergency_mode_delete_ocr_queue_db_button">删除 OCR 队列数据库</string>
-    <string name="emergency_mode_delete_ocr_queue_db_confirm_text">请确保当前没有 OCR 任务正在运行。</string>
+    <string name="emergency_mode_delete_ocr_queue_db_confirm_text">将删除 OCR 队列数据库文件并退出应用。</string>
+    <string name="emergency_mode_delete_ocr_queue_success">OCR 队列数据库已删除，应用即将退出。</string>
+    <string name="emergency_mode_diagnostics_title">诊断</string>
 </resources>

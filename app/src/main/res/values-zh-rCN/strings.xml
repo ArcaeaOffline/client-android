@@ -5,6 +5,8 @@
     <!-- General icon descriptions -->
     <string name="icon_desc_navigate_back">返回</string>
     <string name="icon_desc_edit">编辑此项</string>
+    <string name="icon_desc_succeeded">已成功</string>
+    <string name="icon_desc_failed">失败</string>
     <string name="icon_desc_delete">删除此项</string>
 
     <!-- General strings -->
@@ -323,6 +325,8 @@
     <string name="settings_about_version_code">版本代号</string>
     <string name="settings_license_title">许可证</string>
     <string name="settings_aboutlibraries_title">开源组件</string>
+    <string name="diagnostics_export">导出诊断信息</string>
+    <string name="diagnostics_generated">诊断信息已导出：%1$s</string>
 
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>
 

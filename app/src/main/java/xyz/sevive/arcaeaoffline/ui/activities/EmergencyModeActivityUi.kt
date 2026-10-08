@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.AlertDialog
@@ -42,11 +45,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.path
+import kotlinx.coroutines.delay
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
+import xyz.sevive.arcaeaoffline.ui.components.OperationTextItem
 import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import kotlin.system.exitProcess
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,10 +133,15 @@ fun EmergencyModeActivityUi(
     val isOcrQueueWorkRunning by viewModel.isOcrQueueWorkRunning.collectAsStateWithLifecycle()
     val isOcrDependenciesWorkRunning by viewModel.isOcrDependenciesWorkRunning.collectAsStateWithLifecycle()
     val ocrDependenciesDeleteState by viewModel.ocrDependenciesDeleteState.collectAsStateWithLifecycle()
+    val ocrQueueDeleteState by viewModel.ocrQueueDeleteState.collectAsStateWithLifecycle()
+    val ocrQueueClearState by viewModel.ocrQueueClearState.collectAsStateWithLifecycle()
     val databaseBackupState by viewModel.databaseBackupState.collectAsStateWithLifecycle()
+    val diagnosticsExportState by viewModel.diagnosticsExportState.collectAsStateWithLifecycle()
+    val restartRequired by viewModel.restartRequired.collectAsStateWithLifecycle()
 
     var showDeleteOcrDependenciesDialog by remember { mutableStateOf(false) }
     var showDeleteOcrQueueDbDialog by remember { mutableStateOf(false) }
+    var showClearOcrQueueDialog by remember { mutableStateOf(false) }
 
     val dirPicker =
         rememberDirectoryPickerLauncher { dir ->
@@ -144,6 +156,15 @@ fun EmergencyModeActivityUi(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.reloadPreferencesOnStartUp()
+    }
+
+    LaunchedEffect(restartRequired) {
+        if (restartRequired) {
+            // Give the result states a moment to be seen, then end the whole process
+            delay(1.seconds)
+            (context as? Activity)?.finishAffinity()
+            exitProcess(0)
+        }
     }
 
     Scaffold(modifier, topBar = { UiTopAppBar() }) { padding ->
@@ -202,32 +223,22 @@ fun EmergencyModeActivityUi(
             CompositionLocalProvider(
                 LocalContentColor provides MaterialTheme.colorScheme.error,
             ) {
-                TextItem(
-                    title = stringResource(R.string.emergency_mode_ocr_delete_dependencies_button),
+                OperationTextItem(
+                    title = stringResource(R.string.emergency_mode_clear_ocr_queue_button),
+                    state = ocrQueueClearState,
                     content =
-                        when (val state = ocrDependenciesDeleteState) {
-                            EmergencyModeActivityViewModel.OcrDependenciesDeleteState.Deleted -> {
-                                stringResource(R.string.emergency_mode_ocr_dependencies_deleted)
-                            }
-
-                            is EmergencyModeActivityViewModel.OcrDependenciesDeleteState.Failed -> {
-                                state.message ?: stringResource(R.string.general_unknown_error)
-                            }
-
-                            null -> {
-                                if (isOcrDependenciesWorkRunning) {
-                                    stringResource(R.string.emergency_mode_ocr_task_running)
-                                } else {
-                                    null
-                                }
-                            }
+                        if (isOcrQueueWorkRunning) {
+                            stringResource(R.string.emergency_mode_ocr_task_running)
+                        } else {
+                            null
                         },
-                    leadingIcon = Icons.Default.DeleteForever,
+                    leadingIcon = Icons.Default.DeleteOutline,
                     leadingIconTint = MaterialTheme.colorScheme.error,
-                    onClick = { showDeleteOcrDependenciesDialog = true },
+                    onClick = { showClearOcrQueueDialog = true },
                 )
-                TextItem(
+                OperationTextItem(
                     title = stringResource(R.string.emergency_mode_delete_ocr_queue_db_button),
+                    state = ocrQueueDeleteState,
                     content =
                         if (isOcrQueueWorkRunning) {
                             stringResource(R.string.emergency_mode_ocr_task_running)
@@ -238,38 +249,51 @@ fun EmergencyModeActivityUi(
                     leadingIconTint = MaterialTheme.colorScheme.error,
                     onClick = { showDeleteOcrQueueDbDialog = true },
                 )
+                OperationTextItem(
+                    title = stringResource(R.string.emergency_mode_ocr_delete_dependencies_button),
+                    state = ocrDependenciesDeleteState,
+                    content =
+                        if (isOcrDependenciesWorkRunning) {
+                            stringResource(R.string.emergency_mode_ocr_task_running)
+                        } else {
+                            null
+                        },
+                    leadingIcon = Icons.Default.DeleteForever,
+                    leadingIconTint = MaterialTheme.colorScheme.error,
+                    onClick = { showDeleteOcrDependenciesDialog = true },
+                )
             }
 
             SettingsGroupHeader(stringResource(R.string.emergency_mode_database_title))
-            TextItem(
+            OperationTextItem(
                 title = stringResource(R.string.emergency_mode_database_copy_item_title),
-                content =
-                    when (val state = databaseBackupState) {
-                        null -> {
-                            null
-                        }
-
-                        EmergencyModeActivityViewModel.DatabaseBackupState.Copying -> {
-                            stringResource(R.string.general_please_wait)
-                        }
-
-                        is EmergencyModeActivityViewModel.DatabaseBackupState.Success -> {
-                            stringResource(
-                                R.string.emergency_mode_database_copied_message,
-                                state.backupFileName,
-                                state.backupFileSizeText,
-                            )
-                        }
-
-                        is EmergencyModeActivityViewModel.DatabaseBackupState.Failure -> {
-                            state.message ?: stringResource(R.string.general_unknown_error)
-                        }
-                    },
+                state = databaseBackupState,
                 leadingIcon = Icons.Default.FileCopy,
                 enabled = outputDirectoryValid == true,
                 onClick = { viewModel.copyDatabase() },
             )
+
+            SettingsGroupHeader(stringResource(R.string.emergency_mode_diagnostics_title))
+            OperationTextItem(
+                title = stringResource(R.string.diagnostics_export),
+                state = diagnosticsExportState,
+                leadingIcon = Icons.Default.BugReport,
+                enabled = outputDirectoryValid == true,
+                onClick = { viewModel.exportDiagnostics() },
+            )
         }
+    }
+
+    if (showClearOcrQueueDialog) {
+        UiConfirmDeleteDialog(
+            title = stringResource(R.string.emergency_mode_clear_ocr_queue_button),
+            body = stringResource(R.string.emergency_mode_clear_ocr_queue_confirm_text),
+            onConfirm = {
+                showClearOcrQueueDialog = false
+                viewModel.clearOcrQueue()
+            },
+            onDismiss = { showClearOcrQueueDialog = false },
+        )
     }
 
     if (showDeleteOcrDependenciesDialog) {
@@ -291,12 +315,7 @@ fun EmergencyModeActivityUi(
     if (showDeleteOcrQueueDbDialog) {
         UiConfirmDeleteDialog(
             title = stringResource(R.string.emergency_mode_delete_ocr_queue_db_button),
-            body =
-                if (isOcrQueueWorkRunning) {
-                    stringResource(R.string.emergency_mode_delete_ocr_queue_db_confirm_text)
-                } else {
-                    null
-                },
+            body = stringResource(R.string.emergency_mode_delete_ocr_queue_db_confirm_text),
             onConfirm = {
                 showDeleteOcrQueueDbDialog = false
                 viewModel.deleteOcrQueueDatabase()

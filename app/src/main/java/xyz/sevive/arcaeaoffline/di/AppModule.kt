@@ -30,6 +30,7 @@ import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.EmergencyModePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.UnstableFlavorPreferencesRepository
+import xyz.sevive.arcaeaoffline.helpers.diagnostics.DiagnosticsCollector
 import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueStagingJob
@@ -50,6 +51,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
 
@@ -76,6 +78,21 @@ internal fun ocrQueueTaskDao(db: OcrQueueDatabase) = db.ocrQueueTaskDao()
 internal fun ocrQueueStagingItemDao(db: OcrQueueDatabase) = db.ocrQueueStagingItemDao()
 
 internal fun ocrQueueStagingBatchDao(db: OcrQueueDatabase) = db.ocrQueueStagingBatchDao()
+
+internal fun createDiagnosticsCollector(
+    context: Context,
+    appPreferencesRepository: AppPreferencesRepository,
+    ocrQueuePreferencesRepository: OcrQueuePreferencesRepository,
+    unstableFlavorPreferencesRepository: UnstableFlavorPreferencesRepository,
+    ocrQueueTaskDao: OcrQueueTaskDao,
+): DiagnosticsCollector =
+    DiagnosticsCollector(
+        context = context,
+        appPreferencesRepository = appPreferencesRepository,
+        ocrQueuePreferencesRepository = ocrQueuePreferencesRepository,
+        unstableFlavorPreferencesRepository = unstableFlavorPreferencesRepository,
+        ocrQueueTaskDao = ocrQueueTaskDao,
+    )
 
 val thirdPartyModule =
     module {
@@ -116,6 +133,9 @@ val appModule =
         single<ArcaeaResourcesApiClient> { create(::createArcaeaResourcesApiClient) }
         single<RemoteResourcesInfoStateHolder> { create(::createRemoteResourcesInfoStateHolder) }
 
+        single<DiagnosticsCollector> { create(::createDiagnosticsCollector) }
+
+        viewModel<SettingsAboutViewModel>()
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()
         viewModel<DatabaseNavEntryViewModel>()
