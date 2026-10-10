@@ -18,6 +18,7 @@ import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +48,7 @@ import xyz.sevive.arcaeaoffline.jobs.ImageHashesDatabaseBuilderJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueStagingJob
 import xyz.sevive.arcaeaoffline.ui.components.OperationState
+import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -96,12 +98,6 @@ class EmergencyModeActivityViewModel(
 
     private val _ocrQueueClearState = MutableStateFlow<OperationState?>(null)
     val ocrQueueClearState = _ocrQueueClearState.asStateFlow()
-
-    /**
-     * For any operations that requires an app restart.
-     */
-    private val _restartRequired = MutableStateFlow(false)
-    val restartRequired: StateFlow<Boolean> = _restartRequired.asStateFlow()
 
     /**
      * Whether any [ocrQueueDatabaseWorkNames] job is currently running or waiting
@@ -306,7 +302,7 @@ class EmergencyModeActivityViewModel(
                         null -> {
                             // The Room singleton stays closed behind this, so the app
                             // must restart for OCR features to work again.
-                            _restartRequired.value = true
+                            terminateApp()
                             OperationState.Success(
                                 appContext.getString(R.string.emergency_mode_delete_ocr_queue_success),
                             )
@@ -318,6 +314,19 @@ class EmergencyModeActivityViewModel(
                         }
                     }
                 }
+        }
+    }
+
+    /**
+     * Terminate app after a short delay.
+     */
+    private fun terminateApp() {
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                // Give the result states a moment to be seen.
+                delay(1.seconds)
+                exitProcess(0)
+            }
         }
     }
 

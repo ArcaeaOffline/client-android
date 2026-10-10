@@ -1,6 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.activities
 
-import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,15 +44,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.path
-import kotlinx.coroutines.delay
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
 import xyz.sevive.arcaeaoffline.ui.components.OperationTextItem
 import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
-import kotlin.system.exitProcess
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +133,6 @@ fun EmergencyModeActivityUi(
     val ocrQueueClearState by viewModel.ocrQueueClearState.collectAsStateWithLifecycle()
     val databaseBackupState by viewModel.databaseBackupState.collectAsStateWithLifecycle()
     val diagnosticsExportState by viewModel.diagnosticsExportState.collectAsStateWithLifecycle()
-    val restartRequired by viewModel.restartRequired.collectAsStateWithLifecycle()
 
     var showDeleteOcrDependenciesDialog by remember { mutableStateOf(false) }
     var showDeleteOcrQueueDbDialog by remember { mutableStateOf(false) }
@@ -156,15 +151,6 @@ fun EmergencyModeActivityUi(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.reloadPreferencesOnStartUp()
-    }
-
-    LaunchedEffect(restartRequired) {
-        if (restartRequired) {
-            // Give the result states a moment to be seen, then end the whole process
-            delay(1.seconds)
-            (context as? Activity)?.finishAffinity()
-            exitProcess(0)
-        }
     }
 
     Scaffold(modifier, topBar = { UiTopAppBar() }) { padding ->
