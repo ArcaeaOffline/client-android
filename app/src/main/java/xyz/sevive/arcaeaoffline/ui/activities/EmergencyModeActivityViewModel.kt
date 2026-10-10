@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.activities
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
@@ -24,12 +23,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -132,9 +131,9 @@ class EmergencyModeActivityViewModel(
             )
 
     private fun workInfosFlow(workNames: List<String>) =
-        workNames
-            .map { workManager.getWorkInfosForUniqueWorkLiveData(it).asFlow() }
-            .merge()
+        combine(workNames.map { workManager.getWorkInfosForUniqueWorkFlow(it) }) { workInfoLists ->
+            workInfoLists.flatMap { it.toList() }
+        }
 
     val ocrDependencyFilesToDelete =
         OcrDependencyPaths().run {
