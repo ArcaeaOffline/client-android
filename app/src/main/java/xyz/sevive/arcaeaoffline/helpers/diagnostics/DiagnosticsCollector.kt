@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline.helpers.diagnostics
 
 import android.content.Context
 import android.os.Build
-import androidx.lifecycle.asFlow
 import androidx.room.RoomDatabase
 import androidx.room.useWriterConnection
 import androidx.work.WorkManager
@@ -250,8 +249,7 @@ class DiagnosticsCollector(
     private suspend fun workInfoState(workName: String): String =
         WorkManager
             .getInstance(context)
-            .getWorkInfosForUniqueWorkLiveData(workName)
-            .asFlow()
+            .getWorkInfosForUniqueWorkFlow(workName)
             .first()
             .firstOrNull()
             ?.state
