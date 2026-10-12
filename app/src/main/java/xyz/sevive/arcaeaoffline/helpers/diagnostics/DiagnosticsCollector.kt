@@ -43,8 +43,8 @@ import kotlin.time.Clock
 /**
  * Collects diagnostic information into a zip file for issue reports.
  *
- * Contents are whitelisted on purpose: no user content (task details, image URIs)
- * and no free-form settings (e.g. the custom resources API base URL) may end up in the bundle.
+ * The structured sections should try their best to avoid user content (e.g. image URIs).
+ * Logs are exceptions.
  */
 class DiagnosticsCollector(
     private val context: Context,
@@ -356,7 +356,22 @@ class DiagnosticsCollector(
             val process =
                 Runtime
                     .getRuntime()
-                    .exec(arrayOf("logcat", "-d", "-v", "time", "-b", "main", "-b", "system", "-b", "crash"))
+                    .exec(
+                        arrayOf(
+                            "logcat",
+                            "-d",
+                            "-v",
+                            "time",
+                            "-t",
+                            LOGCAT_MAX_LINES.toString(),
+                            "-b",
+                            "main",
+                            "-b",
+                            "system",
+                            "-b",
+                            "crash",
+                        ),
+                    )
 
             val output = process.inputStream.use { it.readBytes() }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -379,6 +394,8 @@ class DiagnosticsCollector(
 
     companion object {
         const val BUNDLE_VERSION = 1
+
+        private const val LOGCAT_MAX_LINES = 20_000
 
         private const val LOGCAT_MAX_CHARS = 2 * 1024 * 1024
     }
