@@ -81,17 +81,18 @@ class DiagnosticsCollector(
      */
     suspend fun exportTo(outputDir: PlatformFile): PlatformFile =
         withContext(Dispatchers.IO) {
+            val zipFile = collect()
             try {
-                val zipFile = collect()
                 val target = PlatformFile(outputDir, zipFile.name)
                 PlatformFile(zipFile).copyTo(target)
-                zipFile.delete()
 
                 logger.i { "Diagnostics bundle exported: ${target.name}" }
                 target
             } catch (e: Exception) {
                 logger.e(e) { "Diagnostics export failed" }
                 throw e
+            } finally {
+                zipFile.delete()
             }
         }
 
