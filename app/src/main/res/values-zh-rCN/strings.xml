@@ -5,7 +5,7 @@
     <!-- General icon descriptions -->
     <string name="icon_desc_navigate_back">返回</string>
     <string name="icon_desc_edit">编辑此项</string>
-    <string name="icon_desc_succeeded">已成功</string>
+    <string name="icon_desc_succeeded">成功</string>
     <string name="icon_desc_failed">失败</string>
     <string name="icon_desc_delete">删除此项</string>
 
