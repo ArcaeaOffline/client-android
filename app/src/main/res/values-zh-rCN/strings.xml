@@ -326,6 +326,7 @@
     <string name="settings_license_title">许可证</string>
     <string name="settings_aboutlibraries_title">开源组件</string>
     <string name="diagnostics_export">导出诊断信息</string>
+    <string name="diagnostics_export_content">应用状态、logcat 快照、设备信息等\n日志可能包含敏感信息，请在公开分享前检查</string>
     <string name="diagnostics_generated">诊断信息已导出：%1$s</string>
 
     <string name="title_activity_ocr_from_share">对分享图片 OCR</string>

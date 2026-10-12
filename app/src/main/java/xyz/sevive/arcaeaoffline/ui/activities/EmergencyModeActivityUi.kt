@@ -263,6 +263,7 @@ fun EmergencyModeActivityUi(
             OperationTextItem(
                 title = stringResource(R.string.diagnostics_export),
                 state = diagnosticsExportState,
+                content = stringResource(R.string.diagnostics_export_content),
                 leadingIcon = Icons.Default.BugReport,
                 enabled = outputDirectoryValid == true,
                 onClick = { viewModel.exportDiagnostics() },

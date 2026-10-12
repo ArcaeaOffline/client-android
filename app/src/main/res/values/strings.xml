@@ -359,6 +359,7 @@ CC BY-SA 3.0
     <string name="settings_license_title">License</string>
     <string name="settings_aboutlibraries_title">Libraries</string>
     <string name="diagnostics_export">Export Diagnostics</string>
+    <string name="diagnostics_export_content">App status, logcat snapshot, device info, etc.\nLogs may contain sensitive information. Review before sharing publicly.</string>
     <string name="diagnostics_generated">Diagnostics exported: %1$s</string>
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
