@@ -232,10 +232,7 @@ class EmergencyModeActivityViewModel(
         work: suspend () -> String,
     ) {
         // atomic check & set progress state
-        val previous =
-            state.getAndUpdate {
-                it as? OperationState.InProgress ?: OperationState.InProgress
-            }
+        val previous = state.getAndUpdate { OperationState.InProgress }
         if (previous is OperationState.InProgress) return
 
         viewModelScope.launch {
