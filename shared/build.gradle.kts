@@ -3,11 +3,18 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ksp)
 
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.compose)
 
     alias(libs.plugins.kotlin.plugin.serialization)
+
+    alias(androidx.plugins.room3)
+}
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose {
@@ -65,11 +72,15 @@ kotlin {
             implementation(libs.compose.ui.tooling)
 
             implementation(libs.kotlinx.serialization)
+            implementation(libs.kotlinx.datetime)
 
             implementation(libs.bignum)
             implementation(libs.kermit)
 
             implementation(libs.ktor.client.core)
+
+            implementation(androidx.room3.runtime)
+            implementation(androidx.sqlite.bundled)
         }
 
         androidMain.dependencies {
@@ -93,4 +104,9 @@ kotlin {
             implementation(compose.desktop.currentOs)
         }
     }
+}
+
+dependencies {
+    add("kspAndroid", androidx.room3.compiler)
+    add("kspJvm", androidx.room3.compiler)
 }
