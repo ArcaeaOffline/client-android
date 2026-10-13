@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
-import androidx.room.RoomRawQuery
+import androidx.room3.RoomRawQuery
 import xyz.sevive.arcaeaoffline.core.database.daos.MetaDao
 
 interface MetaRepository {

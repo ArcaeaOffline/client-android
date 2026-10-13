@@ -6,8 +6,8 @@ import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.os.Build
-import androidx.room.execSQL
-import androidx.room.useWriterConnection
+import androidx.room3.executeSQL
+import androidx.room3.useWriterConnection
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
 import io.sentry.SentryOptions
@@ -95,7 +95,7 @@ class ArcaeaOfflineApplication : Application() {
 
             databases.forEach { db ->
                 db.useWriterConnection {
-                    it.execSQL("VACUUM")
+                    it.executeSQL("VACUUM")
                 }
             }
             logger.i { "${databases.size} databases vacuumed" }

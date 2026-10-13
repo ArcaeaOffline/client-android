@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.database.repositories
 
 import android.net.Uri
-import androidx.room.Transactor
-import androidx.room.useWriterConnection
+import androidx.room3.Transactor
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty

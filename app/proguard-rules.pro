@@ -25,7 +25,7 @@
 # onnx runtime
 # @see https://onnxruntime.ai/docs/build/android.html#note-proguard-rules-for-r8-minimization-android-app-builds-to-work
 -keep class ai.onnxruntime.** { *; }
--keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keep class * extends androidx.room3.RoomDatabase { <init>(); }
 
 -dontwarn javax.annotation.processing.*
 

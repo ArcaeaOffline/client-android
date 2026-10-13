@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import co.touchlab.kermit.Logger

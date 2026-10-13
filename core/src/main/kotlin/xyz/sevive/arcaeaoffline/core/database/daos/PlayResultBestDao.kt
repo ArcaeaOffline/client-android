@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.daos
 
-import androidx.room.Dao
-import androidx.room.Query
+import androidx.room3.Dao
+import androidx.room3.Query
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.MinimumPlayResultPotentialFields
 

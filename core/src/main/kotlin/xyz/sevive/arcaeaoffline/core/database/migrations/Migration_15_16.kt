@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.migrations
 
-import androidx.room.migration.Migration
+import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -14,7 +14,7 @@ import androidx.sqlite.execSQL
  * the property may already hold a mode the user chose.
  */
 object Migration_15_16 : Migration(15, 16) {
-    override fun migrate(connection: SQLiteConnection) {
+    override suspend fun migrate(connection: SQLiteConnection) {
         connection.execSQL(
             "INSERT OR IGNORE INTO `properties` (`key`, `value`) VALUES ('scoring_mode', '20260827')",
         )

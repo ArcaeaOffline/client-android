@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 @Entity(tableName = "difficulties", primaryKeys = ["song_id", "rating_class"])

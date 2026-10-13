@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database
 
-import androidx.room.RoomDatabase
+import androidx.room3.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
@@ -10,7 +10,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
  * interpreted with is written down rather than re-derived from the fallback on every read.
  */
 internal object ScoringModeCreateCallback : RoomDatabase.Callback() {
-    override fun onCreate(connection: SQLiteConnection) {
+    override suspend fun onCreate(connection: SQLiteConnection) {
         connection
             .prepare("INSERT OR IGNORE INTO `properties` (`key`, `value`) VALUES (?, ?)")
             .use { statement ->

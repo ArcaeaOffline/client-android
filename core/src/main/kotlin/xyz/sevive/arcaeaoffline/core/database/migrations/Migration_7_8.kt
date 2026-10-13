@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.migrations
 
-import androidx.room.migration.Migration
+import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -54,7 +54,7 @@ object Migration_7_8 : Migration(7, 8) {
         applyValueMap(connection, modifierMap, "play_results", "modifier")
     }
 
-    override fun migrate(connection: SQLiteConnection) {
+    override suspend fun migrate(connection: SQLiteConnection) {
         // replace original string literal to numbers
         replaceRatingClass(connection)
         replaceClearType(connection)

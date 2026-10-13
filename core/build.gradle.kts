@@ -6,10 +6,10 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.koin.compiler)
 
-    alias(androidx.plugins.room)
+    alias(androidx.plugins.room3)
 }
 
-room {
+room3 {
     schemaDirectory("$projectDir/schemas")
 }
 
@@ -69,9 +69,8 @@ dependencies {
 
     implementation(androidx.core.ktx)
 
-    api(androidx.room.runtime)
-    ksp(androidx.room.compiler)
-    implementation(androidx.room.ktx)
+    api(androidx.room3.runtime)
+    ksp(androidx.room3.compiler)
     implementation(androidx.sqlite.bundled)
 
     // 3rd party
@@ -84,8 +83,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
-    testImplementation(androidx.room.testing)
+    testImplementation(androidx.room3.testing)
     testImplementation(androidx.sqlite.bundled.jvm)
     androidTestImplementation(androidx.test.runner)
-    androidTestImplementation(androidx.room.testing)
+    androidTestImplementation(androidx.room3.testing)
 }

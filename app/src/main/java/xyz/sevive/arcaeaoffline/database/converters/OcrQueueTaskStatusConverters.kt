@@ -1,12 +1,12 @@
 package xyz.sevive.arcaeaoffline.database.converters
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 
 object OcrQueueTaskStatusConverters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromDatabaseValue(value: Int?): OcrQueueTaskStatus? = value?.let { OcrQueueTaskStatus.entries[it] }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toDatabaseValue(value: OcrQueueTaskStatus?): Int? = value?.value
 }

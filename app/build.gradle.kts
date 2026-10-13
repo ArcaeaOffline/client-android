@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.aboutlibraries.android)
     alias(libs.plugins.compose.compiler)
-    alias(androidx.plugins.room)
+    alias(androidx.plugins.room3)
 }
 
 secrets {
@@ -33,7 +33,7 @@ val localProperties =
         load(FileInputStream(File(rootDir, "local.properties")))
     }
 
-room {
+room3 {
     schemaDirectory("$projectDir/schemas")
 }
 
@@ -154,9 +154,8 @@ dependencies {
     // android & androidx
     coreLibraryDesugaring(libs.desugarJdkLibs)
 
-    api(androidx.room.runtime)
-    ksp(androidx.room.compiler)
-    implementation(androidx.room.ktx)
+    api(androidx.room3.runtime)
+    ksp(androidx.room3.compiler)
     implementation(androidx.sqlite.bundled)
 
     implementation(androidx.datastore.core)

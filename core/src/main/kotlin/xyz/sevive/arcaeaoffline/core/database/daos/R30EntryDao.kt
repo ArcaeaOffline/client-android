@@ -1,9 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.database.daos
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room3.Dao
+import androidx.room3.Delete
+import androidx.room3.Insert
+import androidx.room3.Query
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
@@ -34,16 +34,16 @@ FROM
     fun findAllWithChartInfo(): Flow<Map<R30Entry, ChartInfo>>
 
     @Insert
-    fun insert(item: R30Entry)
+    suspend fun insert(item: R30Entry)
 
     @Insert
-    fun insertBatch(vararg items: R30Entry)
+    suspend fun insertBatch(vararg items: R30Entry)
 
     @Delete
-    fun delete(item: R30Entry)
+    suspend fun delete(item: R30Entry)
 
     @Delete
-    fun deleteBatch(vararg items: R30Entry)
+    suspend fun deleteBatch(vararg items: R30Entry)
 
     /**
      * ```sql
@@ -52,5 +52,5 @@ FROM
      * CAUTION! ONLY CALL THIS WHEN YOU KNOW WHAT YOU ARE DOING!
      */
     @Query("DELETE FROM r30_entries")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

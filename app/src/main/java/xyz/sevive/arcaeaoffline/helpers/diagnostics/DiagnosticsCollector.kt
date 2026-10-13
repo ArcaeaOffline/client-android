@@ -2,8 +2,8 @@ package xyz.sevive.arcaeaoffline.helpers.diagnostics
 
 import android.content.Context
 import android.os.Build
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
+import androidx.room3.RoomDatabase
+import androidx.room3.useWriterConnection
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
 import com.akuleshov7.ktoml.Toml

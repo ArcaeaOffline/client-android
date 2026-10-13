@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.migrations
 
-import androidx.room.migration.Migration
+import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import xyz.sevive.arcaeaoffline.core.database.extensions.bindIntOrNull
@@ -39,7 +39,7 @@ private data class PlayResultIntermediate(
 }
 
 object Migration_6_7 : Migration(6, 7) {
-    override fun migrate(connection: SQLiteConnection) {
+    override suspend fun migrate(connection: SQLiteConnection) {
         val playResults = mutableListOf<PlayResultIntermediate>()
 
         connection

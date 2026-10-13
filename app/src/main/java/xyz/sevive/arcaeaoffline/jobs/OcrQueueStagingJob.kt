@@ -9,8 +9,8 @@ import android.os.Build
 import android.provider.DocumentsContract
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo

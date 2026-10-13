@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.core.database.migrations
 
-import androidx.room.DeleteColumn
-import androidx.room.RenameColumn
-import androidx.room.migration.AutoMigrationSpec
+import androidx.room3.DeleteColumn
+import androidx.room3.RenameColumn
+import androidx.room3.migration.AutoMigrationSpec
 
 @DeleteColumn("songs_localized", "search_title")
 @DeleteColumn("songs_localized", "search_artist")

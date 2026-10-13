@@ -1,8 +1,8 @@
 package xyz.sevive.arcaeaoffline.core.database.daos
 
-import androidx.room.Dao
-import androidx.room.RawQuery
-import androidx.room.RoomRawQuery
+import androidx.room3.Dao
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
 
 @Dao
 interface MetaDao {

@@ -1,10 +1,10 @@
 package xyz.sevive.arcaeaoffline.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.InstantConverters
@@ -16,7 +16,7 @@ import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
     version = 1,
     exportSchema = true,
 )
-@TypeConverters(
+@ColumnTypeConverters(
     InstantConverters::class,
 )
 abstract class AppDatabase : RoomDatabase() {
