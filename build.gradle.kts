@@ -16,7 +16,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.jetbrains.compose) apply false
 
-    alias(androidx.plugins.room) apply false
+    alias(androidx.plugins.room3) apply false
 
     alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.aboutlibraries.android) apply false

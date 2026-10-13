@@ -1,8 +1,7 @@
 package xyz.sevive.arcaeaoffline.database.repositories
 
 import android.net.Uri
-import androidx.room.Transactor
-import androidx.room.useWriterConnection
+import androidx.room3.withWriteTransaction
 import kotlinx.coroutines.flow.Flow
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
@@ -121,14 +120,10 @@ class OcrQueueTaskRepositoryImpl(
     override suspend fun save(item: OcrQueueTask) {
         if (item.playResult == null) return
 
-        ocrQueueDatabase.useWriterConnection { transactor ->
-            arcaeaOfflineDatabase.useWriterConnection { aoTransactor ->
-                transactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                    aoTransactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                        playResultRepository.upsert(item.playResult)
-                        delete(item)
-                    }
-                }
+        ocrQueueDatabase.withWriteTransaction {
+            arcaeaOfflineDatabase.withWriteTransaction {
+                playResultRepository.upsert(item.playResult)
+                delete(item)
             }
         }
     }
@@ -138,22 +133,18 @@ class OcrQueueTaskRepositoryImpl(
     }
 
     override suspend fun saveBatch(items: List<OcrQueueTask>) {
-        ocrQueueDatabase.useWriterConnection { transactor ->
-            arcaeaOfflineDatabase.useWriterConnection { aoTransactor ->
-                transactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                    aoTransactor.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                        val itemsFiltered =
-                            items
-                                .mapNotNull { task ->
-                                    task.playResult?.let { task to it }
-                                }.toMap()
-                        val playResultsToSave = itemsFiltered.values.toTypedArray()
-                        val tasksToDelete = itemsFiltered.keys.toList()
+        ocrQueueDatabase.withWriteTransaction {
+            arcaeaOfflineDatabase.withWriteTransaction {
+                val itemsFiltered =
+                    items
+                        .mapNotNull { task ->
+                            task.playResult?.let { task to it }
+                        }.toMap()
+                val playResultsToSave = itemsFiltered.values.toTypedArray()
+                val tasksToDelete = itemsFiltered.keys.toList()
 
-                        playResultRepository.upsertBatch(*playResultsToSave)
-                        deleteBatch(tasksToDelete)
-                    }
-                }
+                playResultRepository.upsertBatch(*playResultsToSave)
+                deleteBatch(tasksToDelete)
             }
         }
     }

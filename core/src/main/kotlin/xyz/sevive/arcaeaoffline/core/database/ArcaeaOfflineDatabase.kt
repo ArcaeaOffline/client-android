@@ -1,11 +1,11 @@
 package xyz.sevive.arcaeaoffline.core.database
 
 import android.content.Context
-import androidx.room.AutoMigration
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.AutoMigration
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Database
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaLanguageConverters
@@ -70,7 +70,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
     version = 16,
     exportSchema = true,
 )
-@TypeConverters(
+@ColumnTypeConverters(
     InstantConverters::class,
     UuidByteArrayConverters::class,
     ArcaeaRatingClassConverters::class,

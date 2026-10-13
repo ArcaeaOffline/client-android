@@ -1,6 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
-import androidx.room.ColumnInfo
+import androidx.room3.ColumnInfo
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import kotlin.uuid.Uuid

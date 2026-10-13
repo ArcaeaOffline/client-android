@@ -2,12 +2,12 @@ package xyz.sevive.arcaeaoffline.database.converters
 
 import android.net.Uri
 import androidx.core.net.toUri
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 
 object UriConverters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromDatabaseValue(value: String?): Uri? = value?.toUri()
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toDatabaseValue(value: Uri?): String? = value?.toString()
 }

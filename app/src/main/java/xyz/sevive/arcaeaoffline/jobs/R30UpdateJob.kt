@@ -1,8 +1,7 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import co.touchlab.kermit.Logger
@@ -10,6 +9,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -68,20 +68,16 @@ class R30UpdateJob(
                     r30QueueUpdater.rebuild(
                         plays = playResults,
                         onPlay = {
-                            ensureActive()
+                            currentCoroutineContext().ensureActive()
                             progressFlow.update { progress -> progress.increment() }
                         },
                     )
 
-                // Room3 possibly has a convenient extension function for this
-                // see https://issuetracker.google.com/issues/416306996
-                db.useWriterConnection { transactor ->
-                    transactor.immediateTransaction {
-                        r30EntryRepo.deleteAll()
-                        r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
+                db.withWriteTransaction {
+                    r30EntryRepo.deleteAll()
+                    r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-                        propertyRepo.setR30LastUpdatedAt(Clock.System.now())
-                    }
+                    propertyRepo.setR30LastUpdatedAt(Clock.System.now())
                 }
 
                 progressPublishJob.cancelAndJoin()

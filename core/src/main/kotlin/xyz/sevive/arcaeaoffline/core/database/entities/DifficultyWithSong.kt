@@ -1,7 +1,7 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
+import androidx.room3.ColumnInfo
+import androidx.room3.Embedded
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 
 // Pure songlist-view display model: rating metadata from difficulties joined

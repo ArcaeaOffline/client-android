@@ -1,12 +1,12 @@
 package xyz.sevive.arcaeaoffline.core.database.converters
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import kotlin.time.Instant
 
 object InstantConverters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value: Long?): Instant? = value?.let { Instant.fromEpochMilliseconds(it) }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun dateToTimestamp(date: Instant?): Long? = date?.toEpochMilliseconds()
 }

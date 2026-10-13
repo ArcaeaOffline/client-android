@@ -4,8 +4,8 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.execSQL
-import androidx.room.useWriterConnection
+import androidx.room3.executeSQL
+import androidx.room3.useWriterConnection
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
@@ -360,7 +360,7 @@ class EmergencyModeActivityViewModel(
             // produces a complete backup.
             val database = ArcaeaOfflineDatabase.getDatabase(appContext)
             database.useWriterConnection { connection ->
-                connection.execSQL("PRAGMA wal_checkpoint(TRUNCATE)")
+                connection.executeSQL("PRAGMA wal_checkpoint(TRUNCATE)")
             }
 
             val originalDatabaseFile = appContext.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME)

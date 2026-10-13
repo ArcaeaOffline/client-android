@@ -9,8 +9,7 @@ import android.os.Build
 import android.provider.DocumentsContract
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
@@ -87,15 +86,13 @@ class OcrQueueStagingJob(
     private suspend fun cleanup() {
         logger.i { "Cleaning up" }
 
-        db.useWriterConnection { transactor ->
-            transactor.immediateTransaction {
-                val urisToInsert = itemRepo.findShouldInsertUris()
-                if (urisToInsert.isNotEmpty()) {
-                    taskRepo.insertBatch(urisToInsert)
-                }
-                itemRepo.deleteChecked()
-                batchRepo.deleteByIds(batchRepo.getOrphans().map { it.id })
+        db.withWriteTransaction {
+            val urisToInsert = itemRepo.findShouldInsertUris()
+            if (urisToInsert.isNotEmpty()) {
+                taskRepo.insertBatch(urisToInsert)
             }
+            itemRepo.deleteChecked()
+            batchRepo.deleteByIds(batchRepo.getOrphans().map { it.id })
         }
     }
 
@@ -210,12 +207,10 @@ class OcrQueueStagingJob(
                 .forEach {
                     val fileUris = getFolderFileUris(it.uri)
 
-                    db.useWriterConnection { transactor ->
-                        transactor.immediateTransaction {
-                            // A folder item should be removed when it's processed
-                            itemRepo.deleteById(it.id)
-                            itemRepo.insertBatch(fileUris.associateWith { OcrQueueStagingUriType.FILE }, it.batchId)
-                        }
+                    db.withWriteTransaction {
+                        // A folder item should be removed when it's processed
+                        itemRepo.deleteById(it.id)
+                        itemRepo.insertBatch(fileUris.associateWith { OcrQueueStagingUriType.FILE }, it.batchId)
                     }
                 }
         }
