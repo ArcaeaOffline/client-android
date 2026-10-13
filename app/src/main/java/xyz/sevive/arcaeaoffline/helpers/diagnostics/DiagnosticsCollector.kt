@@ -18,6 +18,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.getArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
@@ -231,7 +232,7 @@ class DiagnosticsCollector(
                 databaseInfo(
                     dbFile = File(context.getDatabasePath(ArcaeaOfflineDatabase.DATABASE_FILENAME).path),
                 ) {
-                    ArcaeaOfflineDatabase.getDatabase(context)
+                    getArcaeaOfflineDatabase(context)
                 },
             appData =
                 databaseInfo(

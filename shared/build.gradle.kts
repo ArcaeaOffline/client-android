@@ -34,6 +34,11 @@ tasks.withType<Test>().configureEach {
 }
 
 kotlin {
+    compilerOptions {
+        // Room3 compiler opt out
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     jvm()
 
     android {
@@ -90,6 +95,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.jSystemThemeDetector)
             implementation(libs.ktor.client.cio)
+            implementation(libs.filekit.core)
         }
 
         commonTest.dependencies {

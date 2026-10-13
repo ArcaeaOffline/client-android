@@ -40,6 +40,7 @@ import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.getArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.daos.OcrQueueTaskDao
@@ -358,7 +359,7 @@ class EmergencyModeActivityViewModel(
         ) {
             // Merge WAL into the main database file, so that copying it alone
             // produces a complete backup.
-            val database = ArcaeaOfflineDatabase.getDatabase(appContext)
+            val database = getArcaeaOfflineDatabase(appContext)
             database.useWriterConnection { connection ->
                 connection.executeSQL("PRAGMA wal_checkpoint(TRUNCATE)")
             }
