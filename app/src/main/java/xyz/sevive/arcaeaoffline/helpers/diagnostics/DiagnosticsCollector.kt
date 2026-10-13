@@ -60,16 +60,21 @@ class DiagnosticsCollector(
             val fileName = "diagnostics-${timestamp()}.zip"
             val zipFile = File(context.cacheDir, fileName)
 
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zip ->
-                putTomlSection(zip, "manifest.toml") { Toml.encodeToString(manifestSection()) }
-                putTomlSection(zip, "device.toml") { Toml.encodeToString(deviceSection()) }
-                putTomlSection(zip, "preferences.toml") { Toml.encodeToString(preferencesSection()) }
-                putTomlSection(zip, "ocr-state.toml") { Toml.encodeToString(ocrStateSection()) }
-                putTomlSection(zip, "databases.toml") { Toml.encodeToString(databasesSection()) }
-                putTomlSection(zip, "storage.toml") { Toml.encodeToString(storageSection()) }
+            try {
+                ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zip ->
+                    putTomlSection(zip, "manifest.toml") { Toml.encodeToString(manifestSection()) }
+                    putTomlSection(zip, "device.toml") { Toml.encodeToString(deviceSection()) }
+                    putTomlSection(zip, "preferences.toml") { Toml.encodeToString(preferencesSection()) }
+                    putTomlSection(zip, "ocr-state.toml") { Toml.encodeToString(ocrStateSection()) }
+                    putTomlSection(zip, "databases.toml") { Toml.encodeToString(databasesSection()) }
+                    putTomlSection(zip, "storage.toml") { Toml.encodeToString(storageSection()) }
 
-                putAppLogFiles(zip)
-                putText(zip, "logs/logcat.txt", logcatSnapshot())
+                    putAppLogFiles(zip)
+                    putText(zip, "logs/logcat.txt", logcatSnapshot())
+                }
+            } catch (e: Throwable) {
+                zipFile.delete()
+                throw e
             }
 
             zipFile
