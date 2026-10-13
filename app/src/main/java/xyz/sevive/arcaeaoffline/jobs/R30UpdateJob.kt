@@ -1,8 +1,7 @@
 package xyz.sevive.arcaeaoffline.jobs
 
 import android.content.Context
-import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import co.touchlab.kermit.Logger
@@ -73,15 +72,11 @@ class R30UpdateJob(
                         },
                     )
 
-                // Room3 possibly has a convenient extension function for this
-                // see https://issuetracker.google.com/issues/416306996
-                db.useWriterConnection { transactor ->
-                    transactor.immediateTransaction {
-                        r30EntryRepo.deleteAll()
-                        r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
+                db.withWriteTransaction {
+                    r30EntryRepo.deleteAll()
+                    r30EntryRepo.insertBatch(*r30EntryCombinedList.map { it.entry }.toTypedArray())
 
-                        propertyRepo.setR30LastUpdatedAt(Clock.System.now())
-                    }
+                    propertyRepo.setR30LastUpdatedAt(Clock.System.now())
                 }
 
                 progressPublishJob.cancelAndJoin()

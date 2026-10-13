@@ -3,8 +3,7 @@ package xyz.sevive.arcaeaoffline.core.database.r30
 import android.content.Context
 import androidx.room3.Room
 import androidx.room3.executeSQL
-import androidx.room3.immediateTransaction
-import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -69,10 +68,8 @@ class R30QueueUpdaterTest {
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
 
-        db.useWriterConnection { connection ->
-            connection.immediateTransaction {
-                statements.forEach { executeSQL(it) }
-            }
+        db.withWriteTransaction {
+            statements.forEach { executeSQL(it) }
         }
     }
 

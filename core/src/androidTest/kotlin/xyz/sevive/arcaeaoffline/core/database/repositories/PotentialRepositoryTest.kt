@@ -1,10 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import android.content.Context
-import androidx.room.Room
-import androidx.room.execSQL
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.Room
+import androidx.room3.executeSQL
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,10 +47,8 @@ class PotentialRepositoryTest {
     }
 
     private suspend fun trimPlaysTo(count: Int) =
-        db.useWriterConnection { connection ->
-            connection.immediateTransaction {
-                execSQL("DELETE FROM play_results WHERE id NOT IN (SELECT id FROM play_results ORDER BY id LIMIT $count)")
-            }
+        db.withWriteTransaction {
+            executeSQL("DELETE FROM play_results WHERE id NOT IN (SELECT id FROM play_results ORDER BY id LIMIT $count)")
         }
 
     @After
@@ -69,10 +66,8 @@ class PotentialRepositoryTest {
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
 
-        db.useWriterConnection { connection ->
-            connection.immediateTransaction {
-                statements.forEach { execSQL(it) }
-            }
+        db.withWriteTransaction {
+            statements.forEach { executeSQL(it) }
         }
     }
 
