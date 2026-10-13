@@ -9,6 +9,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -67,7 +68,7 @@ class R30UpdateJob(
                     r30QueueUpdater.rebuild(
                         plays = playResults,
                         onPlay = {
-                            ensureActive()
+                            currentCoroutineContext().ensureActive()
                             progressFlow.update { progress -> progress.increment() }
                         },
                     )
