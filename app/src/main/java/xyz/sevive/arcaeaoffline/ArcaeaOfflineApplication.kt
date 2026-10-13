@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
 import co.touchlab.kermit.Logger
+import co.touchlab.kermit.platformLogWriter
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import kotlinx.coroutines.CoroutineName
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.io.files.Path
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -34,6 +36,8 @@ import xyz.sevive.arcaeaoffline.datastore.AppPreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.UnstableFlavorPreferencesRepository
 import xyz.sevive.arcaeaoffline.di.appModule
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
+import xyz.sevive.arcaeaoffline.logging.RollingFileLogWriter
+import xyz.sevive.arcaeaoffline.logging.RollingFileLogWriterConfig
 
 class ArcaeaOfflineApplication : Application() {
     companion object {
@@ -65,6 +69,22 @@ class ArcaeaOfflineApplication : Application() {
         shortcutManager.addDynamicShortcuts(listOf(shortcut))
     }
 
+    private fun initFileLogging() {
+        val logsDir = filesDir.resolve("logs").apply { mkdirs() }
+
+        Logger.setLogWriters(
+            platformLogWriter(),
+            RollingFileLogWriter(
+                RollingFileLogWriterConfig(
+                    logFileName = "app",
+                    logFilePath = Path(logsDir.path),
+                    rollOnSize = 512L * 1024L, // 512KB
+                    maxLogFiles = 10,
+                ),
+            ),
+        )
+    }
+
     private suspend fun vacuumDatabases() {
         try {
             val databases =
@@ -86,6 +106,8 @@ class ArcaeaOfflineApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        initFileLogging()
 
         startKoin {
             androidLogger()
