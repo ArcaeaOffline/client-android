@@ -93,7 +93,15 @@ kotlin {
         }
 
         jvmMain.dependencies {
-            implementation(libs.jSystemThemeDetector)
+            // jSystemThemeDetector pulls in jfa, whose POM pins jna with a non-existent
+            // "jpms" classfier, breaking jvm configuration with "jna-<version>-jpms.jar"
+            // not found.
+            //
+            // filekit-core depends on jna-platform which introduces plain jna, so excluding
+            // this does not affect compilation.
+            implementation("com.github.Dansoftowner:jSystemThemeDetector:${libs.versions.jSystemThemeDetector.get()}") {
+                exclude(group = "net.java.dev.jna", module = "jna")
+            }
             implementation(libs.ktor.client.cio)
             implementation(libs.filekit.core)
         }
@@ -108,6 +116,7 @@ kotlin {
 
         jvmTest.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(androidx.room3.testing)
         }
     }
 }

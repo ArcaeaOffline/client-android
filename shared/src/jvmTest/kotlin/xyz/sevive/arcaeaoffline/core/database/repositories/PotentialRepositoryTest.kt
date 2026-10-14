@@ -1,38 +1,32 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
-import android.content.Context
 import androidx.room3.Room
 import androidx.room3.executeSQL
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * B50 calculation over the play results of a real save.
  */
-@RunWith(AndroidJUnit4::class)
 class PotentialRepositoryTest {
     private lateinit var db: ArcaeaOfflineDatabase
     private lateinit var potentialRepository: PotentialRepository
 
-    @Before
+    @BeforeTest
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java).setDriver(BundledSQLiteDriver()).build()
+        db = Room.inMemoryDatabaseBuilder<ArcaeaOfflineDatabase>().setDriver(BundledSQLiteDriver()).build()
 
         potentialRepository =
             PotentialRepositoryImpl(
@@ -51,7 +45,7 @@ class PotentialRepositoryTest {
             executeSQL("DELETE FROM play_results WHERE id NOT IN (SELECT id FROM play_results ORDER BY id LIMIT $count)")
         }
 
-    @After
+    @AfterTest
     fun tearDown() {
         db.close()
     }
