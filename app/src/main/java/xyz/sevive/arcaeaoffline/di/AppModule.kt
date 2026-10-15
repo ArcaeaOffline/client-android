@@ -51,7 +51,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePrefere
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.settings.about.SettingsAboutViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
 
@@ -135,7 +134,6 @@ val appModule =
 
         single<DiagnosticsCollector> { create(::createDiagnosticsCollector) }
 
-        viewModel<SettingsAboutViewModel>()
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()
         viewModel<DatabaseNavEntryViewModel>()

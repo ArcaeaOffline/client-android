@@ -348,6 +348,7 @@ CC BY-SA 3.0
     <!-- SettingsScreen -->
     <string name="settings_app_pref_enable_sentry">Send crash reports</string>
     <string name="settings_general_title">General</string>
+    <string name="settings_debug_title">Debug</string>
     <string name="settings_general_pref_resources_api_base_url">Resources API base URL</string>
     <string name="settings_general_pref_resources_api_base_url_dialog_title">Edit resources API base URL</string>
     <string name="settings_general_pref_resources_api_base_url_invalid">Must start with http:// or https://</string>
