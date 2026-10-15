@@ -2,32 +2,29 @@ package xyz.sevive.arcaeaoffline.core
 
 import androidx.room3.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.driver.AndroidSQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_15_16
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
 
-@RunWith(AndroidJUnit4::class)
 class DatabaseMigrationsTest {
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val testDatabaseFile = instrumentation.targetContext.getDatabasePath("migration-test")
+    private val testDatabaseFile = Files.createTempDirectory("migration-test").resolve("migration-test.db")
 
     @get:Rule
     val helper: MigrationTestHelper =
         MigrationTestHelper(
-            instrumentation = instrumentation,
-            file = testDatabaseFile,
-            driver = AndroidSQLiteDriver(),
+            schemaDirectoryPath = Path.of("schemas"),
+            databasePath = testDatabaseFile,
+            driver = BundledSQLiteDriver(),
             databaseClass = ArcaeaOfflineDatabase::class,
         )
 
@@ -168,11 +165,13 @@ class DatabaseMigrationsTest {
         }
 
     /**
-     * All tests share one database file; drop it so each starts from a clean state
-     * even across instrumented runs.
+     * All tests share one database file; drop it so each starts from a clean state.
      */
     private fun resetTestDatabase() {
-        testDatabaseFile.delete()
+        Files.deleteIfExists(testDatabaseFile)
+        // The bundled driver runs in WAL mode, so stale sidecar files must not leak into the next test.
+        Files.deleteIfExists(testDatabaseFile.resolveSibling("migration-test.db-wal"))
+        Files.deleteIfExists(testDatabaseFile.resolveSibling("migration-test.db-shm"))
     }
 
     private fun execSqlScript(

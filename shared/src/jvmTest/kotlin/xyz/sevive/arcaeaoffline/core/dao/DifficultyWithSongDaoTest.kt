@@ -1,17 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.dao
 
-import android.content.Context
 import androidx.room3.Room
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.daos.DifficultyWithSongDao
@@ -19,24 +11,27 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
-@RunWith(AndroidJUnit4::class)
 class DifficultyWithSongDaoTest {
     private lateinit var db: ArcaeaOfflineDatabase
     private lateinit var dao: DifficultyWithSongDao
 
-    @Before
+    @BeforeTest
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         db =
             Room
-                .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
-                .allowMainThreadQueries()
+                .inMemoryDatabaseBuilder<ArcaeaOfflineDatabase>()
+                .setDriver(BundledSQLiteDriver())
                 .build()
         dao = db.difficultyWithSongDao()
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         db.close()
     }

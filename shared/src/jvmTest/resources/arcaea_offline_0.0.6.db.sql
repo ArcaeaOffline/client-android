@@ -1,11 +1,6 @@
 BEGIN TRANSACTION;
 
 INSERT INTO
-  "android_metadata" ("locale")
-VALUES
-  ('zh_CN_#Hans');
-
-INSERT INTO
   "charts_info" ("song_id", "rating_class", "constant", "notes")
 VALUES
   ('inkarusi', 'PAST', 20, 276),

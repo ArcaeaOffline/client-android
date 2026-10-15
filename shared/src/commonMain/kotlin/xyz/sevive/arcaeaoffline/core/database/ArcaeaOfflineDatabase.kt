@@ -1,11 +1,11 @@
 package xyz.sevive.arcaeaoffline.core.database
 
-import android.content.Context
 import androidx.room3.AutoMigration
 import androidx.room3.ColumnTypeConverters
+import androidx.room3.ConstructedBy
 import androidx.room3.Database
-import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.room3.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import xyz.sevive.arcaeaoffline.core.database.converters.ArcaeaLanguageConverters
@@ -43,6 +43,7 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_15_16
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_6_7
 import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
 
+@ConstructedBy(ArcaeaOfflineDatabaseConstructor::class)
 @Database(
     entities = [
         Property::class,
@@ -107,33 +108,20 @@ abstract class ArcaeaOfflineDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_FILENAME = "arcaea_offline.db"
-
-        @Volatile
-        private var instance: ArcaeaOfflineDatabase? = null
-
-        private fun getDatabaseBuilder(context: Context): Builder<ArcaeaOfflineDatabase> {
-            val appContext = context.applicationContext
-            val dbFile = appContext.getDatabasePath(DATABASE_FILENAME)
-            return Room.databaseBuilder<ArcaeaOfflineDatabase>(
-                context = appContext,
-                name = dbFile.absolutePath,
-            )
-        }
-
-        fun getDatabase(context: Context): ArcaeaOfflineDatabase {
-            // If the instance is not null, return it, otherwise create a new database instance.
-            return instance ?: synchronized(this) {
-                getDatabaseBuilder(context)
-                    .setDriver(BundledSQLiteDriver())
-                    .setQueryCoroutineContext(Dispatchers.IO)
-                    .addCallback(ScoringModeCreateCallback)
-                    .addMigrations(
-                        Migration_6_7,
-                        Migration_7_8,
-                        Migration_15_16,
-                    ).build()
-                    .also { instance = it }
-            }
-        }
     }
 }
+
+expect object ArcaeaOfflineDatabaseConstructor : RoomDatabaseConstructor<ArcaeaOfflineDatabase> {
+    override fun initialize(): ArcaeaOfflineDatabase
+}
+
+fun getArcaeaOfflineDatabase(builder: RoomDatabase.Builder<ArcaeaOfflineDatabase>): ArcaeaOfflineDatabase =
+    builder
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .addCallback(ScoringModeCreateCallback)
+        .addMigrations(
+            Migration_6_7,
+            Migration_7_8,
+            Migration_15_16,
+        ).build()

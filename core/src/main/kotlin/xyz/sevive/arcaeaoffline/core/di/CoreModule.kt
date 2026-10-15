@@ -19,6 +19,7 @@ import xyz.sevive.arcaeaoffline.core.database.daos.PropertyDao
 import xyz.sevive.arcaeaoffline.core.database.daos.R30EntryDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongDao
 import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
+import xyz.sevive.arcaeaoffline.core.database.getArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
@@ -50,7 +51,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedReposito
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepositoryImpl
 
-internal fun createArcaeaOfflineDatabase(context: Context) = ArcaeaOfflineDatabase.getDatabase(context)
+internal fun createArcaeaOfflineDatabase(context: Context) = getArcaeaOfflineDatabase(context)
 
 internal fun metaDao(db: ArcaeaOfflineDatabase) = db.metaDao()
 

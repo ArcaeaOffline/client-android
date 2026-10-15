@@ -1,38 +1,32 @@
 package xyz.sevive.arcaeaoffline.core
 
-import android.content.Context
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.ScoringModeCreateCallback
 import xyz.sevive.arcaeaoffline.core.database.entities.Property
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-@RunWith(AndroidJUnit4::class)
 class ScoringModeCreateCallbackTest {
     private lateinit var db: ArcaeaOfflineDatabase
 
-    @Before
+    @BeforeTest
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         db =
             Room
-                .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
+                .inMemoryDatabaseBuilder<ArcaeaOfflineDatabase>()
                 .setDriver(BundledSQLiteDriver())
                 .addCallback(ScoringModeCreateCallback)
                 .build()
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         db.close()
     }

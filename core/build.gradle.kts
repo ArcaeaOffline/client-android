@@ -5,12 +5,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.koin.compiler)
-
-    alias(androidx.plugins.room3)
-}
-
-room3 {
-    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {
@@ -46,10 +40,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    sourceSets {
-        // Adds exported schema location as test app assets.
-        getByName("androidTest").assets.directories += setOf("$projectDir/schemas")
-    }
 }
 
 dependencies {
@@ -69,10 +59,6 @@ dependencies {
 
     implementation(androidx.core.ktx)
 
-    api(androidx.room3.runtime)
-    ksp(androidx.room3.compiler)
-    implementation(androidx.sqlite.bundled)
-
     // 3rd party
     implementation(libs.kermit)
 
@@ -83,8 +69,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(androidx.test.ext.junit)
-    testImplementation(androidx.room3.testing)
-    testImplementation(androidx.sqlite.bundled.jvm)
     androidTestImplementation(androidx.test.runner)
-    androidTestImplementation(androidx.room3.testing)
 }

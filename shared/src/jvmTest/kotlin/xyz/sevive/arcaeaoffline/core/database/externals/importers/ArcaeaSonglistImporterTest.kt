@@ -1,9 +1,9 @@
 package xyz.sevive.arcaeaoffline.core.database.externals.importers
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ArcaeaSonglistImporterTest {
     private val fixture =

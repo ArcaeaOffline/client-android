@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.foundation)
     implementation(libs.compose.components.resources)
+    implementation(libs.filekit.core)
 }
 
 compose.desktop {

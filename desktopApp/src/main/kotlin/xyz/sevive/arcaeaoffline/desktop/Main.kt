@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import io.github.vinceglb.filekit.FileKit
 import org.jetbrains.compose.resources.stringResource
 import xyz.sevive.arcaeaoffline.core.ArcaeaPartnerModifiers
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
@@ -30,7 +31,9 @@ import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaConstantStepperTextF
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
-fun main() =
+fun main() {
+    FileKit.init("ArcaeaOffline")
+
     application {
         Window(onCloseRequest = ::exitApplication, title = "Arcaea Offline (Proof-of-Concept Prototype)") {
             ArcaeaOfflineTheme {
@@ -40,6 +43,7 @@ fun main() =
             }
         }
     }
+}
 
 @Composable
 fun CalculatorScreen() {

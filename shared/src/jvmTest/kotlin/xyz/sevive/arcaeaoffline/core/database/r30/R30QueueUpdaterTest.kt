@@ -1,20 +1,12 @@
 package xyz.sevive.arcaeaoffline.core.database.r30
 
-import android.content.Context
 import androidx.room3.Room
 import androidx.room3.executeSQL
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
@@ -25,19 +17,21 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PotentialRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryCombined
 import xyz.sevive.arcaeaoffline.core.database.repositories.R30EntryRepositoryImpl
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /** The recent queue rebuilt from the play history. */
-@RunWith(AndroidJUnit4::class)
 class R30QueueUpdaterTest {
     private lateinit var db: ArcaeaOfflineDatabase
     private lateinit var potentialRepository: PotentialRepository
 
-    @Before
+    @BeforeTest
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         db =
             Room
-                .inMemoryDatabaseBuilder(context, ArcaeaOfflineDatabase::class.java)
+                .inMemoryDatabaseBuilder<ArcaeaOfflineDatabase>()
                 .setDriver(BundledSQLiteDriver())
                 .build()
 
@@ -53,7 +47,7 @@ class R30QueueUpdaterTest {
         runBlocking { seed() }
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         db.close()
     }

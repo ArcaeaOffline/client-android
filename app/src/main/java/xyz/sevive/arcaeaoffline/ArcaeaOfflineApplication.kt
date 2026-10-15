@@ -27,7 +27,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.mp.KoinPlatform.getKoin
-import xyz.sevive.arcaeaoffline.core.database.ArcaeaOfflineDatabase
+import xyz.sevive.arcaeaoffline.core.database.getArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.maintenance.AppDataMaintenanceManager
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
@@ -89,7 +89,7 @@ class ArcaeaOfflineApplication : Application() {
         try {
             val databases =
                 listOf(
-                    ArcaeaOfflineDatabase.getDatabase(this),
+                    getArcaeaOfflineDatabase(this),
                     OcrQueueDatabase.getDatabase(this),
                 )
 
