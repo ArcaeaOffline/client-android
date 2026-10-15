@@ -150,12 +150,6 @@ internal fun SettingsContent(
         }
 
         SettingsGroupHeader(stringResource(R.string.settings_general_title))
-        SwitchItem(
-            value = uiState.autoSendCrashReports,
-            onValueChange = viewModel::setAutoSendCrashReports,
-            icon = Icons.Default.BugReport,
-            title = stringResource(R.string.settings_app_pref_enable_sentry),
-        )
         TextItem(
             onClick = { showBaseUrlEditDialog = true },
             leadingIcon = Icons.Default.CloudDownload,
@@ -164,8 +158,15 @@ internal fun SettingsContent(
         )
 
         SettingsGroupHeader(stringResource(R.string.settings_debug_title))
+        SwitchItem(
+            value = uiState.autoSendCrashReports,
+            onValueChange = viewModel::setAutoSendCrashReports,
+            icon = Icons.Default.BugReport,
+            title = stringResource(R.string.settings_app_pref_enable_sentry),
+        )
         OperationTextItem(
             title = stringResource(R.string.diagnostics_export),
+            content = stringResource(R.string.diagnostics_export_content),
             state = diagnosticsExportState,
             leadingIcon = Icons.Default.BugReport,
             onClick = { diagnosticsDirPicker.launch() },
