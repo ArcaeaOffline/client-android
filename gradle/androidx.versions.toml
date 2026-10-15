@@ -24,7 +24,6 @@ room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3"
 room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
 room3-testing = { module = "androidx.room3:room3-testing", version.ref = "room3" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
-sqlite-bundled-jvm = { module = "androidx.sqlite:sqlite-bundled-jvm", version.ref = "sqlite" }
 
 datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
