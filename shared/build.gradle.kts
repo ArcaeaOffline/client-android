@@ -84,7 +84,7 @@ kotlin {
 
             implementation(libs.ktor.client.core)
 
-            implementation(androidx.room3.runtime)
+            api(androidx.room3.runtime)
             implementation(androidx.sqlite.bundled)
         }
 

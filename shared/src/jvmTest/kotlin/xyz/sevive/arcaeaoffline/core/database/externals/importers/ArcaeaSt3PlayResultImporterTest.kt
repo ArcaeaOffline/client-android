@@ -3,14 +3,14 @@ package xyz.sevive.arcaeaoffline.core.database.externals.importers
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.datetime.LocalDate
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class ArcaeaSt3PlayResultImporterTest {
@@ -54,12 +54,12 @@ class ArcaeaSt3PlayResultImporterTest {
 
     private lateinit var conn: SQLiteConnection
 
-    @Before
+    @BeforeTest
     fun setUp() {
         conn = BundledSQLiteDriver().open(":memory:")
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         conn.close()
     }
