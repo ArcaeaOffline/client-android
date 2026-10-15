@@ -45,7 +45,7 @@ import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Duration.Companion.seconds
 
-data class CommunityEntry(
+private data class CommunityEntry(
     val title: String,
     val link: String,
     val icon: @Composable () -> Painter,
