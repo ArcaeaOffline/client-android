@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -129,7 +130,7 @@ internal fun SettingsAboutCommunities(modifier: Modifier = Modifier) {
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(icon(), contentDescription = null)
-                            Text(title)
+                            Text(title, fontWeight = FontWeight.Bold)
                         }
                     }
 
