@@ -1,4 +1,7 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -11,6 +14,38 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
 
     alias(androidx.plugins.room3)
+    alias(libs.plugins.buildkonfig)
+}
+
+// https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
+val localProperties =
+    Properties().apply {
+        load(FileInputStream(File(rootDir, "local.properties")))
+    }
+
+val localDefaults =
+    Properties().apply {
+        FileInputStream(File(rootDir, "local.defaults.properties")).use(::load)
+    }
+
+buildkonfig {
+    packageName = "xyz.sevive.arcaeaoffline.shared"
+    exposeObjectWithName = "BuildKonfig"
+
+    defaultConfigs {
+        val keys =
+            listOf(
+                "COMMUNITY_VALUE_PLACEHOLDER",
+                "COMMUNITY_REPO_URL",
+                "COMMUNITY_ISSUES_URL",
+                "COMMUNITY_DISCORD_URL",
+                "COMMUNITY_QQ_URL",
+            )
+        for (key in keys) {
+            val value = localProperties.getProperty(key) ?: localDefaults.getProperty(key)
+            buildConfigField(STRING, key, value)
+        }
+    }
 }
 
 room3 {

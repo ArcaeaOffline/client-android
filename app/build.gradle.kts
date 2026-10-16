@@ -8,23 +8,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.koin.compiler)
-    alias(libs.plugins.secrets.gradle.plugin)
     alias(libs.plugins.appVersioning)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.aboutlibraries.android)
     alias(libs.plugins.compose.compiler)
     alias(androidx.plugins.room3)
-}
-
-secrets {
-    defaultPropertiesFileName = "local.defaults.properties"
-    ignoreList +=
-        listOf(
-            "SENTRY_DSN",
-            "SIGNING_STORE_PASSWORD",
-            "SIGNING_KEY_ALIAS",
-            "SIGNING_KEY_PASSWORD",
-        )
 }
 
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0

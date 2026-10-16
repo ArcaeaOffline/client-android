@@ -39,8 +39,8 @@ import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.shared.BuildKonfig
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Duration.Companion.seconds
@@ -50,15 +50,15 @@ private data class CommunityEntry(
     val link: String,
     val icon: @Composable () -> Painter,
 ) {
-    val isVisible = link != BuildConfig.COMMUNITY_VALUE_PLACEHOLDER
+    val isVisible = link != BuildKonfig.COMMUNITY_VALUE_PLACEHOLDER
 }
 
 private val COMMUNITY_ENTRIES =
     listOf(
-        CommunityEntry("GitHub", BuildConfig.COMMUNITY_REPO_URL, { painterResource(R.drawable.simple_icons_github) }),
-        CommunityEntry("Issues", BuildConfig.COMMUNITY_ISSUES_URL, { rememberVectorPainter(Icons.Filled.Feedback) }),
-        CommunityEntry("Discord", BuildConfig.COMMUNITY_DISCORD_URL, { painterResource(R.drawable.simple_icons_discord) }),
-        CommunityEntry("QQ", BuildConfig.COMMUNITY_QQ_URL, { painterResource(R.drawable.simple_icons_tencentqq) }),
+        CommunityEntry("GitHub", BuildKonfig.COMMUNITY_REPO_URL, { painterResource(R.drawable.simple_icons_github) }),
+        CommunityEntry("Issues", BuildKonfig.COMMUNITY_ISSUES_URL, { rememberVectorPainter(Icons.Filled.Feedback) }),
+        CommunityEntry("Discord", BuildKonfig.COMMUNITY_DISCORD_URL, { painterResource(R.drawable.simple_icons_discord) }),
+        CommunityEntry("QQ", BuildKonfig.COMMUNITY_QQ_URL, { painterResource(R.drawable.simple_icons_tencentqq) }),
     ).filter { it.isVisible }
 
 @Composable
