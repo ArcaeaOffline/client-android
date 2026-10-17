@@ -20,7 +20,7 @@ plugins {
 // https://stackoverflow.com/a/69268957/16484891, CC BY-SA 4.0
 val localProperties =
     Properties().apply {
-        load(FileInputStream(File(rootDir, "local.properties")))
+        FileInputStream(File(rootDir, "local.properties")).use(::load)
     }
 
 val localDefaults =
