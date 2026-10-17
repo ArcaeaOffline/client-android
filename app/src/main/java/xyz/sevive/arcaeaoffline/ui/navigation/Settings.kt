@@ -9,7 +9,6 @@ enum class SettingsSubScreen(
     val route: String,
     @StringRes val title: Int,
 ) {
-    General("$SETTINGS_NAV_ROUTE_ROOT/general", R.string.settings_general_title),
     About("$SETTINGS_NAV_ROUTE_ROOT/about", R.string.settings_about_title),
     License("$SETTINGS_NAV_ROUTE_ROOT/license", R.string.settings_license_title),
     Aboutlibraries("$SETTINGS_NAV_ROUTE_ROOT/aboutlibraries", R.string.settings_aboutlibraries_title),

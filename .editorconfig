@@ -27,3 +27,7 @@ ktlint_standard_max-line-length = disabled
 # For generated code
 [**/build/generated/**/*]
 ktlint = disabled
+
+# For buildkonfig generated code
+[**/build/buildkonfig/**/*]
+ktlint = disabled

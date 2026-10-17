@@ -4,18 +4,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Balance
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
-import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.BuildConfig
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.components.OperationTextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.SettingsSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
@@ -58,13 +54,6 @@ internal fun SettingsAboutScreen(
     onNavigateToLicenseScreen: () -> Unit,
     onNavigateToAboutlibrariesScreen: () -> Unit,
 ) {
-    val viewModel: SettingsAboutViewModel = koinViewModel()
-    val diagnosticsExportState by viewModel.diagnosticsExportState.collectAsStateWithLifecycle()
-    val diagnosticsDirPicker =
-        rememberDirectoryPickerLauncher { dir ->
-            dir?.let(viewModel::exportDiagnostics)
-        }
-
     val appIconClickCrasherState = rememberAppIconClickCrasherState()
 
     val versionText = remember { "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})" }
@@ -82,60 +71,43 @@ internal fun SettingsAboutScreen(
     SubScreenContainer(
         title = stringResource(SettingsSubScreen.About.title),
     ) {
-        LazyColumn {
-            item {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    AppIcon(
-                        Modifier
-                            .clickable { appIconClickCrasherState.clicked() }
-                            .size(100.dp),
-                    )
-
-                    Text(appNameText, style = MaterialTheme.typography.titleLarge)
-                    Text(versionText, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-                    SettingsAboutCommunities()
-                }
-            }
-
-            item {
-                HorizontalDivider()
-            }
-
-            item {
-                NavEntryNavigateButton(
-                    titleResId = R.string.open_source_license_notice,
-                    descriptionResId = R.string.copyright_notice,
-                    icon = Icons.Default.Balance,
-                ) {
-                    onNavigateToLicenseScreen()
-                }
-            }
-
-            item {
-                NavEntryNavigateButton(
-                    titleResId = SettingsSubScreen.Aboutlibraries.title,
-                    icon = Icons.Default.DataObject,
-                ) {
-                    onNavigateToAboutlibrariesScreen()
-                }
-            }
-
-            item {
-                HorizontalDivider()
-            }
-
-            item {
-                OperationTextItem(
-                    title = stringResource(R.string.diagnostics_export),
-                    state = diagnosticsExportState,
-                    leadingIcon = Icons.Default.BugReport,
-                    onClick = { diagnosticsDirPicker.launch() },
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            Column(
+                Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                AppIcon(
+                    Modifier
+                        .clickable { appIconClickCrasherState.clicked() }
+                        .size(100.dp),
                 )
+
+                Text(appNameText, style = MaterialTheme.typography.titleLarge)
+                Text(versionText, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                SettingsAboutCommunities()
+            }
+
+            HorizontalDivider()
+
+            NavEntryNavigateButton(
+                titleResId = R.string.open_source_license_notice,
+                descriptionResId = R.string.copyright_notice,
+                icon = Icons.Default.Balance,
+            ) {
+                onNavigateToLicenseScreen()
+            }
+
+            NavEntryNavigateButton(
+                titleResId = SettingsSubScreen.Aboutlibraries.title,
+                icon = Icons.Default.DataObject,
+            ) {
+                onNavigateToAboutlibrariesScreen()
             }
         }
     }
