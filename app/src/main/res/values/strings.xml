@@ -27,7 +27,9 @@ CC BY-SA 3.0
     <string name="general_edit">Edit</string>
     <string name="general_delete">Delete</string>
     <string name="general_cancel">Cancel</string>
+    <string name="general_close">Close</string>
     <string name="general_reset">Reset</string>
+    <string name="general_clear">Clear</string>
     <string name="general_please_wait">Please wait…</string>
     <string name="general_import">Import</string>
     <string name="general_stop">Stop</string>
@@ -204,6 +206,35 @@ CC BY-SA 3.0
     </plurals>
     <string name="database_play_result_updated">Play result %s updated</string>
 
+    <string name="database_play_result_search_hint">Search title, artist or pack…</string>
+    <string name="database_play_result_filter">Filter</string>
+    <string name="database_play_result_filter_title">Filter</string>
+    <string name="database_play_result_filter_packs">Packs</string>
+    <string name="database_play_result_filter_all_packs">All packs</string>
+    <string name="database_play_result_filter_pick_pack">Select packs</string>
+    <string name="database_play_result_filter_search_pack_hint">Search packs…</string>
+    <string name="database_play_result_filter_no_song_data">Song data is not imported, so packs cannot be filtered.</string>
+    <string name="database_play_result_filter_show_empty_packs">Show packs without play results</string>
+    <string name="database_play_result_filter_selected_count">Selected: %d</string>
+    <string name="database_play_result_filter_append_packs">Includes %s</string>
+    <string name="database_play_result_filter_clear">Clear filters</string>
+    <string name="database_play_result_filter_chip_pack">Pack · %s</string>
+    <string name="database_play_result_filter_chip_packs_count">Packs · %d</string>
+    <string name="database_play_result_filter_no_match">No play results match the current filters.</string>
+    <plurals name="database_play_result_list_count">
+        <item quantity="many">%1$d / %2$d play results</item>
+        <item quantity="other">%1$d / %2$d play result</item>
+    </plurals>
+    <string name="database_play_result_select_all">Select all results</string>
+    <plurals name="database_play_result_filter_result_count">
+        <item quantity="many">Showing %d play results</item>
+        <item quantity="other">Showing %d play result</item>
+    </plurals>
+    <plurals name="database_play_result_selection_hidden">
+        <item quantity="many">%d selected items are not in the current results.</item>
+        <item quantity="other">%d selected item is not in the current results.</item>
+    </plurals>
+
     <!-- Database b30 list pane -->
     <string name="database_best_list_title">Best Records List</string>
 
@@ -262,7 +293,6 @@ CC BY-SA 3.0
     </plurals>
 
     <!-- components -->
-    <string name="song_id_selector_quick_search">Quick Search…</string>
     <string name="song_id_selector_select_pack">Select a pack…</string>
     <string name="song_id_selector_select_song">Select a song…</string>
 

@@ -10,12 +10,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
@@ -26,6 +33,9 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRep
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
+import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogStateHolder
+import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
@@ -38,6 +48,7 @@ class DatabasePlayResultListViewModel(
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val chartInfoRepo: ChartInfoRepository,
     private val propertyRepo: PropertyRepository,
+    catalogHolder: ArcaeaCatalogStateHolder,
 ) : ViewModel() {
     enum class SortOrder {
         ASC,
@@ -76,18 +87,25 @@ class DatabasePlayResultListViewModel(
 
     data class UiState(
         val isLoading: Boolean = true,
-        val sortOrder: SortOrder = SortOrder.ASC,
-        val sortByValue: SortByValue = SortByValue.ID,
+        val sortOrder: SortOrder = SortOrder.DESC,
+        val sortByValue: SortByValue = SortByValue.DATE,
+        val filter: PlayResultFilter = PlayResultFilter(),
+        val totalCount: Int = 0,
         val listItems: List<ListItem> = emptyList(),
+        val songPlayResultCounts: Map<String, Int> = emptyMap(),
     )
 
-    private val isLoading = MutableStateFlow(false)
-    private val sortOrder = MutableStateFlow(SortOrder.ASC)
-    private val sortByValue = MutableStateFlow(SortByValue.ID)
+    private val isLoading = MutableStateFlow(true)
+    private val sortOrder = MutableStateFlow(SortOrder.DESC)
+    private val sortByValue = MutableStateFlow(SortByValue.DATE)
     val selectedItemUuids = MutableStateFlow(emptyList<Uuid>())
 
+    private val filter = MutableStateFlow(PlayResultFilter())
+
+    val catalog: StateFlow<ArcaeaCatalog> = catalogHolder.catalog
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val rawListItems =
+    private val rawListItems =
         combine(playResultRepo.findAll(), propertyRepo.scoringMode()) { dbItems, scoringMode ->
             dbItems to scoringMode
         }.transformLatest { (dbItems, scoringMode) ->
@@ -121,10 +139,49 @@ class DatabasePlayResultListViewModel(
             emit(listItems)
 
             isLoading.value = false
-        }
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
 
-    private val listItems =
-        combine(rawListItems, sortOrder, sortByValue) { items, order, sortBy ->
+    /**
+     * The text query resolved to matching song ids.
+     *
+     * [songIds] is null when the query does not constrain the list: empty query,
+     * catalog not loaded yet, or no song data imported (the list then falls back
+     * to matching the raw song id).
+     */
+    private data class SongSearchState(
+        val query: String,
+        val songIds: Set<String>?,
+    )
+
+    @OptIn(FlowPreview::class)
+    private val songSearchState: StateFlow<SongSearchState> =
+        combine(
+            filter.map { it.query }.distinctUntilChanged().debounce(SEARCH_QUERY_DEBOUNCE_MILLIS),
+            catalog,
+        ) { query, catalog ->
+            when {
+                query.isBlank() -> SongSearchState(query, null)
+                !catalog.isLoaded -> SongSearchState(query, null)
+                catalog.songs.isEmpty() -> SongSearchState(query, null)
+                else -> SongSearchState(query, SearchEngine.searchIds(catalog.documents, query))
+            }
+        }.flowOn(Dispatchers.Default)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                SongSearchState(query = "", songIds = null),
+            )
+
+    private val filteredListItems: StateFlow<List<ListItem>> =
+        combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
+            val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
+            items.filter { it.matches(allowedSongIds, search.query, catalog) }
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
+
+    private val listItems: StateFlow<List<ListItem>> =
+        combine(filteredListItems, sortOrder, sortByValue) { items, order, sortBy ->
             val itemsSorted =
                 when (sortBy) {
                     SortByValue.ID -> items.sortedBy { it.playResult.id }
@@ -134,28 +191,51 @@ class DatabasePlayResultListViewModel(
                 }
 
             if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
+
+    private data class ListSnapshot(
+        val listItems: List<ListItem>,
+        val totalCount: Int,
+        val songPlayResultCounts: Map<String, Int>,
+    )
+
+    private val listSnapshot: StateFlow<ListSnapshot> =
+        combine(listItems, rawListItems) { items, rawItems ->
+            val songPlayResultCounts = HashMap<String, Int>(rawItems.size)
+            rawItems.forEach { songPlayResultCounts.merge(it.playResult.songId, 1, Int::plus) }
+
+            ListSnapshot(
+                listItems = items,
+                totalCount = rawItems.size,
+                songPlayResultCounts = songPlayResultCounts,
+            )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-            emptyList(),
+            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            ListSnapshot(listItems = emptyList(), totalCount = 0, songPlayResultCounts = emptyMap()),
         )
 
     val uiState =
         combine(
             isLoading,
-            listItems,
+            listSnapshot,
             sortOrder,
             sortByValue,
-        ) { isLoading, listItems, sortOrder, sortByValue ->
+            filter,
+        ) { isLoading, snapshot, sortOrder, sortByValue, filter ->
             UiState(
                 isLoading = isLoading,
-                listItems = listItems,
+                listItems = snapshot.listItems,
+                totalCount = snapshot.totalCount,
                 sortOrder = sortOrder,
                 sortByValue = sortByValue,
+                filter = filter,
+                songPlayResultCounts = snapshot.songPlayResultCounts,
             )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
             initialValue = UiState(),
         )
 
@@ -167,15 +247,38 @@ class DatabasePlayResultListViewModel(
         sortByValue.value = value
     }
 
+    fun setFilter(value: PlayResultFilter) {
+        filter.value = value
+    }
+
+    fun setQuery(query: String) {
+        filter.update { it.copy(query = query) }
+    }
+
+    fun setPackIds(packIds: Set<String>) {
+        filter.update { it.copy(packIds = packIds) }
+    }
+
+    fun clearFilters() {
+        filter.value = PlayResultFilter()
+    }
+
     fun setItemSelected(
         listItem: ListItem,
         selected: Boolean,
     ) {
         if (selected) {
-            selectedItemUuids.value += listItem.playResult.uuid
+            selectedItemUuids.value += listItem.uuid
         } else {
-            selectedItemUuids.value -= listItem.playResult.uuid
+            selectedItemUuids.value -= listItem.uuid
         }
+    }
+
+    /**
+     * Select every item currently visible, i.e. after filtering.
+     */
+    fun selectAllFiltered() {
+        selectedItemUuids.value = listItems.value.map { it.uuid }
     }
 
     /**
@@ -220,4 +323,41 @@ class DatabasePlayResultListViewModel(
             }
         }
     }
+
+    companion object {
+        private val STOP_TIMEOUT_MILLIS = 5000L
+
+        private const val SEARCH_QUERY_DEBOUNCE_MILLIS = 120L
+    }
+}
+
+/**
+ * Resolves the filter to the set of allowed song ids, or null when the filter
+ * does not constrain songs at all.
+ */
+private fun PlayResultFilter.allowedSongIds(
+    catalog: ArcaeaCatalog,
+    searchedSongIds: Set<String>?,
+): Set<String>? {
+    if (packIds.isEmpty() && searchedSongIds == null) return null
+
+    var allowed: Set<String>? = null
+    if (packIds.isNotEmpty()) allowed = catalog.songIdsOfBasePacks(packIds)
+    if (searchedSongIds != null) allowed = allowed?.intersect(searchedSongIds) ?: searchedSongIds
+
+    return allowed
+}
+
+private fun DatabasePlayResultListViewModel.ListItem.matches(
+    allowedSongIds: Set<String>?,
+    query: String,
+    catalog: ArcaeaCatalog,
+): Boolean {
+    if (allowedSongIds != null && playResult.songId !in allowedSongIds) return false
+    if (query.isBlank() || !catalog.isLoaded) return true
+
+    // Without song data there is no title to match, so fall back to the id.
+    if (catalog.songs.isEmpty()) return playResult.songId.contains(query, ignoreCase = true)
+
+    return true
 }

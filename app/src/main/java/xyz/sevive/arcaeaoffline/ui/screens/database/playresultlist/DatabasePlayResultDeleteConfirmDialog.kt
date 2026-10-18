@@ -1,5 +1,7 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material3.AlertDialog
@@ -16,6 +18,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButtonDefaults
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.uuid.Uuid
 
 @Composable
@@ -24,6 +27,7 @@ internal fun DatabasePlayResultDeleteConfirmDialog(
     onConfirm: () -> Unit,
     selectedItemUuids: List<Uuid>,
     modifier: Modifier = Modifier,
+    hiddenSelectedCount: Int = 0,
 ) {
     val selectedItemsCount = selectedItemUuids.size
 
@@ -46,13 +50,30 @@ internal fun DatabasePlayResultDeleteConfirmDialog(
         },
         title = { Text(stringResource(R.string.general_delete)) },
         text = {
-            Text(
-                pluralStringResource(
-                    R.plurals.database_play_result_list_delete_confirm_dialog_content,
-                    count = selectedItemsCount,
-                    selectedItemsCount,
-                ),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
+                Text(
+                    pluralStringResource(
+                        R.plurals.database_play_result_list_delete_confirm_dialog_content,
+                        count = selectedItemsCount,
+                        selectedItemsCount,
+                    ),
+                )
+
+                // Filtering can hide selected rows, so deleting them would
+                // otherwise be an invisible action.
+                if (hiddenSelectedCount > 0) {
+                    Text(
+                        text =
+                            pluralStringResource(
+                                R.plurals.database_play_result_selection_hidden,
+                                count = hiddenSelectedCount,
+                                hiddenSelectedCount,
+                            ),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         },
         iconContentColor = MaterialTheme.colorScheme.error,
         titleContentColor = MaterialTheme.colorScheme.error,

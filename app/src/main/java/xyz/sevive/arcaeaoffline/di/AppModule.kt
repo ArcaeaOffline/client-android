@@ -14,7 +14,13 @@ import org.koin.plugin.module.dsl.viewModel
 import org.koin.plugin.module.dsl.worker
 import xyz.sevive.arcaeaoffline.core.api.ArcaeaResourcesApiClient
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.di.coreModule
+import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogStateHolder
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
@@ -93,6 +99,21 @@ internal fun createDiagnosticsCollector(
         ocrQueueTaskDao = ocrQueueTaskDao,
     )
 
+internal fun createArcaeaCatalogStateHolder(
+    songRepo: SongRepository,
+    packRepo: PackRepository,
+    difficultyWithSongRepo: DifficultyWithSongRepository,
+    songLocalizedRepo: SongLocalizedRepository,
+    packLocalizedRepo: PackLocalizedRepository,
+): ArcaeaCatalogStateHolder =
+    ArcaeaCatalogStateHolder(
+        songRepo = songRepo,
+        packRepo = packRepo,
+        difficultyWithSongRepo = difficultyWithSongRepo,
+        songLocalizedRepo = songLocalizedRepo,
+        packLocalizedRepo = packLocalizedRepo,
+    )
+
 val thirdPartyModule =
     module {
         single<Sketch> {
@@ -131,6 +152,8 @@ val appModule =
 
         single<ArcaeaResourcesApiClient> { create(::createArcaeaResourcesApiClient) }
         single<RemoteResourcesInfoStateHolder> { create(::createRemoteResourcesInfoStateHolder) }
+
+        single<ArcaeaCatalogStateHolder> { create(::createArcaeaCatalogStateHolder) }
 
         single<DiagnosticsCollector> { create(::createDiagnosticsCollector) }
 

@@ -16,7 +16,9 @@
     <string name="general_edit">编辑</string>
     <string name="general_delete">删除</string>
     <string name="general_cancel">取消</string>
+    <string name="general_close">关闭</string>
     <string name="general_reset">重置</string>
+    <string name="general_clear">清除</string>
     <string name="general_please_wait">请稍候……</string>
     <string name="general_import">导入</string>
     <string name="general_stop">停止</string>
@@ -182,6 +184,32 @@
     </plurals>
     <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
+    <string name="database_play_result_search_hint">搜索曲名、曲师或曲包……</string>
+    <string name="database_play_result_filter">筛选</string>
+    <string name="database_play_result_filter_title">筛选</string>
+    <string name="database_play_result_filter_packs">曲包</string>
+    <string name="database_play_result_filter_all_packs">全部曲包</string>
+    <string name="database_play_result_filter_pick_pack">选择曲包</string>
+    <string name="database_play_result_filter_search_pack_hint">搜索曲包……</string>
+    <string name="database_play_result_filter_no_song_data">未导入曲目数据，无法按曲包筛选。</string>
+    <string name="database_play_result_filter_show_empty_packs">显示没有游玩记录的曲包</string>
+    <string name="database_play_result_filter_selected_count">已选：%d</string>
+    <string name="database_play_result_filter_append_packs">包含 %s</string>
+    <string name="database_play_result_filter_clear">清除筛选</string>
+    <string name="database_play_result_filter_chip_pack">曲包 · %s</string>
+    <string name="database_play_result_filter_chip_packs_count">曲包 · %d 个</string>
+    <string name="database_play_result_filter_no_match">没有符合当前筛选条件的游玩记录。</string>
+    <plurals name="database_play_result_list_count">
+        <item quantity="other">%1$d / %2$d 条</item>
+    </plurals>
+    <string name="database_play_result_select_all">全选当前结果</string>
+    <plurals name="database_play_result_filter_result_count">
+        <item quantity="other">将显示 %d 条游玩记录</item>
+    </plurals>
+    <plurals name="database_play_result_selection_hidden">
+        <item quantity="other">另有 %d 条已选记录不在当前结果中。</item>
+    </plurals>
+
     <!-- Database b30 list pane -->
     <string name="database_best_list_title">最佳记录列表</string>
 
@@ -231,7 +259,6 @@
     </plurals>
 
     <!-- components -->
-    <string name="song_id_selector_quick_search">快速搜索……</string>
     <string name="song_id_selector_select_pack">选择曲包</string>
     <string name="song_id_selector_select_song">选择歌曲</string>
 

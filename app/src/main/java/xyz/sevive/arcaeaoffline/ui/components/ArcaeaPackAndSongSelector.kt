@@ -132,8 +132,6 @@ fun ArcaeaPackAndSongSelector(
                 targetSongId = filter.songId
             },
             modifier = Modifier.fillMaxWidth(),
-            packRepo = packRepo,
-            songRepo = songRepo,
         )
 
         ArcaeaPackSelector(
