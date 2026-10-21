@@ -34,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -255,6 +256,14 @@ private fun FacetsPage(
                     { onFilterChange(filter.copy(packIds = emptySet())) }
                 },
             enabled = catalog.basePacks.isNotEmpty(),
+        )
+
+        SwitchItem(
+            value = filter.onlyWarnings,
+            onValueChange = { onFilterChange(filter.copy(onlyWarnings = it)) },
+            title = stringResource(R.string.database_play_result_filter_only_warnings),
+            icon = Icons.Default.Warning,
+            description = stringResource(R.string.database_play_result_filter_only_warnings_description),
         )
 
         if (catalog.isLoaded && catalog.songs.isEmpty()) {

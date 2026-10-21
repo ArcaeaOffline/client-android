@@ -215,11 +215,14 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_search_pack_hint">Search packs…</string>
     <string name="database_play_result_filter_no_song_data">Song data is not imported, so packs cannot be filtered.</string>
     <string name="database_play_result_filter_show_empty_packs">Show packs without play results</string>
+    <string name="database_play_result_filter_only_warnings">Only warnings</string>
+    <string name="database_play_result_filter_only_warnings_description">Show only results with validation warnings</string>
     <string name="database_play_result_filter_selected_count">Selected: %d</string>
     <string name="database_play_result_filter_append_packs">Includes %s</string>
     <string name="database_play_result_filter_clear">Clear filters</string>
     <string name="database_play_result_filter_chip_pack">Pack · %s</string>
     <string name="database_play_result_filter_chip_packs_count">Packs · %d</string>
+    <string name="database_play_result_filter_chip_warnings">Warnings</string>
     <string name="database_play_result_filter_no_match">No play results match the current filters.</string>
     <plurals name="database_play_result_list_count">
         <item quantity="many">%1$d / %2$d play results</item>

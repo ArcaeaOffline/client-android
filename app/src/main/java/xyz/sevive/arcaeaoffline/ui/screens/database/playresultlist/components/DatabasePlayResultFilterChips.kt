@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
@@ -19,11 +21,8 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFil
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 /**
- * Read-only summary of the active filters. Tapping the chip opens the filter
- * dialog, which is the only place filters are added or removed.
- *
- * The pack selection collapses into one chip with a count (e.g. "Packs · 3") so
- * a long selection cannot push everything else out of view.
+ * Read-only summary of the active filters. Tapping a chip opens the filter
+ * dialog, which is the only place structured filters are added or removed.
  *
  * The row is laid out by the caller next to the result count. It carries no
  * horizontal content padding of its own.
@@ -41,18 +40,38 @@ fun DatabasePlayResultFilterChips(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
-        item(key = "packs") {
-            AssistChip(
-                onClick = onOpenFilters,
-                label = { Text(packLabel(filter.packIds, catalog)) },
-                leadingIcon = {
-                    Icon(
-                        painterResource(R.drawable.ic_pack),
-                        contentDescription = null,
-                        modifier = Modifier.size(AssistChipDefaults.IconSize),
-                    )
-                },
-            )
+        if (filter.packIds.isNotEmpty()) {
+            // Collapse the selection into one chip; a long pack selection would
+            // otherwise push the other chips out of view.
+            item(key = "packs") {
+                AssistChip(
+                    onClick = onOpenFilters,
+                    label = { Text(packLabel(filter.packIds, catalog)) },
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.ic_pack),
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
+        }
+
+        if (filter.onlyWarnings) {
+            item(key = "warnings") {
+                AssistChip(
+                    onClick = onOpenFilters,
+                    label = { Text(stringResource(R.string.database_play_result_filter_chip_warnings)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
         }
     }
 }

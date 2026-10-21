@@ -39,6 +39,7 @@ import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -47,7 +48,7 @@ class DatabasePlayResultListViewModel(
     private val songRepo: SongRepository,
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val chartInfoRepo: ChartInfoRepository,
-    private val propertyRepo: PropertyRepository,
+    propertyRepo: PropertyRepository,
     catalogHolder: ArcaeaCatalogStateHolder,
 ) : ViewModel() {
     enum class SortOrder {
@@ -140,7 +141,7 @@ class DatabasePlayResultListViewModel(
 
             isLoading.value = false
         }.flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
     /**
      * The text query resolved to matching song ids.
@@ -157,7 +158,7 @@ class DatabasePlayResultListViewModel(
     @OptIn(FlowPreview::class)
     private val songSearchState: StateFlow<SongSearchState> =
         combine(
-            filter.map { it.query }.distinctUntilChanged().debounce(SEARCH_QUERY_DEBOUNCE_MILLIS),
+            filter.map { it.query }.distinctUntilChanged().debounce(SEARCH_QUERY_DEBOUNCE),
             catalog,
         ) { query, catalog ->
             when {
@@ -169,16 +170,16 @@ class DatabasePlayResultListViewModel(
         }.flowOn(Dispatchers.Default)
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds),
                 SongSearchState(query = "", songIds = null),
             )
 
     private val filteredListItems: StateFlow<List<ListItem>> =
         combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
             val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
-            items.filter { it.matches(allowedSongIds, search.query, catalog) }
+            items.filter { it.matches(allowedSongIds, search.query, catalog, filter.onlyWarnings) }
         }.flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
     private val listItems: StateFlow<List<ListItem>> =
         combine(filteredListItems, sortOrder, sortByValue) { items, order, sortBy ->
@@ -192,7 +193,7 @@ class DatabasePlayResultListViewModel(
 
             if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
         }.flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
     private data class ListSnapshot(
         val listItems: List<ListItem>,
@@ -212,7 +213,7 @@ class DatabasePlayResultListViewModel(
             )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds),
             ListSnapshot(listItems = emptyList(), totalCount = 0, songPlayResultCounts = emptyMap()),
         )
 
@@ -235,7 +236,7 @@ class DatabasePlayResultListViewModel(
             )
         }.stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds),
             initialValue = UiState(),
         )
 
@@ -325,9 +326,9 @@ class DatabasePlayResultListViewModel(
     }
 
     companion object {
-        private val STOP_TIMEOUT_MILLIS = 5000L
+        private val STOP_TIMEOUT = 5.seconds
 
-        private const val SEARCH_QUERY_DEBOUNCE_MILLIS = 120L
+        private val SEARCH_QUERY_DEBOUNCE = 100.milliseconds
     }
 }
 
@@ -352,7 +353,9 @@ private fun DatabasePlayResultListViewModel.ListItem.matches(
     allowedSongIds: Set<String>?,
     query: String,
     catalog: ArcaeaCatalog,
+    onlyWarnings: Boolean,
 ): Boolean {
+    if (onlyWarnings && warnings.isEmpty()) return false
     if (allowedSongIds != null && playResult.songId !in allowedSongIds) return false
     if (query.isBlank() || !catalog.isLoaded) return true
 
