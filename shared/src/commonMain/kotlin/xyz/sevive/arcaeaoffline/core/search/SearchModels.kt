@@ -48,6 +48,10 @@ data class SearchMatch(
 /**
  * Field definitions used by the catalog builder and the UIs that read highlight
  * ranges by key.
+ *
+ * Title and artist overrides from difficulty entries use their own keys so
+ * their highlight ranges do not collide with the song-level text the search
+ * row displays.
  */
 object SearchFields {
     val Title = SearchField(key = "title", weight = 100)
@@ -57,6 +61,10 @@ object SearchFields {
     val SongId = SearchField(key = "song_id", weight = 90)
 
     val Artist = SearchField(key = "artist", weight = 55)
+
+    val ChartTitle = SearchField(key = "chart_title", weight = 100)
+
+    val ChartArtist = SearchField(key = "chart_artist", weight = 55)
 
     val PackName = SearchField(key = "pack_name", weight = 45)
 

@@ -246,4 +246,21 @@ class SearchEngineTest {
             }
         }
     }
+
+    @Test
+    fun chartOverridesHighlightUnderTheirOwnKey() {
+        val document =
+            searchDocument("a") {
+                text(SearchFields.Title, "Nova")
+                text(SearchFields.ChartTitle, "Silent Harbor")
+            }
+
+        val overrideMatch = SearchEngine.search(listOf(document), "silent").single()
+        assertEquals(listOf(0..5), overrideMatch.highlights[SearchFields.ChartTitle.key])
+        assertNull(overrideMatch.highlights[SearchFields.Title.key])
+
+        val titleMatch = SearchEngine.search(listOf(document), "nova").single()
+        assertEquals(listOf(0..3), titleMatch.highlights[SearchFields.Title.key])
+        assertNull(titleMatch.highlights[SearchFields.ChartTitle.key])
+    }
 }

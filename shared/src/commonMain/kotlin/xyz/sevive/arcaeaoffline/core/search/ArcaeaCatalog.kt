@@ -26,8 +26,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 data class ArcaeaCatalogSong(
     val song: Song,
     val pack: Pack?,
-    val difficulties: List<DifficultyWithSong>,
-    val localizedTitles: List<String>,
     val document: SearchDocument,
 )
 
@@ -141,8 +139,6 @@ private fun buildCatalog(
             ArcaeaCatalogSong(
                 song = song,
                 pack = pack,
-                difficulties = songDifficulties,
-                localizedTitles = localizedTitles,
                 document = buildDocument(song, songDifficulties, pack, localizedTitles, localizedPackNames),
             )
         }
@@ -176,10 +172,11 @@ private fun buildDocument(
         text(SearchFields.SongId, song.id)
 
         // Difficulty entries may override the song title and artist. The chart
-        // card displays those overrides, so they are searchable here as well.
-        difficulties.forEach {
-            text(SearchFields.Title, it.title)
-            text(SearchFields.Artist, it.artist)
+        // card displays those overrides, so they stay searchable; separate keys
+        // keep their ranges away from the song-level text the row displays.
+        difficulties.forEach { difficulty ->
+            if (difficulty.title != song.title) text(SearchFields.ChartTitle, difficulty.title)
+            if (difficulty.artist != song.artist) text(SearchFields.ChartArtist, difficulty.artist)
         }
 
         localizedTitles.forEach { text(SearchFields.LocalizedTitle, it) }
