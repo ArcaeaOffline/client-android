@@ -12,8 +12,9 @@ data class SearchField(
 /**
  * One searchable text of a [SearchDocument].
  *
- * [original] is what the UI displays. [normalized] is [SearchEngine]'s folded
- * form of it. Highlight indices returned by the engine refer to [original].
+ * [original] is what the UI displays. [normalized] is the opaque encoding
+ * [SearchEngine] matches against: one character per [original] character.
+ * Highlight indices returned by the engine refer to [original].
  */
 data class SearchFieldText(
     val field: SearchField,
@@ -36,8 +37,7 @@ data class SearchDocument(
  * A matched document.
  *
  * [highlights] maps [SearchField.key] to half-open index ranges in the field's
- * original text. Ranges are only reported when folding preserved the string
- * length, since the engine would otherwise map an index onto the wrong character.
+ * original text.
  */
 data class SearchMatch(
     val documentId: String,
@@ -75,8 +75,8 @@ class SearchDocumentBuilder internal constructor(
 
     /**
      * Adds [value] under [field]. Blank values and repeats of an already added
-     * (field, normalized text) pair are ignored: the same title can come from
-     * both the song and a difficulty override.
+     * (field, encoded text) pair are ignored: the same title can come from both
+     * the song and a difficulty override.
      */
     fun text(
         field: SearchField,
@@ -84,8 +84,7 @@ class SearchDocumentBuilder internal constructor(
     ) {
         if (value.isNullOrBlank()) return
 
-        val normalized = SearchEngine.normalize(value)
-        if (normalized.isEmpty()) return
+        val normalized = SearchEngine.encodeClasses(value)
         if (fields.any { it.field.key == field.key && it.normalized == normalized }) return
 
         fields += SearchFieldText(field = field, original = value, normalized = normalized)

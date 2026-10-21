@@ -6,6 +6,9 @@ package xyz.sevive.arcaeaoffline.core.search
  * A query is split on whitespace. Every token must match somewhere in the
  * document (AND). Tokens may hit different fields. Results are ranked by the
  * summed best score of each token, so an exact title beats a pack-name hit.
+ *
+ * Characters match by class: a Greek letter accepts every Latin reading users
+ * may type for it (γ accepts g and y; υ accepts y, u and v).
  */
 object SearchEngine {
     private const val QUALITY_EXACT = 4
@@ -16,132 +19,161 @@ object SearchEngine {
     private val TOKEN_SEPARATOR = Regex("""\s+""")
 
     /**
-     * Normalizes text before matching:
+     * Normalizes text to one canonical character per input character:
      * - full-width ASCII and the ideographic space are folded to ASCII;
      * - letters are lowercased;
-     * - common Latin accents, Greek/Cyrillic lookalikes, superscript/subscript
-     *   digits and a few symbols are folded to their ASCII base.
+     * - accented letters, Greek/Cyrillic lookalikes, superscript/subscript
+     *   digits and a few symbols are folded to their first ASCII reading.
      *
-     * Every mapping is one character to one character, which keeps indices in
-     * [SearchDocument] fields valid for highlighting. Multi-character folds
-     * (e.g. `Æ` to `ae`) are not applied.
+     * Matching compares every reading of a character, not only this canonical
+     * one (see [search]). Aliases are single characters, so multi-character
+     * transliterations (e.g. θ to `th`, Æ to `ae`) are not represented.
      */
     fun normalize(input: String): String =
         buildString(input.length) {
             for (ch in input) {
-                val widthFolded =
-                    when (ch) {
-                        in '\uFF01'..'\uFF5E' -> ch - 0xFEE0
-                        '\u3000' -> ' '
-                        else -> ch
-                    }
-                append(foldCharacter(widthFolded.lowercaseChar()))
+                val folded = foldWidth(ch).lowercaseChar()
+                append(ALIASES[folded]?.first() ?: folded)
             }
         }.trim()
 
-    private fun foldCharacter(ch: Char): Char =
+    /**
+     * Encodes each character as the class of characters it matches, one output
+     * character per input character. Whitespace becomes a single space so
+     * callers can split tokens on it.
+     */
+    internal fun encodeClasses(input: String): String =
+        buildString(input.length) {
+            for (ch in input) {
+                val folded = foldWidth(ch).lowercaseChar()
+                append(if (folded.isWhitespace()) ' ' else classOf(folded))
+            }
+        }
+
+    private fun foldWidth(ch: Char): Char =
         when (ch) {
-            // Latin-1 Supplement / Latin Extended-A letters.
-            'à', 'á', 'â', 'ã', 'ä', 'å', 'ā', 'ă', 'ą' -> 'a'
-
-            'ç', 'ć', 'ĉ', 'ċ', 'č' -> 'c'
-
-            'ď', 'đ' -> 'd'
-
-            'è', 'é', 'ê', 'ë', 'ē', 'ĕ', 'ė', 'ę', 'ě' -> 'e'
-
-            'ĝ', 'ğ', 'ġ', 'ģ' -> 'g'
-
-            'ĥ', 'ħ' -> 'h'
-
-            'ì', 'í', 'î', 'ï', 'ĩ', 'ī', 'ĭ', 'į', 'ı' -> 'i'
-
-            'ĵ' -> 'j'
-
-            'ķ' -> 'k'
-
-            'ĺ', 'ļ', 'ľ', 'ł' -> 'l'
-
-            'ñ', 'ń', 'ņ', 'ň' -> 'n'
-
-            'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ō', 'ŏ', 'ő' -> 'o'
-
-            'ŕ', 'ŗ', 'ř' -> 'r'
-
-            'ś', 'ŝ', 'ş', 'š' -> 's'
-
-            'ţ', 'ť', 'ŧ' -> 't'
-
-            'ù', 'ú', 'û', 'ü', 'ũ', 'ū', 'ŭ', 'ů', 'ű', 'ų' -> 'u'
-
-            'ŵ' -> 'w'
-
-            'ý', 'ÿ', 'ŷ' -> 'y'
-
-            'ź', 'ż', 'ž' -> 'z'
-
-            // Greek letters used as Latin lookalikes. Λ/λ map to A rather than
-            // the transliteration L because titles use them stylistically
-            // (e.g. ΛZΛLEΛ). A real Greek word containing Λ would fold incorrectly.
-            'α', 'ά', 'λ' -> 'a'
-
-            'β' -> 'b'
-
-            'γ' -> 'g'
-
-            'δ' -> 'd'
-
-            'ε', 'έ' -> 'e'
-
-            'ι', 'ί', 'ϊ', 'ΐ' -> 'i'
-
-            'κ' -> 'k'
-
-            'μ' -> 'm'
-
-            'ο', 'ό' -> 'o'
-
-            'σ', 'ς' -> 's'
-
-            'τ' -> 't'
-
-            'υ', 'ύ', 'ϋ', 'ΰ' -> 'y'
-
-            'ω', 'ώ' -> 'w'
-
-            // Cyrillic Я used as a reversed R (VECTOЯ).
-            'я' -> 'r'
-
-            // Superscript and subscript digits.
-            '⁰', '₀' -> '0'
-
-            '¹', '₁' -> '1'
-
-            '²', '₂' -> '2'
-
-            '³', '₃' -> '3'
-
-            '⁴', '₄' -> '4'
-
-            '⁵', '₅' -> '5'
-
-            '⁶', '₆' -> '6'
-
-            '⁷', '₇' -> '7'
-
-            '⁸', '₈' -> '8'
-
-            '⁹', '₉' -> '9'
-
-            // Symbols typed as ASCII.
-            '×' -> 'x'
-
-            '〜' -> '~'
-
+            in '\uFF01'..'\uFF5E' -> ch - 0xFEE0
+            '\u3000' -> ' '
             else -> ch
         }
 
+    // Each value lists the characters a source character matches; the first is
+    // the canonical reading returned by normalize. Entries are single characters.
+    private val ALIASES: Map<Char, String> =
+        buildMap {
+            fun register(
+                chars: String,
+                aliases: String,
+            ) {
+                chars.forEach { put(it, aliases) }
+            }
+
+            // Latin-1 Supplement / Latin Extended-A letters.
+            register("àáâãäåāăą", "a")
+            register("çćĉċč", "c")
+            register("ďđ", "d")
+            register("èéêëēĕėęě", "e")
+            register("ĝğġģ", "g")
+            register("ĥħ", "h")
+            register("ìíîïĩīĭįı", "i")
+            register("ĵ", "j")
+            register("ķ", "k")
+            register("ĺļľł", "l")
+            register("ñńņň", "n")
+            register("òóôõöøōŏő", "o")
+            register("ŕŗř", "r")
+            register("śŝşš", "s")
+            register("ţťŧ", "t")
+            register("ùúûüũūŭůűų", "u")
+            register("ŵ", "w")
+            register("ýÿŷ", "y")
+            register("źżž", "z")
+
+            // Greek letters used as Latin lookalikes. Λ/λ lists A first because
+            // titles use it as a stylized A (ΛZΛLEΛ).
+            register("αά", "a")
+            register("β", "b")
+            register("γ", "gy")
+            register("δ", "d")
+            register("εέ", "e")
+            register("ζ", "z")
+            register("ηή", "in")
+            register("θ", "o")
+            register("ιίϊΐ", "i")
+            register("κ", "k")
+            register("λ", "al")
+            register("μ", "mu")
+            register("ν", "nv")
+            register("ξ", "x")
+            register("οό", "o")
+            register("π", "pn")
+            register("ρ", "rp")
+            register("σς", "s")
+            register("τ", "t")
+            register("υύϋΰ", "yuv")
+            register("φ", "f")
+            register("χ", "x")
+            register("ψ", "p")
+            register("ωώ", "wo")
+
+            // Cyrillic Я used as a reversed R (VECTOЯ).
+            register("я", "r")
+
+            // Superscript and subscript digits.
+            register("⁰₀", "0")
+            register("¹₁", "1")
+            register("²₂", "2")
+            register("³₃", "3")
+            register("⁴₄", "4")
+            register("⁵₅", "5")
+            register("⁶₆", "6")
+            register("⁷₇", "7")
+            register("⁸₈", "8")
+            register("⁹₉", "9")
+
+            // Symbols typed as ASCII.
+            register("×", "x")
+            register("〜", "~")
+        }
+
+    private val AMBIGUOUS_ALIASES: List<String> = ALIASES.values.filter { it.length > 1 }.distinct()
+
+    private val CLASS_CHAR_BY_ALIASES: Map<String, Char> =
+        AMBIGUOUS_ALIASES.withIndex().associate { (index, aliases) -> aliases to ('\uE000' + index) }
+
+    private val ALIASES_BY_CLASS_CHAR: Map<Char, String> =
+        AMBIGUOUS_ALIASES.withIndex().associate { (index, aliases) -> ('\uE000' + index) to aliases }
+
+    private val CLASS_CHAR_RANGE: CharRange = '\uE000'..('\uE000' + AMBIGUOUS_ALIASES.size)
+
+    private fun classOf(ch: Char): Char {
+        val aliases = ALIASES[ch] ?: return ch
+        return if (aliases.length == 1) aliases[0] else CLASS_CHAR_BY_ALIASES.getValue(aliases)
+    }
+
+    private fun classAliases(ch: Char): String? = if (ch in CLASS_CHAR_RANGE) ALIASES_BY_CLASS_CHAR[ch] else null
+
+    private fun accepts(
+        left: Char,
+        right: Char,
+    ): Boolean {
+        if (left == right) return true
+
+        val leftAliases = classAliases(left)
+        val rightAliases = classAliases(right)
+        return when {
+            leftAliases != null && rightAliases != null -> leftAliases.any { it in rightAliases }
+            leftAliases != null -> right in leftAliases
+            rightAliases != null -> left in rightAliases
+            else -> false
+        }
+    }
+
+    private fun isWordChar(ch: Char): Boolean = ch.isLetterOrDigit() || classAliases(ch) != null
+
     fun tokenize(query: String): List<String> = normalize(query).split(TOKEN_SEPARATOR).filter { it.isNotEmpty() }
+
+    private fun tokenizeClasses(query: String): List<String> = encodeClasses(query).split(' ').filter { it.isNotEmpty() }
 
     /**
      * Returns the matching documents ranked best first, at most [limit] of them.
@@ -153,7 +185,7 @@ object SearchEngine {
         query: String,
         limit: Int = Int.MAX_VALUE,
     ): List<SearchMatch> {
-        val tokens = tokenize(query)
+        val tokens = tokenizeClasses(query)
         if (tokens.isEmpty() || limit <= 0) return emptyList()
 
         val scored = ArrayList<Pair<SearchDocument, SearchMatch>>()
@@ -181,7 +213,7 @@ object SearchEngine {
         documents: List<SearchDocument>,
         query: String,
     ): Set<String> {
-        val tokens = tokenize(query)
+        val tokens = tokenizeClasses(query)
         if (tokens.isEmpty()) return emptySet()
 
         val ids = HashSet<String>()
@@ -263,23 +295,34 @@ object SearchEngine {
         token: String,
         text: String,
     ): TokenMatch? {
-        if (token.isEmpty() || text.isEmpty()) return null
-        if (text == token) return TokenMatch(QUALITY_EXACT, 0)
-        if (text.startsWith(token)) return TokenMatch(QUALITY_PREFIX, 0)
+        if (token.isEmpty() || text.isEmpty() || token.length > text.length) return null
 
+        val lastStart = text.length - token.length
         var substringIndex = -1
-        var from = 0
-        while (true) {
-            val index = text.indexOf(token, from)
-            if (index < 0) break
-
-            if (substringIndex < 0) substringIndex = index
-            if (index == 0 || !text[index - 1].isLetterOrDigit()) {
-                return TokenMatch(QUALITY_WORD_PREFIX, index)
+        var start = 0
+        while (start <= lastStart) {
+            if (matchesAt(token, text, start)) {
+                if (start == 0) {
+                    val quality = if (text.length == token.length) QUALITY_EXACT else QUALITY_PREFIX
+                    return TokenMatch(quality, 0)
+                }
+                if (substringIndex < 0) substringIndex = start
+                if (!isWordChar(text[start - 1])) return TokenMatch(QUALITY_WORD_PREFIX, start)
             }
-            from = index + 1
+            start++
         }
 
         return if (substringIndex >= 0) TokenMatch(QUALITY_SUBSTRING, substringIndex) else null
+    }
+
+    private fun matchesAt(
+        token: String,
+        text: String,
+        start: Int,
+    ): Boolean {
+        for (offset in token.indices) {
+            if (!accepts(text[start + offset], token[offset])) return false
+        }
+        return true
     }
 }

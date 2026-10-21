@@ -162,4 +162,88 @@ class SearchEngineTest {
 
         assertEquals(1, built.fields.size)
     }
+
+    @Test
+    fun normalizeKeepsFirstReadingAsCanonical() {
+        assertEquals("g", SearchEngine.normalize("γ"))
+        assertEquals("y", SearchEngine.normalize("υ"))
+        assertEquals("a", SearchEngine.normalize("λ"))
+    }
+
+    @Test
+    fun matchesEveryReadingOfGreekLookalikes() {
+        val documents =
+            listOf(
+                document("gamma", "γ"),
+                document("upsilon", "υ"),
+            )
+
+        assertEquals(setOf("gamma"), SearchEngine.search(documents, "g").map { it.documentId }.toSet())
+        assertEquals(setOf("gamma", "upsilon"), SearchEngine.search(documents, "y").map { it.documentId }.toSet())
+        assertEquals(setOf("upsilon"), SearchEngine.search(documents, "u").map { it.documentId }.toSet())
+        assertEquals(setOf("upsilon"), SearchEngine.search(documents, "v").map { it.documentId }.toSet())
+    }
+
+    @Test
+    fun matchesMixedGreekReadingsWithinOneWord() {
+        val documents = listOf(document("pair", "γυ"))
+
+        assertEquals(listOf("pair"), SearchEngine.search(documents, "gu").map { it.documentId })
+        assertEquals(listOf("pair"), SearchEngine.search(documents, "gy").map { it.documentId })
+        assertEquals(listOf("pair"), SearchEngine.search(documents, "yv").map { it.documentId })
+    }
+
+    @Test
+    fun highlightsGreekMatchesAtOriginalPositions() {
+        val match = SearchEngine.search(listOf(document("pair", "γυ")), "u").single()
+
+        assertEquals(listOf(1..1), match.highlights[SearchFields.Title.key])
+    }
+
+    @Test
+    fun greekQueryMatchesLatinText() {
+        val documents = listOf(document("a", "odysseia"))
+
+        assertEquals(listOf("a"), SearchEngine.search(documents, "οδυσσεια").map { it.documentId })
+    }
+
+    @Test
+    fun doesNotCrossMatchUnrelatedLatinLetters() {
+        assertTrue(SearchEngine.search(listOf(document("a", "u")), "v").isEmpty())
+        assertTrue(SearchEngine.search(listOf(document("a", "g")), "y").isEmpty())
+    }
+
+    @Test
+    fun matchesLambdaAsEitherReading() {
+        val documents = listOf(document("lambda", "λ"))
+
+        assertEquals(listOf("lambda"), SearchEngine.search(documents, "a").map { it.documentId })
+        assertEquals(listOf("lambda"), SearchEngine.search(documents, "l").map { it.documentId })
+    }
+
+    @Test
+    fun matchesCompletedGreekTable() {
+        val readings =
+            mapOf(
+                "η" to "in",
+                "ν" to "nv",
+                "ρ" to "rp",
+                "π" to "pn",
+                "μ" to "mu",
+                "ω" to "wo",
+                "θ" to "o",
+                "φ" to "f",
+                "ψ" to "p",
+                "ξ" to "x",
+                "ζ" to "z",
+            )
+
+        for ((letter, aliases) in readings) {
+            val documents = listOf(document(letter, letter))
+
+            for (alias in aliases) {
+                assertEquals(listOf(letter), SearchEngine.search(documents, alias.toString()).map { it.documentId })
+            }
+        }
+    }
 }
