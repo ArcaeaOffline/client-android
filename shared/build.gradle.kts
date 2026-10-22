@@ -48,6 +48,12 @@ buildkonfig {
     }
 }
 
+// Gradle warning:
+// Task ':shared:prepareAndroidMainArtProfile' uses this output of task ':shared:generateBuildKonfig' without declaring a dependency.
+tasks.matching { it.name == "prepareAndroidMainArtProfile" }.configureEach {
+    dependsOn(tasks.named("generateBuildKonfig"))
+}
+
 room3 {
     schemaDirectory("$projectDir/schemas")
 }
