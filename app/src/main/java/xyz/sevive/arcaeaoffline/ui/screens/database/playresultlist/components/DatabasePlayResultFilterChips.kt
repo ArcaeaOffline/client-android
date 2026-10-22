@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
@@ -58,6 +60,22 @@ fun DatabasePlayResultFilterChips(
             }
         }
 
+        if (filter.ratingClasses.isNotEmpty()) {
+            item(key = "ratingClasses") {
+                AssistChip(
+                    onClick = onOpenFilters,
+                    label = { Text(difficultyLabel(filter.ratingClasses)) },
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.ic_rating_class),
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
+        }
+
         if (filter.onlyWarnings) {
             item(key = "warnings") {
                 AssistChip(
@@ -75,6 +93,17 @@ fun DatabasePlayResultFilterChips(
         }
     }
 }
+
+@Composable
+private fun difficultyLabel(ratingClasses: Set<ArcaeaRatingClass>): String =
+    if (ratingClasses.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_difficulty,
+            ArcaeaRatingClassDisplay.of(ratingClasses.first()).name,
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_difficulties_count, ratingClasses.size)
+    }
 
 @Composable
 private fun packLabel(

@@ -53,7 +53,6 @@ import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterChips
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterDialog
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
-import kotlin.uuid.Uuid
 
 @Composable
 private fun DatabasePlayResultListAppBarActions(
@@ -156,7 +155,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
     val listItems = uiState.listItems
 
     val selectedItemsCount by remember { derivedStateOf { selectedItemUuids.size } }
-    val visibleItemUuids by remember(listItems) { derivedStateOf { listItems.mapTo(HashSet<Uuid>()) { it.uuid } } }
+    val visibleItemUuids by remember(listItems) { derivedStateOf { listItems.mapTo(HashSet()) { it.uuid } } }
     val hiddenSelectedCount by remember(selectedItemUuids, visibleItemUuids) {
         derivedStateOf { selectedItemUuids.count { it !in visibleItemUuids } }
     }
@@ -195,6 +194,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
             filter = uiState.filter,
             catalog = catalog,
             songPlayResultCounts = uiState.songPlayResultCounts,
+            ratingClassCounts = uiState.ratingClassCounts,
             resultCount = listItems.size,
             onFilterChange = viewModel::setFilter,
             onPackIdsChange = viewModel::setPackIds,

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.playRating
@@ -94,6 +95,7 @@ class DatabasePlayResultListViewModel(
         val totalCount: Int = 0,
         val listItems: List<ListItem> = emptyList(),
         val songPlayResultCounts: Map<String, Int> = emptyMap(),
+        val ratingClassCounts: Map<ArcaeaRatingClass, Int> = emptyMap(),
     )
 
     private val isLoading = MutableStateFlow(true)
@@ -177,9 +179,35 @@ class DatabasePlayResultListViewModel(
     private val filteredListItems: StateFlow<List<ListItem>> =
         combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
             val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
-            items.filter { it.matches(allowedSongIds, search.query, catalog, filter.onlyWarnings) }
+            items.filter { it.matches(allowedSongIds, search.query, catalog, filter.onlyWarnings, filter.ratingClasses) }
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
+
+    /**
+     * Play results per difficulty class, counted under the other active facets.
+     *
+     * The difficulty selection is ignored so a chip keeps showing what selecting
+     * it would yield, and the chips do not change while the selection changes.
+     */
+    private val ratingClassCounts: StateFlow<Map<ArcaeaRatingClass, Int>> =
+        combine(
+            rawListItems,
+            filter.map { it.copy(ratingClasses = emptySet()) }.distinctUntilChanged(),
+            songSearchState,
+            catalog,
+        ) { items, filter, search, catalog ->
+            val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
+            val counts = HashMap<ArcaeaRatingClass, Int>(ArcaeaRatingClass.entries.size)
+
+            items.forEach { item ->
+                if (item.matches(allowedSongIds, search.query, catalog, filter.onlyWarnings, emptySet())) {
+                    counts.merge(item.playResult.ratingClass, 1, Int::plus)
+                }
+            }
+
+            counts
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyMap())
 
     private val listItems: StateFlow<List<ListItem>> =
         combine(filteredListItems, sortOrder, sortByValue) { items, order, sortBy ->
@@ -199,10 +227,11 @@ class DatabasePlayResultListViewModel(
         val listItems: List<ListItem>,
         val totalCount: Int,
         val songPlayResultCounts: Map<String, Int>,
+        val ratingClassCounts: Map<ArcaeaRatingClass, Int>,
     )
 
     private val listSnapshot: StateFlow<ListSnapshot> =
-        combine(listItems, rawListItems) { items, rawItems ->
+        combine(listItems, rawListItems, ratingClassCounts) { items, rawItems, ratingClassCounts ->
             val songPlayResultCounts = HashMap<String, Int>(rawItems.size)
             rawItems.forEach { songPlayResultCounts.merge(it.playResult.songId, 1, Int::plus) }
 
@@ -210,11 +239,12 @@ class DatabasePlayResultListViewModel(
                 listItems = items,
                 totalCount = rawItems.size,
                 songPlayResultCounts = songPlayResultCounts,
+                ratingClassCounts = ratingClassCounts,
             )
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds),
-            ListSnapshot(listItems = emptyList(), totalCount = 0, songPlayResultCounts = emptyMap()),
+            ListSnapshot(listItems = emptyList(), totalCount = 0, songPlayResultCounts = emptyMap(), ratingClassCounts = emptyMap()),
         )
 
     val uiState =
@@ -233,6 +263,7 @@ class DatabasePlayResultListViewModel(
                 sortByValue = sortByValue,
                 filter = filter,
                 songPlayResultCounts = snapshot.songPlayResultCounts,
+                ratingClassCounts = snapshot.ratingClassCounts,
             )
         }.stateIn(
             viewModelScope,
@@ -354,7 +385,9 @@ private fun DatabasePlayResultListViewModel.ListItem.matches(
     query: String,
     catalog: ArcaeaCatalog,
     onlyWarnings: Boolean,
+    ratingClasses: Set<ArcaeaRatingClass>,
 ): Boolean {
+    if (ratingClasses.isNotEmpty() && playResult.ratingClass !in ratingClasses) return false
     if (onlyWarnings && warnings.isEmpty()) return false
     if (allowedSongIds != null && playResult.songId !in allowedSongIds) return false
     if (query.isBlank() || !catalog.isLoaded) return true

@@ -210,8 +210,11 @@ CC BY-SA 3.0
     <string name="database_play_result_filter">Filter</string>
     <string name="database_play_result_filter_title">Filter</string>
     <string name="database_play_result_filter_packs">Packs</string>
+    <string name="database_play_result_filter_difficulty">Difficulty</string>
+    <string name="database_play_result_filter_all_difficulties">All difficulties</string>
     <string name="database_play_result_filter_all_packs">All packs</string>
     <string name="database_play_result_filter_pick_pack">Select packs</string>
+    <string name="database_play_result_filter_pick_difficulties">Select difficulties</string>
     <string name="database_play_result_filter_search_pack_hint">Search packs…</string>
     <string name="database_play_result_filter_no_song_data">Song data is not imported, so packs cannot be filtered.</string>
     <string name="database_play_result_filter_show_empty_packs">Show packs without play results</string>
@@ -219,13 +222,15 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_only_warnings_description">Show only results with validation warnings</string>
     <string name="database_play_result_filter_selected_count">Selected: %d</string>
     <plurals name="database_play_result_filter_selected_packs">
-        <item quantity="one">Selected: %d pack</item>
-        <item quantity="other">Selected: %d packs</item>
+        <item quantity="one">%d pack selected</item>
+        <item quantity="other">%d packs selected</item>
     </plurals>
     <string name="database_play_result_filter_append_packs">Includes %s</string>
     <string name="database_play_result_filter_clear">Clear filters</string>
     <string name="database_play_result_filter_chip_pack">Pack · %s</string>
     <string name="database_play_result_filter_chip_packs_count">Packs · %d</string>
+    <string name="database_play_result_filter_chip_difficulty">Difficulty · %s</string>
+    <string name="database_play_result_filter_chip_difficulties_count">Difficulties · %d</string>
     <string name="database_play_result_filter_chip_warnings">Warnings</string>
     <string name="database_play_result_filter_no_match">No play results match the current filters.</string>
     <plurals name="database_play_result_list_count">

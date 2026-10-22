@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -58,22 +59,27 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.core.search.SearchEngine
+import xyz.sevive.arcaeaoffline.helpers.DISABLED_ALPHA
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaSearchTextField
 import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
-private enum class FilterPage { FACETS, PACKS }
+private enum class FilterPage { FACETS, PACKS, DIFFICULTIES }
 
 private val FilterDialogCompactMaxWidth = 480.dp
 
@@ -84,17 +90,19 @@ private val FilterDialogCompactCorner = 28.dp
 private const val PAGE_TRANSITION_DURATION_MILLIS = 220
 
 /**
- * Filter dialog: a compact facet card that expands into a full-screen pack
- * picker.
+ * Filter dialog: a compact facet card. A facet with many options (packs)
+ * expands into a full-screen picker; the difficulty facet only grows the card
+ * in height, keeping the compact width, corners and elevation.
  *
- * Filters apply live. [onDismissRequest] is also used for back: on the pack page
- * it returns to the facets instead of closing the dialog.
+ * Filters apply live. [onDismissRequest] is also used for back: on a picker
+ * page it returns to the facets instead of closing the dialog.
  */
 @Composable
 fun DatabasePlayResultFilterDialog(
     filter: PlayResultFilter,
     catalog: ArcaeaCatalog,
     songPlayResultCounts: Map<String, Int>,
+    ratingClassCounts: Map<ArcaeaRatingClass, Int>,
     resultCount: Int,
     onFilterChange: (PlayResultFilter) -> Unit,
     onPackIdsChange: (Set<String>) -> Unit,
@@ -107,7 +115,6 @@ fun DatabasePlayResultFilterDialog(
     }
 
     val onReset: () -> Unit = { onFilterChange(PlayResultFilter(query = filter.query)) }
-    val onClearPacks: () -> Unit = { onPackIdsChange(emptySet()) }
 
     Dialog(
         onDismissRequest = { handleBack() },
@@ -152,28 +159,35 @@ fun DatabasePlayResultFilterDialog(
                 label = "filterBottomInset",
             )
 
-            // Measure the compact card once so page changes can animate between
-            // its concrete size and the full available size.
-            var compactSize by remember { mutableStateOf<IntSize?>(null) }
+            // Measure both compact pages once so page changes can animate between
+            // their concrete sizes and the full-screen picker size.
+            var facetsSize by remember { mutableStateOf<IntSize?>(null) }
+            var difficultiesSize by remember { mutableStateOf<IntSize?>(null) }
 
-            val compactHeight = compactSize?.let { with(density) { it.height.toDp() } } ?: 0.dp
+            val facetsHeight = facetsSize?.let { with(density) { it.height.toDp() } } ?: 0.dp
+            val difficultiesHeight = difficultiesSize?.let { with(density) { it.height.toDp() } } ?: 0.dp
 
             // Seed the animations with the measured size so the first frame after
             // measuring does not animate in from zero.
             val animatedWidth =
-                remember(compactSize) {
-                    Animatable(compactSize?.let { with(density) { it.width.toDp().value } } ?: 0f)
+                remember(facetsSize) {
+                    Animatable(facetsSize?.let { with(density) { it.width.toDp().value } } ?: 0f)
                 }
             val animatedHeight =
-                remember(compactSize) {
-                    Animatable(compactSize?.let { with(density) { it.height.toDp().value } } ?: 0f)
+                remember(facetsSize) {
+                    Animatable(facetsSize?.let { with(density) { it.height.toDp().value } } ?: 0f)
                 }
 
-            LaunchedEffect(page, compactSize, availableWidth, availableHeight) {
-                if (compactSize == null) return@LaunchedEffect
+            LaunchedEffect(page, facetsSize, difficultiesSize, availableWidth, availableHeight) {
+                if (facetsSize == null || difficultiesSize == null) return@LaunchedEffect
 
                 val targetWidth = if (page == FilterPage.PACKS) availableWidth.value else compactWidth.value
-                val targetHeight = if (page == FilterPage.PACKS) availableHeight.value else compactHeight.value
+                val targetHeight =
+                    when (page) {
+                        FilterPage.FACETS -> facetsHeight.value
+                        FilterPage.DIFFICULTIES -> difficultiesHeight.value
+                        FilterPage.PACKS -> availableHeight.value
+                    }
 
                 launch { animatedWidth.animateTo(targetWidth, tween(PAGE_TRANSITION_DURATION_MILLIS)) }
                 launch { animatedHeight.animateTo(targetHeight, tween(PAGE_TRANSITION_DURATION_MILLIS)) }
@@ -190,19 +204,35 @@ fun DatabasePlayResultFilterDialog(
                 label = "filterElevation",
             )
 
-            val measuring = page == FilterPage.FACETS && compactSize == null
+            val measuring = page == FilterPage.FACETS && (facetsSize == null || difficultiesSize == null)
             val sizeModifier =
                 when {
                     measuring -> Modifier.width(compactWidth).wrapContentHeight()
-                    compactSize == null -> Modifier.fillMaxSize()
+                    facetsSize == null -> Modifier.fillMaxSize()
                     else -> Modifier.width(animatedWidth.value.dp).height(animatedHeight.value.dp)
                 }
 
+            val pageContent: @Composable (FilterPage, Boolean) -> Unit = { pageToShow, fill ->
+                FilterDialogPage(
+                    page = pageToShow,
+                    fill = fill,
+                    filter = filter,
+                    catalog = catalog,
+                    songPlayResultCounts = songPlayResultCounts,
+                    ratingClassCounts = ratingClassCounts,
+                    resultCount = resultCount,
+                    onFilterChange = onFilterChange,
+                    onPackIdsChange = onPackIdsChange,
+                    onBack = { handleBack() },
+                    onReset = onReset,
+                    onDismissRequest = onDismissRequest,
+                    onOpenPacks = { page = FilterPage.PACKS },
+                    onOpenRatingClasses = { page = FilterPage.DIFFICULTIES },
+                )
+            }
+
             Surface(
-                modifier =
-                    sizeModifier.onSizeChanged {
-                        if (measuring) compactSize = it
-                    },
+                modifier = sizeModifier,
                 shape = RoundedCornerShape(corner),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = elevation,
@@ -215,20 +245,12 @@ fun DatabasePlayResultFilterDialog(
                         .padding(start = startInset, top = topInset, end = endInset, bottom = bottomInset),
                 ) {
                     if (measuring) {
-                        FilterDialogPage(
-                            page = FilterPage.FACETS,
-                            fill = false,
-                            filter = filter,
-                            catalog = catalog,
-                            songPlayResultCounts = songPlayResultCounts,
-                            resultCount = resultCount,
-                            onFilterChange = onFilterChange,
-                            onPackIdsChange = onPackIdsChange,
-                            onBack = { handleBack() },
-                            onClearPacks = onClearPacks,
-                            onReset = onReset,
-                            onDismissRequest = onDismissRequest,
-                            onOpenPacks = { page = FilterPage.PACKS },
+                        MeasureCompactPageSizes(
+                            compactWidth = compactWidth,
+                            onFacetsSize = { facetsSize = it },
+                            onDifficultiesSize = { difficultiesSize = it },
+                            facets = { pageContent(FilterPage.FACETS, false) },
+                            difficulties = { pageContent(FilterPage.DIFFICULTIES, false) },
                         )
                     } else {
                         Crossfade(
@@ -236,25 +258,56 @@ fun DatabasePlayResultFilterDialog(
                             animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
                             label = "filterPage",
                         ) { currentPage ->
-                            FilterDialogPage(
-                                page = currentPage,
-                                fill = true,
-                                filter = filter,
-                                catalog = catalog,
-                                songPlayResultCounts = songPlayResultCounts,
-                                resultCount = resultCount,
-                                onFilterChange = onFilterChange,
-                                onPackIdsChange = onPackIdsChange,
-                                onBack = { handleBack() },
-                                onClearPacks = onClearPacks,
-                                onReset = onReset,
-                                onDismissRequest = onDismissRequest,
-                                onOpenPacks = { page = FilterPage.PACKS },
-                            )
+                            pageContent(currentPage, true)
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Measures the compact facets and difficulty pages at [compactWidth].
+ *
+ * Only the facets page is visible; the difficulty page is composed with zero
+ * alpha so its height is known before it is shown. With both heights known, the
+ * card animates between the two compact sizes without a measure-then-snap frame.
+ */
+@Composable
+private fun MeasureCompactPageSizes(
+    compactWidth: Dp,
+    onFacetsSize: (IntSize) -> Unit,
+    onDifficultiesSize: (IntSize) -> Unit,
+    facets: @Composable () -> Unit,
+    difficulties: @Composable () -> Unit,
+) {
+    Layout(
+        content = {
+            Box(Modifier.onSizeChanged(onFacetsSize)) { facets() }
+            Box(
+                Modifier
+                    .alpha(0f)
+                    .onSizeChanged(onDifficultiesSize),
+            ) { difficulties() }
+        },
+        modifier = Modifier.fillMaxWidth(),
+    ) { measurables, constraints ->
+        val widthPx = compactWidth.roundToPx()
+        val pageConstraints =
+            Constraints(
+                minWidth = widthPx,
+                maxWidth = widthPx,
+                minHeight = 0,
+                maxHeight = constraints.maxHeight,
+            )
+
+        val facetsPlaceable = measurables[0].measure(pageConstraints)
+        val difficultiesPlaceable = measurables[1].measure(pageConstraints)
+
+        layout(facetsPlaceable.width, facetsPlaceable.height) {
+            facetsPlaceable.placeRelative(0, 0)
+            difficultiesPlaceable.placeRelative(0, 0)
         }
     }
 }
@@ -266,14 +319,15 @@ private fun FilterDialogPage(
     filter: PlayResultFilter,
     catalog: ArcaeaCatalog,
     songPlayResultCounts: Map<String, Int>,
+    ratingClassCounts: Map<ArcaeaRatingClass, Int>,
     resultCount: Int,
     onFilterChange: (PlayResultFilter) -> Unit,
     onPackIdsChange: (Set<String>) -> Unit,
     onBack: () -> Unit,
-    onClearPacks: () -> Unit,
     onReset: () -> Unit,
     onDismissRequest: () -> Unit,
     onOpenPacks: () -> Unit,
+    onOpenRatingClasses: () -> Unit,
 ) {
     Column(
         Modifier
@@ -288,9 +342,11 @@ private fun FilterDialogPage(
                 filter = filter,
                 catalog = catalog,
                 songPlayResultCounts = songPlayResultCounts,
+                ratingClassCounts = ratingClassCounts,
                 onFilterChange = onFilterChange,
                 onPackIdsChange = onPackIdsChange,
                 onOpenPacks = onOpenPacks,
+                onOpenRatingClasses = onOpenRatingClasses,
             )
         }
 
@@ -304,9 +360,15 @@ private fun FilterDialogPage(
             page = page,
             selectedPackCount = filter.packIds.size,
             resultCount = resultCount,
-            onClearPacks = onClearPacks,
+            onClearSelection = {
+                when (page) {
+                    FilterPage.FACETS -> Unit
+                    FilterPage.PACKS -> onPackIdsChange(emptySet())
+                    FilterPage.DIFFICULTIES -> onFilterChange(filter.copy(ratingClasses = emptySet()))
+                }
+            },
             onReset = onReset,
-            onDone = if (page == FilterPage.PACKS) onBack else onDismissRequest,
+            onDone = if (page == FilterPage.FACETS) onDismissRequest else onBack,
         )
     }
 }
@@ -317,9 +379,11 @@ private fun FilterDialogBody(
     filter: PlayResultFilter,
     catalog: ArcaeaCatalog,
     songPlayResultCounts: Map<String, Int>,
+    ratingClassCounts: Map<ArcaeaRatingClass, Int>,
     onFilterChange: (PlayResultFilter) -> Unit,
     onPackIdsChange: (Set<String>) -> Unit,
     onOpenPacks: () -> Unit,
+    onOpenRatingClasses: () -> Unit,
 ) {
     when (page) {
         FilterPage.FACETS -> {
@@ -328,6 +392,7 @@ private fun FilterDialogBody(
                 catalog = catalog,
                 onFilterChange = onFilterChange,
                 onOpenPacks = onOpenPacks,
+                onOpenRatingClasses = onOpenRatingClasses,
             )
         }
 
@@ -337,6 +402,14 @@ private fun FilterDialogBody(
                 selectedPackIds = filter.packIds,
                 songPlayResultCounts = songPlayResultCounts,
                 onPackIdsChange = onPackIdsChange,
+            )
+        }
+
+        FilterPage.DIFFICULTIES -> {
+            DifficultyPickerPage(
+                selectedRatingClasses = filter.ratingClasses,
+                ratingClassCounts = ratingClassCounts,
+                onRatingClassesChange = { onFilterChange(filter.copy(ratingClasses = it)) },
             )
         }
     }
@@ -364,6 +437,7 @@ private fun FilterDialogHeader(
                 when (page) {
                     FilterPage.FACETS -> stringResource(R.string.database_play_result_filter_title)
                     FilterPage.PACKS -> stringResource(R.string.database_play_result_filter_pick_pack)
+                    FilterPage.DIFFICULTIES -> stringResource(R.string.database_play_result_filter_pick_difficulties)
                 },
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleLarge,
@@ -379,6 +453,7 @@ private fun FacetsPage(
     catalog: ArcaeaCatalog,
     onFilterChange: (PlayResultFilter) -> Unit,
     onOpenPacks: () -> Unit,
+    onOpenRatingClasses: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -402,6 +477,20 @@ private fun FacetsPage(
                     { onFilterChange(filter.copy(packIds = emptySet())) }
                 },
             enabled = catalog.basePacks.isNotEmpty(),
+        )
+
+        FilterEntryRow(
+            label = stringResource(R.string.database_play_result_filter_difficulty),
+            value = ratingClassSummary(filter.ratingClasses),
+            leading = { Icon(painterResource(R.drawable.ic_rating_class), contentDescription = null) },
+            onClick = onOpenRatingClasses,
+            onClear =
+                if (filter.ratingClasses.isEmpty()) {
+                    null
+                } else {
+                    { onFilterChange(filter.copy(ratingClasses = emptySet())) }
+                },
+            enabled = true,
         )
 
         SwitchItem(
@@ -476,6 +565,22 @@ private fun packSummary(
 
         else -> {
             stringResource(R.string.database_play_result_filter_selected_count, packIds.size)
+        }
+    }
+
+@Composable
+private fun ratingClassSummary(ratingClasses: Set<ArcaeaRatingClass>): String =
+    when {
+        ratingClasses.isEmpty() -> {
+            stringResource(R.string.database_play_result_filter_all_difficulties)
+        }
+
+        ratingClasses.size == 1 -> {
+            ArcaeaRatingClassDisplay.of(ratingClasses.first()).name
+        }
+
+        else -> {
+            stringResource(R.string.database_play_result_filter_selected_count, ratingClasses.size)
         }
     }
 
@@ -573,6 +678,49 @@ private fun PackPickerPage(
 }
 
 @Composable
+private fun DifficultyPickerPage(
+    selectedRatingClasses: Set<ArcaeaRatingClass>,
+    ratingClassCounts: Map<ArcaeaRatingClass, Int>,
+    onRatingClassesChange: (Set<ArcaeaRatingClass>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        ArcaeaRatingClass.entries.forEach { ratingClass ->
+            val selected = ratingClass in selectedRatingClasses
+            val count = ratingClassCounts[ratingClass] ?: 0
+
+            SelectableRow(
+                title = ArcaeaRatingClassDisplay.of(ratingClass).name,
+                trailing =
+                    pluralStringResource(
+                        R.plurals.database_play_result_entries,
+                        count,
+                        count,
+                    ),
+                selected = selected,
+                // A class without results under the other facets cannot be
+                // added, but a selected one stays enabled so it can be removed.
+                enabled = selected || count > 0,
+                onClick = {
+                    onRatingClassesChange(
+                        if (selected) {
+                            selectedRatingClasses - ratingClass
+                        } else {
+                            selectedRatingClasses + ratingClass
+                        },
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
 private fun SelectableRow(
     title: String,
     selected: Boolean,
@@ -580,18 +728,21 @@ private fun SelectableRow(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     trailing: String? = null,
+    enabled: Boolean = true,
 ) {
     Row(
         modifier
             .fillMaxWidth()
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .toggleable(
                 value = selected,
+                enabled = enabled,
                 role = Role.Checkbox,
                 onValueChange = { onClick() },
             ).padding(horizontal = MaterialTheme.spacing.pagePadding, vertical = MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(checked = selected, onCheckedChange = null)
+        Checkbox(checked = selected, onCheckedChange = null, enabled = enabled)
 
         Column(Modifier.weight(1f).padding(start = MaterialTheme.spacing.sm)) {
             Text(title, style = MaterialTheme.typography.titleSmall)
@@ -620,7 +771,7 @@ private fun FilterDialogFooter(
     page: FilterPage,
     selectedPackCount: Int,
     resultCount: Int,
-    onClearPacks: () -> Unit,
+    onClearSelection: () -> Unit,
     onReset: () -> Unit,
     onDone: () -> Unit,
 ) {
@@ -629,36 +780,44 @@ private fun FilterDialogFooter(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = MaterialTheme.spacing.pagePadding, vertical = MaterialTheme.spacing.sm),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            horizontalArrangement =
+                Arrangement.spacedBy(
+                    MaterialTheme.spacing.sm,
+                    if (page == FilterPage.DIFFICULTIES) Alignment.End else Alignment.Start,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text =
-                    if (page == FilterPage.PACKS) {
-                        pluralStringResource(
-                            R.plurals.database_play_result_filter_selected_packs,
-                            selectedPackCount,
-                            selectedPackCount,
-                        )
-                    } else {
-                        pluralStringResource(
-                            R.plurals.database_play_result_filter_result_count,
-                            resultCount,
-                            resultCount,
-                        )
-                    },
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // The difficulty page has five options, so the selected count adds
+            // nothing over the checkboxes; its footer only carries the actions.
+            if (page != FilterPage.DIFFICULTIES) {
+                Text(
+                    text =
+                        if (page == FilterPage.PACKS) {
+                            pluralStringResource(
+                                R.plurals.database_play_result_filter_selected_packs,
+                                selectedPackCount,
+                                selectedPackCount,
+                            )
+                        } else {
+                            pluralStringResource(
+                                R.plurals.database_play_result_filter_result_count,
+                                resultCount,
+                                resultCount,
+                            )
+                        },
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
             TextButton(
-                onClick = if (page == FilterPage.PACKS) onClearPacks else onReset,
+                onClick = if (page == FilterPage.FACETS) onReset else onClearSelection,
             ) {
                 Text(
                     stringResource(
-                        if (page == FilterPage.PACKS) R.string.general_clear else R.string.general_reset,
+                        if (page == FilterPage.FACETS) R.string.general_reset else R.string.general_clear,
                     ),
                 )
             }
