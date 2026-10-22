@@ -59,6 +59,21 @@ data class ArcaeaCatalog(
             .mapNotNull { pack -> pack.basePackId()?.let { it to pack } }
             .groupBy({ it.first }, { it.second })
 
+    /**
+     * Search documents for [basePacks], including each base pack's append pack
+     * names. The pack picker matches its query against these.
+     */
+    val packDocuments: List<SearchDocument> =
+        basePacks.map { pack ->
+            searchDocument(pack.id) {
+                text(SearchFields.PackName, pack.name)
+                text(SearchFields.PackId, pack.id)
+                appendPacksByBasePackId[pack.id].orEmpty().forEach { append ->
+                    text(SearchFields.PackName, append.name)
+                }
+            }
+        }
+
     fun song(songId: String?): ArcaeaCatalogSong? = songId?.let { songsById[it] }
 
     fun pack(packId: String?): Pack? = packId?.let { packsById[it] }

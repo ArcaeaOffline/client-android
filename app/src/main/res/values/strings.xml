@@ -218,6 +218,10 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_only_warnings">Only warnings</string>
     <string name="database_play_result_filter_only_warnings_description">Show only results with validation warnings</string>
     <string name="database_play_result_filter_selected_count">Selected: %d</string>
+    <plurals name="database_play_result_filter_selected_packs">
+        <item quantity="one">Selected: %d pack</item>
+        <item quantity="other">Selected: %d packs</item>
+    </plurals>
     <string name="database_play_result_filter_append_packs">Includes %s</string>
     <string name="database_play_result_filter_clear">Clear filters</string>
     <string name="database_play_result_filter_chip_pack">Pack · %s</string>

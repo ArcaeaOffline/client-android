@@ -196,6 +196,9 @@
     <string name="database_play_result_filter_only_warnings">仅警告</string>
     <string name="database_play_result_filter_only_warnings_description">只显示有校验警告的游玩记录</string>
     <string name="database_play_result_filter_selected_count">已选：%d</string>
+    <plurals name="database_play_result_filter_selected_packs">
+        <item quantity="other">已选 %d 个曲包</item>
+    </plurals>
     <string name="database_play_result_filter_append_packs">包含 %s</string>
     <string name="database_play_result_filter_clear">清除筛选</string>
     <string name="database_play_result_filter_chip_pack">曲包 · %s</string>

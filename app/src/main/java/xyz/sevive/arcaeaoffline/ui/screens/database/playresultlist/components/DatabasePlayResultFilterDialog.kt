@@ -1,34 +1,31 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,13 +50,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
@@ -71,12 +75,17 @@ import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private enum class FilterPage { FACETS, PACKS }
 
-private val FilterDialogMaxWidth = 640.dp
+private val FilterDialogCompactMaxWidth = 480.dp
+
+private const val FILTER_DIALOG_COMPACT_WIDTH_FRACTION = 0.92f
+
+private val FilterDialogCompactCorner = 28.dp
 
 private const val PAGE_TRANSITION_DURATION_MILLIS = 220
 
 /**
- * Full-screen filter dialog.
+ * Filter dialog: a compact facet card that expands into a full-screen pack
+ * picker.
  *
  * Filters apply live. [onDismissRequest] is also used for back: on the pack page
  * it returns to the facets instead of closing the dialog.
@@ -97,6 +106,9 @@ fun DatabasePlayResultFilterDialog(
         if (page == FilterPage.FACETS) onDismissRequest() else page = FilterPage.FACETS
     }
 
+    val onReset: () -> Unit = { onFilterChange(PlayResultFilter(query = filter.query)) }
+    val onClearPacks: () -> Unit = { onPackIdsChange(emptySet()) }
+
     Dialog(
         onDismissRequest = { handleBack() },
         properties =
@@ -107,69 +119,140 @@ fun DatabasePlayResultFilterDialog(
                 decorFitsSystemWindows = false,
             ),
     ) {
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        BoxWithConstraints(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            val availableWidth = maxWidth
+            val availableHeight = maxHeight
+            val compactWidth =
+                minOf(availableWidth * FILTER_DIALOG_COMPACT_WIDTH_FRACTION, FilterDialogCompactMaxWidth)
+            val density = LocalDensity.current
+            val safeInsets = WindowInsets.safeDrawing.asPaddingValues()
+            val layoutDirection = LocalLayoutDirection.current
+
+            val startInset by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) safeInsets.calculateStartPadding(layoutDirection) else 0.dp,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterStartInset",
+            )
+            val topInset by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) safeInsets.calculateTopPadding() else 0.dp,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterTopInset",
+            )
+            val endInset by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) safeInsets.calculateEndPadding(layoutDirection) else 0.dp,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterEndInset",
+            )
+            val bottomInset by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) safeInsets.calculateBottomPadding() else 0.dp,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterBottomInset",
+            )
+
+            // Measure the compact card once so page changes can animate between
+            // its concrete size and the full available size.
+            var compactSize by remember { mutableStateOf<IntSize?>(null) }
+
+            val compactHeight = compactSize?.let { with(density) { it.height.toDp() } } ?: 0.dp
+
+            // Seed the animations with the measured size so the first frame after
+            // measuring does not animate in from zero.
+            val animatedWidth =
+                remember(compactSize) {
+                    Animatable(compactSize?.let { with(density) { it.width.toDp().value } } ?: 0f)
+                }
+            val animatedHeight =
+                remember(compactSize) {
+                    Animatable(compactSize?.let { with(density) { it.height.toDp().value } } ?: 0f)
+                }
+
+            LaunchedEffect(page, compactSize, availableWidth, availableHeight) {
+                if (compactSize == null) return@LaunchedEffect
+
+                val targetWidth = if (page == FilterPage.PACKS) availableWidth.value else compactWidth.value
+                val targetHeight = if (page == FilterPage.PACKS) availableHeight.value else compactHeight.value
+
+                launch { animatedWidth.animateTo(targetWidth, tween(PAGE_TRANSITION_DURATION_MILLIS)) }
+                launch { animatedHeight.animateTo(targetHeight, tween(PAGE_TRANSITION_DURATION_MILLIS)) }
+            }
+
+            val corner by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) 0.dp else FilterDialogCompactCorner,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterCorner",
+            )
+            val elevation by animateDpAsState(
+                targetValue = if (page == FilterPage.PACKS) 0.dp else 6.dp,
+                animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
+                label = "filterElevation",
+            )
+
+            val measuring = page == FilterPage.FACETS && compactSize == null
+            val sizeModifier =
+                when {
+                    measuring -> Modifier.width(compactWidth).wrapContentHeight()
+                    compactSize == null -> Modifier.fillMaxSize()
+                    else -> Modifier.width(animatedWidth.value.dp).height(animatedHeight.value.dp)
+                }
+
+            Surface(
+                modifier =
+                    sizeModifier.onSizeChanged {
+                        if (measuring) compactSize = it
+                    },
+                shape = RoundedCornerShape(corner),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = elevation,
+                shadowElevation = elevation,
+            ) {
                 Column(
                     Modifier
-                        .fillMaxHeight()
-                        .widthIn(max = FilterDialogMaxWidth)
                         .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.safeDrawing),
+                        .then(if (measuring) Modifier else Modifier.fillMaxSize())
+                        .padding(start = startInset, top = topInset, end = endInset, bottom = bottomInset),
                 ) {
-                    FilterDialogHeader(
-                        page = page,
-                        selectedPackIds = filter.packIds,
-                        onBack = { handleBack() },
-                        onClearPacks = { onPackIdsChange(emptySet()) },
-                    )
-
-                    Box(Modifier.weight(1f).fillMaxWidth()) {
-                        AnimatedContent(
+                    if (measuring) {
+                        FilterDialogPage(
+                            page = FilterPage.FACETS,
+                            fill = false,
+                            filter = filter,
+                            catalog = catalog,
+                            songPlayResultCounts = songPlayResultCounts,
+                            resultCount = resultCount,
+                            onFilterChange = onFilterChange,
+                            onPackIdsChange = onPackIdsChange,
+                            onBack = { handleBack() },
+                            onClearPacks = onClearPacks,
+                            onReset = onReset,
+                            onDismissRequest = onDismissRequest,
+                            onOpenPacks = { page = FilterPage.PACKS },
+                        )
+                    } else {
+                        Crossfade(
                             targetState = page,
-                            modifier = Modifier.fillMaxSize(),
-                            transitionSpec = {
-                                // The content area has a fixed height, so only the
-                                // horizontal slide changes between pages.
-                                val forward = targetState.ordinal > initialState.ordinal
-                                val enter =
-                                    slideInHorizontally(animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS)) { width ->
-                                        if (forward) width else -width
-                                    }
-                                val exit =
-                                    slideOutHorizontally(animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS)) { width ->
-                                        if (forward) -width else width
-                                    }
-                                enter togetherWith exit
-                            },
+                            animationSpec = tween(PAGE_TRANSITION_DURATION_MILLIS),
                             label = "filterPage",
                         ) { currentPage ->
-                            when (currentPage) {
-                                FilterPage.FACETS -> {
-                                    FacetsPage(
-                                        filter = filter,
-                                        catalog = catalog,
-                                        onFilterChange = onFilterChange,
-                                        onOpenPacks = { page = FilterPage.PACKS },
-                                    )
-                                }
-
-                                FilterPage.PACKS -> {
-                                    PackPickerPage(
-                                        catalog = catalog,
-                                        selectedPackIds = filter.packIds,
-                                        songPlayResultCounts = songPlayResultCounts,
-                                        onPackIdsChange = onPackIdsChange,
-                                    )
-                                }
-                            }
+                            FilterDialogPage(
+                                page = currentPage,
+                                fill = true,
+                                filter = filter,
+                                catalog = catalog,
+                                songPlayResultCounts = songPlayResultCounts,
+                                resultCount = resultCount,
+                                onFilterChange = onFilterChange,
+                                onPackIdsChange = onPackIdsChange,
+                                onBack = { handleBack() },
+                                onClearPacks = onClearPacks,
+                                onReset = onReset,
+                                onDismissRequest = onDismissRequest,
+                                onOpenPacks = { page = FilterPage.PACKS },
+                            )
                         }
                     }
-
-                    FilterDialogFooter(
-                        resultCount = resultCount,
-                        onReset = { onFilterChange(PlayResultFilter(query = filter.query)) },
-                        onDone = onDismissRequest,
-                    )
                 }
             }
         }
@@ -177,11 +260,92 @@ fun DatabasePlayResultFilterDialog(
 }
 
 @Composable
-private fun FilterDialogHeader(
+private fun FilterDialogPage(
     page: FilterPage,
-    selectedPackIds: Set<String>,
+    fill: Boolean,
+    filter: PlayResultFilter,
+    catalog: ArcaeaCatalog,
+    songPlayResultCounts: Map<String, Int>,
+    resultCount: Int,
+    onFilterChange: (PlayResultFilter) -> Unit,
+    onPackIdsChange: (Set<String>) -> Unit,
     onBack: () -> Unit,
     onClearPacks: () -> Unit,
+    onReset: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onOpenPacks: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .then(if (fill) Modifier.fillMaxSize() else Modifier),
+    ) {
+        FilterDialogHeader(page = page, onBack = onBack)
+
+        val body: @Composable () -> Unit = {
+            FilterDialogBody(
+                page = page,
+                filter = filter,
+                catalog = catalog,
+                songPlayResultCounts = songPlayResultCounts,
+                onFilterChange = onFilterChange,
+                onPackIdsChange = onPackIdsChange,
+                onOpenPacks = onOpenPacks,
+            )
+        }
+
+        if (fill) {
+            Box(Modifier.weight(1f).fillMaxWidth()) { body() }
+        } else {
+            body()
+        }
+
+        FilterDialogFooter(
+            page = page,
+            selectedPackCount = filter.packIds.size,
+            resultCount = resultCount,
+            onClearPacks = onClearPacks,
+            onReset = onReset,
+            onDone = if (page == FilterPage.PACKS) onBack else onDismissRequest,
+        )
+    }
+}
+
+@Composable
+private fun FilterDialogBody(
+    page: FilterPage,
+    filter: PlayResultFilter,
+    catalog: ArcaeaCatalog,
+    songPlayResultCounts: Map<String, Int>,
+    onFilterChange: (PlayResultFilter) -> Unit,
+    onPackIdsChange: (Set<String>) -> Unit,
+    onOpenPacks: () -> Unit,
+) {
+    when (page) {
+        FilterPage.FACETS -> {
+            FacetsPage(
+                filter = filter,
+                catalog = catalog,
+                onFilterChange = onFilterChange,
+                onOpenPacks = onOpenPacks,
+            )
+        }
+
+        FilterPage.PACKS -> {
+            PackPickerPage(
+                catalog = catalog,
+                selectedPackIds = filter.packIds,
+                songPlayResultCounts = songPlayResultCounts,
+                onPackIdsChange = onPackIdsChange,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterDialogHeader(
+    page: FilterPage,
+    onBack: () -> Unit,
 ) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.spacing.xs, vertical = MaterialTheme.spacing.sm),
@@ -201,30 +365,11 @@ private fun FilterDialogHeader(
                     FilterPage.FACETS -> stringResource(R.string.database_play_result_filter_title)
                     FilterPage.PACKS -> stringResource(R.string.database_play_result_filter_pick_pack)
                 },
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
-
-        Spacer(Modifier.weight(1f))
-
-        if (page == FilterPage.PACKS) {
-            Text(
-                text = stringResource(R.string.database_play_result_filter_selected_count, selectedPackIds.size),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(Modifier.width(MaterialTheme.spacing.xs))
-
-            AnimatedVisibility(
-                visible = selectedPackIds.isNotEmpty(),
-                enter = fadeIn() + expandHorizontally(),
-                exit = fadeOut() + shrinkHorizontally(),
-            ) {
-                TextButton(onClick = onClearPacks) {
-                    Text(stringResource(R.string.general_clear))
-                }
-            }
-        }
     }
 }
 
@@ -238,7 +383,8 @@ private fun FacetsPage(
 ) {
     Column(
         modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .wrapContentHeight()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = MaterialTheme.spacing.pagePadding),
     ) {
@@ -294,6 +440,8 @@ private fun FilterEntryRow(
                 text = value,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         },
         modifier = modifier.alpha(if (enabled) 1f else 0.5f),
@@ -318,15 +466,22 @@ private fun packSummary(
     catalog: ArcaeaCatalog,
 ): String =
     when {
-        packIds.isEmpty() -> stringResource(R.string.database_play_result_filter_all_packs)
-        packIds.size == 1 -> catalog.packName(packIds.first()) ?: packIds.first()
-        else -> stringResource(R.string.database_play_result_filter_selected_count, packIds.size)
+        packIds.isEmpty() -> {
+            stringResource(R.string.database_play_result_filter_all_packs)
+        }
+
+        packIds.size == 1 -> {
+            catalog.packName(packIds.first()) ?: packIds.first()
+        }
+
+        else -> {
+            stringResource(R.string.database_play_result_filter_selected_count, packIds.size)
+        }
     }
 
 private data class PackRowData(
     val pack: Pack,
     val appendNames: List<String>,
-    val searchableText: String,
     val playResultCount: Int,
 )
 
@@ -345,32 +500,23 @@ private fun PackPickerPage(
         remember(catalog, songPlayResultCounts) {
             catalog.basePacks
                 .map { pack ->
-                    val appendNames = catalog.appendPacksByBasePackId[pack.id].orEmpty().map { it.name }
                     PackRowData(
                         pack = pack,
-                        appendNames = appendNames,
-                        searchableText =
-                            SearchEngine.normalize(
-                                buildString {
-                                    append(pack.name)
-                                    append(' ')
-                                    append(pack.id)
-                                    appendNames.forEach {
-                                        append(' ')
-                                        append(it)
-                                    }
-                                },
-                            ),
+                        appendNames = catalog.appendPacksByBasePackId[pack.id].orEmpty().map { it.name },
                         playResultCount = catalog.songIdsByBasePackId[pack.id].orEmpty().sumOf { songPlayResultCounts[it] ?: 0 },
                     )
                 }.sortedByDescending { it.playResultCount }
         }
 
-    val normalizedQuery = SearchEngine.normalize(query)
     val visibleRows =
-        rows.filter { row ->
-            (showEmptyPacks || row.playResultCount > 0) &&
-                (normalizedQuery.isEmpty() || row.searchableText.contains(normalizedQuery))
+        remember(rows, query, showEmptyPacks, catalog.packDocuments) {
+            val matchedPackIds =
+                if (query.isBlank()) null else SearchEngine.searchIds(catalog.packDocuments, query)
+
+            rows.filter { row ->
+                (showEmptyPacks || row.playResultCount > 0) &&
+                    (matchedPackIds == null || row.pack.id in matchedPackIds)
+            }
         }
 
     Column(modifier.fillMaxSize()) {
@@ -471,7 +617,10 @@ private fun SelectableRow(
 
 @Composable
 private fun FilterDialogFooter(
+    page: FilterPage,
+    selectedPackCount: Int,
     resultCount: Int,
+    onClearPacks: () -> Unit,
     onReset: () -> Unit,
     onDone: () -> Unit,
 ) {
@@ -485,18 +634,33 @@ private fun FilterDialogFooter(
         ) {
             Text(
                 text =
-                    pluralStringResource(
-                        R.plurals.database_play_result_filter_result_count,
-                        resultCount,
-                        resultCount,
-                    ),
+                    if (page == FilterPage.PACKS) {
+                        pluralStringResource(
+                            R.plurals.database_play_result_filter_selected_packs,
+                            selectedPackCount,
+                            selectedPackCount,
+                        )
+                    } else {
+                        pluralStringResource(
+                            R.plurals.database_play_result_filter_result_count,
+                            resultCount,
+                            resultCount,
+                        )
+                    },
+                modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
 
-            Spacer(Modifier.weight(1f))
-
-            TextButton(onClick = onReset) {
-                Text(stringResource(R.string.general_reset))
+            TextButton(
+                onClick = if (page == FilterPage.PACKS) onClearPacks else onReset,
+            ) {
+                Text(
+                    stringResource(
+                        if (page == FilterPage.PACKS) R.string.general_clear else R.string.general_reset,
+                    ),
+                )
             }
 
             Button(onClick = onDone) {
