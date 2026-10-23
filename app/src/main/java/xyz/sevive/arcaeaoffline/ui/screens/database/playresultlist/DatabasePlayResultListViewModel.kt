@@ -287,10 +287,6 @@ class DatabasePlayResultListViewModel(
         filter.update { it.copy(query = query) }
     }
 
-    fun setPackIds(packIds: Set<String>) {
-        filter.update { it.copy(packIds = packIds) }
-    }
-
     fun clearFilters() {
         filter.value = PlayResultFilter()
     }

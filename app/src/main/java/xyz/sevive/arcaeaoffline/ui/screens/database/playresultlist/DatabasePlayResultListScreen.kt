@@ -197,7 +197,6 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
             ratingClassCounts = uiState.ratingClassCounts,
             resultCount = listItems.size,
             onFilterChange = viewModel::setFilter,
-            onPackIdsChange = viewModel::setPackIds,
             onDismissRequest = { showFilterDialog = false },
         )
     }
