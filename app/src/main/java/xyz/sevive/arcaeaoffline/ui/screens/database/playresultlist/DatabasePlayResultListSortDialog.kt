@@ -101,8 +101,16 @@ private fun DatabasePlayResultListSortDialogContent(
 
         item {
             SortByValueWidgetWrapper(
-                label = "ID",
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.ID,
+                label = stringResource(R.string.general_song_title),
+                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.TITLE,
+                Modifier.fillMaxWidth(),
+            )
+        }
+
+        item {
+            SortByValueWidgetWrapper(
+                label = stringResource(R.string.database_play_result_filter_difficulty),
+                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.DIFFICULTY,
                 Modifier.fillMaxWidth(),
             )
         }
@@ -125,7 +133,7 @@ private fun DatabasePlayResultListSortDialogContent(
 
         item {
             SortByValueWidgetWrapper(
-                label = stringResource(R.string.datetime_picker_label),
+                label = stringResource(R.string.datetime_picker_date),
                 targetSortByValue = DatabasePlayResultListViewModel.SortByValue.DATE,
                 Modifier.fillMaxWidth(),
             )

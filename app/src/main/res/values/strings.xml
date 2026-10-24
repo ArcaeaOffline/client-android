@@ -38,6 +38,7 @@ CC BY-SA 3.0
     <string name="general_unknown_error">Unknown error.</string>
     <string name="general_unknown">Unknown</string>
     <string name="general_downloading">Downloading…</string>
+    <string name="general_song_title">Title</string>
 
     <string name="general_sort_ascending">Ascending</string>
     <string name="general_sort_ascending_short">ASC</string>
@@ -327,7 +328,6 @@ CC BY-SA 3.0
     <string name="play_result_editor_set_null">NULL</string>
     <string name="play_result_editor_comment_field">Comment</string>
 
-    <string name="datetime_picker_label">Date Time Picker</string>
     <string name="datetime_picker_date">Date</string>
     <string name="datetime_picker_time">Time</string>
 

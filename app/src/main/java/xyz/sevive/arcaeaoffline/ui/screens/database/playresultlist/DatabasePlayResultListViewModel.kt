@@ -62,7 +62,7 @@ class DatabasePlayResultListViewModel(
         fun reverse() = if (this == ASC) DESC else ASC
     }
 
-    enum class SortByValue { ID, SCORE, PLAY_RATING, DATE }
+    enum class SortByValue { TITLE, DIFFICULTY, SCORE, PLAY_RATING, DATE }
 
     data class ListItem(
         val playResult: PlayResult,
@@ -89,6 +89,26 @@ class DatabasePlayResultListViewModel(
         val warnings = ArcaeaPlayResultValidator.validate(playResult, display?.chartInfo, scoringMode)
         val scoreGrade = ArcaeaScoreGrade.of(playResult.score)
         val clearStatus = ArcaeaPlayResultClearStatus.of(playResult.clearType)
+
+        val title: String = display?.difficultyWithSong?.title ?: playResult.songId
+
+        private val chartConstant: Int? = display?.chartInfo?.constant?.takeIf { it > 0 }
+
+        /**
+         * Difficulty key in tenths, used for sorting.
+         *
+         * A chart without a constant falls back to the top of its displayed
+         * level. Null means the song data is missing, so the chart has no level.
+         */
+        val difficultySortValue: Int? =
+            chartConstant
+                ?: display?.difficultyWithSong?.let { levelTopConstant(it.rating, it.ratingPlus) }
+
+        /**
+         * Whether [difficultySortValue] comes from chart info rather than the
+         * level fallback.
+         */
+        val hasConstant: Boolean = chartConstant != null
     }
 
     data class UiState(
@@ -237,15 +257,13 @@ class DatabasePlayResultListViewModel(
 
     private val listItems: StateFlow<List<ListItem>> =
         combine(filteredListItems, sortOrder, sortByValue) { items, order, sortBy ->
-            val itemsSorted =
-                when (sortBy) {
-                    SortByValue.ID -> items.sortedBy { it.playResult.id }
-                    SortByValue.SCORE -> items.sortedBy { it.playResult.score }
-                    SortByValue.PLAY_RATING -> items.sortedBy { it.playRating }
-                    SortByValue.DATE -> items.sortedBy { it.playResult.date?.toEpochMilliseconds() }
-                }
-
-            if (order == SortOrder.ASC) itemsSorted else itemsSorted.reversed()
+            when (sortBy) {
+                SortByValue.TITLE -> items.sortedWith(titleComparator(order))
+                SortByValue.DIFFICULTY -> items.sortedWith(difficultyComparator(order))
+                SortByValue.SCORE -> items.sortedByValue(order) { it.playResult.score }
+                SortByValue.PLAY_RATING -> items.sortedByValue(order) { it.playRating }
+                SortByValue.DATE -> items.sortedByValue(order) { it.playResult.date?.toEpochMilliseconds() }
+            }
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
@@ -385,12 +403,51 @@ class DatabasePlayResultListViewModel(
         }
     }
 
+    private fun titleComparator(order: SortOrder): Comparator<ListItem> {
+        val byTitle = compareBy<ListItem, String>(String.CASE_INSENSITIVE_ORDER) { it.title }
+        return if (order == SortOrder.ASC) byTitle else byTitle.reversed()
+    }
+
+    private fun difficultyComparator(order: SortOrder): Comparator<ListItem> {
+        val byMissing = compareBy<ListItem> { it.difficultySortValue == null }
+        val byValue = compareBy<ListItem> { it.difficultySortValue ?: 0 }
+        // A fallback value ties with the level's highest known constant; this
+        // orders the chart without a constant above that known constant.
+        val byKnown = compareBy<ListItem> { !it.hasConstant }
+        val byTitle = compareBy<ListItem, String>(String.CASE_INSENSITIVE_ORDER) { it.title }
+
+        return if (order == SortOrder.ASC) {
+            byMissing.then(byValue).then(byKnown).then(byTitle)
+        } else {
+            byMissing.then(byValue.reversed()).then(byKnown.reversed()).then(byTitle)
+        }
+    }
+
+    private fun <T : Comparable<T>> List<ListItem>.sortedByValue(
+        order: SortOrder,
+        selector: (ListItem) -> T?,
+    ): List<ListItem> {
+        val sorted = sortedBy(selector)
+        return if (order == SortOrder.ASC) sorted else sorted.reversed()
+    }
+
     companion object {
         private val STOP_TIMEOUT = 5.seconds
 
         private val SEARCH_QUERY_DEBOUNCE = 100.milliseconds
     }
 }
+
+/**
+ * Fallback difficulty key for a chart whose constant is missing, in tenths.
+ *
+ * Uses the .6/.9 split of the level's tenths. Where the real constants use a
+ * coarser grid, the value lands in the gap above the highest real constant.
+ */
+private fun levelTopConstant(
+    rating: Int,
+    ratingPlus: Boolean,
+): Int = rating * 10 + if (ratingPlus) 9 else 6
 
 /**
  * Resolves the filter to the set of allowed song ids, or null when the filter

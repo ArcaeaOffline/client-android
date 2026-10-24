@@ -24,7 +24,7 @@ private val groupByValueResIdMap =
         GroupByValue.FAR to R.string.arcaea_play_result_far,
         GroupByValue.LOST to R.string.arcaea_play_result_lost,
         GroupByValue.MAX_RECALL to R.string.arcaea_play_result_max_recall,
-        GroupByValue.DATE to R.string.datetime_picker_label,
+        GroupByValue.DATE to R.string.datetime_picker_date,
         GroupByValue.CLEAR_TYPE to R.string.arcaea_play_result_clear_type,
         GroupByValue.MODIFIER to R.string.arcaea_play_result_modifier,
     )

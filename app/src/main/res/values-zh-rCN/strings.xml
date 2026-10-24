@@ -27,6 +27,7 @@
     <string name="general_unknown_error">未知错误</string>
     <string name="general_unknown">未知</string>
     <string name="general_downloading">正在下载……</string>
+    <string name="general_song_title">曲名</string>
 
     <string name="general_sort_ascending">升序</string>
     <string name="general_sort_ascending_short">升序</string>
@@ -288,7 +289,6 @@
     <string name="play_result_editor_set_null">置空</string>
     <string name="play_result_editor_comment_field">备注</string>
 
-    <string name="datetime_picker_label">日期时间选择</string>
     <string name="datetime_picker_date">日期</string>
     <string name="datetime_picker_time">时间</string>
 
