@@ -102,23 +102,17 @@ private fun PackPickerScreen(
     fill: Boolean,
     onBack: () -> Unit,
 ) {
-    FilterDialogChrome(
+    PickerScaffold(
         fill = fill,
-        leading = { BackButton(onBack) },
         title = stringResource(R.string.database_play_result_filter_pick_pack),
-        footer = {
-            FilterDialogFooter(
-                label =
-                    pluralStringResource(
-                        R.plurals.database_play_result_filter_selected_packs,
-                        state.filter.packIds.size,
-                        state.filter.packIds.size,
-                    ),
-                actionLabel = stringResource(R.string.general_clear),
-                onAction = { state.setPackIds(emptySet()) },
-                onDone = onBack,
-            )
-        },
+        footerLabel =
+            pluralStringResource(
+                R.plurals.database_play_result_filter_selected_packs,
+                state.filter.packIds.size,
+                state.filter.packIds.size,
+            ),
+        onClear = { state.setPackIds(emptySet()) },
+        onBack = onBack,
     ) {
         PackPickerPage(state = state)
     }
@@ -130,18 +124,11 @@ private fun DifficultyPickerScreen(
     fill: Boolean,
     onBack: () -> Unit,
 ) {
-    FilterDialogChrome(
+    PickerScaffold(
         fill = fill,
-        leading = { BackButton(onBack) },
         title = stringResource(R.string.database_play_result_filter_pick_difficulties),
-        footer = {
-            FilterDialogFooter(
-                label = null,
-                actionLabel = stringResource(R.string.general_clear),
-                onAction = { state.setRatingClasses(emptySet()) },
-                onDone = onBack,
-            )
-        },
+        onClear = { state.setRatingClasses(emptySet()) },
+        onBack = onBack,
     ) {
         FilterOptionPickerPage(
             options = ArcaeaRatingClass.entries,
@@ -159,18 +146,11 @@ private fun ScoreGradePickerScreen(
     fill: Boolean,
     onBack: () -> Unit,
 ) {
-    FilterDialogChrome(
+    PickerScaffold(
         fill = fill,
-        leading = { BackButton(onBack) },
         title = stringResource(R.string.database_play_result_filter_pick_score_grades),
-        footer = {
-            FilterDialogFooter(
-                label = null,
-                actionLabel = stringResource(R.string.general_clear),
-                onAction = { state.setScoreGrades(emptySet()) },
-                onDone = onBack,
-            )
-        },
+        onClear = { state.setScoreGrades(emptySet()) },
+        onBack = onBack,
     ) {
         FilterOptionPickerPage(
             options = ArcaeaScoreGrade.entries,
@@ -188,18 +168,11 @@ private fun ClearStatusPickerScreen(
     fill: Boolean,
     onBack: () -> Unit,
 ) {
-    FilterDialogChrome(
+    PickerScaffold(
         fill = fill,
-        leading = { BackButton(onBack) },
         title = stringResource(R.string.database_play_result_filter_pick_clear_statuses),
-        footer = {
-            FilterDialogFooter(
-                label = null,
-                actionLabel = stringResource(R.string.general_clear),
-                onAction = { state.setClearStatuses(emptySet()) },
-                onDone = onBack,
-            )
-        },
+        onClear = { state.setClearStatuses(emptySet()) },
+        onBack = onBack,
     ) {
         FilterOptionPickerPage(
             options = ArcaeaPlayResultClearStatus.entries,
@@ -209,6 +182,31 @@ private fun ClearStatusPickerScreen(
             onSelectionChange = state::setClearStatuses,
         )
     }
+}
+
+@Composable
+private fun PickerScaffold(
+    fill: Boolean,
+    title: String,
+    onClear: () -> Unit,
+    onBack: () -> Unit,
+    footerLabel: String? = null,
+    content: @Composable () -> Unit,
+) {
+    FilterDialogChrome(
+        fill = fill,
+        leading = { BackButton(onBack) },
+        title = title,
+        footer = {
+            FilterDialogFooter(
+                label = footerLabel,
+                actionLabel = stringResource(R.string.general_clear),
+                onAction = onClear,
+                onDone = onBack,
+            )
+        },
+        content = content,
+    )
 }
 
 @Composable
