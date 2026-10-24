@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifierRange
@@ -44,29 +45,15 @@ object ArcaeaPartnerModifiers {
 fun clearStatusToClearType(
     clearStatus: Int,
     modifier: ArcaeaPlayResultModifier,
-): ArcaeaPlayResultClearType =
-    when (clearStatus) {
-        0 -> {
-            ArcaeaPlayResultClearType.TRACK_LOST
+): ArcaeaPlayResultClearType {
+    val status =
+        when (clearStatus) {
+            0 -> ArcaeaPlayResultClearStatus.TRACK_LOST
+            1 -> ArcaeaPlayResultClearStatus.CLEARED
+            2 -> ArcaeaPlayResultClearStatus.FULL_RECALL
+            3 -> ArcaeaPlayResultClearStatus.PURE_MEMORY
+            else -> throw IllegalArgumentException("clearStatus should be within 0..3")
         }
 
-        1 -> {
-            when (modifier) {
-                ArcaeaPlayResultModifier.HARD -> ArcaeaPlayResultClearType.HARD_CLEAR
-                ArcaeaPlayResultModifier.EASY -> ArcaeaPlayResultClearType.EASY_CLEAR
-                else -> ArcaeaPlayResultClearType.NORMAL_CLEAR
-            }
-        }
-
-        2 -> {
-            ArcaeaPlayResultClearType.FULL_RECALL
-        }
-
-        3 -> {
-            ArcaeaPlayResultClearType.PURE_MEMORY
-        }
-
-        else -> {
-            throw IllegalArgumentException()
-        }
-    }
+    return status.toClearType(modifier)
+}

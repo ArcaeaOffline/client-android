@@ -1,6 +1,8 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components
 
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
 
@@ -15,6 +17,8 @@ internal data class FilterDialogState(
     val catalog: ArcaeaCatalog,
     val songPlayResultCounts: Map<String, Int>,
     val ratingClassCounts: Map<ArcaeaRatingClass, Int>,
+    val scoreGradeCounts: Map<ArcaeaScoreGrade, Int>,
+    val clearStatusCounts: Map<ArcaeaPlayResultClearStatus, Int>,
     val resultCount: Int,
     val onFilterChange: (PlayResultFilter) -> Unit,
 ) {
@@ -24,6 +28,14 @@ internal data class FilterDialogState(
 
     fun setRatingClasses(ratingClasses: Set<ArcaeaRatingClass>) {
         onFilterChange(filter.copy(ratingClasses = ratingClasses))
+    }
+
+    fun setScoreGrades(scoreGrades: Set<ArcaeaScoreGrade>) {
+        onFilterChange(filter.copy(scoreGrades = scoreGrades))
+    }
+
+    fun setClearStatuses(clearStatuses: Set<ArcaeaPlayResultClearStatus>) {
+        onFilterChange(filter.copy(clearStatuses = clearStatuses))
     }
 
     fun reset() {

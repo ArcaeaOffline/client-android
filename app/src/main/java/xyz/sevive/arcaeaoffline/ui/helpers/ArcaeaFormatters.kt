@@ -4,6 +4,7 @@ import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 
@@ -39,16 +40,7 @@ object ArcaeaFormatters {
      *
      * For example, 9900000 > "EX+"
      */
-    fun scoreToLevelText(score: Int): String =
-        when {
-            score >= 9_900_000 -> "EX+"
-            score >= 9_800_000 -> "EX"
-            score >= 9_500_000 -> "AA"
-            score >= 9_200_000 -> "A"
-            score >= 8_900_000 -> "B"
-            score >= 8_600_000 -> "C"
-            else -> "D"
-        }
+    fun scoreToLevelText(score: Int): String = ArcaeaScoreGrade.of(score).toDisplayString()
 
     internal fun ratingText(
         ratingClassDisplay: ArcaeaRatingClassDisplay,

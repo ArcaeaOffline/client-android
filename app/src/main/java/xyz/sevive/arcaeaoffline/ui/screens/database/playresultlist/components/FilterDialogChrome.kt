@@ -22,11 +22,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 /**
- * Frame shared by every dialog screen: a fixed header row, the screen content
- * and a fixed footer.
- *
- * The caller supplies what the header and footer contain, so this layout knows
- * nothing about individual screens.
+ * Frame shared by every dialog screen, with a fixed header row, the screen
+ * content and a fixed footer.
  */
 @Composable
 internal fun FilterDialogChrome(
@@ -66,10 +63,7 @@ internal fun FilterDialogChrome(
     }
 }
 
-/**
- * Footer row with an optional left label, one secondary action and the
- * confirming action. Without a label the actions align to the end.
- */
+/** Footer row whose actions align to the end when [label] is null. */
 @Composable
 internal fun FilterDialogFooter(
     label: String?,

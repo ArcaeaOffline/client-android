@@ -9,6 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 
 internal enum class FilterSizeClass { COMPACT, FULL }
 
@@ -17,12 +21,11 @@ internal enum class FilterPicker(
 ) {
     PACKS(FilterSizeClass.FULL),
     DIFFICULTIES(FilterSizeClass.COMPACT),
+    SCORE_GRADES(FilterSizeClass.COMPACT),
+    CLEAR_STATUSES(FilterSizeClass.COMPACT),
 }
 
-/**
- * The dialog's visible screen: the facets when no picker is open, otherwise the
- * picker on top of them.
- */
+/** Renders the facets, or the picker opened over them. */
 @Composable
 internal fun FilterScreen(
     state: FilterDialogState,
@@ -48,6 +51,14 @@ internal fun FilterScreen(
 
         FilterPicker.DIFFICULTIES -> {
             DifficultyPickerScreen(state = state, fill = fill, onBack = onBack)
+        }
+
+        FilterPicker.SCORE_GRADES -> {
+            ScoreGradePickerScreen(state = state, fill = fill, onBack = onBack)
+        }
+
+        FilterPicker.CLEAR_STATUSES -> {
+            ClearStatusPickerScreen(state = state, fill = fill, onBack = onBack)
         }
     }
 }
@@ -81,11 +92,7 @@ private fun FacetsScreen(
             )
         },
     ) {
-        FacetsPage(
-            state = state,
-            onOpenPacks = { onOpenPicker(FilterPicker.PACKS) },
-            onOpenRatingClasses = { onOpenPicker(FilterPicker.DIFFICULTIES) },
-        )
+        FacetsPage(state = state, onOpenPicker = onOpenPicker)
     }
 }
 
@@ -136,7 +143,71 @@ private fun DifficultyPickerScreen(
             )
         },
     ) {
-        DifficultyPickerPage(state = state)
+        FilterOptionPickerPage(
+            options = ArcaeaRatingClass.entries,
+            selected = state.filter.ratingClasses,
+            counts = state.ratingClassCounts,
+            label = { ArcaeaRatingClassDisplay.of(it).name },
+            onSelectionChange = state::setRatingClasses,
+        )
+    }
+}
+
+@Composable
+private fun ScoreGradePickerScreen(
+    state: FilterDialogState,
+    fill: Boolean,
+    onBack: () -> Unit,
+) {
+    FilterDialogChrome(
+        fill = fill,
+        leading = { BackButton(onBack) },
+        title = stringResource(R.string.database_play_result_filter_pick_score_grades),
+        footer = {
+            FilterDialogFooter(
+                label = null,
+                actionLabel = stringResource(R.string.general_clear),
+                onAction = { state.setScoreGrades(emptySet()) },
+                onDone = onBack,
+            )
+        },
+    ) {
+        FilterOptionPickerPage(
+            options = ArcaeaScoreGrade.entries,
+            selected = state.filter.scoreGrades,
+            counts = state.scoreGradeCounts,
+            label = { it.toDisplayString() },
+            onSelectionChange = state::setScoreGrades,
+        )
+    }
+}
+
+@Composable
+private fun ClearStatusPickerScreen(
+    state: FilterDialogState,
+    fill: Boolean,
+    onBack: () -> Unit,
+) {
+    FilterDialogChrome(
+        fill = fill,
+        leading = { BackButton(onBack) },
+        title = stringResource(R.string.database_play_result_filter_pick_clear_statuses),
+        footer = {
+            FilterDialogFooter(
+                label = null,
+                actionLabel = stringResource(R.string.general_clear),
+                onAction = { state.setClearStatuses(emptySet()) },
+                onDone = onBack,
+            )
+        },
+    ) {
+        FilterOptionPickerPage(
+            options = ArcaeaPlayResultClearStatus.entries,
+            selected = state.filter.clearStatuses,
+            counts = state.clearStatusCounts,
+            label = { stringResource(clearStatusLabelRes(it)) },
+            onSelectionChange = state::setClearStatuses,
+        )
     }
 }
 
@@ -146,3 +217,11 @@ private fun BackButton(onBack: () -> Unit) {
         Icon(Icons.AutoMirrored.Default.ArrowBack, stringResource(R.string.icon_desc_navigate_back))
     }
 }
+
+internal fun clearStatusLabelRes(status: ArcaeaPlayResultClearStatus): Int =
+    when (status) {
+        ArcaeaPlayResultClearStatus.TRACK_LOST -> R.string.database_play_result_filter_clear_status_track_lost
+        ArcaeaPlayResultClearStatus.CLEARED -> R.string.database_play_result_filter_clear_status_cleared
+        ArcaeaPlayResultClearStatus.FULL_RECALL -> R.string.database_play_result_filter_clear_status_full_recall
+        ArcaeaPlayResultClearStatus.PURE_MEMORY -> R.string.database_play_result_filter_clear_status_pure_memory
+    }

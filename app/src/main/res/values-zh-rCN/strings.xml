@@ -193,6 +193,12 @@
     <string name="database_play_result_filter_all_packs">全部曲包</string>
     <string name="database_play_result_filter_pick_pack">选择曲包</string>
     <string name="database_play_result_filter_pick_difficulties">选择难度</string>
+    <string name="database_play_result_filter_score">分数</string>
+    <string name="database_play_result_filter_all_scores">全部分数</string>
+    <string name="database_play_result_filter_pick_score_grades">选择分数段</string>
+    <string name="database_play_result_filter_clear_status">通关类型</string>
+    <string name="database_play_result_filter_all_clear_statuses">全部通关类型</string>
+    <string name="database_play_result_filter_pick_clear_statuses">选择通关类型</string>
     <string name="database_play_result_filter_search_pack_hint">搜索曲包……</string>
     <string name="database_play_result_filter_no_song_data">未导入曲目数据，无法按曲包筛选。</string>
     <string name="database_play_result_filter_show_empty_packs">显示没有游玩记录的曲包</string>
@@ -208,6 +214,10 @@
     <string name="database_play_result_filter_chip_packs_count">曲包 · %d 个</string>
     <string name="database_play_result_filter_chip_difficulty">难度 · %s</string>
     <string name="database_play_result_filter_chip_difficulties_count">难度 · %d 个</string>
+    <string name="database_play_result_filter_chip_score">分数 · %s</string>
+    <string name="database_play_result_filter_chip_scores_count">分数 · %d 个</string>
+    <string name="database_play_result_filter_chip_clear_status">通关 · %s</string>
+    <string name="database_play_result_filter_chip_clear_statuses_count">通关 · %d 个</string>
     <string name="database_play_result_filter_chip_warnings">警告</string>
     <string name="database_play_result_filter_no_match">没有符合当前筛选条件的游玩记录。</string>
     <plurals name="database_play_result_list_count">

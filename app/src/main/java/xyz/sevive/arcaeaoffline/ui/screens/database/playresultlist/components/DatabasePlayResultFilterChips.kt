@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
@@ -43,8 +45,8 @@ fun DatabasePlayResultFilterChips(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
     ) {
         if (filter.packIds.isNotEmpty()) {
-            // Collapse the selection into one chip; a long pack selection would
-            // otherwise push the other chips out of view.
+            // Collapse the selection into one chip because a long pack selection
+            // would otherwise push the other chips out of view.
             item(key = "packs") {
                 AssistChip(
                     onClick = onOpenFilters,
@@ -76,6 +78,24 @@ fun DatabasePlayResultFilterChips(
             }
         }
 
+        if (filter.scoreGrades.isNotEmpty()) {
+            item(key = "scoreGrades") {
+                AssistChip(
+                    onClick = onOpenFilters,
+                    label = { Text(scoreGradesLabel(filter.scoreGrades)) },
+                )
+            }
+        }
+
+        if (filter.clearStatuses.isNotEmpty()) {
+            item(key = "clearStatuses") {
+                AssistChip(
+                    onClick = onOpenFilters,
+                    label = { Text(clearStatusesLabel(filter.clearStatuses)) },
+                )
+            }
+        }
+
         if (filter.onlyWarnings) {
             item(key = "warnings") {
                 AssistChip(
@@ -93,6 +113,28 @@ fun DatabasePlayResultFilterChips(
         }
     }
 }
+
+@Composable
+private fun clearStatusesLabel(clearStatuses: Set<ArcaeaPlayResultClearStatus>): String =
+    if (clearStatuses.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_clear_status,
+            stringResource(clearStatusLabelRes(clearStatuses.first())),
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_clear_statuses_count, clearStatuses.size)
+    }
+
+@Composable
+private fun scoreGradesLabel(scoreGrades: Set<ArcaeaScoreGrade>): String =
+    if (scoreGrades.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_score,
+            scoreGrades.first().toDisplayString(),
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_scores_count, scoreGrades.size)
+    }
 
 @Composable
 private fun difficultyLabel(ratingClasses: Set<ArcaeaRatingClass>): String =

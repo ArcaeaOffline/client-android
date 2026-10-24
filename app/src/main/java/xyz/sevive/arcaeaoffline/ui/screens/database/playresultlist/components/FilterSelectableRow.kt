@@ -38,7 +38,7 @@ internal fun SelectableRow(
             ).padding(horizontal = MaterialTheme.spacing.pagePadding, vertical = MaterialTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(checked = selected, onCheckedChange = null, enabled = enabled)
+        Checkbox(checked = selected, enabled = enabled, onCheckedChange = null)
 
         Column(Modifier.weight(1f).padding(start = MaterialTheme.spacing.sm)) {
             Text(title, style = MaterialTheme.typography.titleSmall)

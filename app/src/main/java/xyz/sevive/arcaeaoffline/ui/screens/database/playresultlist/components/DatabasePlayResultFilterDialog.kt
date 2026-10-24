@@ -42,7 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
 
@@ -58,12 +60,12 @@ private val FilterCompactScreens: List<FilterPicker?> =
     listOf<FilterPicker?>(null) + FilterPicker.entries.filter { it.sizeClass == FilterSizeClass.COMPACT }
 
 /**
- * Filter dialog: a compact facet card. A picker with many options (packs)
- * expands to full screen; the difficulty picker only grows the card in height,
- * keeping the compact width, corners and elevation.
+ * A filter dialog built on a compact facet card. The packs picker expands to
+ * full screen, while the other pickers only grow the card in height and keep
+ * the compact width, corners and elevation.
  *
- * Filters apply live. [onDismissRequest] is also used for back: with a picker
- * open it closes the picker instead of the dialog.
+ * Filters apply live. [onDismissRequest] also handles back, closing an open
+ * picker instead of the dialog.
  */
 @Composable
 fun DatabasePlayResultFilterDialog(
@@ -71,6 +73,8 @@ fun DatabasePlayResultFilterDialog(
     catalog: ArcaeaCatalog,
     songPlayResultCounts: Map<String, Int>,
     ratingClassCounts: Map<ArcaeaRatingClass, Int>,
+    scoreGradeCounts: Map<ArcaeaScoreGrade, Int>,
+    clearStatusCounts: Map<ArcaeaPlayResultClearStatus, Int>,
     resultCount: Int,
     onFilterChange: (PlayResultFilter) -> Unit,
     onDismissRequest: () -> Unit,
@@ -87,6 +91,8 @@ fun DatabasePlayResultFilterDialog(
             catalog = catalog,
             songPlayResultCounts = songPlayResultCounts,
             ratingClassCounts = ratingClassCounts,
+            scoreGradeCounts = scoreGradeCounts,
+            clearStatusCounts = clearStatusCounts,
             resultCount = resultCount,
             onFilterChange = onFilterChange,
         )
@@ -242,9 +248,9 @@ fun DatabasePlayResultFilterDialog(
 /**
  * Measures the compact screens at [compactWidth].
  *
- * All screens are laid out; only [visiblePicker] draws, the rest are composed
- * with zero alpha so their heights are known before they are shown. With every
- * height known, picker changes animate without a measure-then-snap frame.
+ * Every screen is laid out so its height is known before it is shown, but only
+ * [visiblePicker] draws. The others are composed with zero alpha. Because every
+ * height is known, changing pickers animates without a measure-then-snap frame.
  */
 @Composable
 private fun MeasureCompactScreens(

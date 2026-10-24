@@ -215,6 +215,16 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_all_packs">All packs</string>
     <string name="database_play_result_filter_pick_pack">Select packs</string>
     <string name="database_play_result_filter_pick_difficulties">Select difficulties</string>
+    <string name="database_play_result_filter_score">Score</string>
+    <string name="database_play_result_filter_all_scores">All scores</string>
+    <string name="database_play_result_filter_pick_score_grades">Select score grades</string>
+    <string name="database_play_result_filter_clear_status">Clear type</string>
+    <string name="database_play_result_filter_all_clear_statuses">All clear types</string>
+    <string name="database_play_result_filter_pick_clear_statuses">Select clear types</string>
+    <string name="database_play_result_filter_clear_status_track_lost" translatable="false">Track Lost</string>
+    <string name="database_play_result_filter_clear_status_cleared" translatable="false">Track Complete</string>
+    <string name="database_play_result_filter_clear_status_full_recall" translatable="false">Full Recall</string>
+    <string name="database_play_result_filter_clear_status_pure_memory" translatable="false">Pure Memory</string>
     <string name="database_play_result_filter_search_pack_hint">Search packs…</string>
     <string name="database_play_result_filter_no_song_data">Song data is not imported, so packs cannot be filtered.</string>
     <string name="database_play_result_filter_show_empty_packs">Show packs without play results</string>
@@ -231,6 +241,10 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_chip_packs_count">Packs · %d</string>
     <string name="database_play_result_filter_chip_difficulty">Difficulty · %s</string>
     <string name="database_play_result_filter_chip_difficulties_count">Difficulties · %d</string>
+    <string name="database_play_result_filter_chip_score">Score · %s</string>
+    <string name="database_play_result_filter_chip_scores_count">Scores · %d</string>
+    <string name="database_play_result_filter_chip_clear_status">Clear · %s</string>
+    <string name="database_play_result_filter_chip_clear_statuses_count">Clears · %d</string>
     <string name="database_play_result_filter_chip_warnings">Warnings</string>
     <string name="database_play_result_filter_no_match">No play results match the current filters.</string>
     <plurals name="database_play_result_list_count">

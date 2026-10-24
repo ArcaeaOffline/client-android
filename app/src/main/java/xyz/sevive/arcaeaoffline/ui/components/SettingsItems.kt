@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.helpers.DISABLED_ALPHA
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
@@ -233,8 +234,8 @@ data class SelectOption<T>(
 )
 
 /**
- * A radio-button list of mutually exclusive options; renders one
- * [BaseSettingsItem] row per option without an outer container.
+ * A radio-button list of mutually exclusive options that renders one [BaseSettingsItem]
+ * row per option without an outer container.
  */
 @Composable
 fun <T> SelectItem(
@@ -332,6 +333,7 @@ fun TextItem(
     trailingSlot: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
+    contentMaxLines: Int = Int.MAX_VALUE,
 ) {
     CompositionLocalProvider(
         LocalContentColor provides
@@ -347,6 +349,8 @@ fun TextItem(
                         Text(
                             it,
                             Modifier.secondaryItemAlpha(),
+                            maxLines = contentMaxLines,
+                            overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
