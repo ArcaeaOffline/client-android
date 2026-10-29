@@ -49,69 +49,72 @@ class ArcaeaFormattersTest {
         assertEquals("D", ArcaeaFormatters.scoreToLevelText(0))
     }
 
+    @Suppress("KotlinMisorderedAssertEqualsArguments")
     @Test
-    fun ratingTextRatingTest() {
+    fun ratingTextPartsRatingTest() {
         assertEquals(
-            "PAST 2",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.PAST, 2, false),
+            RatingTextParts("PAST", "2"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.PAST, 2, false),
         )
 
         assertEquals(
-            "PRESENT 7+",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.PRESENT, 7, true),
+            RatingTextParts("PRESENT", "7+"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.PRESENT, 7, true),
         )
 
         assertEquals(
-            "FUTURE 10",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.FUTURE, 10, false),
+            RatingTextParts("FUTURE", "10"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.FUTURE, 10, false),
         )
 
         assertEquals(
-            "BEYOND 11+",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.BEYOND, 11, true),
+            RatingTextParts("BEYOND", "11+"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.BEYOND, 11, true),
         )
     }
 
+    @Suppress("KotlinMisorderedAssertEqualsArguments")
     @Test
-    fun ratingTextConstantTest() {
+    fun ratingTextPartsConstantTest() {
         assertEquals(
-            "PAST 2.1",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.PAST, 2, false, 21),
+            RatingTextParts("PAST", "2.1"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.PAST, 2, false, 21),
         )
 
         assertEquals(
-            "PRESENT 7.9",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.PRESENT, 7, true, 79),
+            RatingTextParts("PRESENT", "7.9"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.PRESENT, 7, true, 79),
         )
 
         assertEquals(
-            "FUTURE 10.6",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.FUTURE, 10, false, 106),
+            RatingTextParts("FUTURE", "10.6"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.FUTURE, 10, false, 106),
         )
 
         assertEquals(
-            "BEYOND 11.8",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClass.BEYOND, 11, true, 118),
+            RatingTextParts("BEYOND", "11.8"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClass.BEYOND, 11, true, 118),
         )
     }
 
+    @Suppress("KotlinMisorderedAssertEqualsArguments")
     @Test
-    fun ratingTextAliasTest() {
+    fun ratingTextPartsAliasTest() {
         assertEquals(
-            "INSCRIBED 11",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClassDisplay.INSCRIBED, 11, false),
+            RatingTextParts("INSCRIBED", "11"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClassDisplay.INSCRIBED, 11, false),
         )
 
         assertEquals(
-            "INSCRIBED 11.5",
-            ArcaeaFormatters.ratingText(ArcaeaRatingClassDisplay.INSCRIBED, 11, false, 115),
+            RatingTextParts("INSCRIBED", "11.5"),
+            ArcaeaFormatters.ratingTextParts(ArcaeaRatingClassDisplay.INSCRIBED, 11, false, 115),
         )
 
         // Unknown (ratingClass, alias) combos must fall back to the default
         // display form of the rating class, not throw.
         assertEquals(
-            "BEYOND 12",
-            ArcaeaFormatters.ratingText(
+            RatingTextParts("BEYOND", "12"),
+            ArcaeaFormatters.ratingTextParts(
                 ArcaeaRatingClassDisplay.of(ArcaeaRatingClass.BEYOND, alias = 2),
                 12,
                 false,
@@ -120,7 +123,7 @@ class ArcaeaFormattersTest {
     }
 
     @Test
-    fun ratingTextDifficultyWithSongTest() {
+    fun ratingTextPartsDifficultyWithSongTest() {
         fun difficultyWithSong(
             ratingClass: ArcaeaRatingClass,
             rating: Int,
@@ -137,16 +140,19 @@ class ArcaeaFormattersTest {
         )
 
         // No constant, falling back to rating + ratingPlus.
-        assertEquals("FUTURE 10+", ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true)))
-
         assertEquals(
-            "FUTURE 10.8",
-            ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true), 108),
+            RatingTextParts("FUTURE", "10+"),
+            ArcaeaFormatters.ratingTextParts(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true)),
         )
 
         assertEquals(
-            "INSCRIBED 11.5",
-            ArcaeaFormatters.ratingText(difficultyWithSong(ArcaeaRatingClass.BEYOND, 11, false, ratingClassAlias = 1), 115),
+            RatingTextParts("FUTURE", "10.8"),
+            ArcaeaFormatters.ratingTextParts(difficultyWithSong(ArcaeaRatingClass.FUTURE, 10, true), 108),
+        )
+
+        assertEquals(
+            RatingTextParts("INSCRIBED", "11.5"),
+            ArcaeaFormatters.ratingTextParts(difficultyWithSong(ArcaeaRatingClass.BEYOND, 11, false, ratingClassAlias = 1), 115),
         )
     }
 }
