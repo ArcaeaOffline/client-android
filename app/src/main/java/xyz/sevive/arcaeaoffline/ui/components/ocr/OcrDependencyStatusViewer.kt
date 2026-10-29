@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatus
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -31,11 +30,6 @@ object OcrDependencyStatusViewerDefaults {
     @Composable
     fun Title(string: String) {
         Text(string)
-    }
-
-    @Composable
-    fun Summary(string: String) {
-        Text(string, Modifier.secondaryItemAlpha(), style = MaterialTheme.typography.bodySmall)
     }
 
     @Composable
@@ -52,11 +46,12 @@ object OcrDependencyStatusViewerDefaults {
 @Composable
 fun OcrDependencyStatusViewer(
     title: @Composable () -> Unit,
-    summary: (@Composable () -> Unit)?,
     status: OcrDependencyStatus,
     modifier: Modifier = Modifier,
+    summary: (@Composable () -> Unit)? = null,
     icon: (@Composable () -> Unit)? = null,
     details: (@Composable () -> Unit)? = null,
+    description: String? = null,
 ) {
     var showDetails by remember { mutableStateOf(false) }
 
@@ -80,6 +75,7 @@ fun OcrDependencyStatusViewer(
         title = { title() },
         leadingSlot = icon,
         modifier = modifier,
+        description = description,
         content = summary?.let { { it() } },
         trailingSlot = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -101,8 +97,8 @@ fun OcrDependencyStatusViewer(
 ) {
     OcrDependencyStatusViewer(
         title = { OcrDependencyStatusViewerDefaults.Title(title) },
-        summary = { summary?.let { OcrDependencyStatusViewerDefaults.Summary(it) } },
         status = status,
+        description = summary,
         modifier = modifier,
         icon = icon?.let { { OcrDependencyStatusViewerDefaults.Icon(it) } },
         details = details?.let { { OcrDependencyStatusViewerDefaults.Details(it) } },

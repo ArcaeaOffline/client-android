@@ -83,6 +83,14 @@ fun SettingsGroupHeader(
     }
 }
 
+/**
+ * A settings row whose middle column stacks a title, a description, and custom content.
+ *
+ * @param onClick Invoked when the row is tapped. `null` makes the row non-clickable.
+ * @param description Text shown under the title in the secondary style.
+ * @param descriptionMaxLines Maximum lines of [description]. Overflow ends with an ellipsis.
+ * @param content Content shown under [description], e.g. a slider or a progress bar.
+ */
 @Composable
 fun BaseSettingsItem(
     title: @Composable ColumnScope.() -> Unit,
@@ -90,6 +98,8 @@ fun BaseSettingsItem(
     onClick: (() -> Unit)? = null,
     leadingSlot: (@Composable () -> Unit)? = null,
     trailingSlot: (@Composable () -> Unit)? = null,
+    description: String? = null,
+    descriptionMaxLines: Int = Int.MAX_VALUE,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     Row(
@@ -114,6 +124,15 @@ fun BaseSettingsItem(
             ) {
                 title(this@Column)
             }
+            description?.let {
+                Text(
+                    it,
+                    Modifier.secondaryItemAlpha(),
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = descriptionMaxLines,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             content?.let { it(this@Column) }
         }
 
@@ -132,9 +151,8 @@ private fun BaseSettingsItemPreview() {
                 title = { Text("Title") },
                 leadingSlot = { Icon(Icons.Default.BugReport, contentDescription = null) },
                 trailingSlot = { Text("Trailing") },
-            ) {
-                Text("Lorem ipsum dolor sit amet", style = MaterialTheme.typography.bodySmall)
-            }
+                description = "Lorem ipsum dolor sit amet",
+            )
         }
     }
 }
@@ -146,12 +164,14 @@ fun CheckboxItem(
     title: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     leadingSlot: (@Composable () -> Unit)? = null,
+    description: String? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     BaseSettingsItem(
         onClick = { onValueChange(!value) },
         title = title,
         modifier = modifier,
+        description = description,
         content = content,
         leadingSlot = leadingSlot,
         trailingSlot = {
@@ -179,7 +199,7 @@ fun CheckboxItem(
         title = { Text(title) },
         leadingSlot = icon?.let { { Icon(icon, contentDescription = null, tint = iconTint) } },
         modifier = modifier,
-        content = description?.let { { Text(description, Modifier.secondaryItemAlpha()) } },
+        description = description,
     )
 }
 
@@ -190,12 +210,14 @@ fun SwitchItem(
     title: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     leadingSlot: (@Composable () -> Unit)? = null,
+    description: String? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     BaseSettingsItem(
         onClick = { onValueChange(!value) },
         title = title,
         modifier = modifier,
+        description = description,
         content = content,
         leadingSlot = leadingSlot,
         trailingSlot = {
@@ -223,7 +245,7 @@ fun SwitchItem(
         title = { Text(title) },
         leadingSlot = icon?.let { { Icon(icon, contentDescription = null, tint = iconTint) } },
         modifier = modifier,
-        content = description?.let { { Text(description, Modifier.secondaryItemAlpha()) } },
+        description = description,
     )
 }
 
@@ -249,16 +271,7 @@ fun <T> SelectItem(
             BaseSettingsItem(
                 onClick = { onSelect(option.value) },
                 title = { Text(option.label) },
-                content =
-                    option.description?.let { description ->
-                        {
-                            Text(
-                                description,
-                                Modifier.secondaryItemAlpha(),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    },
+                description = option.description,
                 leadingSlot = {
                     RadioButton(
                         selected = option.value == selected,
@@ -279,10 +292,12 @@ fun SliderItem(
     @IntRange(from = 0) steps: Int = 0,
     leadingSlot: (@Composable () -> Unit)? = null,
     trailingSlot: (@Composable () -> Unit)? = null,
+    description: String? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     BaseSettingsItem(
         title = title,
+        description = description,
         leadingSlot = leadingSlot,
         trailingSlot = trailingSlot,
     ) {
@@ -320,7 +335,7 @@ fun SliderItem(
         steps = steps,
         leadingSlot = icon?.let { { Icon(icon, contentDescription = null, tint = iconTint) } },
         trailingSlot = trailingSlot,
-        content = description?.let { { Text(description, Modifier.secondaryItemAlpha()) } },
+        description = description,
     )
 }
 
@@ -343,18 +358,8 @@ fun TextItem(
     ) {
         BaseSettingsItem(
             title = { Text(title) },
-            content =
-                content?.let {
-                    {
-                        Text(
-                            it,
-                            Modifier.secondaryItemAlpha(),
-                            maxLines = contentMaxLines,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                },
+            description = content,
+            descriptionMaxLines = contentMaxLines,
             leadingSlot = leadingSlot,
             trailingSlot = trailingSlot,
             onClick = if (enabled) onClick else null,
