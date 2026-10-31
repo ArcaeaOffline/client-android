@@ -11,7 +11,10 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
+import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogSong
+import xyz.sevive.arcaeaoffline.core.search.searchDocument
 
 class PlayResultFilteringTest {
     @Test
@@ -55,48 +58,90 @@ class PlayResultFilteringTest {
     }
 
     @Test
-    fun allowedSongIdsFiltersBySongId() {
+    fun allowedPackSongIdsFiltersBySongId() {
         val item = uiItem(songId = "a")
 
-        assertTrue(item.matches(null, "", EMPTY_CATALOG, PlayResultFilter()))
-        assertTrue(item.matches(setOf("a"), "", EMPTY_CATALOG, PlayResultFilter()))
-        assertFalse(item.matches(setOf("b"), "", EMPTY_CATALOG, PlayResultFilter()))
+        assertTrue(item.matches(null, null, "", EMPTY_CATALOG, PlayResultFilter()))
+        assertTrue(item.matches(setOf("a"), null, "", EMPTY_CATALOG, PlayResultFilter()))
+        assertFalse(item.matches(setOf("b"), null, "", EMPTY_CATALOG, PlayResultFilter()))
     }
 
     @Test
     fun queryFallsBackToSongIdWithoutSongData() {
         val loadedWithoutSongs = ArcaeaCatalog(isLoaded = true)
 
-        assertTrue(uiItem(songId = "abc123").matches(null, "ABC", loadedWithoutSongs, PlayResultFilter()))
-        assertFalse(uiItem(songId = "xyz").matches(null, "ABC", loadedWithoutSongs, PlayResultFilter()))
+        assertTrue(uiItem(songId = "abc123").matches(null, null, "ABC", loadedWithoutSongs, PlayResultFilter()))
+        assertFalse(uiItem(songId = "xyz").matches(null, null, "ABC", loadedWithoutSongs, PlayResultFilter()))
     }
 
     @Test
     fun blankQueryAndUnloadedCatalogDoNotConstrain() {
         val item = uiItem(songId = "xyz")
 
-        assertTrue(item.matches(null, "", ArcaeaCatalog(isLoaded = true), PlayResultFilter()))
-        assertTrue(item.matches(null, "ABC", ArcaeaCatalog(), PlayResultFilter()))
+        assertTrue(item.matches(null, null, "", ArcaeaCatalog(isLoaded = true), PlayResultFilter()))
+        assertTrue(item.matches(null, null, "ABC", ArcaeaCatalog(), PlayResultFilter()))
     }
 
     @Test
-    fun allowedSongIdsResolve() {
+    fun commentTokensMatchInAnyOrder() {
+        val item = uiItem(comment = "OCR IMG_20240101_120000.jpg")
+        val loaded = ArcaeaCatalog(isLoaded = true)
+
+        assertTrue(item.matches(null, null, "OCR IMG", loaded, PlayResultFilter()))
+        assertTrue(item.matches(null, null, "IMG OCR", loaded, PlayResultFilter()))
+        assertTrue(item.matches(null, null, "20240101", loaded, PlayResultFilter()))
+        assertFalse(item.matches(null, null, "missing", loaded, PlayResultFilter()))
+    }
+
+    @Test
+    fun commentMatchIgnoresFullWidthAndCase() {
+        val item = uiItem(comment = "ＯＣＲ Ｎｏｖａ")
+        val loaded = ArcaeaCatalog(isLoaded = true)
+
+        assertTrue(item.matches(null, null, "ocr nova", loaded, PlayResultFilter()))
+    }
+
+    @Test
+    fun commentMatchIsOrWithSongMatch() {
+        val catalog =
+            ArcaeaCatalog(
+                songs =
+                    listOf("a", "b").map { id ->
+                        ArcaeaCatalogSong(
+                            song = Song(idx = 0, id = id, title = id, artist = "", set = "", side = 0),
+                            pack = null,
+                            document = searchDocument(id) {},
+                        )
+                    },
+                isLoaded = true,
+            )
+        val item = uiItem(songId = "b", comment = "OCR IMG.jpg")
+
+        assertTrue(item.matches(null, setOf("a"), "IMG", catalog, PlayResultFilter()))
+        assertTrue(item.matches(null, setOf("b"), "missing", catalog, PlayResultFilter()))
+        assertFalse(item.matches(null, setOf("a"), "missing", catalog, PlayResultFilter()))
+    }
+
+    @Test
+    fun missingCommentNeverMatches() {
+        val loaded = ArcaeaCatalog(isLoaded = true)
+
+        assertFalse(uiItem(comment = null).matches(null, null, "OCR", loaded, PlayResultFilter()))
+    }
+
+    @Test
+    fun allowedPackSongIdsResolve() {
         val catalog =
             ArcaeaCatalog(
                 songIdsByBasePackId = mapOf("pack" to setOf("a", "b")),
                 isLoaded = true,
             )
 
-        assertNull(PlayResultFilter().allowedSongIds(catalog, null))
-        assertEquals(setOf("a", "b"), PlayResultFilter(packIds = setOf("pack")).allowedSongIds(catalog, null))
-        assertEquals(
-            setOf("b"),
-            PlayResultFilter(packIds = setOf("pack")).allowedSongIds(catalog, setOf("b", "c")),
-        )
-        assertEquals(setOf("b", "c"), PlayResultFilter().allowedSongIds(catalog, setOf("b", "c")))
+        assertNull(PlayResultFilter().allowedPackSongIds(catalog))
+        assertEquals(setOf("a", "b"), PlayResultFilter(packIds = setOf("pack")).allowedPackSongIds(catalog))
         assertEquals(
             emptySet<String>(),
-            PlayResultFilter(packIds = setOf("missing")).allowedSongIds(catalog, null),
+            PlayResultFilter(packIds = setOf("missing")).allowedPackSongIds(catalog),
         )
     }
 
@@ -123,6 +168,7 @@ class PlayResultFilteringTest {
                 items,
                 PlayResultFilter(ratingClasses = setOf(ArcaeaRatingClass.FUTURE)),
                 null,
+                null,
                 "",
                 EMPTY_CATALOG,
             )
@@ -138,6 +184,7 @@ class PlayResultFilteringTest {
                 items,
                 PlayResultFilter(scoreGrades = setOf(ArcaeaScoreGrade.EX_PLUS)),
                 null,
+                null,
                 "",
                 EMPTY_CATALOG,
             )
@@ -152,6 +199,7 @@ class PlayResultFilteringTest {
             computeFacetCounts(
                 items,
                 PlayResultFilter(clearStatuses = setOf(ArcaeaPlayResultClearStatus.CLEARED)),
+                null,
                 null,
                 "",
                 EMPTY_CATALOG,
@@ -181,6 +229,7 @@ class PlayResultFilteringTest {
                 listOf(cleared, missingClearType),
                 PlayResultFilter(),
                 null,
+                null,
                 "",
                 EMPTY_CATALOG,
             )
@@ -193,6 +242,7 @@ class PlayResultFilteringTest {
         ratingClass: ArcaeaRatingClass = ArcaeaRatingClass.FUTURE,
         score: Int = 10_000_000,
         clearType: ArcaeaPlayResultClearType? = ArcaeaPlayResultClearType.NORMAL_CLEAR,
+        comment: String? = null,
     ): PlayResultListUiItem =
         PlayResultListUiItem(
             playResult =
@@ -201,6 +251,7 @@ class PlayResultFilteringTest {
                     ratingClass = ratingClass,
                     score = score,
                     clearType = clearType,
+                    comment = comment,
                 ),
             scoringMode = ArcaeaScoringMode.B30_R10,
         )
@@ -208,7 +259,7 @@ class PlayResultFilteringTest {
     private fun matches(
         item: PlayResultListUiItem,
         filter: PlayResultFilter,
-    ): Boolean = item.matches(null, "", EMPTY_CATALOG, filter)
+    ): Boolean = item.matches(null, null, "", EMPTY_CATALOG, filter)
 
     private companion object {
         private val EMPTY_CATALOG = ArcaeaCatalog()

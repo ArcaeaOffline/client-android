@@ -9,8 +9,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
  * Active constraints of the play result list.
  *
  * The text query narrows the list through the search catalog (title, artist,
- * pack, song id). Songs are a search target, not a filter dimension, so there
- * is no song filter.
+ * pack, song id) and also matches play result comments. Songs are a search
+ * target, not a filter dimension, so there is no song filter.
  *
  * [packIds], [ratingClasses], [scoreGrades], [clearStatuses] and [onlyWarnings]
  * are independent facets. [onlyWarnings] keeps results that have at least one

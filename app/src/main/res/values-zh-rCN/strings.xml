@@ -185,7 +185,7 @@
     </plurals>
     <string name="database_play_result_updated">游玩记录 %s 已更新</string>
 
-    <string name="database_play_result_search_hint">搜索曲名、曲师或曲包……</string>
+    <string name="database_play_result_search_hint">搜索曲名、曲师、曲包或备注……</string>
     <string name="database_play_result_filter">筛选</string>
     <string name="database_play_result_filter_title">筛选</string>
     <string name="database_play_result_filter_packs">曲包</string>

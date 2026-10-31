@@ -109,9 +109,10 @@ class DatabasePlayResultListViewModel(
     /**
      * The text query resolved to matching song ids.
      *
-     * [songIds] is null when the query does not constrain the list, which
-     * happens when the query is empty, the catalog is not loaded, or no song
-     * data is imported (the list then falls back to matching the raw song id).
+     * [songIds] is null when the query is empty, the catalog is not loaded, or
+     * no song data is imported. In the last case the song dimension falls back
+     * to matching the raw song id. While the catalog is not loaded the query
+     * does not constrain the list at all.
      */
     private data class SongSearchState(
         val query: String,
@@ -139,15 +140,15 @@ class DatabasePlayResultListViewModel(
 
     private val filteredListItems: StateFlow<List<PlayResultListUiItem>> =
         combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
-            val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
-            items.filter { it.matches(allowedSongIds, search.query, catalog, filter) }
+            val allowedPackSongIds = filter.allowedPackSongIds(catalog)
+            items.filter { it.matches(allowedPackSongIds, search.songIds, search.query, catalog, filter) }
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
     private val facetCounts: StateFlow<PlayResultFacetCounts> =
         combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
-            val allowedSongIds = filter.allowedSongIds(catalog, search.songIds)
-            computeFacetCounts(items, filter, allowedSongIds, search.query, catalog)
+            val allowedPackSongIds = filter.allowedPackSongIds(catalog)
+            computeFacetCounts(items, filter, allowedPackSongIds, search.songIds, search.query, catalog)
         }.flowOn(Dispatchers.Default)
             .stateIn(
                 viewModelScope,

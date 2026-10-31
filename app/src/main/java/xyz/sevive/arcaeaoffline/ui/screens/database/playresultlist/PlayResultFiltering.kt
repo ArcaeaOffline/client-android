@@ -4,6 +4,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
+import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 
 /**
  * Play counts per facet option, counted under the other active facets.
@@ -19,24 +20,21 @@ internal data class PlayResultFacetCounts(
 )
 
 /**
- * Resolves the filter to the set of allowed song ids, or null when the filter
- * does not constrain songs at all.
+ * Resolves the pack facet to the set of allowed song ids, or null when no pack
+ * is selected.
  */
-internal fun PlayResultFilter.allowedSongIds(
-    catalog: ArcaeaCatalog,
-    searchedSongIds: Set<String>?,
-): Set<String>? {
-    if (packIds.isEmpty() && searchedSongIds == null) return null
+internal fun PlayResultFilter.allowedPackSongIds(catalog: ArcaeaCatalog): Set<String>? =
+    if (packIds.isEmpty()) null else catalog.songIdsOfBasePacks(packIds)
 
-    var allowed: Set<String>? = null
-    if (packIds.isNotEmpty()) allowed = catalog.songIdsOfBasePacks(packIds)
-    if (searchedSongIds != null) allowed = allowed?.intersect(searchedSongIds) ?: searchedSongIds
-
-    return allowed
-}
-
+/**
+ * Whether the item passes the facet filters and the text query.
+ *
+ * [allowedPackSongIds] is a hard filter. [searchedSongIds] narrows only the
+ * song dimension of [query]. A comment hit keeps the item regardless.
+ */
 internal fun PlayResultListUiItem.matches(
-    allowedSongIds: Set<String>?,
+    allowedPackSongIds: Set<String>?,
+    searchedSongIds: Set<String>?,
     query: String,
     catalog: ArcaeaCatalog,
     filter: PlayResultFilter,
@@ -48,19 +46,35 @@ internal fun PlayResultListUiItem.matches(
     if (filter.clearStatuses.isNotEmpty() && (status == null || status !in filter.clearStatuses)) return false
 
     if (filter.onlyWarnings && warnings.isEmpty()) return false
-    if (allowedSongIds != null && playResult.songId !in allowedSongIds) return false
+    if (allowedPackSongIds != null && playResult.songId !in allowedPackSongIds) return false
     if (query.isBlank() || !catalog.isLoaded) return true
 
     // Without song data there is no title to match, so fall back to the id.
-    if (catalog.songs.isEmpty()) return playResult.songId.contains(query, ignoreCase = true)
+    val songHit =
+        if (catalog.songs.isEmpty()) {
+            playResult.songId.contains(query, ignoreCase = true)
+        } else {
+            searchedSongIds?.contains(playResult.songId) == true
+        }
 
-    return true
+    return songHit || matchesComment(query)
+}
+
+/**
+ * Whether every [SearchEngine.tokenize] token occurs in the comment after
+ * [SearchEngine.normalize].
+ */
+private fun PlayResultListUiItem.matchesComment(query: String): Boolean {
+    val comment = playResult.comment ?: return false
+    val normalized = SearchEngine.normalize(comment)
+    return SearchEngine.tokenize(query).all { it in normalized }
 }
 
 internal fun computeFacetCounts(
     items: List<PlayResultListUiItem>,
     filter: PlayResultFilter,
-    allowedSongIds: Set<String>?,
+    allowedPackSongIds: Set<String>?,
+    searchedSongIds: Set<String>?,
     query: String,
     catalog: ArcaeaCatalog,
 ): PlayResultFacetCounts {
@@ -73,15 +87,15 @@ internal fun computeFacetCounts(
     val withoutClearStatuses = filter.copy(clearStatuses = emptySet())
 
     items.forEach { item ->
-        if (item.matches(allowedSongIds, query, catalog, withoutRatingClasses)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutRatingClasses)) {
             ratingClasses.merge(item.playResult.ratingClass, 1, Int::plus)
         }
 
-        if (item.matches(allowedSongIds, query, catalog, withoutScoreGrades)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutScoreGrades)) {
             scoreGrades.merge(item.scoreGrade, 1, Int::plus)
         }
 
-        if (item.matches(allowedSongIds, query, catalog, withoutClearStatuses)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutClearStatuses)) {
             item.clearStatus?.let { clearStatuses.merge(it, 1, Int::plus) }
         }
     }
