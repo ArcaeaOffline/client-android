@@ -27,7 +27,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 
 @Composable
 internal fun DatabasePlayResultListItem(
-    item: DatabasePlayResultListViewModel.ListItem,
+    item: PlayResultListUiItem,
     onPlayResultChange: (PlayResult) -> Unit,
     inSelectMode: Boolean,
     selected: Boolean,

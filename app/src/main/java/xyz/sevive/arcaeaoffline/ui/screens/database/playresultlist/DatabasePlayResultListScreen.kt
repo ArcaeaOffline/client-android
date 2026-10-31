@@ -104,9 +104,9 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
         DatabasePlayResultListSortDialog(
             onDismissRequest = { showSortDialog = false },
             sortOrder = uiState.sortOrder,
-            sortByValue = uiState.sortByValue,
+            sortKey = uiState.sortKey,
             onSortOrderChange = { viewModel.setSortOrder(it) },
-            onSortByValueChange = { viewModel.setSortByValue(it) },
+            onSortKeyChange = { viewModel.setSortKey(it) },
         )
     }
 

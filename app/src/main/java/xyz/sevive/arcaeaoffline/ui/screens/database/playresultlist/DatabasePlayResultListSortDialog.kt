@@ -32,8 +32,8 @@ import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun DatabasePlayResultListSortDialogOrderSwitch(
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
+    sortOrder: PlayResultSortOrder,
+    onSortOrderChange: (PlayResultSortOrder) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -55,7 +55,7 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
             }
 
             Switch(
-                checked = sortOrder == DatabasePlayResultListViewModel.SortOrder.DESC,
+                checked = sortOrder == PlayResultSortOrder.DESC,
                 onCheckedChange = null,
             )
 
@@ -69,23 +69,23 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
 
 @Composable
 private fun DatabasePlayResultListSortDialogContent(
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    sortByValue: DatabasePlayResultListViewModel.SortByValue,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
-    onSortByValueChange: (DatabasePlayResultListViewModel.SortByValue) -> Unit,
+    sortOrder: PlayResultSortOrder,
+    sortKey: PlayResultSortKey,
+    onSortOrderChange: (PlayResultSortOrder) -> Unit,
+    onSortKeyChange: (PlayResultSortKey) -> Unit,
 ) {
     @Composable
-    fun SortByValueWidgetWrapper(
+    fun SortKeyWidgetWrapper(
         label: String,
-        targetSortByValue: DatabasePlayResultListViewModel.SortByValue,
+        targetSortKey: PlayResultSortKey,
         modifier: Modifier = Modifier,
     ) {
         BaseSettingsItem(
             title = { Text(label) },
             leadingSlot = {
-                RadioButton(selected = sortByValue == targetSortByValue, onClick = null)
+                RadioButton(selected = sortKey == targetSortKey, onClick = null)
             },
-            onClick = { onSortByValueChange(targetSortByValue) },
+            onClick = { onSortKeyChange(targetSortKey) },
             modifier = modifier,
         )
     }
@@ -100,41 +100,41 @@ private fun DatabasePlayResultListSortDialogContent(
         }
 
         item {
-            SortByValueWidgetWrapper(
+            SortKeyWidgetWrapper(
                 label = stringResource(R.string.general_song_title),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.TITLE,
+                targetSortKey = PlayResultSortKey.TITLE,
                 Modifier.fillMaxWidth(),
             )
         }
 
         item {
-            SortByValueWidgetWrapper(
+            SortKeyWidgetWrapper(
                 label = stringResource(R.string.database_play_result_filter_difficulty),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.DIFFICULTY,
+                targetSortKey = PlayResultSortKey.DIFFICULTY,
                 Modifier.fillMaxWidth(),
             )
         }
 
         item {
-            SortByValueWidgetWrapper(
+            SortKeyWidgetWrapper(
                 label = stringResource(R.string.arcaea_play_result_score),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.SCORE,
+                targetSortKey = PlayResultSortKey.SCORE,
                 Modifier.fillMaxWidth(),
             )
         }
 
         item {
-            SortByValueWidgetWrapper(
+            SortKeyWidgetWrapper(
                 label = stringResource(R.string.arcaea_play_rating),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.PLAY_RATING,
+                targetSortKey = PlayResultSortKey.PLAY_RATING,
                 Modifier.fillMaxWidth(),
             )
         }
 
         item {
-            SortByValueWidgetWrapper(
+            SortKeyWidgetWrapper(
                 label = stringResource(R.string.datetime_picker_date),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.DATE,
+                targetSortKey = PlayResultSortKey.DATE,
                 Modifier.fillMaxWidth(),
             )
         }
@@ -144,10 +144,10 @@ private fun DatabasePlayResultListSortDialogContent(
 @Composable
 internal fun DatabasePlayResultListSortDialog(
     onDismissRequest: () -> Unit,
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    sortByValue: DatabasePlayResultListViewModel.SortByValue,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
-    onSortByValueChange: (DatabasePlayResultListViewModel.SortByValue) -> Unit,
+    sortOrder: PlayResultSortOrder,
+    sortKey: PlayResultSortKey,
+    onSortOrderChange: (PlayResultSortOrder) -> Unit,
+    onSortKeyChange: (PlayResultSortKey) -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -155,9 +155,9 @@ internal fun DatabasePlayResultListSortDialog(
         text = {
             DatabasePlayResultListSortDialogContent(
                 sortOrder = sortOrder,
-                sortByValue = sortByValue,
+                sortKey = sortKey,
                 onSortOrderChange = onSortOrderChange,
-                onSortByValueChange = onSortByValueChange,
+                onSortKeyChange = onSortKeyChange,
             )
         },
         confirmButton = {},
@@ -168,19 +168,19 @@ internal fun DatabasePlayResultListSortDialog(
 @Composable
 private fun DatabasePlayResultListSortDialogContentPreview() {
     var sortOrder by rememberSaveable {
-        mutableStateOf(DatabasePlayResultListViewModel.SortOrder.ASC)
+        mutableStateOf(PlayResultSortOrder.ASC)
     }
-    var sortByValue by rememberSaveable {
-        mutableStateOf(DatabasePlayResultListViewModel.SortByValue.PLAY_RATING)
+    var sortKey by rememberSaveable {
+        mutableStateOf(PlayResultSortKey.PLAY_RATING)
     }
 
     ArcaeaOfflineTheme {
         Surface {
             DatabasePlayResultListSortDialogContent(
                 sortOrder = sortOrder,
-                sortByValue = sortByValue,
+                sortKey = sortKey,
                 onSortOrderChange = { sortOrder = it },
-                onSortByValueChange = { sortByValue = it },
+                onSortKeyChange = { sortKey = it },
             )
         }
     }
