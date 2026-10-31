@@ -20,8 +20,7 @@ import xyz.sevive.arcaeaoffline.resources.Res
 import xyz.sevive.arcaeaoffline.resources.general_clear
 
 /**
- * The search input shared by the play result list, the song/pack pickers and
- * the quick search.
+ * A single-line search input with a leading search icon and a clear button.
  *
  * The clear button is provided unless the caller supplies its own [trailingIcon].
  * [onSearch] runs after the keyboard is dismissed, so callers can commit the
