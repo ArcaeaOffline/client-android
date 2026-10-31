@@ -81,8 +81,8 @@ CC BY-SA 3.0
     <!-- Permission helpers -->
     <string name="permission_required_dialog_title">Permission Required</string>
     <plurals name="permission_required_dialog_content">
-        <item quantity="many">\"%s\" needs these permissions:</item>
-        <item quantity="other">\"%s\" needs this permission:</item>
+        <item quantity="one">\"%s\" needs this permission:</item>
+        <item quantity="other">\"%s\" needs these permissions:</item>
     </plurals>
     <!-- Functions that need permissions -->
     <string name="permission_function_save_image">Save image</string>
@@ -134,24 +134,24 @@ CC BY-SA 3.0
     <!-- Database info/status labels -->
     <string name="database_version_label">Version %d</string>
     <plurals name="database_pack_entries">
-        <item quantity="many">%d packs</item>
-        <item quantity="other">%d pack</item>
+        <item quantity="one">%d pack</item>
+        <item quantity="other">%d packs</item>
     </plurals>
     <plurals name="database_song_entries">
-        <item quantity="many">%d songs</item>
-        <item quantity="other">%d song</item>
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
     </plurals>
     <plurals name="database_difficulty_entries">
-        <item quantity="many">%d difficulties</item>
-        <item quantity="other">%d difficulty</item>
+        <item quantity="one">%d difficulty</item>
+        <item quantity="other">%d difficulties</item>
     </plurals>
     <plurals name="database_chart_info_entries">
-        <item quantity="many">%d chart info</item>
+        <item quantity="one">%d chart info</item>
         <item quantity="other">%d chart info</item>
     </plurals>
     <plurals name="database_play_result_entries">
-        <item quantity="many">%d play results</item>
-        <item quantity="other">%d play result</item>
+        <item quantity="one">%d play result</item>
+        <item quantity="other">%d play results</item>
     </plurals>
 
     <string name="database_status_title">Database Status</string>
@@ -202,8 +202,8 @@ CC BY-SA 3.0
     <!-- Database play result list pane -->
     <string name="database_play_result_list_title">Play Results List</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
-        <item quantity="many">Are you sure to delete %d play results?</item>
-        <item quantity="other">Are you sure to delete %d play result?</item>
+        <item quantity="one">Are you sure to delete %d play result?</item>
+        <item quantity="other">Are you sure to delete %d play results?</item>
     </plurals>
     <string name="database_play_result_updated">Play result %s updated</string>
 
@@ -249,17 +249,17 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_chip_warnings">Warnings</string>
     <string name="database_play_result_filter_no_match">No play results match the current filters.</string>
     <plurals name="database_play_result_list_count">
-        <item quantity="many">%1$d / %2$d play results</item>
-        <item quantity="other">%1$d / %2$d play result</item>
+        <item quantity="one">%1$d / %2$d play result</item>
+        <item quantity="other">%1$d / %2$d play results</item>
     </plurals>
     <string name="database_play_result_select_all">Select all results</string>
     <plurals name="database_play_result_filter_result_count">
-        <item quantity="many">Showing %d play results</item>
-        <item quantity="other">Showing %d play result</item>
+        <item quantity="one">Showing %d play result</item>
+        <item quantity="other">Showing %d play results</item>
     </plurals>
     <plurals name="database_play_result_selection_hidden">
-        <item quantity="many">%d selected items are not in the current results.</item>
-        <item quantity="other">%d selected item is not in the current results.</item>
+        <item quantity="one">The selected item is not in the current results.</item>
+        <item quantity="other">%d selected items are not in the current results.</item>
     </plurals>
 
     <!-- Database b30 list pane -->
@@ -283,40 +283,40 @@ CC BY-SA 3.0
 
     <!-- Database toasts -->
     <plurals name="database_packs_imported">
-        <item quantity="many">%d packs imported</item>
-        <item quantity="other">%d pack imported</item>
+        <item quantity="one">%d pack imported</item>
+        <item quantity="other">%d packs imported</item>
     </plurals>
     <plurals name="database_packs_localized_imported">
-        <item quantity="many">%d pack localized objects imported</item>
+        <item quantity="one">%d pack localized object imported</item>
         <item quantity="other">%d pack localized objects imported</item>
     </plurals>
     <plurals name="database_songs_imported">
-        <item quantity="many">%d songs imported</item>
-        <item quantity="other">%d song imported</item>
+        <item quantity="one">%d song imported</item>
+        <item quantity="other">%d songs imported</item>
     </plurals>
     <plurals name="database_songs_localized_imported">
-        <item quantity="many">%d song localized objects imported</item>
+        <item quantity="one">%d song localized object imported</item>
         <item quantity="other">%d song localized objects imported</item>
     </plurals>
     <plurals name="database_difficulties_imported">
-        <item quantity="many">%d difficulties imported</item>
-        <item quantity="other">%d difficulty imported</item>
+        <item quantity="one">%d difficulty imported</item>
+        <item quantity="other">%d difficulties imported</item>
     </plurals>
     <plurals name="database_difficulties_localized_imported">
-        <item quantity="many">%d difficulty localized objects imported</item>
+        <item quantity="one">%d difficulty localized object imported</item>
         <item quantity="other">%d difficulty localized objects imported</item>
     </plurals>
     <plurals name="database_chart_info_imported">
-        <item quantity="many">%d chart info imported</item>
+        <item quantity="one">%d chart info imported</item>
         <item quantity="other">%d chart info imported</item>
     </plurals>
     <plurals name="database_play_results_imported">
-        <item quantity="many">%d play results imported</item>
-        <item quantity="other">%d play result imported</item>
+        <item quantity="one">%d play result imported</item>
+        <item quantity="other">%d play results imported</item>
     </plurals>
     <plurals name="database_play_results_exported">
-        <item quantity="many">%d play results exported</item>
-        <item quantity="other">%d play result exported</item>
+        <item quantity="one">%d play result exported</item>
+        <item quantity="other">%d play results exported</item>
     </plurals>
 
     <!-- components -->
@@ -358,7 +358,7 @@ CC BY-SA 3.0
 
     <plurals name="ocr_queue_event_files_staged">
         <item quantity="one">%s file added to staging</item>
-        <item quantity="many">%s files added to staging</item>
+        <item quantity="other">%s files added to staging</item>
     </plurals>
     <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
     <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
@@ -423,8 +423,8 @@ CC BY-SA 3.0
 
     <!-- PlayResult validator warnings -->
     <plurals name="play_result_validator_warning_count">
-        <item quantity="many">%d warnings</item>
-        <item quantity="other">%d warning</item>
+        <item quantity="one">%d warning</item>
+        <item quantity="other">%d warnings</item>
     </plurals>
 
     <string name="play_result_validator_SCORE_IS_ZERO_title">Score is zero</string>
