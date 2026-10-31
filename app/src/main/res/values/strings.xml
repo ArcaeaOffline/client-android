@@ -237,7 +237,7 @@ CC BY-SA 3.0
         <item quantity="other">%d packs selected</item>
     </plurals>
     <string name="database_play_result_filter_append_packs">Includes %s</string>
-    <string name="database_play_result_filter_clear">Clear filters</string>
+    <string name="database_play_result_filter_clear">Clear search and filters</string>
     <string name="database_play_result_filter_chip_pack">Pack · %s</string>
     <string name="database_play_result_filter_chip_packs_count">Packs · %d</string>
     <string name="database_play_result_filter_chip_difficulty">Difficulty · %s</string>

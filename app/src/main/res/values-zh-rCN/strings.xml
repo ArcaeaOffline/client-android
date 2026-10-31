@@ -210,7 +210,7 @@
         <item quantity="other">已选 %d 个曲包</item>
     </plurals>
     <string name="database_play_result_filter_append_packs">包含 %s</string>
-    <string name="database_play_result_filter_clear">清除筛选</string>
+    <string name="database_play_result_filter_clear">清除搜索和筛选</string>
     <string name="database_play_result_filter_chip_pack">曲包 · %s</string>
     <string name="database_play_result_filter_chip_packs_count">曲包 · %d 个</string>
     <string name="database_play_result_filter_chip_difficulty">难度 · %s</string>
