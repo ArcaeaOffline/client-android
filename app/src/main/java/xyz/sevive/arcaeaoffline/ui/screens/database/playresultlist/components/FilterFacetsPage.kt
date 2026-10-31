@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -114,15 +113,6 @@ internal fun FacetsPage(
             icon = Icons.Default.Warning,
             description = stringResource(R.string.database_play_result_filter_only_warnings_description),
         )
-
-        if (catalog.isLoaded && catalog.songs.isEmpty()) {
-            Text(
-                text = stringResource(R.string.database_play_result_filter_no_song_data),
-                modifier = Modifier.padding(top = MaterialTheme.spacing.sm),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
     }
 }
 

@@ -201,7 +201,6 @@
     <string name="database_play_result_filter_all_clear_statuses">全部通关类型</string>
     <string name="database_play_result_filter_pick_clear_statuses">选择通关类型</string>
     <string name="database_play_result_filter_search_pack_hint">搜索曲包……</string>
-    <string name="database_play_result_filter_no_song_data">未导入曲目数据，无法按曲包筛选。</string>
     <string name="database_play_result_filter_show_empty_packs">显示没有游玩记录的曲包</string>
     <string name="database_play_result_filter_only_warnings">仅警告</string>
     <string name="database_play_result_filter_only_warnings_description">只显示有校验警告的游玩记录</string>
