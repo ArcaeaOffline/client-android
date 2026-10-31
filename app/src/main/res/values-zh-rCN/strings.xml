@@ -202,6 +202,7 @@
     <string name="database_play_result_filter_pick_clear_statuses">选择通关类型</string>
     <string name="database_play_result_filter_search_pack_hint">搜索曲包……</string>
     <string name="database_play_result_filter_show_empty_packs">显示没有游玩记录的曲包</string>
+    <string name="database_play_result_filter_no_base_packs">数据库中暂无曲包</string>
     <string name="database_play_result_filter_only_warnings">仅警告</string>
     <string name="database_play_result_filter_only_warnings_description">只显示有校验警告的游玩记录</string>
     <string name="database_play_result_filter_selected_count">已选：%d</string>

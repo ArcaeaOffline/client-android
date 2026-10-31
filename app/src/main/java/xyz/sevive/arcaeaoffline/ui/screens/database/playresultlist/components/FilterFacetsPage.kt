@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -16,7 +14,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +28,6 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
-import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 internal fun FacetsPage(
@@ -47,11 +43,8 @@ internal fun FacetsPage(
         modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = MaterialTheme.spacing.pagePadding),
+            .verticalScroll(rememberScrollState()),
     ) {
-        Spacer(Modifier.height(MaterialTheme.spacing.lg))
-
         FilterEntryRow(
             label = stringResource(R.string.database_play_result_filter_packs),
             value = packSummary(filter.packIds, catalog),
@@ -63,7 +56,6 @@ internal fun FacetsPage(
                 } else {
                     { onFilterChange(filter.copy(packIds = emptySet())) }
                 },
-            enabled = catalog.basePacks.isNotEmpty(),
         )
 
         FilterEntryRow(
@@ -77,7 +69,6 @@ internal fun FacetsPage(
                 } else {
                     { onFilterChange(filter.copy(ratingClasses = emptySet())) }
                 },
-            enabled = true,
         )
 
         FilterEntryRow(
@@ -90,7 +81,6 @@ internal fun FacetsPage(
                 } else {
                     { onFilterChange(filter.copy(scoreGrades = emptySet())) }
                 },
-            enabled = true,
         )
 
         FilterEntryRow(
@@ -103,7 +93,6 @@ internal fun FacetsPage(
                 } else {
                     { onFilterChange(filter.copy(clearStatuses = emptySet())) }
                 },
-            enabled = true,
         )
 
         SwitchItem(
@@ -122,7 +111,6 @@ private fun FilterEntryRow(
     value: String,
     onClick: () -> Unit,
     onClear: (() -> Unit)?,
-    enabled: Boolean,
     modifier: Modifier = Modifier,
     leading: (@Composable () -> Unit)? = null,
 ) {
@@ -143,7 +131,6 @@ private fun FilterEntryRow(
                 Icon(Icons.Default.ChevronRight, contentDescription = null)
             }
         },
-        enabled = enabled,
         onClick = onClick,
     )
 }

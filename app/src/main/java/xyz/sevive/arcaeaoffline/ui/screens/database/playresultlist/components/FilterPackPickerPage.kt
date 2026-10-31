@@ -22,6 +22,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaSearchTextField
 import xyz.sevive.arcaeaoffline.ui.components.SwitchItem
+import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 private data class PackRowData(
@@ -56,12 +57,10 @@ internal fun PackPickerPage(
 
     val visibleRows =
         remember(rows, query, showEmptyPacks, catalog.packDocuments) {
-            val matchedPackIds =
-                if (query.isBlank()) null else SearchEngine.searchIds(catalog.packDocuments, query)
+            val matchedPackIds = if (query.isBlank()) null else SearchEngine.searchIds(catalog.packDocuments, query)
 
             rows.filter { row ->
-                (showEmptyPacks || row.playResultCount > 0) &&
-                    (matchedPackIds == null || row.pack.id in matchedPackIds)
+                (showEmptyPacks || row.playResultCount > 0) && (matchedPackIds == null || row.pack.id in matchedPackIds)
             }
         }
 
@@ -83,36 +82,54 @@ internal fun PackPickerPage(
             title = { Text(stringResource(R.string.database_play_result_filter_show_empty_packs)) },
         )
 
-        LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
-            items(visibleRows, key = { it.pack.id }) { row ->
-                SelectableRow(
-                    title = row.pack.name,
-                    subtitle =
-                        row.appendNames
-                            .takeIf { it.isNotEmpty() }
-                            ?.let {
+        if (visibleRows.isEmpty()) {
+            EmptyScreen(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                text =
+                    stringResource(
+                        if (catalog.isLoaded && catalog.basePacks.isEmpty()) {
+                            R.string.database_play_result_filter_no_base_packs
+                        } else {
+                            R.string.general_no_results
+                        },
+                    ),
+            )
+        } else {
+            LazyColumn(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            ) {
+                items(visibleRows, key = { it.pack.id }) { row ->
+                    SelectableRow(
+                        title = row.pack.name,
+                        subtitle =
+                            row.appendNames.takeIf { it.isNotEmpty() }?.let {
                                 stringResource(
                                     R.string.database_play_result_filter_append_packs,
                                     it.joinToString(),
                                 )
                             },
-                    trailing =
-                        pluralStringResource(
-                            R.plurals.database_play_result_entries,
-                            row.playResultCount,
-                            row.playResultCount,
-                        ),
-                    selected = row.pack.id in selectedPackIds,
-                    onClick = {
-                        state.setPackIds(
-                            if (row.pack.id in selectedPackIds) {
-                                selectedPackIds - row.pack.id
-                            } else {
-                                selectedPackIds + row.pack.id
-                            },
-                        )
-                    },
-                )
+                        trailing =
+                            pluralStringResource(
+                                R.plurals.database_play_result_entries,
+                                row.playResultCount,
+                                row.playResultCount,
+                            ),
+                        selected = row.pack.id in selectedPackIds,
+                        onClick = {
+                            state.setPackIds(
+                                if (row.pack.id in selectedPackIds) {
+                                    selectedPackIds - row.pack.id
+                                } else {
+                                    selectedPackIds + row.pack.id
+                                },
+                            )
+                        },
+                    )
+                }
             }
         }
     }

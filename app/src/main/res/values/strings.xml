@@ -228,6 +228,7 @@ CC BY-SA 3.0
     <string name="database_play_result_filter_clear_status_pure_memory" translatable="false">Pure Memory</string>
     <string name="database_play_result_filter_search_pack_hint">Search packs…</string>
     <string name="database_play_result_filter_show_empty_packs">Show packs without play results</string>
+    <string name="database_play_result_filter_no_base_packs">No packs in database</string>
     <string name="database_play_result_filter_only_warnings">Only warnings</string>
     <string name="database_play_result_filter_only_warnings_description">Show only results with validation warnings</string>
     <string name="database_play_result_filter_selected_count">Selected: %d</string>
