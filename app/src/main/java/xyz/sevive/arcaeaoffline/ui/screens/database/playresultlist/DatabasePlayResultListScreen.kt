@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +42,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.Da
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterDialog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultListAppBarActions
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.clearFocusOnKeyboardDismiss
 
 @Composable
 private fun DatabasePlayResultSearchBar(
@@ -53,12 +55,13 @@ private fun DatabasePlayResultSearchBar(
         onValueChange = onQueryChange,
         placeholder = stringResource(R.string.database_play_result_search_hint),
         modifier =
-            modifier.padding(
-                start = MaterialTheme.spacing.pagePadding,
-                end = MaterialTheme.spacing.pagePadding,
-                top = MaterialTheme.spacing.sm,
-                bottom = MaterialTheme.spacing.sm,
-            ),
+            modifier
+                .padding(
+                    start = MaterialTheme.spacing.pagePadding,
+                    end = MaterialTheme.spacing.pagePadding,
+                    top = MaterialTheme.spacing.sm,
+                    bottom = MaterialTheme.spacing.sm,
+                ).clearFocusOnKeyboardDismiss(),
     )
 }
 
@@ -140,7 +143,18 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) {
-        Column(Modifier.fillMaxSize()) {
+        // The adaptive pane scaffold moves focus onto the destination pane when it changes, and
+        // the first focusable child of this pane is the search field, so the IME opens on entry
+        // and after every configuration change. As a focus target, this column takes that focus
+        // instead of the search field.
+        // Upstream issue: https://issuetracker.google.com/issues/445720462
+        // TODO: drop the focus target once adaptive-layout 1.3.0 is in use and
+        //   PaneScaffoldDirective.shouldAutoFocusCurrentDestination is set to false.
+        Column(
+            Modifier
+                .fillMaxSize()
+                .focusTarget(),
+        ) {
             DatabasePlayResultSearchBar(
                 query = uiState.filter.query,
                 onQueryChange = { viewModel.setQuery(it) },
