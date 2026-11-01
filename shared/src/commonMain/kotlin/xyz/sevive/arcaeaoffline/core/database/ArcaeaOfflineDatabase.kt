@@ -67,8 +67,9 @@ import xyz.sevive.arcaeaoffline.core.database.migrations.Migration_7_8
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
         AutoMigration(from = 14, to = 15),
+        AutoMigration(from = 16, to = 17),
     ],
-    version = 16,
+    version = 17,
     exportSchema = true,
 )
 @ColumnTypeConverters(

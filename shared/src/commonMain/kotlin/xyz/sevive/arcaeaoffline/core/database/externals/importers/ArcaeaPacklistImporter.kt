@@ -35,6 +35,10 @@ class ArcaeaPacklistImporter(
                     id = pack.id,
                     name = pack.nameLocalized.en ?: "Pack",
                     description = pack.descriptionLocalized.en,
+                    parentPackId = pack.packParent,
+                    section = pack.section,
+                    plusCharacterId = pack.plusCharacter?.takeIf { it != -1 },
+                    isExtendPack = pack.isExtendPack,
                 ),
             )
         }
