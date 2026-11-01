@@ -80,13 +80,7 @@ private fun PermissionWidget(
 
     BaseSettingsItem(
         title = { PermissionTitle(permission) },
-        content = {
-            Text(
-                content,
-                Modifier.secondaryItemAlpha(),
-                style = MaterialTheme.typography.bodySmall,
-            )
-        },
+        description = content,
         leadingSlot = icon?.let { { Icon(it, contentDescription = null) } },
         trailingSlot = null,
         onClick = null,

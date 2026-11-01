@@ -4,8 +4,17 @@ import com.ionspin.kotlin.bignum.decimal.RoundingMode
 import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
-import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
+
+/**
+ * Rating text split into its rating class display name and level value, for layouts rendering the
+ * two separately.
+ */
+data class RatingTextParts(
+    val ratingClass: String,
+    val value: String,
+)
 
 object ArcaeaFormatters {
     /**
@@ -39,42 +48,29 @@ object ArcaeaFormatters {
      *
      * For example, 9900000 > "EX+"
      */
-    fun scoreToLevelText(score: Int): String =
-        when {
-            score >= 9_900_000 -> "EX+"
-            score >= 9_800_000 -> "EX"
-            score >= 9_500_000 -> "AA"
-            score >= 9_200_000 -> "A"
-            score >= 8_900_000 -> "B"
-            score >= 8_600_000 -> "C"
-            else -> "D"
-        }
+    fun scoreToLevelText(score: Int): String = ArcaeaScoreGrade.of(score).toDisplayString()
 
-    internal fun ratingText(
+    internal fun ratingTextParts(
         ratingClassDisplay: ArcaeaRatingClassDisplay,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int = 0,
-    ) = buildString {
-        append(ratingClassDisplay.name)
-        append(' ')
-
-        if (constant > 0) {
-            append((constant.toBigDecimal() / 10.toBigDecimal()).toPlainString())
-        } else {
-            append(rating.toString())
-            if (ratingPlus) {
-                append('+')
+    ): RatingTextParts {
+        val value =
+            if (constant > 0) {
+                (constant.toBigDecimal() / 10.toBigDecimal()).toPlainString()
+            } else {
+                if (ratingPlus) "$rating+" else rating.toString()
             }
-        }
+        return RatingTextParts(ratingClassDisplay.name, value)
     }
 
-    internal fun ratingText(
+    internal fun ratingTextParts(
         ratingClass: ArcaeaRatingClass,
         rating: Int,
         ratingPlus: Boolean,
         constant: Int = 0,
-    ) = ratingText(
+    ) = ratingTextParts(
         ArcaeaRatingClassDisplay.of(ratingClass),
         rating,
         ratingPlus,
@@ -82,36 +78,21 @@ object ArcaeaFormatters {
     )
 
     /**
-     * Returns the readable rating text for the given difficulty.
+     * Returns the rating class and level value parts for the given difficulty.
      *
-     * For example:
-     * * `Difficulty(ratingClass=2, rating=2, ratingPlus=false)` > "FUTURE 2"
-     * * `Difficulty(ratingClass=2, rating=10, ratingPlus=true)` > "FUTURE 10+"
-     * * `Difficulty(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
-     */
-    fun ratingText(difficulty: Difficulty): String =
-        ratingText(
-            ArcaeaRatingClassDisplay.of(difficulty.ratingClass, difficulty.ratingClassAlias),
-            difficulty.rating,
-            difficulty.ratingPlus,
-        )
-
-    /**
-     * Returns the readable rating text for the given difficulty.
-     *
-     * If the `constant` is not null, return it.
+     * If the `constant` is positive, return it (divided by 10) as the value.
      * Otherwise, return the `rating` and `ratingPlus` fields.
      *
      * For example:
-     * * `DifficultyWithSong(ratingClass=2, rating=2, ratingPlus=false, constant=0)` > "FUTURE 2"
-     * * `DifficultyWithSong(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > "FUTURE 10.8"
-     * * `DifficultyWithSong(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > "INSCRIBED 11+"
+     * * `DifficultyWithSong(ratingClass=2, rating=2, ratingPlus=false, constant=0)` > `RatingTextParts("FUTURE", "2")`
+     * * `DifficultyWithSong(ratingClass=2, rating=10, ratingPlus=true, constant=108)` > `RatingTextParts("FUTURE", "10.8")`
+     * * `DifficultyWithSong(ratingClass=3, rating=11, ratingPlus=true, ratingClassAlias=1)` > `RatingTextParts("INSCRIBED", "11+")`
      */
-    fun ratingText(
+    fun ratingTextParts(
         difficultyWithSong: DifficultyWithSong,
         constant: Int = 0,
-    ): String =
-        ratingText(
+    ): RatingTextParts =
+        ratingTextParts(
             ArcaeaRatingClassDisplay.of(difficultyWithSong.ratingClass, difficultyWithSong.ratingClassAlias),
             difficultyWithSong.rating,
             difficultyWithSong.ratingPlus,

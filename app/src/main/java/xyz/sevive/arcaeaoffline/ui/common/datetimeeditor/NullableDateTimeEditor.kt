@@ -48,7 +48,7 @@ internal fun NullableDateTimeEditor(
             modifier = modifier.clickable(editable) { showEditor = true },
             readOnly = true,
             enabled = false,
-            label = { Text(stringResource(R.string.datetime_picker_label)) },
+            label = { Text(stringResource(R.string.datetime_picker_date)) },
             colors =
                 if (dateTime != null) {
                     TextFieldDefaults.colors(

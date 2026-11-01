@@ -3,37 +3,32 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
+import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
+import xyz.sevive.arcaeaoffline.ui.components.SelectItem
+import xyz.sevive.arcaeaoffline.ui.components.SelectOption
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
 private fun DatabasePlayResultListSortDialogOrderSwitch(
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
+    sortOrder: PlayResultSortOrder,
+    onSortOrderChange: (PlayResultSortOrder) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -55,7 +50,7 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
             }
 
             Switch(
-                checked = sortOrder == DatabasePlayResultListViewModel.SortOrder.DESC,
+                checked = sortOrder == PlayResultSortOrder.DESC,
                 onCheckedChange = null,
             )
 
@@ -69,110 +64,55 @@ private fun DatabasePlayResultListSortDialogOrderSwitch(
 
 @Composable
 private fun DatabasePlayResultListSortDialogContent(
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    sortByValue: DatabasePlayResultListViewModel.SortByValue,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
-    onSortByValueChange: (DatabasePlayResultListViewModel.SortByValue) -> Unit,
+    sortKey: PlayResultSortKey,
+    onSortKeyChange: (PlayResultSortKey) -> Unit,
 ) {
-    @Composable
-    fun SortByValueWidgetWrapper(
-        label: String,
-        targetSortByValue: DatabasePlayResultListViewModel.SortByValue,
-        modifier: Modifier = Modifier,
-    ) {
-        BaseSettingsItem(
-            title = { Text(label) },
-            leadingSlot = {
-                RadioButton(selected = sortByValue == targetSortByValue, onClick = null)
-            },
-            onClick = { onSortByValueChange(targetSortByValue) },
-            modifier = modifier,
+    val options =
+        listOf(
+            SelectOption(PlayResultSortKey.TITLE, stringResource(R.string.general_song_title)),
+            SelectOption(PlayResultSortKey.DIFFICULTY, stringResource(R.string.database_play_result_filter_difficulty)),
+            SelectOption(PlayResultSortKey.SCORE, stringResource(R.string.arcaea_play_result_score)),
+            SelectOption(PlayResultSortKey.PLAY_RATING, stringResource(R.string.arcaea_play_rating)),
+            SelectOption(PlayResultSortKey.DATE, stringResource(R.string.datetime_picker_date)),
         )
-    }
 
-    LazyColumn {
-        item {
-            DatabasePlayResultListSortDialogOrderSwitch(
-                sortOrder = sortOrder,
-                onSortOrderChange = onSortOrderChange,
-                Modifier.fillMaxWidth(),
-            )
-        }
-
-        item {
-            SortByValueWidgetWrapper(
-                label = "ID",
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.ID,
-                Modifier.fillMaxWidth(),
-            )
-        }
-
-        item {
-            SortByValueWidgetWrapper(
-                label = stringResource(R.string.arcaea_play_result_score),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.SCORE,
-                Modifier.fillMaxWidth(),
-            )
-        }
-
-        item {
-            SortByValueWidgetWrapper(
-                label = stringResource(R.string.arcaea_play_rating),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.PLAY_RATING,
-                Modifier.fillMaxWidth(),
-            )
-        }
-
-        item {
-            SortByValueWidgetWrapper(
-                label = stringResource(R.string.datetime_picker_label),
-                targetSortByValue = DatabasePlayResultListViewModel.SortByValue.DATE,
-                Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    SelectItem(
+        options = options,
+        selected = sortKey,
+        onSelect = onSortKeyChange,
+        Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+    )
 }
 
 @Composable
 internal fun DatabasePlayResultListSortDialog(
     onDismissRequest: () -> Unit,
-    sortOrder: DatabasePlayResultListViewModel.SortOrder,
-    sortByValue: DatabasePlayResultListViewModel.SortByValue,
-    onSortOrderChange: (DatabasePlayResultListViewModel.SortOrder) -> Unit,
-    onSortByValueChange: (DatabasePlayResultListViewModel.SortByValue) -> Unit,
+    sortOrder: PlayResultSortOrder,
+    sortKey: PlayResultSortKey,
+    onSortOrderChange: (PlayResultSortOrder) -> Unit,
+    onSortKeyChange: (PlayResultSortKey) -> Unit,
 ) {
-    AlertDialog(
+    BasicAlertDialogSurface(
         onDismissRequest = onDismissRequest,
-        icon = { Icon(painterResource(R.drawable.ic_sort), contentDescription = null) },
-        text = {
-            DatabasePlayResultListSortDialogContent(
+    ) { paddingValues ->
+        Column(
+            Modifier.padding(top = paddingValues.calculateTopPadding(), bottom = paddingValues.calculateBottomPadding()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+        ) {
+            Icon(painterResource(R.drawable.ic_sort), contentDescription = null)
+
+            DatabasePlayResultListSortDialogOrderSwitch(
                 sortOrder = sortOrder,
-                sortByValue = sortByValue,
                 onSortOrderChange = onSortOrderChange,
-                onSortByValueChange = onSortByValueChange,
+                Modifier.fillMaxWidth(),
             )
-        },
-        confirmButton = {},
-    )
-}
 
-@PreviewLightDark
-@Composable
-private fun DatabasePlayResultListSortDialogContentPreview() {
-    var sortOrder by rememberSaveable {
-        mutableStateOf(DatabasePlayResultListViewModel.SortOrder.ASC)
-    }
-    var sortByValue by rememberSaveable {
-        mutableStateOf(DatabasePlayResultListViewModel.SortByValue.PLAY_RATING)
-    }
-
-    ArcaeaOfflineTheme {
-        Surface {
             DatabasePlayResultListSortDialogContent(
-                sortOrder = sortOrder,
-                sortByValue = sortByValue,
-                onSortOrderChange = { sortOrder = it },
-                onSortByValueChange = { sortByValue = it },
+                sortKey = sortKey,
+                onSortKeyChange = onSortKeyChange,
             )
         }
     }

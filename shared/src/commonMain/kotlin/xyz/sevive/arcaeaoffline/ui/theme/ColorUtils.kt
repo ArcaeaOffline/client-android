@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
 
 @Composable
 fun ratingClassColor(ratingClass: ArcaeaRatingClass): Color =
@@ -26,14 +27,14 @@ fun ratingClassColor(display: ArcaeaRatingClassDisplay): Color =
 @Composable
 fun playResultGradeGradientBrush(score: Int): Brush {
     val colors =
-        when {
-            score >= 9900000 -> LocalArcaeaGradeGradientColors.current.exPlus
-            score >= 9800000 -> LocalArcaeaGradeGradientColors.current.ex
-            score >= 9500000 -> LocalArcaeaGradeGradientColors.current.aa
-            score >= 9200000 -> LocalArcaeaGradeGradientColors.current.a
-            score >= 8900000 -> LocalArcaeaGradeGradientColors.current.b
-            score >= 8600000 -> LocalArcaeaGradeGradientColors.current.c
-            else -> LocalArcaeaGradeGradientColors.current.d
+        when (ArcaeaScoreGrade.of(score)) {
+            ArcaeaScoreGrade.EX_PLUS -> LocalArcaeaGradeGradientColors.current.exPlus
+            ArcaeaScoreGrade.EX -> LocalArcaeaGradeGradientColors.current.ex
+            ArcaeaScoreGrade.AA -> LocalArcaeaGradeGradientColors.current.aa
+            ArcaeaScoreGrade.A -> LocalArcaeaGradeGradientColors.current.a
+            ArcaeaScoreGrade.B -> LocalArcaeaGradeGradientColors.current.b
+            ArcaeaScoreGrade.C -> LocalArcaeaGradeGradientColors.current.c
+            ArcaeaScoreGrade.D -> LocalArcaeaGradeGradientColors.current.d
         }
     return Brush.verticalGradient(colors)
 }

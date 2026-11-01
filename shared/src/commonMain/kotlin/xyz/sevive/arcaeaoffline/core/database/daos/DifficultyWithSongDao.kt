@@ -7,7 +7,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSongAndInfo
 
-// Keep in sync with DifficultyWithSong's fields; COALESCE falls back to the
+// Keep in sync with DifficultyWithSong's fields. COALESCE falls back to the
 // song-level metadata when the difficulty entry does not override it.
 private const val DIFFICULTY_WITH_SONG_QUERY_BASE =
     """
@@ -47,6 +47,13 @@ interface DifficultyWithSongDao {
 
     @Query("$DIFFICULTY_WITH_SONG_QUERY_BASE WHERE d.song_id IN (:songIds)")
     fun findAllBySongIds(songIds: List<String>): Flow<List<DifficultyWithSong>>
+
+    /**
+     * Every difficulty row, including those whose chart info is missing.
+     * [findAllWithInfo] joins on chart info and drops them.
+     */
+    @Query(DIFFICULTY_WITH_SONG_QUERY_BASE)
+    fun findAll(): Flow<List<DifficultyWithSong>>
 
     // Only rows with chart info (INNER JOIN): consumers filter and display by
     // constant, which is meaningless without it.

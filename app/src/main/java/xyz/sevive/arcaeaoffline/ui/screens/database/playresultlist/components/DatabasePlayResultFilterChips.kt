@@ -1,0 +1,166 @@
+package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearStatus
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoreGrade
+import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
+import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.PlayResultFilter
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
+
+/**
+ * Read-only summary of the active filters. Tapping a chip opens the filter
+ * dialog. The dialog is the only place structured filters are added or
+ * removed.
+ *
+ * The row is laid out by the caller next to the result count. It carries no
+ * horizontal content padding of its own.
+ *
+ * @param onOpenFilters Called with the picker page the tapped chip targets,
+ *   or `null` to open the dialog on the facets home.
+ */
+@Composable
+internal fun DatabasePlayResultFilterChips(
+    filter: PlayResultFilter,
+    catalog: ArcaeaCatalog,
+    onOpenFilters: (FilterPicker?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (!filter.hasStructuredFilter) return
+
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+    ) {
+        if (filter.packIds.isNotEmpty()) {
+            // Collapse the selection into one chip because a long pack selection
+            // would otherwise push the other chips out of view.
+            item(key = "packs") {
+                AssistChip(
+                    onClick = { onOpenFilters(FilterPicker.PACKS) },
+                    label = { Text(packLabel(filter.packIds, catalog)) },
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.ic_pack),
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
+        }
+
+        if (filter.ratingClasses.isNotEmpty()) {
+            item(key = "ratingClasses") {
+                AssistChip(
+                    onClick = { onOpenFilters(FilterPicker.DIFFICULTIES) },
+                    label = { Text(difficultyLabel(filter.ratingClasses)) },
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.ic_rating_class),
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
+        }
+
+        if (filter.scoreGrades.isNotEmpty()) {
+            item(key = "scoreGrades") {
+                AssistChip(
+                    onClick = { onOpenFilters(FilterPicker.SCORE_GRADES) },
+                    label = { Text(scoreGradesLabel(filter.scoreGrades)) },
+                )
+            }
+        }
+
+        if (filter.clearStatuses.isNotEmpty()) {
+            item(key = "clearStatuses") {
+                AssistChip(
+                    onClick = { onOpenFilters(FilterPicker.CLEAR_STATUSES) },
+                    label = { Text(clearStatusesLabel(filter.clearStatuses)) },
+                )
+            }
+        }
+
+        if (filter.onlyWarnings) {
+            item(key = "warnings") {
+                AssistChip(
+                    onClick = { onOpenFilters(null) },
+                    label = { Text(stringResource(R.string.database_play_result_filter_chip_warnings)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun clearStatusesLabel(clearStatuses: Set<ArcaeaPlayResultClearStatus>): String =
+    if (clearStatuses.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_clear_status,
+            stringResource(clearStatusLabelRes(clearStatuses.first())),
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_clear_statuses_count, clearStatuses.size)
+    }
+
+@Composable
+private fun scoreGradesLabel(scoreGrades: Set<ArcaeaScoreGrade>): String =
+    if (scoreGrades.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_score,
+            scoreGrades.first().toDisplayString(),
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_scores_count, scoreGrades.size)
+    }
+
+@Composable
+private fun difficultyLabel(ratingClasses: Set<ArcaeaRatingClass>): String =
+    if (ratingClasses.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_difficulty,
+            ArcaeaRatingClassDisplay.of(ratingClasses.first()).name,
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_difficulties_count, ratingClasses.size)
+    }
+
+@Composable
+private fun packLabel(
+    packIds: Set<String>,
+    catalog: ArcaeaCatalog,
+): String =
+    if (packIds.size == 1) {
+        stringResource(
+            R.string.database_play_result_filter_chip_pack,
+            catalog.packName(packIds.first()) ?: packIds.first(),
+        )
+    } else {
+        stringResource(R.string.database_play_result_filter_chip_packs_count, packIds.size)
+    }
