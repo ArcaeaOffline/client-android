@@ -13,5 +13,8 @@ data class Property(
         const val KEY_R30_LAST_UPDATED_AT = "r30_last_updated_at"
         const val KEY_R30_LAST_UPDATED_PLAY_RESULT_UUID = "r30_last_updated_uuid"
         const val KEY_SCORING_MODE = "scoring_mode"
+        const val KEY_PACKLIST_LAST_IMPORTED_AT = "packlist_last_imported_at"
+        const val KEY_SONGS_LAST_IMPORTED_AT = "songs_last_imported_at"
+        const val KEY_CHART_INFO_LAST_IMPORTED_AT = "chart_info_last_imported_at"
     }
 }

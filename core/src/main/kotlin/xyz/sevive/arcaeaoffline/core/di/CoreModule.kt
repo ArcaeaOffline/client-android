@@ -22,6 +22,8 @@ import xyz.sevive.arcaeaoffline.core.database.daos.SongLocalizedDao
 import xyz.sevive.arcaeaoffline.core.database.getArcaeaOfflineDatabase
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepositoryImpl
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepositoryImpl
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
@@ -112,4 +114,5 @@ val coreModule =
         single<PlayResultBestRepositoryImpl>().bind(PlayResultBestRepository::class)
         single<R30EntryRepositoryImpl>().bind(R30EntryRepository::class)
         single<PotentialRepositoryImpl>().bind(PotentialRepository::class)
+        single<DatabaseReadinessRepositoryImpl>().bind(DatabaseReadinessRepository::class)
     }
