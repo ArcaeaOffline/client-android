@@ -35,8 +35,12 @@ data class ArcaeaListLocalizedArrayObject(
 @Serializable
 data class ArcaeaPacklistItem(
     val id: String,
+    val section: String? = null,
     @SerialName("name_localized") val nameLocalized: ArcaeaListLocalizedObject,
     @SerialName("description_localized") val descriptionLocalized: ArcaeaListLocalizedObject,
+    @SerialName("pack_parent") val packParent: String? = null,
+    @SerialName("plus_character") val plusCharacter: Int? = null,
+    @SerialName("is_extend_pack") val isExtendPack: Boolean = false,
 ) {
     fun getPackLocalized(lang: ArcaeaLanguage): PackLocalized? {
         val name =

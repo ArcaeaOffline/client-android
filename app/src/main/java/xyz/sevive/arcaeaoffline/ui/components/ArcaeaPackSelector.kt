@@ -31,12 +31,12 @@ fun ArcaeaPackSelector(
 ) {
     val basePackMap: Map<String, Pack> =
         packs
-            .filter { !it.isAppendPack() }
+            .filter { !it.isAppendPack }
             .associateBy(keySelector = { it.id }, valueTransform = { it })
 
     val labels =
         packs.map {
-            val basePack = basePackMap[it.basePackId()]
+            val basePack = basePackMap[it.parentPackId]
             val packLabel =
                 if (basePack != null) {
                     buildAnnotatedString {

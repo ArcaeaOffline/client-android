@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class ArcaeaCatalogTest {
     private val basePack = Pack(id = "nova", name = "Nova Pack")
 
-    private val appendPack = Pack(id = "nova_append_1", name = "Nova Append")
+    private val appendPack = Pack(id = "nova_append_1", name = "Nova Append", parentPackId = "nova")
 
     private val catalog =
         ArcaeaCatalog(
