@@ -62,9 +62,10 @@ private val FilterCompactScreens: List<FilterPicker?> =
     listOf<FilterPicker?>(null) + FilterPicker.entries.filter { it.sizeClass == FilterSizeClass.COMPACT }
 
 /**
- * A filter dialog built on a compact facet card. The packs picker expands to
- * full screen, while the other pickers only grow the card in height and keep
- * the compact width, corners and elevation.
+ * A filter dialog built on a compact facet card.
+ *
+ * A picker with [FilterSizeClass.FULL] expands to full screen, while the others
+ * only grow the card in height and keep the compact width, corners and elevation.
  *
  * Filters apply live. [onDismissRequest] also handles back, closing an open
  * picker instead of the dialog. Tapping the scrim outside the card closes the
