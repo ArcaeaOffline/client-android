@@ -1,5 +1,11 @@
 # Arcaea Offline Android Client
 
+> [!WARNING]
+> This project is **mostly AI-generated** with **light review**.
+>
+> If you'd like to contribute, feel free to use AI assistance.
+> Consider saving your precious time and manual effort for higher-quality, human-crafted projects.
+
 ## Custom Maven Repo (Optional)
 
 To reduce APK size, this project builds custom ONNX Runtime and OpenCV in [ArcaeaOffline/custom-lib-builds](https://github.com/ArcaeaOffline/custom-lib-builds), with unused features removed.
