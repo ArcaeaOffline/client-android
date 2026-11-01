@@ -1,5 +1,7 @@
 # Arcaea Offline Android Client
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ArcaeaOffline/client-android)
+
 > [!WARNING]
 > This project is **mostly AI-generated** with **light review**.
 >
