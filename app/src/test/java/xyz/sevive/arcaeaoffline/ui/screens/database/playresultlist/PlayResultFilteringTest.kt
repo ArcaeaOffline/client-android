@@ -14,6 +14,7 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.Song
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogSong
+import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 import xyz.sevive.arcaeaoffline.core.search.searchDocument
 
 class PlayResultFilteringTest {
@@ -170,6 +171,7 @@ class PlayResultFilteringTest {
                 null,
                 null,
                 "",
+                emptyList(),
                 EMPTY_CATALOG,
             )
         assertEquals(
@@ -186,6 +188,7 @@ class PlayResultFilteringTest {
                 null,
                 null,
                 "",
+                emptyList(),
                 EMPTY_CATALOG,
             )
         assertEquals(
@@ -202,6 +205,7 @@ class PlayResultFilteringTest {
                 null,
                 null,
                 "",
+                emptyList(),
                 EMPTY_CATALOG,
             )
         assertEquals(
@@ -231,6 +235,7 @@ class PlayResultFilteringTest {
                 null,
                 null,
                 "",
+                emptyList(),
                 EMPTY_CATALOG,
             )
 
@@ -260,6 +265,14 @@ class PlayResultFilteringTest {
         item: PlayResultListUiItem,
         filter: PlayResultFilter,
     ): Boolean = item.matches(null, null, "", EMPTY_CATALOG, filter)
+
+    private fun PlayResultListUiItem.matches(
+        allowedPackSongIds: Set<String>?,
+        searchedSongIds: Set<String>?,
+        query: String,
+        catalog: ArcaeaCatalog,
+        filter: PlayResultFilter,
+    ): Boolean = matches(allowedPackSongIds, searchedSongIds, query, SearchEngine.tokenize(query), catalog, filter)
 
     private companion object {
         private val EMPTY_CATALOG = ArcaeaCatalog()

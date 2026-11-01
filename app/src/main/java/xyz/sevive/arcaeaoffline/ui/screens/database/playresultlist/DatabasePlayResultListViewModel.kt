@@ -66,6 +66,14 @@ class DatabasePlayResultListViewModel(
 
     private val filter = MutableStateFlow(PlayResultFilter())
 
+    /**
+     * [filter] with the text query cleared. The list and facet computations
+     * read the query only through [songSearchState], so this keeps a
+     * query-only change from re-running them.
+     */
+    private val filterWithoutQuery =
+        filter.map { it.copy(query = "") }.distinctUntilChanged()
+
     val catalog: StateFlow<ArcaeaCatalog> = catalogHolder.catalog
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -109,13 +117,18 @@ class DatabasePlayResultListViewModel(
     /**
      * The text query resolved to matching song ids.
      *
-     * [songIds] is null when the query is empty, the catalog is not loaded, or
-     * no song data is imported. In the last case the song dimension falls back
-     * to matching the raw song id. While the catalog is not loaded the query
-     * does not constrain the list at all.
+     * While the catalog is not loaded the query does not constrain the list
+     * at all.
+     *
+     * @property queryTokens [SearchEngine.tokenize] of [query], computed once
+     *   per emission for the comment dimension of matching.
+     * @property songIds `null` when the query is empty, the catalog is not
+     *   loaded, or no song data is imported. In the last case the song
+     *   dimension falls back to matching the raw song id.
      */
     private data class SongSearchState(
         val query: String,
+        val queryTokens: List<String>,
         val songIds: Set<String>?,
     )
 
@@ -125,30 +138,31 @@ class DatabasePlayResultListViewModel(
             filter.map { it.query }.distinctUntilChanged().debounce(SEARCH_QUERY_DEBOUNCE),
             catalog,
         ) { query, catalog ->
+            val queryTokens = SearchEngine.tokenize(query)
             when {
-                query.isBlank() -> SongSearchState(query, null)
-                !catalog.isLoaded -> SongSearchState(query, null)
-                catalog.songs.isEmpty() -> SongSearchState(query, null)
-                else -> SongSearchState(query, SearchEngine.searchIds(catalog.documents, query))
+                query.isBlank() -> SongSearchState(query, queryTokens, null)
+                !catalog.isLoaded -> SongSearchState(query, queryTokens, null)
+                catalog.songs.isEmpty() -> SongSearchState(query, queryTokens, null)
+                else -> SongSearchState(query, queryTokens, SearchEngine.searchIds(catalog.documents, query))
             }
         }.flowOn(Dispatchers.Default)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds),
-                SongSearchState(query = "", songIds = null),
+                SongSearchState(query = "", queryTokens = emptyList(), songIds = null),
             )
 
     private val filteredListItems: StateFlow<List<PlayResultListUiItem>> =
-        combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
+        combine(rawListItems, filterWithoutQuery, songSearchState, catalog) { items, filter, search, catalog ->
             val allowedPackSongIds = filter.allowedPackSongIds(catalog)
-            items.filter { it.matches(allowedPackSongIds, search.songIds, search.query, catalog, filter) }
+            items.filter { it.matches(allowedPackSongIds, search.songIds, search.query, search.queryTokens, catalog, filter) }
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT.inWholeMilliseconds), emptyList())
 
     private val facetCounts: StateFlow<PlayResultFacetCounts> =
-        combine(rawListItems, filter, songSearchState, catalog) { items, filter, search, catalog ->
+        combine(rawListItems, filterWithoutQuery, songSearchState, catalog) { items, filter, search, catalog ->
             val allowedPackSongIds = filter.allowedPackSongIds(catalog)
-            computeFacetCounts(items, filter, allowedPackSongIds, search.songIds, search.query, catalog)
+            computeFacetCounts(items, filter, allowedPackSongIds, search.songIds, search.query, search.queryTokens, catalog)
         }.flowOn(Dispatchers.Default)
             .stateIn(
                 viewModelScope,

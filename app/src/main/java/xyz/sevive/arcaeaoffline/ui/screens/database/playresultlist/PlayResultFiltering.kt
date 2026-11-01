@@ -29,13 +29,17 @@ internal fun PlayResultFilter.allowedPackSongIds(catalog: ArcaeaCatalog): Set<St
 /**
  * Whether the item passes the facet filters and the text query.
  *
- * [allowedPackSongIds] is a hard filter. [searchedSongIds] narrows only the
- * song dimension of [query]. A comment hit keeps the item regardless.
+ * A comment hit keeps the item regardless.
+ *
+ * @param allowedPackSongIds A hard filter. Null imposes no restriction.
+ * @param searchedSongIds Narrows only the song dimension of [query].
+ * @param queryTokens Must be [SearchEngine.tokenize] of [query].
  */
 internal fun PlayResultListUiItem.matches(
     allowedPackSongIds: Set<String>?,
     searchedSongIds: Set<String>?,
     query: String,
+    queryTokens: List<String>,
     catalog: ArcaeaCatalog,
     filter: PlayResultFilter,
 ): Boolean {
@@ -57,17 +61,16 @@ internal fun PlayResultListUiItem.matches(
             searchedSongIds?.contains(playResult.songId) == true
         }
 
-    return songHit || matchesComment(query)
+    return songHit || matchesComment(queryTokens)
 }
 
 /**
- * Whether every [SearchEngine.tokenize] token occurs in the comment after
- * [SearchEngine.normalize].
+ * Whether every token in [queryTokens] occurs in the item's normalized
+ * comment ([PlayResultListUiItem.normalizedComment]).
  */
-private fun PlayResultListUiItem.matchesComment(query: String): Boolean {
-    val comment = playResult.comment ?: return false
-    val normalized = SearchEngine.normalize(comment)
-    return SearchEngine.tokenize(query).all { it in normalized }
+private fun PlayResultListUiItem.matchesComment(queryTokens: List<String>): Boolean {
+    val normalized = normalizedComment ?: return false
+    return queryTokens.all { it in normalized }
 }
 
 internal fun computeFacetCounts(
@@ -76,6 +79,7 @@ internal fun computeFacetCounts(
     allowedPackSongIds: Set<String>?,
     searchedSongIds: Set<String>?,
     query: String,
+    queryTokens: List<String>,
     catalog: ArcaeaCatalog,
 ): PlayResultFacetCounts {
     val ratingClasses = HashMap<ArcaeaRatingClass, Int>()
@@ -87,15 +91,15 @@ internal fun computeFacetCounts(
     val withoutClearStatuses = filter.copy(clearStatuses = emptySet())
 
     items.forEach { item ->
-        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutRatingClasses)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, queryTokens, catalog, withoutRatingClasses)) {
             ratingClasses.merge(item.playResult.ratingClass, 1, Int::plus)
         }
 
-        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutScoreGrades)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, queryTokens, catalog, withoutScoreGrades)) {
             scoreGrades.merge(item.scoreGrade, 1, Int::plus)
         }
 
-        if (item.matches(allowedPackSongIds, searchedSongIds, query, catalog, withoutClearStatuses)) {
+        if (item.matches(allowedPackSongIds, searchedSongIds, query, queryTokens, catalog, withoutClearStatuses)) {
             item.clearStatus?.let { clearStatuses.merge(it, 1, Int::plus) }
         }
     }
