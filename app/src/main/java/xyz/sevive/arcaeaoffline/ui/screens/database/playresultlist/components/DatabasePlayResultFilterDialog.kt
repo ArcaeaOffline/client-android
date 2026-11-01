@@ -4,6 +4,8 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -65,10 +67,14 @@ private val FilterCompactScreens: List<FilterPicker?> =
  * the compact width, corners and elevation.
  *
  * Filters apply live. [onDismissRequest] also handles back, closing an open
- * picker instead of the dialog.
+ * picker instead of the dialog. Tapping the scrim outside the card closes the
+ * dialog while the facets home is shown. While a picker is open the scrim is
+ * inert, so a stray tap cannot leave the picker.
+ *
+ * @param initialPicker Picker page the dialog opens on, or `null` for the facets home.
  */
 @Composable
-fun DatabasePlayResultFilterDialog(
+internal fun DatabasePlayResultFilterDialog(
     filter: PlayResultFilter,
     catalog: ArcaeaCatalog,
     songPlayResultCounts: Map<String, Int>,
@@ -76,10 +82,11 @@ fun DatabasePlayResultFilterDialog(
     scoreGradeCounts: Map<ArcaeaScoreGrade, Int>,
     clearStatusCounts: Map<ArcaeaPlayResultClearStatus, Int>,
     resultCount: Int,
+    initialPicker: FilterPicker? = null,
     onFilterChange: (PlayResultFilter) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    var picker by rememberSaveable { mutableStateOf<FilterPicker?>(null) }
+    var picker by rememberSaveable { mutableStateOf(initialPicker) }
 
     fun handleBack() {
         if (picker == null) onDismissRequest() else picker = null
@@ -108,7 +115,14 @@ fun DatabasePlayResultFilterDialog(
             ),
     ) {
         BoxWithConstraints(
-            Modifier.fillMaxSize(),
+            Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    if (picker == null) onDismissRequest()
+                },
             contentAlignment = Alignment.Center,
         ) {
             val availableWidth = maxWidth
@@ -209,8 +223,15 @@ fun DatabasePlayResultFilterDialog(
                 )
             }
 
+            // Swallow taps on the card so they do not reach the scrim.
+            val cardModifier =
+                sizeModifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {}
+
             Surface(
-                modifier = sizeModifier,
+                modifier = cardModifier,
                 shape = RoundedCornerShape(corner),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = elevation,

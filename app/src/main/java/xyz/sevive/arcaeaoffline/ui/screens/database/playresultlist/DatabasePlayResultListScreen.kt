@@ -41,6 +41,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterChips
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterDialog
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultListAppBarActions
+import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.FilterPicker
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import xyz.sevive.arcaeaoffline.ui.utils.clearFocusOnKeyboardDismiss
 
@@ -111,6 +112,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
     }
 
     var showFilterDialog by rememberSaveable { mutableStateOf(false) }
+    var filterDialogPicker by rememberSaveable { mutableStateOf<FilterPicker?>(null) }
     if (showFilterDialog) {
         DatabasePlayResultFilterDialog(
             filter = uiState.filter,
@@ -120,6 +122,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
             scoreGradeCounts = uiState.scoreGradeCounts,
             clearStatusCounts = uiState.clearStatusCounts,
             resultCount = listItems.size,
+            initialPicker = filterDialogPicker,
             onFilterChange = viewModel::setFilter,
             onDismissRequest = { showFilterDialog = false },
         )
@@ -133,7 +136,10 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
                 selectedItemsCount = selectedItemsCount,
                 activeFilterCount = uiState.filter.activeCount,
                 canSelectAll = listItems.isNotEmpty(),
-                onShowFilterSheet = { showFilterDialog = true },
+                onShowFilterSheet = {
+                    filterDialogPicker = null
+                    showFilterDialog = true
+                },
                 onShowSortDialog = { showSortDialog = true },
                 onShowDeleteConfirmDialog = { showDeleteConfirmDialog = true },
                 onSelectAll = { viewModel.selectAllFiltered() },
@@ -198,7 +204,10 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
                         DatabasePlayResultFilterChips(
                             filter = uiState.filter,
                             catalog = catalog,
-                            onOpenFilters = { showFilterDialog = true },
+                            onOpenFilters = {
+                                filterDialogPicker = it
+                                showFilterDialog = true
+                            },
                             modifier = Modifier.weight(1f),
                         )
                     }

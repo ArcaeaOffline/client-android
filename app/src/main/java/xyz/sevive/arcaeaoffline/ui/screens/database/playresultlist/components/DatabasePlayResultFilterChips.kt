@@ -26,16 +26,20 @@ import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 /**
  * Read-only summary of the active filters. Tapping a chip opens the filter
- * dialog, which is the only place structured filters are added or removed.
+ * dialog. The dialog is the only place structured filters are added or
+ * removed.
  *
  * The row is laid out by the caller next to the result count. It carries no
  * horizontal content padding of its own.
+ *
+ * @param onOpenFilters Called with the picker page the tapped chip targets,
+ *   or `null` to open the dialog on the facets home.
  */
 @Composable
-fun DatabasePlayResultFilterChips(
+internal fun DatabasePlayResultFilterChips(
     filter: PlayResultFilter,
     catalog: ArcaeaCatalog,
-    onOpenFilters: () -> Unit,
+    onOpenFilters: (FilterPicker?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (!filter.hasStructuredFilter) return
@@ -49,7 +53,7 @@ fun DatabasePlayResultFilterChips(
             // would otherwise push the other chips out of view.
             item(key = "packs") {
                 AssistChip(
-                    onClick = onOpenFilters,
+                    onClick = { onOpenFilters(FilterPicker.PACKS) },
                     label = { Text(packLabel(filter.packIds, catalog)) },
                     leadingIcon = {
                         Icon(
@@ -65,7 +69,7 @@ fun DatabasePlayResultFilterChips(
         if (filter.ratingClasses.isNotEmpty()) {
             item(key = "ratingClasses") {
                 AssistChip(
-                    onClick = onOpenFilters,
+                    onClick = { onOpenFilters(FilterPicker.DIFFICULTIES) },
                     label = { Text(difficultyLabel(filter.ratingClasses)) },
                     leadingIcon = {
                         Icon(
@@ -81,7 +85,7 @@ fun DatabasePlayResultFilterChips(
         if (filter.scoreGrades.isNotEmpty()) {
             item(key = "scoreGrades") {
                 AssistChip(
-                    onClick = onOpenFilters,
+                    onClick = { onOpenFilters(FilterPicker.SCORE_GRADES) },
                     label = { Text(scoreGradesLabel(filter.scoreGrades)) },
                 )
             }
@@ -90,7 +94,7 @@ fun DatabasePlayResultFilterChips(
         if (filter.clearStatuses.isNotEmpty()) {
             item(key = "clearStatuses") {
                 AssistChip(
-                    onClick = onOpenFilters,
+                    onClick = { onOpenFilters(FilterPicker.CLEAR_STATUSES) },
                     label = { Text(clearStatusesLabel(filter.clearStatuses)) },
                 )
             }
@@ -99,7 +103,7 @@ fun DatabasePlayResultFilterChips(
         if (filter.onlyWarnings) {
             item(key = "warnings") {
                 AssistChip(
-                    onClick = onOpenFilters,
+                    onClick = { onOpenFilters(null) },
                     label = { Text(stringResource(R.string.database_play_result_filter_chip_warnings)) },
                     leadingIcon = {
                         Icon(
