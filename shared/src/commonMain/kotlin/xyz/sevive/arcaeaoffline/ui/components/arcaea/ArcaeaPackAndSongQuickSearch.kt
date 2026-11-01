@@ -71,6 +71,11 @@ fun ArcaeaPackAndSongQuickSearch(
             }
         }
 
+    fun updateQuery(value: String) {
+        query = value
+        expanded = value.isNotBlank()
+    }
+
     fun select(song: ArcaeaCatalogSong) {
         onSelect(ArcaeaSongSelection(packId = song.pack?.id ?: song.song.set, songId = song.song.id))
         query = ""
@@ -85,15 +90,12 @@ fun ArcaeaPackAndSongQuickSearch(
     ) {
         ArcaeaSearchTextField(
             value = query,
-            onValueChange = {
-                query = it
-                expanded = it.isNotBlank()
-            },
+            onValueChange = { updateQuery(it) },
             placeholder = stringResource(Res.string.song_id_selector_quick_search),
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
             trailingIcon = {
                 if (query.isNotEmpty()) {
-                    IconButton(onClick = { query = "" }) {
+                    IconButton(onClick = { updateQuery("") }) {
                         Icon(Icons.Default.Close, contentDescription = null)
                     }
                 } else {
