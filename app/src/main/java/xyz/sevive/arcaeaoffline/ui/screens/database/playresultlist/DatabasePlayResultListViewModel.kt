@@ -62,7 +62,7 @@ class DatabasePlayResultListViewModel(
     private val isLoading = MutableStateFlow(true)
     private val sortOrder = MutableStateFlow(PlayResultSortOrder.DESC)
     private val sortKey = MutableStateFlow(PlayResultSortKey.DATE)
-    val selectedItemUuids = MutableStateFlow(emptyList<Uuid>())
+    val selectedItemUuids = MutableStateFlow(emptySet<Uuid>())
 
     private val filter = MutableStateFlow(PlayResultFilter())
 
@@ -252,7 +252,7 @@ class DatabasePlayResultListViewModel(
      * Select every item currently visible, i.e. after filtering.
      */
     fun selectAllFiltered() {
-        selectedItemUuids.value = listItems.value.map { it.uuid }
+        selectedItemUuids.value = listItems.value.mapTo(HashSet()) { it.uuid }
     }
 
     /**
@@ -262,7 +262,7 @@ class DatabasePlayResultListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val playResults =
                 playResultRepo
-                    .findAllByUuid(selectedItemUuids.value)
+                    .findAllByUuid(selectedItemUuids.value.toList())
                     .firstOrNull() ?: emptyList()
 
             playResultRepo.deleteBatch(*playResults.toTypedArray())
@@ -274,7 +274,7 @@ class DatabasePlayResultListViewModel(
      * Set all uiItems to unselected state.
      */
     fun clearSelectedItems() {
-        selectedItemUuids.value = emptyList()
+        selectedItemUuids.value = emptySet()
     }
 
     fun updatePlayResult(

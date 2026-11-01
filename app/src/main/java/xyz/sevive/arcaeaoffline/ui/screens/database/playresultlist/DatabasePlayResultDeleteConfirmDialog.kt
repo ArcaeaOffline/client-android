@@ -25,7 +25,7 @@ import kotlin.uuid.Uuid
 internal fun DatabasePlayResultDeleteConfirmDialog(
     onDismissRequest: () -> Unit,
     onConfirm: () -> Unit,
-    selectedItemUuids: List<Uuid>,
+    selectedItemUuids: Collection<Uuid>,
     modifier: Modifier = Modifier,
     hiddenSelectedCount: Int = 0,
 ) {
