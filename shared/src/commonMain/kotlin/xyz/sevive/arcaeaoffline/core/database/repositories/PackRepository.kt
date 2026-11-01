@@ -1,8 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.repositories
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import xyz.sevive.arcaeaoffline.core.database.daos.PackDao
 import xyz.sevive.arcaeaoffline.core.database.entities.Pack
 
@@ -10,8 +8,6 @@ interface PackRepository {
     fun find(id: String): Flow<Pack?>
 
     fun findAll(): Flow<List<Pack>>
-
-    fun findBasePack(id: String): Flow<Pack?>
 
     fun searchByName(input: String): Flow<List<Pack>>
 
@@ -29,19 +25,9 @@ interface PackRepository {
 class PackRepositoryImpl(
     private val dao: PackDao,
 ) : PackRepository {
-    private val basePackIdRegex = """_append_.*$""".toRegex()
-
     override fun find(id: String): Flow<Pack?> = dao.find(id)
 
     override fun findAll(): Flow<List<Pack>> = dao.findAll()
-
-    override fun findBasePack(id: String): Flow<Pack?> =
-        if (basePackIdRegex.find(id) != null) {
-            val baseId = basePackIdRegex.replace(id, "")
-            dao.find(baseId)
-        } else {
-            MutableStateFlow(null).asStateFlow()
-        }
 
     override fun searchByName(input: String) = dao.searchByName(input)
 

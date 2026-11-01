@@ -51,12 +51,12 @@ data class ArcaeaCatalog(
      */
     val basePacks: List<Pack> =
         packs
-            .filter { it.basePackId() == null || it.basePackId() !in packsById }
+            .filter { it.parentPackId == null || it.parentPackId !in packsById }
             .sortedBy { it.name.lowercase() }
 
     val appendPacksByBasePackId: Map<String, List<Pack>> =
         packs
-            .mapNotNull { pack -> pack.basePackId()?.let { it to pack } }
+            .mapNotNull { pack -> pack.parentPackId?.let { it to pack } }
             .groupBy({ it.first }, { it.second })
 
     /**
@@ -160,7 +160,7 @@ private fun buildCatalog(
 
     val songIdsByBasePackId =
         catalogSongs
-            .groupBy({ packsById[it.song.set]?.basePackId() ?: it.song.set }, { it.song.id })
+            .groupBy({ packsById[it.song.set]?.parentPackId ?: it.song.set }, { it.song.id })
             .mapValues { (_, songIds) -> songIds.toSet() }
 
     return ArcaeaCatalog(

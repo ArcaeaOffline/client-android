@@ -1,0 +1,26 @@
+{
+  "packs": [
+    {
+      "id": "testbase",
+      "section": "collab",
+      "name_localized": { "en": "Test Base" },
+      "description_localized": { "en": "Base description" },
+      "plus_character": 101
+    },
+    {
+      "id": "testbase_append_1",
+      "section": "collab",
+      "name_localized": { "en": "Test Append" },
+      "description_localized": {},
+      "pack_parent": "testbase",
+      "plus_character": -1
+    },
+    {
+      "id": "extend_x",
+      "section": "arcaea",
+      "name_localized": { "en": "World Extend" },
+      "description_localized": {},
+      "is_extend_pack": true
+    }
+  ]
+}
