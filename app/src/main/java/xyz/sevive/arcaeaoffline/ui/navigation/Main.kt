@@ -70,6 +70,9 @@ fun MainNavigationGraph(
                 onNavigateToSettings = {
                     mainNavController.navigate(SETTINGS_NAV_ROUTE_ROOT) { launchSingleTop = true }
                 },
+                onNavigateToResources = {
+                    mainNavControllerNavigateToRoute(mainNavController, MainScreen.Resources.route)
+                },
             )
         }
 

@@ -185,6 +185,13 @@
         <item quantity="other">%d 个谱面缺少定数</item>
     </plurals>
 
+    <!-- Home pane -->
+    <string name="home_setup_header">开始使用</string>
+    <string name="home_setup_step_songs">导入曲包与曲目</string>
+    <string name="home_setup_step_chart_info">导入谱面定数</string>
+    <string name="home_setup_update_chart_info">更新谱面定数</string>
+    <string name="home_recent_header">最近游玩</string>
+
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">添加游玩记录</string>
     <string name="database_add_play_result_select_chart_header">选择谱面……</string>

@@ -125,4 +125,22 @@ class DatabaseReadinessRepositoryTest {
             assertEquals(DatabaseReadiness.READY, repository.readiness().first())
             assertEquals(0, repository.missingChartInfoCount().first())
         }
+
+    @Test
+    fun summaryCarriesReadinessAndCounts() =
+        runBlocking {
+            seedPartial()
+
+            val summary = repository.summary().first()
+
+            assertEquals(
+                DatabaseReadinessSummary(
+                    readiness = DatabaseReadiness.PARTIAL,
+                    songCount = 2,
+                    chartInfoCount = 3,
+                    missingChartInfoCount = 1,
+                ),
+                summary,
+            )
+        }
 }

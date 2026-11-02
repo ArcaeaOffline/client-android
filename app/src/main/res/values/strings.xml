@@ -207,6 +207,13 @@ CC BY-SA 3.0
         <item quantity="other">%d charts have no constant</item>
     </plurals>
 
+    <!-- Home pane -->
+    <string name="home_setup_header">Get started</string>
+    <string name="home_setup_step_songs">Import packs &amp; songs</string>
+    <string name="home_setup_step_chart_info">Import chart info</string>
+    <string name="home_setup_update_chart_info">Update chart info</string>
+    <string name="home_recent_header">Recent plays</string>
+
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>
     <string name="database_add_play_result_select_chart_header">Select a chart…</string>
