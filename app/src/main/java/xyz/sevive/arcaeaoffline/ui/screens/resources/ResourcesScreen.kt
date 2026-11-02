@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.FileOpen
@@ -59,7 +58,6 @@ import kotlin.time.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResourcesScreen(
-    onNavigateToTools: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ResourcesViewModel = koinViewModel(),
 ) {
@@ -149,7 +147,6 @@ fun ResourcesScreen(
                 downloadErrorTexts = uiState.downloadErrorTexts,
                 onDownload = { viewModel.downloadChartInfoDatabase(context) },
                 onImport = { viewModel.importChartsInfoDatabase(it, context) },
-                onBrowseConstants = onNavigateToTools,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -315,7 +312,6 @@ private fun ResourcesChartInfoCard(
     downloadErrorTexts: Map<DownloadableResource, String>,
     onDownload: () -> Unit,
     onImport: (Uri) -> Unit,
-    onBrowseConstants: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var source by rememberSaveable { mutableStateOf(ChartInfoSource.ONLINE) }
@@ -395,13 +391,5 @@ private fun ResourcesChartInfoCard(
                 )
             }
         }
-
-        HorizontalDivider()
-
-        TextItem(
-            onClick = onBrowseConstants,
-            title = stringResource(R.string.resources_browse_constants),
-            leadingIcon = Icons.AutoMirrored.Filled.ArrowForward,
-        )
     }
 }

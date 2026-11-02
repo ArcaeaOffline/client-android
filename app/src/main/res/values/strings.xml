@@ -201,7 +201,6 @@ CC BY-SA 3.0
     <string name="resources_source_online">Download online</string>
     <string name="resources_source_file">From file</string>
     <string name="resources_last_imported_at">Last imported: %1$s</string>
-    <string name="resources_browse_constants">Browse constants</string>
     <plurals name="resources_missing_chart_info">
         <item quantity="one">%d chart has no constant</item>
         <item quantity="other">%d charts have no constant</item>

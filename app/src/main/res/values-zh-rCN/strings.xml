@@ -180,7 +180,6 @@
     <string name="resources_source_online">在线下载</string>
     <string name="resources_source_file">从文件导入</string>
     <string name="resources_last_imported_at">上次导入：%1$s</string>
-    <string name="resources_browse_constants">浏览定数</string>
     <plurals name="resources_missing_chart_info">
         <item quantity="other">%d 个谱面缺少定数</item>
     </plurals>

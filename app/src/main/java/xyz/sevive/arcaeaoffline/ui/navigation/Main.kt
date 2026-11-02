@@ -81,11 +81,7 @@ fun MainNavigationGraph(
         }
 
         composable(MainScreen.Resources.route) {
-            ResourcesScreen(
-                onNavigateToTools = {
-                    mainNavControllerNavigateToRoute(mainNavController, MainScreen.Utilities.route)
-                },
-            )
+            ResourcesScreen()
         }
 
         composable(MainScreen.Utilities.route) {
