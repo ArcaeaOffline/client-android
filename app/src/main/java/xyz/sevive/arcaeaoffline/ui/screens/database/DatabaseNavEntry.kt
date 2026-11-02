@@ -9,10 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,7 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
+import xyz.sevive.arcaeaoffline.ui.components.SelectItem
+import xyz.sevive.arcaeaoffline.ui.components.SelectOption
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
@@ -64,11 +67,36 @@ fun DatabaseNavEntry(
             }
 
             item {
+                SelectItem(
+                    options =
+                        listOf(
+                            SelectOption(
+                                value = ArcaeaScoringMode.B30_R10,
+                                label = stringResource(R.string.database_manage_scoring_mode_b30_r10),
+                                description = ArcaeaScoringMode.B30_R10.key.toString(),
+                            ),
+                            SelectOption(
+                                value = ArcaeaScoringMode.B50,
+                                label = stringResource(R.string.database_manage_scoring_mode_b50),
+                                description = ArcaeaScoringMode.B50.key.toString(),
+                            ),
+                        ),
+                    selected = scoringMode,
+                    onSelect = vm::setScoringMode,
+                    Modifier.fillMaxWidth(),
+                )
+            }
+
+            item {
+                HorizontalDivider()
+            }
+
+            item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.Manage.title,
-                    icon = Icons.Default.Build,
+                    titleResId = DatabaseSubScreen.ScoreList.title,
+                    icon = Icons.AutoMirrored.Default.List,
                 ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.Manage.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.ScoreList.route)
                 }
             }
 
@@ -78,15 +106,6 @@ fun DatabaseNavEntry(
                     icon = Icons.Default.Add,
                 ) {
                     navContext.navigateToDetail(DatabaseSubScreen.AddPlayResult.route)
-                }
-            }
-
-            item {
-                NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.ScoreList.title,
-                    icon = Icons.AutoMirrored.Default.List,
-                ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.ScoreList.route)
                 }
             }
 
@@ -114,10 +133,10 @@ fun DatabaseNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.Deduplicator.title,
-                    icon = Icons.Default.CopyAll,
+                    titleResId = DatabaseSubScreen.PlayData.title,
+                    icon = Icons.Default.Build,
                 ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.Deduplicator.route)
+                    navContext.navigateToDetail(DatabaseSubScreen.PlayData.route)
                 }
             }
         }

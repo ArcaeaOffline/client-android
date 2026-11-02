@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.manage
+package xyz.sevive.arcaeaoffline.ui.screens.resources
 
 import android.content.Context
 import android.net.Uri
@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -31,33 +30,35 @@ import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoStateHolder
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoUiState
 import xyz.sevive.arcaeaoffline.core.api.throwableToErrorText
-import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
-import xyz.sevive.arcaeaoffline.core.database.externals.exporters.ArcaeaOfflineDEFv2Exporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaPacklistImporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSonglistImporter
-import xyz.sevive.arcaeaoffline.core.database.externals.importers.ArcaeaSt3PlayResultImporter
 import xyz.sevive.arcaeaoffline.core.database.externals.importers.ChartInfoDatabaseImporter
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PackRepository
-import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogEvent
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogManager
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogObject
+import xyz.sevive.arcaeaoffline.data.imports.ImportTaskQueue
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPackageHelper
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaResourcesStateHolder
 import xyz.sevive.arcaeaoffline.helpers.context.copyToCache
 import xyz.sevive.arcaeaoffline.helpers.context.uriSizeIfTooLarge
 import java.io.FileInputStream
 import java.io.InputStream
-import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
-class DatabaseManageViewModel(
+class ResourcesViewModel(
     private val packRepo: PackRepository,
     private val packLocalizedRepo: PackLocalizedRepository,
     private val songRepo: SongRepository,
@@ -65,27 +66,24 @@ class DatabaseManageViewModel(
     private val songLocalizedRepo: SongLocalizedRepository,
     private val difficultyLocalizedRepo: DifficultyLocalizedRepository,
     private val chartInfoRepo: ChartInfoRepository,
-    private val playResultRepo: PlayResultRepository,
     private val propertyRepo: PropertyRepository,
+    private val readinessRepo: DatabaseReadinessRepository,
     private val resourcesApiClient: ArcaeaResourcesApiClient,
     private val remoteResourcesInfoStateHolder: RemoteResourcesInfoStateHolder,
+    private val importLogManager: ImportLogManager,
 ) : ViewModel() {
     companion object {
-        private const val LOG_TAG = "DatabaseManageVM"
+        private const val LOG_TAG = "ResourcesVM"
 
         private const val LOG_TAG_IMPORT_PACKLIST = "I-Pklst"
         private const val LOG_TAG_IMPORT_SONGLIST = "I-Slst"
         private const val LOG_TAG_IMPORT_ARCAEA_APK = "I-ArcApk"
         private const val LOG_TAG_IMPORT_ARCAEA_INSTALLED = "I-ArcLocal"
         private const val LOG_TAG_IMPORT_CHART_INFO_DATABASE = "I-CIDb"
-        private const val LOG_TAG_IMPORT_ST3 = "I-St3"
-        private const val LOG_TAG_EXPORT_PLAY_RESULTS = "E-PR"
         private const val LOG_TAG_DOWNLOAD_PACKLIST = "D-Pklst"
         private const val LOG_TAG_DOWNLOAD_SONGLIST = "D-Slst"
         private const val LOG_TAG_DOWNLOAD_CHART_INFO_DATABASE = "D-CIDb"
     }
-
-    private val importLogManager = ImportLogManager()
 
     internal data class UiState(
         val isWorking: Boolean = false,
@@ -93,6 +91,20 @@ class DatabaseManageViewModel(
         val remoteResourcesInfoState: RemoteResourcesInfoUiState = RemoteResourcesInfoUiState(),
         val downloadingResources: Set<DownloadableResource> = emptySet(),
         val downloadErrorTexts: Map<DownloadableResource, String> = emptyMap(),
+    )
+
+    data class SongsCardStatus(
+        val packCount: Int = 0,
+        val songCount: Int = 0,
+        val difficultyCount: Int = 0,
+        val packlistLastImportedAt: Instant? = null,
+        val songsLastImportedAt: Instant? = null,
+    )
+
+    data class ChartInfoCardStatus(
+        val chartInfoCount: Int = 0,
+        val missingChartInfoCount: Int = 0,
+        val chartInfoLastImportedAt: Instant? = null,
     )
 
     private val logger = Logger.withTag(LOG_TAG)
@@ -112,21 +124,7 @@ class DatabaseManageViewModel(
 
     fun refreshRemoteResourcesInfo() = remoteResourcesInfoStateHolder.refresh()
 
-    val scoringMode: StateFlow<ArcaeaScoringMode> =
-        propertyRepo
-            .scoringMode()
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
-                ArcaeaScoringMode.B50,
-            )
-
-    fun setScoringMode(mode: ArcaeaScoringMode) {
-        viewModelScope.launch {
-            runCatching { propertyRepo.setScoringMode(mode) }
-                .onFailure { logger.e(it) { "Failed to set scoring mode" } }
-        }
-    }
+    val canImportLists = ArcaeaResourcesStateHolder.canImportLists
 
     internal val uiState =
         combine(
@@ -147,6 +145,34 @@ class DatabaseManageViewModel(
             viewModelScope,
             SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
             UiState(),
+        )
+
+    val songsCardStatus: StateFlow<SongsCardStatus> =
+        combine(
+            packRepo.count(),
+            songRepo.count(),
+            difficultyRepo.count(),
+            propertyRepo.packlistLastImportedAt(),
+            propertyRepo.songsLastImportedAt(),
+        ) { packCount, songCount, difficultyCount, packlistLastImportedAt, songsLastImportedAt ->
+            SongsCardStatus(packCount, songCount, difficultyCount, packlistLastImportedAt, songsLastImportedAt)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            SongsCardStatus(),
+        )
+
+    val chartInfoCardStatus: StateFlow<ChartInfoCardStatus> =
+        combine(
+            chartInfoRepo.count(),
+            readinessRepo.missingChartInfoCount(),
+            propertyRepo.chartInfoLastImportedAt(),
+        ) { chartInfoCount, missingChartInfoCount, chartInfoLastImportedAt ->
+            ChartInfoCardStatus(chartInfoCount, missingChartInfoCount, chartInfoLastImportedAt)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            ChartInfoCardStatus(),
         )
 
     private fun InputStream.readText(charset: Charset = StandardCharsets.UTF_8): String = bufferedReader(charset).use { it.readText() }
@@ -193,6 +219,8 @@ class DatabaseManageViewModel(
             LOG_TAG_IMPORT_PACKLIST,
             ImportLogEvent.Plural(R.plurals.database_packs_localized_imported, packsLocalizedAffectedRows),
         )
+
+        propertyRepo.setPacklistLastImportedAt(Clock.System.now())
     }
 
     fun importPacklist(
@@ -270,6 +298,8 @@ class DatabaseManageViewModel(
             LOG_TAG_IMPORT_SONGLIST,
             ImportLogEvent.Plural(R.plurals.database_difficulties_localized_imported, difficultiesLocalizedAffectedRows),
         )
+
+        propertyRepo.setSongsLastImportedAt(Clock.System.now())
     }
 
     fun importSonglist(
@@ -332,8 +362,6 @@ class DatabaseManageViewModel(
         }
     }
 
-    val canImportLists = ArcaeaResourcesStateHolder.canImportLists
-
     fun importArcaeaApkFromInstalled(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             sendTask {
@@ -373,6 +401,8 @@ class DatabaseManageViewModel(
             LOG_TAG_IMPORT_CHART_INFO_DATABASE,
             ImportLogEvent.Plural(R.plurals.database_chart_info_imported, affectedRows),
         )
+
+        propertyRepo.setChartInfoLastImportedAt(Clock.System.now())
     }
 
     fun importChartsInfoDatabase(
@@ -391,61 +421,6 @@ class DatabaseManageViewModel(
                     .use { conn -> importChartsInfoDatabase(conn) }
 
                 SystemFileSystem.delete(databaseCopied)
-            }
-        }
-    }
-
-    private suspend fun importSt3(conn: SQLiteConnection) {
-        val playResults = ArcaeaSt3PlayResultImporter.playResults(conn)
-        val affectedRows =
-            playResultRepo.upsertBatch(*playResults.toTypedArray()).size
-
-        importLogManager.append(
-            LOG_TAG_IMPORT_ST3,
-            ImportLogEvent.Plural(R.plurals.database_play_results_imported, affectedRows),
-        )
-    }
-
-    fun importSt3(
-        fileUri: Uri,
-        context: Context,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            sendTask {
-                if (context.importFileTooLarge(fileUri, LOG_TAG_IMPORT_ST3)) return@sendTask
-
-                val dbCacheFile = context.copyToCache(fileUri, "st3-import-temp") ?: return@sendTask
-
-                BundledSQLiteDriver()
-                    .open(dbCacheFile.toString(), SQLITE_OPEN_READONLY)
-                    .use { conn -> importSt3(conn) }
-
-                SystemFileSystem.delete(dbCacheFile)
-            }
-        }
-    }
-
-    private suspend fun exportPlayResults(outputStream: OutputStream) {
-        val playResults = playResultRepo.findAll().firstOrNull() ?: return
-
-        ArcaeaOfflineDEFv2Exporter.playResultsRoot(playResults).let {
-            outputStream.write(ArcaeaOfflineDEFv2Exporter.playResults(it).toByteArray())
-            importLogManager.append(
-                LOG_TAG_EXPORT_PLAY_RESULTS,
-                ImportLogEvent.Plural(R.plurals.database_play_results_exported, it.playResults.size),
-            )
-        }
-    }
-
-    fun exportPlayResults(
-        uri: Uri,
-        context: Context,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            sendTask {
-                context.contentResolver.openOutputStream(uri)?.use {
-                    exportPlayResults(it)
-                }
             }
         }
     }

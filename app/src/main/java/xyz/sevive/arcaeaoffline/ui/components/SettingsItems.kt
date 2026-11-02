@@ -255,6 +255,28 @@ data class SelectOption<T>(
     val description: String? = null,
 )
 
+@Composable
+fun RadioItem(
+    selected: Boolean,
+    onSelect: () -> Unit,
+    title: String,
+    modifier: Modifier = Modifier,
+    description: String? = null,
+) {
+    BaseSettingsItem(
+        onClick = onSelect,
+        title = { Text(title) },
+        description = description,
+        leadingSlot = {
+            RadioButton(
+                selected = selected,
+                onClick = null,
+            )
+        },
+        modifier = modifier,
+    )
+}
+
 /**
  * A radio-button list of mutually exclusive options that renders one [BaseSettingsItem]
  * row per option without an outer container.
@@ -268,16 +290,11 @@ fun <T> SelectItem(
 ) {
     Column(modifier) {
         options.forEach { option ->
-            BaseSettingsItem(
-                onClick = { onSelect(option.value) },
-                title = { Text(option.label) },
+            RadioItem(
+                selected = option.value == selected,
+                onSelect = { onSelect(option.value) },
+                title = option.label,
                 description = option.description,
-                leadingSlot = {
-                    RadioButton(
-                        selected = option.value == selected,
-                        onClick = null,
-                    )
-                },
             )
         }
     }

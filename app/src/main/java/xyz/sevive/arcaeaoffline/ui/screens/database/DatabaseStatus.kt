@@ -80,16 +80,6 @@ fun DatabaseStatus(
     with(uiState) {
         val databaseVersionText =
             remember(uiState) { "v$databaseVersion, sv$databaseSchemaVersion" }
-        val packCountText =
-            pluralStringResource(R.plurals.database_pack_entries, packCount, packCount)
-        val songCountText =
-            pluralStringResource(R.plurals.database_song_entries, songCount, songCount)
-        val difficultyCountText =
-            pluralStringResource(
-                R.plurals.database_difficulty_entries,
-                difficultyCount,
-                difficultyCount,
-            )
 
         Card(modifier) {
             Column(
@@ -101,26 +91,6 @@ fun DatabaseStatus(
                     text = databaseVersionText,
                 )
 
-                DatabaseStatusIconRow(
-                    icon = ImageVector.vectorResource(R.drawable.ic_pack),
-                    text = packCountText,
-                    localizedItemCount = packLocalizedCount,
-                )
-
-                DatabaseStatusIconRow(
-                    icon = Icons.Default.MusicNote,
-                    text = songCountText,
-                    localizedItemCount = songLocalizedCount,
-                    deletedItemCount = songDeletedInGameCount,
-                )
-
-                DatabaseStatusIconRow(
-                    icon = ImageVector.vectorResource(R.drawable.ic_rating_class),
-                    text = difficultyCountText,
-                    localizedItemCount = difficultyLocalizedCount,
-                )
-
-                DatabaseStatusLabel(R.plurals.database_chart_info_entries, chartInfoCount)
                 DatabaseStatusLabel(R.plurals.database_play_result_entries, playResultCount)
             }
         }
@@ -136,14 +106,7 @@ private fun DatabaseStatusPreview() {
                 DatabaseNavEntryViewModel.StatusUiState(
                     databaseVersion = 5,
                     databaseSchemaVersion = 10,
-                    packCount = 12,
-                    songCount = 50,
-                    difficultyCount = 153,
-                    chartInfoCount = 86,
                     playResultCount = 61,
-                    packLocalizedCount = 12,
-                    songLocalizedCount = 34,
-                    difficultyLocalizedCount = 0,
                 ),
                 modifier = Modifier.fillMaxWidth(),
             )

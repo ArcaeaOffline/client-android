@@ -6,7 +6,7 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.bestlist.DatabaseBestListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorScreen
-import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageScreen
+import xyz.sevive.arcaeaoffline.ui.screens.database.playdata.DatabasePlayDataScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListScreen
 
@@ -16,7 +16,7 @@ fun DatabaseEntryScreen() =
         listPane = { DatabaseNavEntry() },
         detailPane = { route ->
             when (route) {
-                DatabaseSubScreen.Manage.route -> DatabaseManageScreen()
+                DatabaseSubScreen.PlayData.route -> DatabasePlayDataScreen()
                 DatabaseSubScreen.AddPlayResult.route -> DatabaseAddPlayResultScreen()
                 DatabaseSubScreen.ScoreList.route -> DatabasePlayResultListScreen()
                 DatabaseSubScreen.BestList.route -> DatabaseBestListScreen()

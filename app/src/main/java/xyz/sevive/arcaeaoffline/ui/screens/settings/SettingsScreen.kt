@@ -13,7 +13,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.settings.license.SettingsLicenseScree
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreen
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onNavigateBack: () -> Unit) {
     val context = LocalContext.current
 
     AdaptiveEntryScreen(
@@ -22,6 +22,7 @@ fun SettingsScreen() {
                 onNavigateToEmergencyModeActivity = {
                     context.startActivity(Intent(context, EmergencyModeActivity::class.java))
                 },
+                onNavigateBack = onNavigateBack,
             )
         },
         detailPane = { route ->

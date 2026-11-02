@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.manage
+package xyz.sevive.arcaeaoffline.data.imports
 
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
@@ -10,7 +10,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-internal sealed interface ImportLogEvent {
+sealed interface ImportLogEvent {
     data class Plural(
         @PluralsRes val resId: Int,
         val quantity: Int,
@@ -25,14 +25,14 @@ internal sealed interface ImportLogEvent {
     ) : ImportLogEvent
 }
 
-internal data class ImportLogObject(
+data class ImportLogObject(
     val uuid: Uuid = Uuid.generateV4(),
     val timestamp: Instant,
     val tag: String? = null,
     val event: ImportLogEvent,
 )
 
-internal class ImportLogManager {
+class ImportLogManager {
     private val lock = Mutex()
     private val _logs = MutableStateFlow(emptyList<ImportLogObject>())
     val logs: StateFlow<List<ImportLogObject>> = _logs

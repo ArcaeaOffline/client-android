@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.HomeRepairService
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -13,9 +13,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.mainNavControllerNavigateToRoute
 import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.OcrEntryScreen
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewScreen
+import xyz.sevive.arcaeaoffline.ui.screens.resources.ResourcesScreen
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsScreen
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesEntryScreen
 
@@ -29,27 +31,27 @@ enum class MainScreen(
     Overview(
         OVERVIEW_NAV_ROUTE_ROOT,
         { Icons.Filled.Dashboard },
-        R.string.nav_overview,
+        R.string.nav_home,
     ),
     Database(
         DATABASE_NAV_ROUTE_ROOT,
+        { Icons.Filled.MusicNote },
+        R.string.nav_plays,
+    ),
+    Resources(
+        RESOURCES_NAV_ROUTE_ROOT,
         { ImageVector.vectorResource(R.drawable.ic_database) },
-        R.string.nav_database,
+        R.string.nav_resources,
     ),
     Utilities(
         UTILITIES_NAV_ROUTE_ROOT,
         { Icons.Filled.HomeRepairService },
-        R.string.nav_utilities,
+        R.string.nav_tools,
     ),
     Ocr(
         OCR_NAV_ROUTE_ROOT,
         { ImageVector.vectorResource(R.drawable.ic_ocr) },
         R.string.nav_ocr,
-    ),
-    Settings(
-        SETTINGS_NAV_ROUTE_ROOT,
-        { Icons.Filled.Settings },
-        R.string.nav_settings,
     ),
 }
 
@@ -64,11 +66,23 @@ fun MainNavigationGraph(
         modifier = modifier,
     ) {
         composable(MainScreen.Overview.route) {
-            OverviewScreen()
+            OverviewScreen(
+                onNavigateToSettings = {
+                    mainNavController.navigate(SETTINGS_NAV_ROUTE_ROOT) { launchSingleTop = true }
+                },
+            )
         }
 
         composable(MainScreen.Database.route) {
             DatabaseEntryScreen()
+        }
+
+        composable(MainScreen.Resources.route) {
+            ResourcesScreen(
+                onNavigateToTools = {
+                    mainNavControllerNavigateToRoute(mainNavController, MainScreen.Utilities.route)
+                },
+            )
         }
 
         composable(MainScreen.Utilities.route) {
@@ -79,8 +93,10 @@ fun MainNavigationGraph(
             OcrEntryScreen()
         }
 
-        composable(MainScreen.Settings.route) {
-            SettingsScreen()
+        composable(SETTINGS_NAV_ROUTE_ROOT) {
+            SettingsScreen(
+                onNavigateBack = { mainNavController.popBackStack() },
+            )
         }
     }
 }

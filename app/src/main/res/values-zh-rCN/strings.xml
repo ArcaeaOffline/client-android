@@ -102,9 +102,10 @@
     <string name="ocr_from_share_stay_in_app">留在 %s</string>
 
     <!-- Bottom navigation -->
-    <string name="nav_overview">概览</string>
-    <string name="nav_database">数据库</string>
-    <string name="nav_utilities">小工具</string>
+    <string name="nav_home">主页</string>
+    <string name="nav_plays">记录</string>
+    <string name="nav_resources">资源</string>
+    <string name="nav_tools">工具</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">设置</string>
 
@@ -138,8 +139,6 @@
     <string name="database_status_not_initialized">数据库未初始化</string>
 
     <!-- Database manage pane -->
-    <string name="database_manage_title">管理</string>
-
     <string name="database_manage_scoring_mode_title">计分方式</string>
     <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
     <string name="database_manage_scoring_mode_b50">B50</string>
@@ -170,6 +169,21 @@
 
     <string name="database_manage_export_title">导出</string>
     <string name="database_manage_export_play_results">游玩记录</string>
+
+    <!-- Plays: play data pane -->
+    <string name="database_play_data_title">记录数据</string>
+
+    <!-- Resources pane -->
+    <string name="resources_songs_title">曲包与曲目</string>
+    <string name="resources_chart_info_title">谱面定数</string>
+    <string name="resources_source_header">来源</string>
+    <string name="resources_source_online">在线下载</string>
+    <string name="resources_source_file">从文件导入</string>
+    <string name="resources_last_imported_at">上次导入：%1$s</string>
+    <string name="resources_browse_constants">浏览定数</string>
+    <plurals name="resources_missing_chart_info">
+        <item quantity="other">%d 个谱面缺少定数</item>
+    </plurals>
 
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">添加游玩记录</string>

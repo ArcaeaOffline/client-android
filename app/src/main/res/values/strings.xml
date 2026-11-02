@@ -118,9 +118,10 @@ CC BY-SA 3.0
     <string name="ocr_from_share_stay_in_app">Stay in %s</string>
 
     <!-- Bottom navigation -->
-    <string name="nav_overview">Overview</string>
-    <string name="nav_database">Database</string>
-    <string name="nav_utilities">Utilities</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_plays">Plays</string>
+    <string name="nav_resources">Resources</string>
+    <string name="nav_tools">Tools</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
@@ -159,8 +160,6 @@ CC BY-SA 3.0
     <string name="database_status_not_initialized">Database not initialized</string>
 
     <!-- Database manage pane -->
-    <string name="database_manage_title">Manage</string>
-
     <string name="database_manage_scoring_mode_title">Scoring mode</string>
     <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
     <string name="database_manage_scoring_mode_b50">B50</string>
@@ -191,6 +190,22 @@ CC BY-SA 3.0
 
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_play_results">Play Results</string>
+
+    <!-- Plays: play data pane -->
+    <string name="database_play_data_title">Play Data</string>
+
+    <!-- Resources pane -->
+    <string name="resources_songs_title">Packs &amp; Songs</string>
+    <string name="resources_chart_info_title">Chart Info</string>
+    <string name="resources_source_header">Source</string>
+    <string name="resources_source_online">Download online</string>
+    <string name="resources_source_file">From file</string>
+    <string name="resources_last_imported_at">Last imported: %1$s</string>
+    <string name="resources_browse_constants">Browse constants</string>
+    <plurals name="resources_missing_chart_info">
+        <item quantity="one">%d chart has no constant</item>
+        <item quantity="other">%d charts have no constant</item>
+    </plurals>
 
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>

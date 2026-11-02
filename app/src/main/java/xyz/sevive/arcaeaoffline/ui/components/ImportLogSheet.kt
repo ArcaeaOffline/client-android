@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.manage
+package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogEvent
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogObject
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime

@@ -9,7 +9,7 @@ enum class DatabaseSubScreen(
     val route: String,
     @StringRes val title: Int,
 ) {
-    Manage("$DATABASE_NAV_ROUTE_ROOT/manage", R.string.database_manage_title),
+    PlayData("$DATABASE_NAV_ROUTE_ROOT/play_data", R.string.database_play_data_title),
     AddPlayResult("$DATABASE_NAV_ROUTE_ROOT/add_play_result", R.string.database_add_play_result_title),
     ScoreList("$DATABASE_NAV_ROUTE_ROOT/score_list", R.string.database_play_result_list_title),
     BestList("$DATABASE_NAV_ROUTE_ROOT/best_list", R.string.database_best_list_title),
