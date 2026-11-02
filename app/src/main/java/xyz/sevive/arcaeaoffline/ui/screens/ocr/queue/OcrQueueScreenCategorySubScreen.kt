@@ -10,9 +10,11 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.SaveAlt
@@ -22,11 +24,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadiness
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessSummary
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.tasklist.OcrQueueTaskList
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
@@ -44,6 +50,8 @@ internal enum class OcrQueueScreenCategory {
 private fun NavigationSubScreen(
     onSwitchScreen: (OcrQueueScreenCategory) -> Unit,
     taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
+    readinessSummary: DatabaseReadinessSummary?,
+    onNavigateToResources: () -> Unit,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
     modifier: Modifier = Modifier,
@@ -106,6 +114,41 @@ private fun NavigationSubScreen(
                 tint = errorColor(),
             )
         }
+
+        readinessSummary?.let { summary ->
+            when (summary.readiness) {
+                DatabaseReadiness.EMPTY, DatabaseReadiness.SONGS_ONLY -> {
+                    item {
+                        TextItem(
+                            title = stringResource(R.string.ocr_guide_database_title),
+                            content = stringResource(R.string.ocr_guide_database_content),
+                            leadingIcon = Icons.Default.CloudDownload,
+                            trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
+                            onClick = onNavigateToResources,
+                        )
+                    }
+                }
+
+                DatabaseReadiness.PARTIAL -> {
+                    item {
+                        TextItem(
+                            title =
+                                pluralStringResource(
+                                    R.plurals.resources_missing_chart_info,
+                                    summary.missingChartInfoCount,
+                                    summary.missingChartInfoCount,
+                                ),
+                            content = stringResource(R.string.ocr_guide_chart_info_partial_content),
+                            leadingIcon = Icons.Default.CloudDownload,
+                            trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
+                            onClick = onNavigateToResources,
+                        )
+                    }
+                }
+
+                DatabaseReadiness.READY -> {}
+            }
+        }
     }
 }
 
@@ -139,6 +182,8 @@ internal fun OcrQueueScreenCategorySubScreen(
     taskUiItems: List<OcrQueueScreenViewModel.TaskUiItem>,
     taskUiItemsLoading: Boolean,
     taskCounts: OcrQueueScreenViewModel.QueueTaskCounts,
+    readinessSummary: DatabaseReadinessSummary?,
+    onNavigateToResources: () -> Unit,
     onSaveTask: (Long) -> Unit,
     onSaveAllTasks: () -> Unit,
     onStartSmartFix: () -> Unit,
@@ -168,6 +213,8 @@ internal fun OcrQueueScreenCategorySubScreen(
                 NavigationSubScreen(
                     onSwitchScreen = { newCategory -> onCategoryChange(newCategory) },
                     taskCounts = taskCounts,
+                    readinessSummary = readinessSummary,
+                    onNavigateToResources = onNavigateToResources,
                     onSaveAllTasks = onSaveAllTasks,
                     onStartSmartFix = onStartSmartFix,
                     modifier = modifier,

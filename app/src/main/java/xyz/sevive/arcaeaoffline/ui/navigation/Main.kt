@@ -89,7 +89,12 @@ fun MainNavigationGraph(
         }
 
         composable(MainScreen.Ocr.route) {
-            OcrEntryScreen()
+            OcrEntryScreen(
+                onNavigateToResources = {
+                    // A cross-tab jump from the OCR hints, this behavior keeps OCR page on the back stack.
+                    mainNavController.navigate(MainScreen.Resources.route) { launchSingleTop = true }
+                },
+            )
         }
 
         composable(SETTINGS_NAV_ROUTE_ROOT) {

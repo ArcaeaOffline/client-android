@@ -90,6 +90,11 @@ CC BY-SA 3.0
     <!-- OCR dependencies -->
     <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
+    <string name="ocr_guide_image_hashes_database_title">Get the image hashes database</string>
+    <string name="ocr_guide_image_hashes_database_content">OCR uses it to identify songs in screenshots.</string>
+    <string name="ocr_guide_database_title">Import songs and chart info</string>
+    <string name="ocr_guide_database_content">OCR needs them to show song details and validate plays.</string>
+    <string name="ocr_guide_chart_info_partial_content">Warnings for those charts may be incomplete.</string>
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
@@ -386,6 +391,7 @@ CC BY-SA 3.0
     </plurals>
     <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
     <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
+    <string name="ocr_queue_event_ihdb_missing">Cannot start the queue without image hashes database.</string>
     <string name="ocr_queue_event_staging_cleared">Staging cleared</string>
     <string name="ocr_queue_staging_status">Staging</string>
     <string name="ocr_queue_staging_empty">Empty</string>

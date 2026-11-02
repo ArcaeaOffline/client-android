@@ -8,7 +8,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,13 +18,19 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.io.files.SystemFileSystem
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
@@ -31,6 +39,7 @@ import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
+import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -38,6 +47,7 @@ class OcrQueueScreenViewModel(
     context: Context,
     private val difficultyWithSongRepo: DifficultyWithSongRepository,
     private val chartInfoRepo: ChartInfoRepository,
+    databaseReadinessRepo: DatabaseReadinessRepository,
     private val ocrQueueTaskRepo: OcrQueueTaskRepositoryImpl,
     preferencesRepository: OcrQueuePreferencesRepository,
 ) : ViewModel() {
@@ -46,6 +56,11 @@ class OcrQueueScreenViewModel(
     }
 
     private val workManager = WorkManager.getInstance(context.applicationContext)
+
+    private val _events = Channel<OcrQueueStagingViewModel.UiEvent>(Channel.BUFFERED)
+
+    /** One-shot UI events for the queue screen, e.g. the start-queue gate. */
+    val events = _events.receiveAsFlow()
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(
@@ -195,6 +210,14 @@ class OcrQueueScreenViewModel(
                 it.isNotEmpty() && it[0].state == androidx.work.WorkInfo.State.RUNNING
             }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** Database readiness for the hint rows; null while the first load is in flight. */
+    val readinessSummary =
+        databaseReadinessRepo.summary().stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds),
+            null,
+        )
+
     fun deleteTask(taskId: Long) {
         if (queueRunning.value) return
 
@@ -252,20 +275,33 @@ class OcrQueueScreenViewModel(
     }
 
     fun startQueue(runMode: OcrQueueProcessingJob.RunMode = OcrQueueProcessingJob.RunMode.NORMAL) {
-        val workRequest =
-            OneTimeWorkRequestBuilder<OcrQueueProcessingJob>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .setInputData(
-                    workDataOf(
-                        OcrQueueProcessingJob.DATA_RUN_MODE to runMode.value,
-                        OcrQueueProcessingJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
-                    ),
-                ).build()
+        viewModelScope.launch {
+            // NORMAL and ALL needs the hashes database before processing any task
+            if (runMode != OcrQueueProcessingJob.RunMode.SMART_FIX && !imageHashesDatabaseFileExists()) {
+                _events.send(OcrQueueStagingViewModel.UiEvent.StringRes(R.string.ocr_queue_event_ihdb_missing))
+                return@launch
+            }
 
-        workManager.enqueueUniqueWork(
-            OcrQueueProcessingJob.WORK_NAME,
-            ExistingWorkPolicy.KEEP,
-            workRequest,
-        )
+            val workRequest =
+                OneTimeWorkRequestBuilder<OcrQueueProcessingJob>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setInputData(
+                        workDataOf(
+                            OcrQueueProcessingJob.DATA_RUN_MODE to runMode.value,
+                            OcrQueueProcessingJob.DATA_PARALLEL_COUNT to ocrQueuePreferences.value.parallelCount,
+                        ),
+                    ).build()
+
+            workManager.enqueueUniqueWork(
+                OcrQueueProcessingJob.WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                workRequest,
+            )
+        }
     }
+
+    private suspend fun imageHashesDatabaseFileExists(): Boolean =
+        withContext(Dispatchers.IO) {
+            SystemFileSystem.exists(OcrDependencyPaths().imageHashesDatabaseFile)
+        }
 }
