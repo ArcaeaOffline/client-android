@@ -232,7 +232,10 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
             ) {
                 when {
                     uiState.totalCount == 0 -> {
-                        EmptyScreen(Modifier.fillMaxSize())
+                        EmptyScreen(
+                            Modifier.fillMaxSize(),
+                            text = stringResource(R.string.database_no_play_results),
+                        )
                     }
 
                     listItems.isEmpty() -> {

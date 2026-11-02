@@ -202,6 +202,7 @@
     <string name="database_add_play_result_keep_chart">保留谱面</string>
 
     <!-- Database play result list pane -->
+    <string name="database_no_play_results">暂无游玩记录</string>
     <string name="database_play_result_list_title">游玩记录列表</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
         <item quantity="other">删除 %d 个游玩记录？</item>

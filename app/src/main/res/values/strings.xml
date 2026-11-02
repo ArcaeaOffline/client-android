@@ -224,6 +224,7 @@ CC BY-SA 3.0
     <string name="database_add_play_result_keep_chart">Keep chart</string>
 
     <!-- Database play result list pane -->
+    <string name="database_no_play_results">No plays yet</string>
     <string name="database_play_result_list_title">Play Results List</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
         <item quantity="one">Are you sure to delete %d play result?</item>
