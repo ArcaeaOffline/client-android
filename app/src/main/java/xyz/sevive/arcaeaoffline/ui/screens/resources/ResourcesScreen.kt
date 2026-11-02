@@ -4,12 +4,12 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Android
@@ -112,48 +112,46 @@ fun ResourcesScreen(
         val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
         val columnCount = if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) 2 else 1
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(columnCount),
+        FlowRow(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(padding),
-            contentPadding =
-                PaddingValues(
-                    bottom = MaterialTheme.spacing.pagePadding,
-                    start = MaterialTheme.spacing.pagePadding,
-                    end = MaterialTheme.spacing.pagePadding,
-                ),
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        bottom = MaterialTheme.spacing.pagePadding,
+                        start = MaterialTheme.spacing.pagePadding,
+                        end = MaterialTheme.spacing.pagePadding,
+                    ),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.lg),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.lg),
+            maxItemsInEachRow = columnCount,
         ) {
-            item {
-                ResourcesSongsCard(
-                    status = songsCardStatus,
-                    remoteResourcesInfoState = uiState.remoteResourcesInfoState,
-                    downloadingResources = uiState.downloadingResources,
-                    downloadErrorTexts = uiState.downloadErrorTexts,
-                    canImportLists = canImportLists,
-                    onDownloadPacklist = viewModel::downloadPacklist,
-                    onDownloadSonglist = { viewModel.downloadSonglist(context) },
-                    onImportPacklist = { viewModel.importPacklist(it, context) },
-                    onImportSonglist = { viewModel.importSonglist(it, context) },
-                    onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it, context) },
-                    onImportFromInstalledArcaea = { viewModel.importArcaeaApkFromInstalled(context) },
-                )
-            }
+            ResourcesSongsCard(
+                status = songsCardStatus,
+                remoteResourcesInfoState = uiState.remoteResourcesInfoState,
+                downloadingResources = uiState.downloadingResources,
+                downloadErrorTexts = uiState.downloadErrorTexts,
+                canImportLists = canImportLists,
+                onDownloadPacklist = viewModel::downloadPacklist,
+                onDownloadSonglist = { viewModel.downloadSonglist(context) },
+                onImportPacklist = { viewModel.importPacklist(it, context) },
+                onImportSonglist = { viewModel.importSonglist(it, context) },
+                onImportArcaeaApk = { viewModel.importArcaeaApkFromSelected(it, context) },
+                onImportFromInstalledArcaea = { viewModel.importArcaeaApkFromInstalled(context) },
+                modifier = Modifier.weight(1f),
+            )
 
-            item {
-                ResourcesChartInfoCard(
-                    status = chartInfoCardStatus,
-                    remoteResourcesInfoState = uiState.remoteResourcesInfoState,
-                    downloadingResources = uiState.downloadingResources,
-                    downloadErrorTexts = uiState.downloadErrorTexts,
-                    onDownload = { viewModel.downloadChartInfoDatabase(context) },
-                    onImport = { viewModel.importChartsInfoDatabase(it, context) },
-                    onBrowseConstants = onNavigateToTools,
-                )
-            }
+            ResourcesChartInfoCard(
+                status = chartInfoCardStatus,
+                remoteResourcesInfoState = uiState.remoteResourcesInfoState,
+                downloadingResources = uiState.downloadingResources,
+                downloadErrorTexts = uiState.downloadErrorTexts,
+                onDownload = { viewModel.downloadChartInfoDatabase(context) },
+                onImport = { viewModel.importChartsInfoDatabase(it, context) },
+                onBrowseConstants = onNavigateToTools,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 }

@@ -3,8 +3,10 @@ package xyz.sevive.arcaeaoffline.ui.screens.database.playdata
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.Download
@@ -79,52 +81,46 @@ fun DatabasePlayDataScreen(
             }
         },
     ) {
-        LazyColumn(Modifier.fillMaxSize()) {
-            item {
-                SettingsGroupHeader {
-                    IconRow {
-                        Icon(Icons.Default.Download, contentDescription = null)
-                        Text(stringResource(R.string.database_manage_import_title))
-                    }
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            SettingsGroupHeader {
+                IconRow {
+                    Icon(Icons.Default.Download, contentDescription = null)
+                    Text(stringResource(R.string.database_manage_import_title))
                 }
             }
 
-            item {
-                TextItem(
-                    onClick = { importSt3Launcher.launch("*/*") },
-                    title = stringResource(R.string.arcaea_st3),
-                    leadingIcon = Icons.Default.FileOpen,
-                )
-            }
+            TextItem(
+                onClick = { importSt3Launcher.launch("*/*") },
+                title = stringResource(R.string.arcaea_st3),
+                leadingIcon = Icons.Default.FileOpen,
+            )
 
-            item {
-                SettingsGroupHeader {
-                    IconRow {
-                        Icon(Icons.Default.Upload, contentDescription = null)
-                        Text(stringResource(R.string.database_manage_export_title))
-                    }
+            SettingsGroupHeader {
+                IconRow {
+                    Icon(Icons.Default.Upload, contentDescription = null)
+                    Text(stringResource(R.string.database_manage_export_title))
                 }
             }
 
-            item {
-                TextItem(
-                    onClick = {
-                        exportPlayResultsLauncher.launch(
-                            "arcaea-offline-data-exchange-${Clock.System.now().toEpochMilliseconds()}",
-                        )
-                    },
-                    title = stringResource(R.string.database_manage_export_play_results),
-                    leadingIcon = Icons.Default.UploadFile,
-                )
-            }
+            TextItem(
+                onClick = {
+                    exportPlayResultsLauncher.launch(
+                        "arcaea-offline-data-exchange-${Clock.System.now().toEpochMilliseconds()}",
+                    )
+                },
+                title = stringResource(R.string.database_manage_export_play_results),
+                leadingIcon = Icons.Default.UploadFile,
+            )
 
-            item {
-                NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.Deduplicator.title,
-                    icon = Icons.Default.CopyAll,
-                ) {
-                    navContext.navigateToDetail(DatabaseSubScreen.Deduplicator.route)
-                }
+            NavEntryNavigateButton(
+                titleResId = DatabaseSubScreen.Deduplicator.title,
+                icon = Icons.Default.CopyAll,
+            ) {
+                navContext.navigateToDetail(DatabaseSubScreen.Deduplicator.route)
             }
         }
     }

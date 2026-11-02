@@ -1,12 +1,12 @@
 package xyz.sevive.arcaeaoffline.ui.screens.overview
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,45 +51,41 @@ fun OverviewScreen(
             )
         },
     ) { padding ->
-        LazyColumn(
+        Column(
             Modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding =
-                PaddingValues(
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(
                     bottom = MaterialTheme.spacing.pagePadding,
                     start = MaterialTheme.spacing.pagePadding,
                     end = MaterialTheme.spacing.pagePadding,
                 ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
         ) {
-            item {
-                OverviewReadinessCard(
-                    readinessUiState,
-                    onNavigateToResources = onNavigateToResources,
-                    Modifier.fillMaxWidth(),
-                )
-            }
+            OverviewReadinessCard(
+                readinessUiState,
+                onNavigateToResources = onNavigateToResources,
+                Modifier.fillMaxWidth(),
+            )
 
-            item {
-                OverviewPotentialCard(uiState)
-            }
+            OverviewPotentialCard(uiState)
 
             if (latestPlays.isNotEmpty()) {
-                item {
-                    Text(
-                        stringResource(R.string.home_recent_header),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = MaterialTheme.spacing.sm),
-                    )
-                }
+                Text(
+                    stringResource(R.string.home_recent_header),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = MaterialTheme.spacing.sm),
+                )
 
-                items(latestPlays, key = { it.uuid }) { playResult ->
-                    ArcaeaPlayResultSummaryCard(
-                        playResult,
-                        uiState.scoringMode,
-                        Modifier.fillMaxWidth(),
-                    )
+                latestPlays.forEach { playResult ->
+                    key(playResult.uuid) {
+                        ArcaeaPlayResultSummaryCard(
+                            playResult,
+                            uiState.scoringMode,
+                            Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }
