@@ -1,13 +1,14 @@
 package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.ui.common.datetimeeditor.NullableDateTimeEditor
+import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -52,13 +54,12 @@ internal fun SetNullCheckbox(
     onIsNullChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(
-            checked = isNull,
-            onCheckedChange = onIsNullChange,
-        )
-        Text(stringResource(R.string.play_result_editor_set_null))
-    }
+    LabeledCheckbox(
+        checked = isNull,
+        onCheckedChange = onIsNullChange,
+        label = stringResource(R.string.play_result_editor_set_null),
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -75,7 +76,11 @@ internal fun <T : Any> GeneralNullableFieldWrapper(
             defaultValueConstructor = defaultValueConstructor,
         )
 
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+    ) {
         valueComponent()
 
         SetNullCheckbox(isNull = value == null, onIsNullChange = {

@@ -27,12 +27,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.Difficulty
+import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
-import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
@@ -54,7 +55,8 @@ private fun SelectChartDialog(
 
 @Composable
 internal fun DatabaseAddPlayResultChartAction(
-    difficulty: Difficulty?,
+    chart: DifficultyWithSong?,
+    chartInfo: ChartInfo?,
     onDifficultyChange: (Difficulty) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -63,21 +65,19 @@ internal fun DatabaseAddPlayResultChartAction(
     if (showSelectChartDialog) {
         SelectChartDialog(
             onDismiss = { showSelectChartDialog = false },
-            songId = difficulty?.songId,
-            ratingClass = difficulty?.ratingClass,
+            songId = chart?.songId,
+            ratingClass = chart?.ratingClass,
             onDifficultyChange = onDifficultyChange,
         )
     }
 
-    val display by rememberArcaeaChartDisplay(difficulty?.songId, difficulty?.ratingClass)
-
     Row(modifier, verticalAlignment = Alignment.Bottom) {
         Box(modifier = Modifier.weight(1f)) {
-            if (display != null) {
+            if (chart != null) {
                 ArcaeaChartCard(
-                    display!!.difficultyWithSong,
+                    chart,
                     Modifier.fillMaxWidth(),
-                    chartInfo = display!!.chartInfo,
+                    chartInfo = chartInfo,
                 )
             } else {
                 Card(
@@ -106,40 +106,30 @@ internal fun DatabaseAddPlayResultChartAction(
 
 @PreviewLightDark
 @Composable
-private fun PlayResultActionPreview() {
-    val difficulty =
-        Difficulty(
+private fun ChartActionPreview() {
+    val chart =
+        DifficultyWithSong(
             songId = "test",
             ratingClass = ArcaeaRatingClass.FUTURE,
-            ratingClassAlias = null,
             rating = 9,
             ratingPlus = true,
-            chartDesigner = null,
-            jacketDesigner = null,
-            audioOverride = false,
-            jacketOverride = false,
-            jacketNight = null,
             title = "Preview",
             artist = "Preview",
-            bg = null,
-            bgInverse = null,
-            bpm = null,
-            bpmBase = null,
-            version = null,
-            date = null,
         )
 
     ArcaeaOfflineTheme {
         Surface {
             Column {
                 DatabaseAddPlayResultChartAction(
-                    difficulty = null,
+                    chart = null,
+                    chartInfo = null,
                     onDifficultyChange = {},
                     modifier = Modifier.fillMaxWidth(),
                 )
 
                 DatabaseAddPlayResultChartAction(
-                    difficulty = difficulty,
+                    chart = chart,
+                    chartInfo = ChartInfo("test", ArcaeaRatingClass.FUTURE, constant = 98, notes = null),
                     onDifficultyChange = {},
                     modifier = Modifier.fillMaxWidth(),
                 )

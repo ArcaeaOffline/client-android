@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +41,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaSearchTextField
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterChips
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterDialog
@@ -74,6 +80,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
     val catalog by viewModel.catalog.collectAsStateWithLifecycle()
     val selectedItemUuids by viewModel.selectedItemUuids.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val navContext = LocalListDetailNavigationContext.current
 
     val listItems = uiState.listItems
 
@@ -146,6 +153,11 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
                 onSelectedModeChange = { isInSelectMode = it },
                 onClearSelectedItems = { viewModel.clearSelectedItems() },
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navContext.navigateToDetail(DatabaseSubScreen.AddPlayResult.route) }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(DatabaseSubScreen.AddPlayResult.title))
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) {

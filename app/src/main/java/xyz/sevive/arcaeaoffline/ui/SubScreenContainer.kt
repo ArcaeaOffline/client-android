@@ -110,6 +110,7 @@ fun SubScreenContainer(
     title: String,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
@@ -121,6 +122,7 @@ fun SubScreenContainer(
                 actions = actions,
             )
         },
+        floatingActionButton = floatingActionButton,
         snackbarHost = snackbarHost,
         content = content,
     )
