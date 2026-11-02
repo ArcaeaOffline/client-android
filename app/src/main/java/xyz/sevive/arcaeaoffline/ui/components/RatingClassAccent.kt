@@ -14,7 +14,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 
 /**
  * A rating class tint for a surface: a gradient that fades the class color in from the
- * trailing edge, and a text color legible on top of it.
+ * right edge, and a text color legible on top of it.
  */
 data class RatingClassAccent(
     val backgroundBrush: Brush,

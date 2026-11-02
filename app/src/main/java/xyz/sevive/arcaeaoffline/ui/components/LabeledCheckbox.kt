@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
-/** A checkbox with its label to the right, for use inline in a row. */
 @Composable
 fun LabeledCheckbox(
     checked: Boolean,
