@@ -11,6 +11,11 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import de.stefan_oltmann.kim.Kim
+import de.stefan_oltmann.kim.common.ImageWriteException
+import de.stefan_oltmann.kim.input.ByteArrayByteReader
+import de.stefan_oltmann.kim.model.MediaFormat
+import de.stefan_oltmann.kim.model.MetadataUpdate
 import io.github.vinceglb.filekit.utils.div
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +30,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.io.asOutputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
@@ -40,12 +49,14 @@ import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
-import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
 import java.io.IOException
+import kotlin.concurrent.Volatile
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 class OcrFromShareViewModel(
     private val appContext: Context,
@@ -80,6 +91,15 @@ class OcrFromShareViewModel(
     data class PlayResultSaveState(
         val saved: Boolean = false,
         val cached: Boolean = false,
+    )
+
+    /** The image this share session is about, captured once at [onImageShared]. */
+    @Suppress("ArrayInDataClass")
+    data class SharedImage(
+        val uri: Uri,
+        val sharedAt: Instant,
+        val sourceTakenAt: Instant?,
+        val bytes: ByteArray,
     )
 
     companion object {
@@ -173,16 +193,32 @@ class OcrFromShareViewModel(
                 }
             }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    private var sharedImageUri: Uri? = null
+    private var sharedImage: SharedImage? = null
 
     /** Single entry for Activity */
     fun onImageShared(uri: Uri) {
-        sharedImageUri = uri
+        val sharedAt = Clock.System.now()
 
         viewModelScope.launch {
             val decodedBitmap =
                 try {
-                    withContext(Dispatchers.IO) { decodeBitmap(uri) }
+                    withContext(Dispatchers.IO) {
+                        val bytes =
+                            appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                                ?: throw IOException("Cannot open shared image stream")
+
+                        val decoded =
+                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                ?: throw IOException("Decoded bitmap is null")
+
+                        val sourceTakenAt =
+                            runCatching {
+                                DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
+                            }.getOrNull()
+
+                        sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
+                        decoded
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -196,7 +232,7 @@ class OcrFromShareViewModel(
     }
 
     fun retryOcr() {
-        val imageUri = sharedImageUri ?: return
+        val imageUri = sharedImage?.uri ?: return
         viewModelScope.launch { startOcr(imageUri) }
     }
 
@@ -216,14 +252,42 @@ class OcrFromShareViewModel(
     private val _imageSaved = MutableStateFlow(false)
     val imageSaved = _imageSaved.asStateFlow()
 
+    @Volatile
+    private var imageSaveInFlight = false
+
     fun saveImage() {
-        val bitmap = bitmap.value
-        if (bitmap != null && !imageSaved.value) {
-            _imageSaved.value =
-                SaveBitmapToGallery(bitmap).saveJpg(
-                    appContext,
-                    "ocr-from-share-${Clock.System.now().toEpochMilliseconds()}",
-                )
+        val shared = sharedImage ?: return
+        if (imageSaveInFlight || imageSaved.value) return
+        imageSaveInFlight = true
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dateTaken = shared.sourceTakenAt ?: shared.sharedAt
+                val fileName =
+                    "ocr-from-share-" +
+                        imageFileDateFormat.format(dateTaken.toLocalDateTime(TimeZone.currentSystemDefault())) +
+                        "." + imageFileExtension(shared.bytes)
+
+                val bytes =
+                    if (shared.sourceTakenAt != null) {
+                        shared.bytes
+                    } else {
+                        try {
+                            Kim.update(
+                                shared.bytes,
+                                MetadataUpdate.TakenDate(shared.sharedAt.toEpochMilliseconds()),
+                            )
+                        } catch (e: ImageWriteException) {
+                            logger.w(e) { "Writing EXIF taken date failed, saving without it" }
+                            shared.bytes
+                        }
+                    }
+
+                _imageSaved.value =
+                    SaveImageToGallery.saveImageBytes(appContext, fileName, bytes, dateTaken.toEpochMilliseconds())
+            } finally {
+                imageSaveInFlight = false
+            }
         }
     }
 
@@ -295,8 +359,17 @@ class OcrFromShareViewModel(
             }
         }
     }
-
-    private fun decodeBitmap(uri: Uri): Bitmap =
-        appContext.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
-            ?: throw IOException("Decoded bitmap is null")
 }
+
+private val imageFileDateFormat =
+    LocalDateTime.Format {
+        year()
+        monthNumber()
+        day()
+        char('_')
+        hour()
+        minute()
+        second()
+    }
+
+private fun imageFileExtension(bytes: ByteArray): String = MediaFormat.detect(bytes)?.fileNameExtensions?.firstOrNull() ?: "jpg"

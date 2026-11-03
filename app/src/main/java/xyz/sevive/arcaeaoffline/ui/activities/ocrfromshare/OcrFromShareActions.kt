@@ -32,7 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
@@ -129,7 +129,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
 
         OutlinedButton(
             onClick = {
-                if (SaveBitmapToGallery.checkPermission(context)) {
+                if (SaveImageToGallery.checkPermission(context)) {
                     handleSavePicture()
                 } else {
                     showSavePicturePermissionRequiredDialog = true
