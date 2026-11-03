@@ -101,8 +101,9 @@
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
     <string name="ocr_from_share_save_image_button">保存图片</string>
-    <string name="ocr_from_share_cache_score_button">暂存</string>
-    <string name="ocr_from_share_score_saved">成绩已保存</string>
+    <string name="ocr_from_share_cache_play_result_button">暂存</string>
+    <string name="ocr_from_share_play_result_saved">记录已保存</string>
+    <string name="ocr_from_share_error">OCR 出错</string>
     <string name="ocr_from_share_retry_ocr">重新识别</string>
     <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
     <string name="ocr_from_share_stay_in_app">留在 %s</string>

@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -11,10 +12,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.utils.div
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -23,6 +29,8 @@ import kotlinx.io.asOutputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
+import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
@@ -33,17 +41,45 @@ import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
+import java.io.IOException
 import kotlin.time.Clock
 
 class OcrFromShareViewModel(
+    private val appContext: Context,
     private val playResultRepo: PlayResultRepository,
     private val ocrHistoryRepo: OcrHistoryRepository,
+    private val difficultyWithSongRepo: DifficultyWithSongRepository,
+    private val chartInfoRepo: ChartInfoRepository,
 ) : ViewModel() {
     class OcrDependencyViewersUiState(
         val imageHashesDatabase: OcrDependencyImageHashesDatabaseStatusUiState = OcrDependencyImageHashesDatabaseStatusUiState(),
         val crnnModel: OcrDependencyCrnnModelStatusUiState = OcrDependencyCrnnModelStatusUiState(),
+    )
+
+    /** Recognition outcome: waiting while OCR runs, failed with its error, or done with the result. */
+    sealed interface OcrResultState {
+        data object Waiting : OcrResultState
+
+        data class Failed(
+            val exception: Exception,
+        ) : OcrResultState
+
+        data class Done(
+            val playResult: PlayResult,
+        ) : OcrResultState
+    }
+
+    data class ShareSourceUiState(
+        val name: String? = null,
+        val icon: ImageBitmap? = null,
+    )
+
+    data class PlayResultSaveState(
+        val saved: Boolean = false,
+        val cached: Boolean = false,
     )
 
     companion object {
@@ -55,10 +91,10 @@ class OcrFromShareViewModel(
     private val _ocrDependencyViewersUiState = MutableStateFlow(OcrDependencyViewersUiState())
     val ocrDependencyViewersUiState = _ocrDependencyViewersUiState.asStateFlow()
 
-    fun reloadOcrDependencyViewersUiState(context: Context) {
+    fun reloadOcrDependencyViewersUiState() {
         viewModelScope.launch(Dispatchers.IO) {
             val imageHashesDatabase = OcrDependencyStatusBuilder.imageHashesDatabase()
-            val crnnModel = OcrDependencyStatusBuilder.crnnModel(context)
+            val crnnModel = OcrDependencyStatusBuilder.crnnModel(appContext)
 
             _ocrDependencyViewersUiState.value =
                 OcrDependencyViewersUiState(
@@ -76,138 +112,156 @@ class OcrFromShareViewModel(
             null,
         )
 
-    fun setBitmap(newBitmap: Bitmap) {
-        bitmap.value = newBitmap
-    }
-
     private val shareSourceAppPackageName = MutableStateFlow<String?>(null)
 
-    private val _shareSourceAppName = MutableStateFlow<String?>(null)
-    val shareSourceAppName = _shareSourceAppName.asStateFlow()
-
-    private val _shareSourceAppIcon = MutableStateFlow<ImageBitmap?>(null)
-    val shareSourceAppIcon = _shareSourceAppIcon.asStateFlow()
+    private val _shareSourceUiState = MutableStateFlow(ShareSourceUiState())
+    val shareSourceUiState = _shareSourceUiState.asStateFlow()
 
     fun setShareSourceApp(
         packageName: String?,
         packageManager: PackageManager,
     ) {
         if (packageName == null) {
+            logger.w { "Share app packageName is null" }
             shareSourceAppPackageName.value = null
-            _shareSourceAppName.value = null
-            _shareSourceAppIcon.value = null
+            _shareSourceUiState.value = ShareSourceUiState()
             return
         }
 
         shareSourceAppPackageName.value = packageName
-        _shareSourceAppName.value =
-            packageName.let {
-                try {
-                    val info = packageManager.getApplicationInfo(it, 0)
-                    packageManager.getApplicationLabel(info).toString()
-                } catch (e: PackageManager.NameNotFoundException) {
-                    it
+        _shareSourceUiState.value =
+            ShareSourceUiState(
+                name =
+                    packageName.let {
+                        try {
+                            val info = packageManager.getApplicationInfo(it, 0)
+                            packageManager.getApplicationLabel(info).toString()
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            logger.w(e) { "Failed to resolve share app name" }
+                            it
+                        }
+                    },
+                icon =
+                    packageName.let {
+                        try {
+                            packageManager.getApplicationIcon(it).toBitmap().asImageBitmap()
+                        } catch (e: PackageManager.NameNotFoundException) {
+                            logger.w(e) { "Failed to resolve share app icon" }
+                            null
+                        }
+                    },
+            )
+    }
+
+    private val _ocrResultState = MutableStateFlow<OcrResultState>(OcrResultState.Waiting)
+    val ocrResultState = _ocrResultState.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val display =
+        _ocrResultState
+            .flatMapLatest { state ->
+                val playResult = (state as? OcrResultState.Done)?.playResult
+                if (playResult == null) {
+                    flowOf(null)
+                } else {
+                    combine(
+                        difficultyWithSongRepo.find(playResult.songId, playResult.ratingClass),
+                        chartInfoRepo.find(playResult.songId, playResult.ratingClass),
+                    ) { dws, info ->
+                        dws?.let { DifficultyWithSongDisplay(it, info) }
+                    }
                 }
-            }
-        _shareSourceAppIcon.value =
-            packageName.let {
+            }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    private var sharedImageUri: Uri? = null
+
+    /** Single entry for Activity */
+    fun onImageShared(uri: Uri) {
+        sharedImageUri = uri
+
+        viewModelScope.launch {
+            val decodedBitmap =
                 try {
-                    packageManager.getApplicationIcon(it).toBitmap().asImageBitmap()
-                } catch (e: PackageManager.NameNotFoundException) {
-                    null
+                    withContext(Dispatchers.IO) { decodeBitmap(uri) }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    _ocrResultState.value = OcrResultState.Failed(Exception("Error reading image", e))
+                    return@launch
                 }
-            }
-    }
 
-    private val _playResult = MutableStateFlow<PlayResult?>(null)
-    val playResult = _playResult.asStateFlow()
-
-    private val _exception = MutableStateFlow<Exception?>(null)
-    val exception = _exception.asStateFlow()
-
-    private var lastImageUri: Uri? = null
-
-    /** Re-runs OCR on the last shared image, e.g. after the dependencies were set up. */
-    fun retryOcr(context: Context) {
-        val imageUri = lastImageUri ?: return
-        _exception.value = null
-        viewModelScope.launch { startOcr(imageUri, context) }
-    }
-
-    fun setScore(playResult: PlayResult?) {
-        _playResult.value = playResult
-    }
-
-    fun setException(e: Exception) {
-        _exception.value = e
-    }
-
-    private val _scoreSaved = MutableStateFlow(false)
-    val scoreSaved = _scoreSaved.asStateFlow()
-
-    suspend fun saveScore() {
-        if (playResult.value != null) {
-            playResultRepo.upsert(playResult.value!!)
-            _scoreSaved.value = true
+            bitmap.value = decodedBitmap
+            startOcr(uri)
         }
+    }
+
+    fun retryOcr() {
+        val imageUri = sharedImageUri ?: return
+        viewModelScope.launch { startOcr(imageUri) }
+    }
+
+    fun setPlayResult(playResult: PlayResult) {
+        _ocrResultState.value = OcrResultState.Done(playResult)
+    }
+
+    private val _playResultSaveState = MutableStateFlow(PlayResultSaveState())
+    val playResultSaveState = _playResultSaveState.asStateFlow()
+
+    suspend fun savePlayResult() {
+        val playResult = (_ocrResultState.value as? OcrResultState.Done)?.playResult ?: return
+        playResultRepo.upsert(playResult)
+        _playResultSaveState.value = _playResultSaveState.value.copy(saved = true)
     }
 
     private val _imageSaved = MutableStateFlow(false)
     val imageSaved = _imageSaved.asStateFlow()
 
-    fun saveImage(context: Context) {
+    fun saveImage() {
         val bitmap = bitmap.value
         if (bitmap != null && !imageSaved.value) {
             _imageSaved.value =
                 SaveBitmapToGallery(bitmap).saveJpg(
-                    context,
+                    appContext,
                     "ocr-from-share-${Clock.System.now().toEpochMilliseconds()}",
                 )
         }
     }
 
-    private val _scoreCached = MutableStateFlow(false)
-    val scoreCached = _scoreCached.asStateFlow()
+    @Suppress("unused")
+    suspend fun cachePlayResult() {
+        val playResult = (_ocrResultState.value as? OcrResultState.Done)?.playResult ?: return
+        val ocrHistory =
+            OcrHistory.fromArcaeaScore(
+                playResult = playResult,
+                sourcePackageName = shareSourceAppPackageName.value,
+                storeDate = Clock.System.now(),
+            )
+        val id = ocrHistoryRepo.insert(ocrHistory)
 
-    suspend fun cacheScore(context: Context) {
-        val score = playResult.value
-        if (score != null) {
-            val ocrHistory =
-                OcrHistory.fromArcaeaScore(
-                    playResult = score,
-                    sourcePackageName = shareSourceAppPackageName.value,
-                    storeDate = Clock.System.now(),
-                )
-            val id = ocrHistoryRepo.insert(ocrHistory)
-
-            val bitmap = bitmap.value
-            if (bitmap != null) {
-                val parentDir = OcrPaths().fromShareImageCacheDir
-                if (!SystemFileSystem.exists(parentDir)) {
-                    SystemFileSystem.createDirectories(parentDir)
-                    logger.i { "Created image cache dir" }
-                }
-
-                val cacheImagePath = parentDir / "$id.jpg"
-                SystemFileSystem.sink(cacheImagePath).buffered().use { sink ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, sink.asOutputStream())
-                }
+        val bitmap = bitmap.value
+        if (bitmap != null) {
+            val parentDir = OcrPaths().fromShareImageCacheDir
+            if (!SystemFileSystem.exists(parentDir)) {
+                SystemFileSystem.createDirectories(parentDir)
+                logger.i { "Created image cache dir" }
             }
 
-            _scoreCached.value = true
+            val cacheImagePath = parentDir / "$id.jpg"
+            SystemFileSystem.sink(cacheImagePath).buffered().use { sink ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, sink.asOutputStream())
+            }
         }
+
+        _playResultSaveState.value = _playResultSaveState.value.copy(cached = true)
     }
 
-    suspend fun startOcr(
-        imageUri: Uri,
-        context: Context,
-    ) {
-        logger.i { "OCR from share request: $imageUri" }
-        lastImageUri = imageUri
-
-        val ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
+    private suspend fun startOcr(uri: Uri) {
+        logger.i { "OCR from share request: $uri" }
+        _ocrResultState.value = OcrResultState.Waiting
 
         withContext(Dispatchers.IO) {
+            val ortSession = DeviceOcrOnnxHelper.createOrtSession(appContext)
+
             try {
                 val imageHashesSQLiteDatabase =
                     OcrDependencyLoader.imageHashesSQLiteDatabase()
@@ -216,24 +270,24 @@ class OcrFromShareViewModel(
                     imageHashesSQLiteDatabase.use { sqliteDb ->
                         val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
                         DeviceOcrHelper.ocrImage(
-                            imageUri,
+                            uri,
                             imageHashesDatabase,
                             ortSession = ortSession,
                         )
                     }
                 val playResult =
                     DeviceOcrHelper.ocrResultToPlayResult(
-                        imageUri,
-                        context,
+                        uri,
+                        appContext,
                         ocrResult,
                         fallbackDate = Clock.System.now(),
                     )
 
-                _playResult.value = playResult
-                _exception.value = null
+                _ocrResultState.value = OcrResultState.Done(playResult)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                _playResult.value = null
-                _exception.value = e
+                _ocrResultState.value = OcrResultState.Failed(e)
 
                 logger.e(e) { "Error occurred during OCR" }
             } finally {
@@ -241,4 +295,8 @@ class OcrFromShareViewModel(
             }
         }
     }
+
+    private fun decodeBitmap(uri: Uri): Bitmap =
+        appContext.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+            ?: throw IOException("Decoded bitmap is null")
 }

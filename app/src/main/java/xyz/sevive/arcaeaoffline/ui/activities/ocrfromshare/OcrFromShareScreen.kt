@@ -24,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -39,25 +38,21 @@ internal fun OcrFromShareReturnToShareAppButton(
     ocrFromShareViewModel: OcrFromShareViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val appName by ocrFromShareViewModel.shareSourceAppName.collectAsStateWithLifecycle()
-    val appIcon by ocrFromShareViewModel.shareSourceAppIcon.collectAsStateWithLifecycle()
+    val shareSource by ocrFromShareViewModel.shareSourceUiState.collectAsStateWithLifecycle()
 
     val iconSize = Icons.Default.Apps.defaultHeight
 
     AppIconLabelButton(
         onClick = { onReturnToShareApp() },
         appIcon = {
-            if (appIcon != null) {
-                Image(appIcon!!, null, Modifier.size(iconSize))
+            val icon = shareSource.icon
+            if (icon != null) {
+                Image(icon, null, Modifier.size(iconSize))
             } else {
                 Icon(Icons.Default.Apps, null, Modifier.size(iconSize))
             }
         },
-        appLabel = {
-            if (appName != null) {
-                Text(appName!!)
-            }
-        },
+        appLabel = { shareSource.name?.let { Text(it) } },
         actionText = { Text(stringResource(R.string.ocr_from_share_return_to_share_source)) },
         modifier = modifier,
         colors =
@@ -101,8 +96,6 @@ internal fun OcrFromShareScreenContentMedium(
     onStayInApp: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
-    val context = LocalContext.current
-
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
@@ -110,7 +103,7 @@ internal fun OcrFromShareScreenContentMedium(
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.reloadOcrDependencyViewersUiState(context)
+            viewModel.reloadOcrDependencyViewersUiState()
         }
     }
 
@@ -164,8 +157,6 @@ fun OcrFromShareScreenCompact(
     onStayInApp: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
-    val context = LocalContext.current
-
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
@@ -173,7 +164,7 @@ fun OcrFromShareScreenCompact(
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.reloadOcrDependencyViewersUiState(context)
+            viewModel.reloadOcrDependencyViewersUiState()
         }
     }
 

@@ -117,8 +117,9 @@ CC BY-SA 3.0
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
     <string name="ocr_from_share_save_image_button">Save Image</string>
-    <string name="ocr_from_share_cache_score_button">Cache</string>
-    <string name="ocr_from_share_score_saved">Score saved</string>
+    <string name="ocr_from_share_cache_play_result_button">Cache</string>
+    <string name="ocr_from_share_play_result_saved">Play Saved</string>
+    <string name="ocr_from_share_error">OCR Error</string>
     <string name="ocr_from_share_retry_ocr">Retry OCR</string>
     <string name="ocr_from_share_return_to_share_source">Return to previous app</string>
     <string name="ocr_from_share_stay_in_app">Stay in %s</string>

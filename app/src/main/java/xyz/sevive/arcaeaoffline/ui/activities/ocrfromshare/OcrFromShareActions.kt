@@ -1,13 +1,16 @@
 package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
 import android.Manifest
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
@@ -30,10 +33,10 @@ import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
+import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
-import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
@@ -42,7 +45,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
 
     val context = LocalContext.current
 
-    val handleSavePicture = { ocrFromShareViewModel.saveImage(context) }
+    val handleSavePicture = { ocrFromShareViewModel.saveImage() }
     val requestWriteStoragePermissionLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
@@ -61,15 +64,14 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
         )
     }
 
-    val score by ocrFromShareViewModel.playResult.collectAsStateWithLifecycle()
-    val scoreSaved by ocrFromShareViewModel.scoreSaved.collectAsStateWithLifecycle()
+    val resultState by ocrFromShareViewModel.ocrResultState.collectAsStateWithLifecycle()
+    val playResult = (resultState as? OcrResultState.Done)?.playResult
     val imageSaved by ocrFromShareViewModel.imageSaved.collectAsStateWithLifecycle()
-    val scoreCached by ocrFromShareViewModel.scoreCached.collectAsStateWithLifecycle()
-
-    val display by rememberArcaeaChartDisplay(score?.songId, score?.ratingClass)
+    val saveState by ocrFromShareViewModel.playResultSaveState.collectAsStateWithLifecycle()
+    val display by ocrFromShareViewModel.display.collectAsStateWithLifecycle()
     val warnings =
-        remember(score, display) {
-            score?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
+        remember(playResult, display) {
+            playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
         }
 
     var showSaveWithWarningsDialog by rememberSaveable { mutableStateOf(false) }
@@ -78,7 +80,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
             warnings = warnings,
             onConfirm = {
                 showSaveWithWarningsDialog = false
-                coroutineScope.launch { ocrFromShareViewModel.saveScore() }
+                coroutineScope.launch { ocrFromShareViewModel.savePlayResult() }
             },
             onDismissRequest = { showSaveWithWarningsDialog = false },
         )
@@ -89,35 +91,40 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
             Button(
                 onClick = {
                     if (warnings.isEmpty()) {
-                        coroutineScope.launch { ocrFromShareViewModel.saveScore() }
+                        coroutineScope.launch { ocrFromShareViewModel.savePlayResult() }
                     } else {
                         showSaveWithWarningsDialog = true
                     }
                 },
-                enabled = score != null && !scoreSaved && !scoreCached,
+                enabled = playResult != null && !saveState.saved && !saveState.cached,
             ) {
-                IconRow {
-                    Icon(Icons.Default.Save, null)
-                    Text(stringResource(R.string.general_save))
+                AnimatedContent(saveState.saved) {
+                    if (it) {
+                        IconRow {
+                            Icon(Icons.Default.Check, null)
+                            Text(stringResource(R.string.ocr_from_share_play_result_saved))
+                        }
+                    } else {
+                        IconRow {
+                            Icon(Icons.Default.Save, null)
+                            Text(stringResource(R.string.general_save))
+                        }
+                    }
                 }
             }
 
             OutlinedButton(
-                onClick = { coroutineScope.launch { ocrFromShareViewModel.cacheScore(context) } },
-                enabled = score != null && !scoreSaved && !scoreCached,
+                onClick = {
+                    // TODO: coroutineScope.launch { ocrFromShareViewModel.cachePlayResult(context) }
+                    Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+                },
+                enabled = playResult != null && !saveState.saved && !saveState.cached,
             ) {
                 IconRow {
                     Icon(Icons.Default.Archive, null)
-                    Text(stringResource(R.string.ocr_from_share_cache_score_button))
+                    Text(stringResource(R.string.ocr_from_share_cache_play_result_button))
                 }
             }
-        }
-
-        if (scoreSaved) {
-            Text(
-                stringResource(R.string.ocr_from_share_score_saved),
-                style = MaterialTheme.typography.bodyMedium,
-            )
         }
 
         OutlinedButton(
