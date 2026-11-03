@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -51,7 +50,6 @@ import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetails
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.components.LabeledCheckbox
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorClearTypeField
@@ -62,12 +60,11 @@ import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorLostField
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorMaxRecallField
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorModifierField
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorPureField
+import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
 import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
-import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
-import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
@@ -137,26 +134,6 @@ internal fun BottomActionsBar(
             }
         }
     }
-}
-
-@Composable
-private fun SaveWithWarningsDialog(
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
-    onConfirm: () -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(R.string.database_add_play_result_save_with_warnings_title)) },
-        text = { ArcaeaPlayResultValidatorWarningDetails(warnings) },
-        confirmButton = {
-            DialogConfirmButton(
-                onClick = onConfirm,
-                customLabel = { Text(stringResource(R.string.general_save)) },
-            )
-        },
-        dismissButton = { DialogDismissTextButton(onClick = onDismissRequest) },
-    )
 }
 
 @Composable

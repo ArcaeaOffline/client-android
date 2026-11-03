@@ -26,7 +26,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
@@ -103,7 +106,13 @@ internal fun OcrFromShareScreenContentMedium(
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
+    // Reload on every resume: returning from the app's dependency setup changes the status.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.reloadOcrDependencyViewersUiState(context)
+        }
+    }
 
     Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         Row(
@@ -160,7 +169,13 @@ fun OcrFromShareScreenCompact(
     val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) { viewModel.reloadOcrDependencyViewersUiState(context) }
+    // Reload on every resume: returning from the app's dependency setup changes the status.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.reloadOcrDependencyViewersUiState(context)
+        }
+    }
 
     Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         LazyColumn(

@@ -103,6 +103,7 @@
     <string name="ocr_from_share_save_image_button">保存图片</string>
     <string name="ocr_from_share_cache_score_button">暂存</string>
     <string name="ocr_from_share_score_saved">成绩已保存</string>
+    <string name="ocr_from_share_retry_ocr">重新识别</string>
     <string name="ocr_from_share_return_to_share_source">返回上一应用</string>
     <string name="ocr_from_share_stay_in_app">留在 %s</string>
 
@@ -201,7 +202,7 @@
     <string name="database_add_play_result_edit_play_result_header">编辑游玩记录……</string>
     <string name="database_add_play_result_click_select_chart">点此选择谱面</string>
     <string name="database_add_play_result_select_chart_first">请先选择谱面</string>
-    <string name="database_add_play_result_save_with_warnings_title">仍有警告，确认保存？</string>
+    <string name="play_result_save_with_warnings_title">仍有警告，确认保存？</string>
     <string name="database_add_play_result_keep_chart">保留谱面</string>
     <string name="database_add_play_result_saved">游玩记录已保存</string>
 

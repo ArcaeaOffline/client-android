@@ -58,6 +58,7 @@ enum class MainScreen(
 @Composable
 fun MainNavigationGraph(
     mainNavController: NavHostController,
+    initialNavigateRoute: String? = null,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -90,6 +91,7 @@ fun MainNavigationGraph(
 
         composable(MainScreen.Ocr.route) {
             OcrEntryScreen(
+                initialDetailRoute = initialNavigateRoute?.takeIf { it.startsWith(OCR_NAV_ROUTE_ROOT) },
                 onNavigateToResources = {
                     // A cross-tab jump from the OCR hints, this behavior keeps OCR page on the back stack.
                     mainNavController.navigate(MainScreen.Resources.route) { launchSingleTop = true }

@@ -8,14 +8,17 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.performance.OcrPerformanceScreen
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreen
 
 @Composable
-fun OcrEntryScreen(onNavigateToResources: () -> Unit) =
-    AdaptiveEntryScreen(
-        listPane = { OcrNavEntry() },
-        detailPane = { route ->
-            when (route) {
-                OcrSubScreen.Dependencies.route -> OcrDependenciesScreen()
-                OcrSubScreen.Queue.route -> OcrQueueScreen(onNavigateToResources = onNavigateToResources)
-                OcrSubScreen.Performance.route -> OcrPerformanceScreen()
-            }
-        },
-    )
+fun OcrEntryScreen(
+    initialDetailRoute: String? = null,
+    onNavigateToResources: () -> Unit,
+) = AdaptiveEntryScreen(
+    initialDetailRoute = initialDetailRoute,
+    listPane = { OcrNavEntry() },
+    detailPane = { route ->
+        when (route) {
+            OcrSubScreen.Dependencies.route -> OcrDependenciesScreen()
+            OcrSubScreen.Queue.route -> OcrQueueScreen(onNavigateToResources = onNavigateToResources)
+            OcrSubScreen.Performance.route -> OcrPerformanceScreen()
+        }
+    },
+)

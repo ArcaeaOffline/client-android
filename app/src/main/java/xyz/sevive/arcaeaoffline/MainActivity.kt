@@ -15,6 +15,11 @@ import org.opencv.android.OpenCVLoader
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        /** Extra carrying the route a fresh session should open on, e.g. an OCR sub-screen route. */
+        const val EXTRA_INITIAL_ROUTE = "xyz.sevive.arcaeaoffline.extra.INITIAL_ROUTE"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -26,13 +31,15 @@ class MainActivity : ComponentActivity() {
         OpenCVLoader.initLocal()
         FileKit.init(this)
 
+        val initialRoute = intent?.getStringExtra(EXTRA_INITIAL_ROUTE)
+
         setContent {
             ArcaeaOfflineTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen()
+                    MainScreen(initialNavigateRoute = initialRoute)
                 }
             }
         }

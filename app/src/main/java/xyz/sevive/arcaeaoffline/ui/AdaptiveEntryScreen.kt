@@ -23,6 +23,9 @@ import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
  *
  * [listPane] and [detailPane] can read navigation operations
  * from [LocalListDetailNavigationContext] without threading parameters.
+ *
+ * [initialDetailRoute] seeds the detail pane for a fresh composition (e.g. deep links);
+ * `null` starts on the list pane alone.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -30,10 +33,11 @@ fun AdaptiveEntryScreen(
     listPane: @Composable () -> Unit,
     detailPane: @Composable (route: String) -> Unit,
     extraPane: (@Composable (route: String) -> Unit)? = null,
+    initialDetailRoute: String? = null,
 ) {
     val navigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
-    var detailPaneRoute by rememberSaveable { mutableStateOf<String?>(null) }
+    var detailPaneRoute by rememberSaveable { mutableStateOf(initialDetailRoute) }
     var extraPaneRoute by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {

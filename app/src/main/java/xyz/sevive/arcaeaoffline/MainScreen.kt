@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,12 +32,34 @@ internal fun mainNavControllerNavigateToRoute(
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    initialNavigateRoute: String? = null,
+    modifier: Modifier = Modifier,
+) {
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
+
+    LaunchedEffect(initialNavigateRoute) {
+        val route = initialNavigateRoute ?: return@LaunchedEffect
+        val tabRoute = route.substringBefore('/')
+        if (MainScreen.entries.none { it.route == tabRoute }) return@LaunchedEffect
+
+        // A fresh tab entry, not the restoreState helper: a restored entry would bring back
+        // its saved detail pane instead of the requested initial one. The start destination
+        // is popped (state saved for later tab switches) so back exits the task to the
+        // source activity instead of walking through Home.
+        val startRoute = navController.graph.startDestinationRoute ?: return@LaunchedEffect
+        navController.navigate(tabRoute) {
+            popUpTo(startRoute) {
+                saveState = true
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+    }
 
     val navigationSuiteColors =
         NavigationSuiteDefaults.colors(
@@ -59,6 +82,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
         modifier = modifier,
         navigationSuiteColors = navigationSuiteColors,
     ) {
-        MainNavigationGraph(navController)
+        MainNavigationGraph(navController, initialNavigateRoute)
     }
 }

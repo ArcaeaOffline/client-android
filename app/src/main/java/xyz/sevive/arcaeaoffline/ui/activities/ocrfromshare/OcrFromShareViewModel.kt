@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -126,6 +125,15 @@ class OcrFromShareViewModel(
     private val _exception = MutableStateFlow<Exception?>(null)
     val exception = _exception.asStateFlow()
 
+    private var lastImageUri: Uri? = null
+
+    /** Re-runs OCR on the last shared image, e.g. after the dependencies were set up. */
+    fun retryOcr(context: Context) {
+        val imageUri = lastImageUri ?: return
+        _exception.value = null
+        viewModelScope.launch { startOcr(imageUri, context) }
+    }
+
     fun setScore(playResult: PlayResult?) {
         _playResult.value = playResult
     }
@@ -195,6 +203,7 @@ class OcrFromShareViewModel(
         context: Context,
     ) {
         logger.i { "OCR from share request: $imageUri" }
+        lastImageUri = imageUri
 
         val ortSession = DeviceOcrOnnxHelper.createOrtSession(context)
 

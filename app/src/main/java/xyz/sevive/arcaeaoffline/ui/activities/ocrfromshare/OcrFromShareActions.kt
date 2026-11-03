@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -27,9 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveBitmapToGallery
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
+import xyz.sevive.arcaeaoffline.ui.components.rememberArcaeaChartDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
@@ -62,10 +66,34 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
     val imageSaved by ocrFromShareViewModel.imageSaved.collectAsStateWithLifecycle()
     val scoreCached by ocrFromShareViewModel.scoreCached.collectAsStateWithLifecycle()
 
+    val display by rememberArcaeaChartDisplay(score?.songId, score?.ratingClass)
+    val warnings =
+        remember(score, display) {
+            score?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
+        }
+
+    var showSaveWithWarningsDialog by rememberSaveable { mutableStateOf(false) }
+    if (showSaveWithWarningsDialog) {
+        SaveWithWarningsDialog(
+            warnings = warnings,
+            onConfirm = {
+                showSaveWithWarningsDialog = false
+                coroutineScope.launch { ocrFromShareViewModel.saveScore() }
+            },
+            onDismissRequest = { showSaveWithWarningsDialog = false },
+        )
+    }
+
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm)) {
             Button(
-                onClick = { coroutineScope.launch { ocrFromShareViewModel.saveScore() } },
+                onClick = {
+                    if (warnings.isEmpty()) {
+                        coroutineScope.launch { ocrFromShareViewModel.saveScore() }
+                    } else {
+                        showSaveWithWarningsDialog = true
+                    }
+                },
                 enabled = score != null && !scoreSaved && !scoreCached,
             ) {
                 IconRow {
@@ -83,6 +111,13 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                     Text(stringResource(R.string.ocr_from_share_cache_score_button))
                 }
             }
+        }
+
+        if (scoreSaved) {
+            Text(
+                stringResource(R.string.ocr_from_share_score_saved),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
 
         OutlinedButton(

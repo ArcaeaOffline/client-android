@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
+import xyz.sevive.arcaeaoffline.helpers.needsSetup
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
@@ -32,14 +32,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
-
-/**
- * Whether the image hashes database needs setup: absent, failed to load, or holding no hashes.
- *
- * Null counts mean the detail has not loaded yet, not an empty database.
- */
-private fun ImageHashesDatabaseStatusDetail.needsSetup(): Boolean =
-    absence || exception != null || jacketCount == 0 || partnerIconCount == 0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
