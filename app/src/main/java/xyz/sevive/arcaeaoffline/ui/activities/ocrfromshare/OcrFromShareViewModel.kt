@@ -2,8 +2,6 @@ package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -26,7 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -108,8 +105,12 @@ class OcrFromShareViewModel(
 
     private val logger = Logger.withTag(LOG_TAG)
 
-    private val _ocrDependencyViewersUiState = MutableStateFlow(OcrDependencyViewersUiState())
+    private val _ocrDependencyViewersUiState = MutableStateFlow<OcrDependencyViewersUiState?>(null)
     val ocrDependencyViewersUiState = _ocrDependencyViewersUiState.asStateFlow()
+
+    init {
+        reloadOcrDependencyViewersUiState()
+    }
 
     fun reloadOcrDependencyViewersUiState() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -123,14 +124,6 @@ class OcrFromShareViewModel(
                 )
         }
     }
-
-    private val bitmap = MutableStateFlow<Bitmap?>(null)
-    val imageBitmap =
-        bitmap.map { it?.asImageBitmap() }.stateIn(
-            viewModelScope,
-            SharingStarted.Lazily,
-            null,
-        )
 
     private val shareSourceAppPackageName = MutableStateFlow<String?>(null)
 
@@ -195,38 +188,35 @@ class OcrFromShareViewModel(
 
     private var sharedImage: SharedImage? = null
 
+    private val _sharedImageUri = MutableStateFlow<Uri?>(null)
+    val sharedImageUri = _sharedImageUri.asStateFlow()
+
     /** Single entry for Activity */
     fun onImageShared(uri: Uri) {
         val sharedAt = Clock.System.now()
 
         viewModelScope.launch {
-            val decodedBitmap =
-                try {
-                    withContext(Dispatchers.IO) {
-                        val bytes =
-                            appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                                ?: throw IOException("Cannot open shared image stream")
+            try {
+                withContext(Dispatchers.IO) {
+                    val bytes =
+                        appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                            ?: throw IOException("Cannot open shared image stream")
 
-                        val decoded =
-                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                ?: throw IOException("Decoded bitmap is null")
+                    val sourceTakenAt =
+                        runCatching {
+                            DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
+                        }.getOrNull()
 
-                        val sourceTakenAt =
-                            runCatching {
-                                DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
-                            }.getOrNull()
-
-                        sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
-                        decoded
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    _ocrResultState.value = OcrResultState.Failed(Exception("Error reading image", e))
-                    return@launch
+                    sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
+                    _sharedImageUri.value = uri
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _ocrResultState.value = OcrResultState.Failed(Exception("Error reading image", e))
+                return@launch
+            }
 
-            bitmap.value = decodedBitmap
             startOcr(uri)
         }
     }
@@ -302,18 +292,15 @@ class OcrFromShareViewModel(
             )
         val id = ocrHistoryRepo.insert(ocrHistory)
 
-        val bitmap = bitmap.value
-        if (bitmap != null) {
+        sharedImage?.let { shared ->
             val parentDir = OcrPaths().fromShareImageCacheDir
             if (!SystemFileSystem.exists(parentDir)) {
                 SystemFileSystem.createDirectories(parentDir)
                 logger.i { "Created image cache dir" }
             }
 
-            val cacheImagePath = parentDir / "$id.jpg"
-            SystemFileSystem.sink(cacheImagePath).buffered().use { sink ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, sink.asOutputStream())
-            }
+            val cacheImagePath = parentDir / "$id.${imageFileExtension(shared.bytes)}"
+            SystemFileSystem.sink(cacheImagePath).buffered().use { it.asOutputStream().write(shared.bytes) }
         }
 
         _playResultSaveState.value = _playResultSaveState.value.copy(cached = true)

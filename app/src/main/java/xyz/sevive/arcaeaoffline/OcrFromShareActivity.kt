@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.core.content.IntentCompat
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
@@ -21,7 +19,6 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 class OcrFromShareActivity : ComponentActivity() {
     private val viewModel by viewModel<OcrFromShareViewModel>()
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -33,11 +30,8 @@ class OcrFromShareActivity : ComponentActivity() {
 
         viewModel.setShareSourceApp(getSourcePackageName(), packageManager)
         setContent {
-            val windowSizeClass = calculateWindowSizeClass(this)
-
             ArcaeaOfflineTheme {
                 OcrFromShareScreen(
-                    windowSizeClass,
                     onReturnToShareApp = { finishAffinity() },
                     onStayInApp = {
                         val intent = Intent(this@OcrFromShareActivity, MainActivity::class.java)

@@ -1,35 +1,63 @@
 package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.core.layout.WindowSizeClass
+import com.github.panpf.sketch.AsyncImage
+import com.github.panpf.sketch.PainterState
+import com.github.panpf.sketch.rememberAsyncImageState
+import xyz.sevive.arcaeaoffline.MainActivity
 import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.components.ImagePreviewDialogFullscreen
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
+import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
@@ -39,27 +67,21 @@ internal fun OcrFromShareReturnToShareAppButton(
     modifier: Modifier = Modifier,
 ) {
     val shareSource by ocrFromShareViewModel.shareSourceUiState.collectAsStateWithLifecycle()
-
     val iconSize = Icons.Default.Apps.defaultHeight
 
-    AppIconLabelButton(
-        onClick = { onReturnToShareApp() },
-        appIcon = {
-            val icon = shareSource.icon
-            if (icon != null) {
-                Image(icon, null, Modifier.size(iconSize))
-            } else {
-                Icon(Icons.Default.Apps, null, Modifier.size(iconSize))
-            }
+    TextItem(
+        onClick = onReturnToShareApp,
+        title = shareSource.name ?: stringResource(R.string.ocr_from_share_return_to_share_source),
+        content = if (shareSource.name != null) stringResource(R.string.ocr_from_share_return_to_share_source) else null,
+        leadingSlot = {
+            shareSource.icon?.let {
+                Image(it, null, Modifier.size(iconSize))
+            } ?: Icon(Icons.Default.Apps, null, Modifier.size(iconSize))
         },
-        appLabel = { shareSource.name?.let { Text(it) } },
-        actionText = { Text(stringResource(R.string.ocr_from_share_return_to_share_source)) },
+        trailingSlot = {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+        },
         modifier = modifier,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
-            ),
     )
 }
 
@@ -68,24 +90,17 @@ internal fun OcrFromShareStayInAppButton(
     onStayInApp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AppIconLabelButton(
-        onClick = { onStayInApp() },
-        appIcon = {
-            Icon(Icons.Default.Dashboard, null)
-        },
-        appLabel = {
-            Text(
-                String.format(
-                    stringResource(R.string.ocr_from_share_stay_in_app),
-                    stringResource(R.string.app_name),
-                ),
-            )
-        },
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    TextItem(
+        onClick = onStayInApp,
+        title =
+            String.format(
+                stringResource(R.string.ocr_from_share_stay_in_app),
+                stringResource(R.string.app_name),
             ),
+        leadingSlot = { Icon(Icons.Default.Home, null) },
+        trailingSlot = {
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        },
         modifier = modifier,
     )
 }
@@ -94,9 +109,10 @@ internal fun OcrFromShareStayInAppButton(
 internal fun OcrFromShareScreenContentMedium(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
+    onNavigateToDependencies: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
+    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
     // Reload on every resume: returning from the app's dependency setup changes the status.
@@ -120,32 +136,24 @@ internal fun OcrFromShareScreenContentMedium(
                 Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)
+                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState, onNavigateToDependencies)
 
-                if (imageBitmap != null) {
-                    Image(imageBitmap!!, null)
-                }
+                OcrFromShareImage(sharedImageUri, Modifier.weight(1f))
             }
 
-            LazyColumn(
-                Modifier.weight(1f),
+            Column(
+                Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                item {
-                    OcrFromShareOcrResult(viewModel)
-                }
+                OcrFromShareOcrResult(viewModel)
 
-                item {
-                    OcrFromShareActions(viewModel)
-                }
+                OcrFromShareActions(viewModel)
 
-                item {
-                    OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
-                }
+                OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
 
-                item {
-                    OcrFromShareStayInAppButton(onStayInApp)
-                }
+                OcrFromShareStayInAppButton(onStayInApp)
             }
         }
     }
@@ -155,9 +163,10 @@ internal fun OcrFromShareScreenContentMedium(
 fun OcrFromShareScreenCompact(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
+    onNavigateToDependencies: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
-    val imageBitmap by viewModel.imageBitmap.collectAsStateWithLifecycle()
+    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
     val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
 
     // Reload on every resume: returning from the app's dependency setup changes the status.
@@ -169,67 +178,146 @@ fun OcrFromShareScreenCompact(
     }
 
     Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .consumeWindowInsets(innerPadding),
-            contentPadding =
-                PaddingValues(
-                    top = innerPadding.calculateTopPadding() + MaterialTheme.spacing.pagePadding,
-                    bottom = innerPadding.calculateBottomPadding() + MaterialTheme.spacing.pagePadding,
+                    .consumeWindowInsets(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        top = innerPadding.calculateTopPadding() + MaterialTheme.spacing.pagePadding,
+                        bottom = innerPadding.calculateBottomPadding() + MaterialTheme.spacing.pagePadding,
+                    ),
+        ) {
+            Column(
+                Modifier.padding(
                     start = MaterialTheme.spacing.pagePadding,
                     end = MaterialTheme.spacing.pagePadding,
                 ),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
-        ) {
-            item {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState)
-            }
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            ) {
+                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState, onNavigateToDependencies)
 
-            if (imageBitmap != null) {
-                item {
-                    Image(imageBitmap!!, null)
-                }
-            }
+                OcrFromShareImage(
+                    sharedImageUri,
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f),
+                )
 
-            item {
                 OcrFromShareOcrResult(viewModel)
-            }
 
-            item {
                 OcrFromShareActions(viewModel)
             }
 
-            item {
-                OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
-            }
+            OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
 
-            item {
-                OcrFromShareStayInAppButton(onStayInApp)
-            }
+            OcrFromShareStayInAppButton(onStayInApp)
         }
     }
 }
 
 @Composable
 fun OcrFromShareScreen(
-    windowSizeClass: WindowSizeClass,
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
     viewModel: OcrFromShareViewModel,
 ) {
-    if (windowSizeClass.widthSizeClass >= WindowWidthSizeClass.Medium) {
+    val context = LocalContext.current
+    val navigateToDependencies = {
+        // User should expect returning to this activity after setting up,
+        // so do not finish activity here.
+        // CLEAR_TOP tells the running instance to recreate and re-read the
+        // route extra for jumping.
+        val intent =
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(MainActivity.EXTRA_INITIAL_ROUTE, OcrSubScreen.Dependencies.route)
+            }
+        context.startActivity(intent)
+    }
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
         OcrFromShareScreenContentMedium(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
+            onNavigateToDependencies = navigateToDependencies,
             viewModel = viewModel,
         )
     } else {
         OcrFromShareScreenCompact(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
+            onNavigateToDependencies = navigateToDependencies,
             viewModel = viewModel,
         )
     }
+}
+
+@Composable
+private fun OcrFromShareImage(
+    uri: Uri?,
+    modifier: Modifier = Modifier,
+) {
+    var showImagePreview by rememberSaveable { mutableStateOf(false) }
+    val imageState = rememberAsyncImageState()
+
+    if (showImagePreview) {
+        uri?.let {
+            ImagePreviewDialogFullscreen(
+                onDismissRequest = { showImagePreview = false },
+                uri = it,
+            )
+        }
+    }
+
+    Box(modifier.clickable(enabled = uri != null) { showImagePreview = true }) {
+        if (uri == null) {
+            // placeholder box to keep layout stable
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    Icons.Outlined.Image,
+                    contentDescription = null,
+                    Modifier
+                        .size(48.dp)
+                        .secondaryItemAlpha(),
+                )
+            }
+        } else {
+            if (imageState.painterState == null || imageState.painterState is PainterState.Loading) {
+                ImageSkeleton(Modifier.fillMaxSize())
+            }
+
+            AsyncImage(
+                uri = uri.toString(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                state = imageState,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ImageSkeleton(modifier: Modifier = Modifier) {
+    val alpha by
+        rememberInfiniteTransition(label = "ImageSkeleton")
+            .animateFloat(
+                initialValue = 0.3f,
+                targetValue = 1f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(durationMillis = 1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                label = "ImageSkeletonAlpha",
+            )
+
+    Box(modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)))
 }

@@ -141,9 +141,18 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                     contentColor = MaterialTheme.colorScheme.secondary,
                 ),
         ) {
-            IconRow {
-                Icon(Icons.Default.FileDownload, null)
-                Text(stringResource(R.string.ocr_from_share_save_image_button))
+            AnimatedContent(imageSaved) {
+                if (it) {
+                    IconRow {
+                        Icon(Icons.Default.Check, null)
+                        Text(stringResource(R.string.ocr_from_share_image_saved))
+                    }
+                } else {
+                    IconRow {
+                        Icon(Icons.Default.FileDownload, null)
+                        Text(stringResource(R.string.ocr_from_share_save_image_button))
+                    }
+                }
             }
         }
     }

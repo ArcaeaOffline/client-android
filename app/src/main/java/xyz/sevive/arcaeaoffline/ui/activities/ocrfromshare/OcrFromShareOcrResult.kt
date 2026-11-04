@@ -1,7 +1,9 @@
 package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -90,50 +92,53 @@ internal fun OcrFromShareOcrResultContent(
             playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
         }
 
-    if (playResult != null) {
-        Row(verticalAlignment = Alignment.Bottom) {
-            ArcaeaPlayResultCard(
-                playResult = playResult,
-                modifier = Modifier.weight(1f),
-                difficultyWithSong = display?.difficultyWithSong,
-                chartInfo = display?.chartInfo,
-                warnings = warnings,
-            )
-
-            AnimatedVisibility(visible = !playResultSaved && !playResultCached) {
-                IconButton(onClick = { showPlayResultEditorDialog = true }) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.general_edit),
-                    )
-                }
-            }
-        }
-    } else if (exception != null) {
-        Column {
-            CompositionLocalProvider(
-                LocalContentColor provides MaterialTheme.colorScheme.error,
-            ) {
-                Text(
-                    stringResource(R.string.ocr_from_share_error),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+    // Size changes between the waiting, error, and result branches animate instead of jumping.
+    Box(Modifier.animateContentSize()) {
+        if (playResult != null) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                ArcaeaPlayResultCard(
+                    playResult = playResult,
+                    modifier = Modifier.weight(1f),
+                    difficultyWithSong = display?.difficultyWithSong,
+                    chartInfo = display?.chartInfo,
+                    warnings = warnings,
                 )
-                Text(exception.toString())
-            }
 
-            Spacer(Modifier.height(MaterialTheme.spacing.sm))
-
-            FilledTonalButton(onClick = onRetryOcr) {
-                IconRow {
-                    Icon(Icons.Default.Refresh, contentDescription = null)
-                    Text(stringResource(R.string.ocr_from_share_retry_ocr))
+                AnimatedVisibility(visible = !playResultSaved && !playResultCached) {
+                    IconButton(onClick = { showPlayResultEditorDialog = true }) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.general_edit),
+                        )
+                    }
                 }
             }
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs)) {
-            Text(stringResource(R.string.ocr_from_share_waiting_result))
-            LinearProgressIndicator(gapSize = 0.dp)
+        } else if (exception != null) {
+            Column {
+                CompositionLocalProvider(
+                    LocalContentColor provides MaterialTheme.colorScheme.error,
+                ) {
+                    Text(
+                        stringResource(R.string.ocr_from_share_error),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    )
+                    Text(exception.toString())
+                }
+
+                Spacer(Modifier.height(MaterialTheme.spacing.sm))
+
+                FilledTonalButton(onClick = onRetryOcr) {
+                    IconRow {
+                        Icon(Icons.Default.Refresh, contentDescription = null)
+                        Text(stringResource(R.string.ocr_from_share_retry_ocr))
+                    }
+                }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs)) {
+                Text(stringResource(R.string.ocr_from_share_waiting_result))
+                LinearProgressIndicator(gapSize = 0.dp)
+            }
         }
     }
 }
