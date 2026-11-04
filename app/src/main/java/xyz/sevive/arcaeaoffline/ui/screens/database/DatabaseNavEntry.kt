@@ -3,7 +3,6 @@ package xyz.sevive.arcaeaoffline.ui.screens.database
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -21,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
@@ -32,7 +31,6 @@ import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
-import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +39,7 @@ fun DatabaseNavEntry(
     vm: DatabaseNavEntryViewModel = koinViewModel(),
 ) {
     val navContext = LocalListDetailNavigationContext.current
-    val statusUiState by vm.statusUiState.collectAsStateWithLifecycle()
+    val playResultCount by vm.playResultCount.collectAsStateWithLifecycle()
     val scoringMode by vm.scoringMode.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -57,15 +55,6 @@ fun DatabaseNavEntry(
                 .consumeWindowInsets(it),
             contentPadding = it,
         ) {
-            item {
-                DatabaseStatus(
-                    statusUiState,
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.pagePadding),
-                )
-            }
-
             item {
                 SelectItem(
                     options =
@@ -93,7 +82,13 @@ fun DatabaseNavEntry(
 
             item {
                 NavEntryNavigateButton(
-                    titleResId = DatabaseSubScreen.ScoreList.title,
+                    title = stringResource(DatabaseSubScreen.ScoreList.title),
+                    description =
+                        pluralStringResource(
+                            R.plurals.database_play_result_entries,
+                            playResultCount,
+                            playResultCount,
+                        ),
                     icon = Icons.AutoMirrored.Default.List,
                 ) {
                     navContext.navigateToDetail(DatabaseSubScreen.ScoreList.route)
