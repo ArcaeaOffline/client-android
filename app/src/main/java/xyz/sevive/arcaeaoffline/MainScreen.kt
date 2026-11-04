@@ -33,8 +33,8 @@ internal fun mainNavControllerNavigateToRoute(
 
 @Composable
 fun MainScreen(
-    initialNavigateRoute: String? = null,
     modifier: Modifier = Modifier,
+    initialNavigateRoute: String? = null,
 ) {
     val navController = rememberNavController()
 
@@ -47,10 +47,10 @@ fun MainScreen(
         val tabRoute = route.substringBefore('/')
         if (MainScreen.entries.none { it.route == tabRoute }) return@LaunchedEffect
 
-        // A fresh tab entry, not the restoreState helper: a restored entry would bring back
-        // its saved detail pane instead of the requested initial one. The start destination
-        // is popped (state saved for later tab switches) so back exits the task to the
-        // source activity instead of walking through Home.
+        // Navigate with a fresh tab stack:
+        // 1. Omit restoreState: prevents restoring a stale nested/detail destination instead of this fresh entry.
+        // 2. popUpTo(startRoute, inclusive = true): replaces the initial root so pressing Back exits directly
+        //    to the caller activity, while saving the start destination's state for subsequent tab switches.
         val startRoute = navController.graph.startDestinationRoute ?: return@LaunchedEffect
         navController.navigate(tabRoute) {
             popUpTo(startRoute) {
@@ -74,7 +74,7 @@ fun MainScreen(
                     icon = { Icon(it.icon(), contentDescription = null) },
                     label = { Text(stringResource(it.title)) },
                     alwaysShowLabel = true,
-                    selected = if (currentRouteRoot != null) currentRouteRoot[0] == it.route else false,
+                    selected = currentRouteRoot != null && currentRouteRoot[0] == it.route,
                     onClick = { mainNavControllerNavigateToRoute(navController, it.route) },
                 )
             }
