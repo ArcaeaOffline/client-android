@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +44,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
@@ -185,6 +187,20 @@ class OcrFromShareViewModel(
                     }
                 }
             }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val warnings =
+        _ocrResultState
+            .flatMapLatest { state ->
+                val playResult = (state as? OcrResultState.Done)?.playResult
+                if (playResult == null) {
+                    flowOf(emptyList())
+                } else {
+                    display.map { d ->
+                        ArcaeaPlayResultValidator.validate(playResult = playResult, chartInfo = d?.chartInfo)
+                    }
+                }
+            }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private var sharedImage: SharedImage? = null
 

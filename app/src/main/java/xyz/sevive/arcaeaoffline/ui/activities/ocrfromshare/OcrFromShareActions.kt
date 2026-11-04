@@ -1,9 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
-import android.Manifest
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,61 +14,36 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
+import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
-import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
-import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorScoreIsZeroWarning
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
+import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
-internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
-    val coroutineScope = rememberCoroutineScope()
-
-    val context = LocalContext.current
-
-    val handleSavePicture = { ocrFromShareViewModel.saveImage() }
-    val requestWriteStoragePermissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission(),
-        ) { if (it) handleSavePicture() }
-
-    var showSavePicturePermissionRequiredDialog by rememberSaveable { mutableStateOf(false) }
-    if (showSavePicturePermissionRequiredDialog) {
-        PermissionRequiredDialog(
-            onDismiss = { showSavePicturePermissionRequiredDialog = false },
-            onConfirm = {
-                requestWriteStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                showSavePicturePermissionRequiredDialog = false
-            },
-            functionName = stringResource(R.string.permission_function_save_image),
-            permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-        )
-    }
-
-    val resultState by ocrFromShareViewModel.ocrResultState.collectAsStateWithLifecycle()
-    val playResult = (resultState as? OcrResultState.Done)?.playResult
-    val imageSaved by ocrFromShareViewModel.imageSaved.collectAsStateWithLifecycle()
-    val saveState by ocrFromShareViewModel.playResultSaveState.collectAsStateWithLifecycle()
-    val display by ocrFromShareViewModel.display.collectAsStateWithLifecycle()
-    val warnings =
-        remember(playResult, display) {
-            playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
-        }
+internal fun OcrFromShareActions(
+    hasPlayResult: Boolean,
+    playResultSaveState: OcrFromShareViewModel.PlayResultSaveState,
+    imageSaved: Boolean,
+    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    onSavePlayResult: () -> Unit,
+    onCachePlayResult: () -> Unit,
+    onSaveImage: () -> Unit,
+) {
+    val playResultSaved = playResultSaveState.saved
+    val playResultCached = playResultSaveState.cached
+    val canSavePlayResult = hasPlayResult && !playResultSaved && !playResultCached
 
     var showSaveWithWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showSaveWithWarningsDialog) {
@@ -80,7 +51,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
             warnings = warnings,
             onConfirm = {
                 showSaveWithWarningsDialog = false
-                coroutineScope.launch { ocrFromShareViewModel.savePlayResult() }
+                onSavePlayResult()
             },
             onDismissRequest = { showSaveWithWarningsDialog = false },
         )
@@ -91,14 +62,14 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
             Button(
                 onClick = {
                     if (warnings.isEmpty()) {
-                        coroutineScope.launch { ocrFromShareViewModel.savePlayResult() }
+                        onSavePlayResult()
                     } else {
                         showSaveWithWarningsDialog = true
                     }
                 },
-                enabled = playResult != null && !saveState.saved && !saveState.cached,
+                enabled = canSavePlayResult,
             ) {
-                AnimatedContent(saveState.saved) {
+                AnimatedContent(playResultSaved) {
                     if (it) {
                         IconRow {
                             Icon(Icons.Default.Check, null)
@@ -113,13 +84,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                 }
             }
 
-            OutlinedButton(
-                onClick = {
-                    // TODO: coroutineScope.launch { ocrFromShareViewModel.cachePlayResult(context) }
-                    Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
-                },
-                enabled = playResult != null && !saveState.saved && !saveState.cached,
-            ) {
+            OutlinedButton(onClick = onCachePlayResult, enabled = canSavePlayResult) {
                 IconRow {
                     Icon(Icons.Default.Archive, null)
                     Text(stringResource(R.string.ocr_from_share_cache_play_result_button))
@@ -128,13 +93,7 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
         }
 
         OutlinedButton(
-            onClick = {
-                if (SaveImageToGallery.checkPermission(context)) {
-                    handleSavePicture()
-                } else {
-                    showSavePicturePermissionRequiredDialog = true
-                }
-            },
+            onClick = onSaveImage,
             enabled = !imageSaved,
             colors =
                 ButtonDefaults.outlinedButtonColors(
@@ -154,6 +113,50 @@ internal fun OcrFromShareActions(ocrFromShareViewModel: OcrFromShareViewModel) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(name = "Actions", showBackground = true)
+@Composable
+private fun PreviewActions() {
+    ArcaeaOfflineTheme {
+        Surface {
+            OcrFromShareActions(
+                hasPlayResult = true,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = false,
+                        cached = false,
+                    ),
+                imageSaved = false,
+                warnings = listOf(ArcaeaPlayResultValidatorScoreIsZeroWarning),
+                onSavePlayResult = {},
+                onCachePlayResult = {},
+                onSaveImage = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "Actions saved", showBackground = true)
+@Composable
+private fun PreviewActionsSaved() {
+    ArcaeaOfflineTheme {
+        Surface {
+            OcrFromShareActions(
+                hasPlayResult = true,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = true,
+                        cached = false,
+                    ),
+                imageSaved = true,
+                warnings = emptyList(),
+                onSavePlayResult = {},
+                onCachePlayResult = {},
+                onSaveImage = {},
+            )
         }
     }
 }

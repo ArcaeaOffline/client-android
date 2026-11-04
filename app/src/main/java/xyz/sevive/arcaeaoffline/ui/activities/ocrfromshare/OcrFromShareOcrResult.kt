@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,7 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
@@ -40,8 +38,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
+import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
@@ -51,32 +48,17 @@ import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Instant
 
 @Composable
-internal fun OcrFromShareOcrResult(viewModel: OcrFromShareViewModel) {
-    val resultState by viewModel.ocrResultState.collectAsStateWithLifecycle()
-    val display by viewModel.display.collectAsStateWithLifecycle()
-    val saveState by viewModel.playResultSaveState.collectAsStateWithLifecycle()
-
-    OcrFromShareOcrResultContent(
-        playResult = (resultState as? OcrResultState.Done)?.playResult,
-        onSetPlayResult = { viewModel.setPlayResult(it) },
-        display = display,
-        playResultSaved = saveState.saved,
-        playResultCached = saveState.cached,
-        exception = (resultState as? OcrResultState.Failed)?.exception,
-        onRetryOcr = { viewModel.retryOcr() },
-    )
-}
-
-@Composable
-internal fun OcrFromShareOcrResultContent(
+internal fun OcrFromShareOcrResult(
     playResult: PlayResult?,
     onSetPlayResult: (PlayResult) -> Unit,
     display: DifficultyWithSongDisplay?,
-    playResultSaved: Boolean,
-    playResultCached: Boolean,
+    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    playResultSaveState: OcrFromShareViewModel.PlayResultSaveState,
     exception: Exception?,
     onRetryOcr: () -> Unit,
 ) {
+    val playResultSaved = playResultSaveState.saved
+    val playResultCached = playResultSaveState.cached
     var showPlayResultEditorDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showPlayResultEditorDialog && playResult != null) {
@@ -86,11 +68,6 @@ internal fun OcrFromShareOcrResultContent(
             onPlayResultChange = onSetPlayResult,
         )
     }
-
-    val warnings =
-        remember(playResult, display) {
-            playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }.orEmpty()
-        }
 
     // Size changes between the waiting, error, and result branches animate instead of jumping.
     Box(Modifier.animateContentSize()) {
@@ -182,12 +159,16 @@ private fun previewDisplay(): DifficultyWithSongDisplay =
 private fun PreviewOcrResultWithScore() {
     ArcaeaOfflineTheme {
         Surface {
-            OcrFromShareOcrResultContent(
+            OcrFromShareOcrResult(
                 playResult = previewPlayResult(),
                 display = previewDisplay(),
+                warnings = emptyList(),
                 exception = null,
-                playResultSaved = false,
-                playResultCached = false,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = false,
+                        cached = false,
+                    ),
                 onSetPlayResult = {},
                 onRetryOcr = {},
             )
@@ -200,12 +181,16 @@ private fun PreviewOcrResultWithScore() {
 private fun PreviewOcrResultScoreSaved() {
     ArcaeaOfflineTheme {
         Surface {
-            OcrFromShareOcrResultContent(
+            OcrFromShareOcrResult(
                 playResult = previewPlayResult(),
                 display = previewDisplay(),
+                warnings = emptyList(),
                 exception = null,
-                playResultSaved = true,
-                playResultCached = false,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = true,
+                        cached = false,
+                    ),
                 onSetPlayResult = {},
                 onRetryOcr = {},
             )
@@ -218,12 +203,16 @@ private fun PreviewOcrResultScoreSaved() {
 private fun PreviewOcrResultError() {
     ArcaeaOfflineTheme {
         Surface {
-            OcrFromShareOcrResultContent(
+            OcrFromShareOcrResult(
                 playResult = null,
                 display = null,
+                warnings = emptyList(),
                 exception = IllegalStateException("Wow error"),
-                playResultSaved = false,
-                playResultCached = false,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = false,
+                        cached = false,
+                    ),
                 onSetPlayResult = {},
                 onRetryOcr = {},
             )
@@ -236,12 +225,16 @@ private fun PreviewOcrResultError() {
 private fun PreviewOcrResultWaiting() {
     ArcaeaOfflineTheme {
         Surface {
-            OcrFromShareOcrResultContent(
+            OcrFromShareOcrResult(
                 playResult = null,
                 display = null,
+                warnings = emptyList(),
                 exception = null,
-                playResultSaved = false,
-                playResultCached = false,
+                playResultSaveState =
+                    OcrFromShareViewModel.PlayResultSaveState(
+                        saved = false,
+                        cached = false,
+                    ),
                 onSetPlayResult = {},
                 onRetryOcr = {},
             )

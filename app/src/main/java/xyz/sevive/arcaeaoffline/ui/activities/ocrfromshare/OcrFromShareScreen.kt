@@ -1,7 +1,11 @@
 package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -14,6 +18,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -36,7 +41,10 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,21 +60,24 @@ import androidx.window.core.layout.WindowSizeClass
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.PainterState
 import com.github.panpf.sketch.rememberAsyncImageState
+import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.MainActivity
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
+import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
+import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
 import xyz.sevive.arcaeaoffline.ui.components.ImagePreviewDialogFullscreen
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 @Composable
-internal fun OcrFromShareReturnToShareAppButton(
+private fun OcrFromShareReturnToShareAppButton(
+    shareSource: OcrFromShareViewModel.ShareSourceUiState,
     onReturnToShareApp: () -> Unit,
-    ocrFromShareViewModel: OcrFromShareViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val shareSource by ocrFromShareViewModel.shareSourceUiState.collectAsStateWithLifecycle()
     val iconSize = Icons.Default.Apps.defaultHeight
 
     TextItem(
@@ -86,7 +97,7 @@ internal fun OcrFromShareReturnToShareAppButton(
 }
 
 @Composable
-internal fun OcrFromShareStayInAppButton(
+private fun OcrFromShareStayInAppButton(
     onStayInApp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -106,23 +117,16 @@ internal fun OcrFromShareStayInAppButton(
 }
 
 @Composable
-internal fun OcrFromShareScreenContentMedium(
+private fun OcrFromShareScreenExpanded(
+    sharedImageUri: Uri?,
+    dependencyUiState: OcrFromShareViewModel.OcrDependencyViewersUiState?,
+    shareSource: OcrFromShareViewModel.ShareSourceUiState,
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
     onNavigateToDependencies: () -> Unit,
-    viewModel: OcrFromShareViewModel,
+    resultSection: @Composable ColumnScope.() -> Unit,
+    actionsSection: @Composable ColumnScope.() -> Unit,
 ) {
-    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
-    val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
-
-    // Reload on every resume: returning from the app's dependency setup changes the status.
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.reloadOcrDependencyViewersUiState()
-        }
-    }
-
     Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         Row(
             Modifier
@@ -136,7 +140,7 @@ internal fun OcrFromShareScreenContentMedium(
                 Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState, onNavigateToDependencies)
+                OcrFromShareOcrDependencyStatusCard(dependencyUiState, onNavigateToDependencies)
 
                 OcrFromShareImage(sharedImageUri, Modifier.weight(1f))
             }
@@ -147,11 +151,11 @@ internal fun OcrFromShareScreenContentMedium(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                OcrFromShareOcrResult(viewModel)
+                resultSection()
 
-                OcrFromShareActions(viewModel)
+                actionsSection()
 
-                OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
+                OcrFromShareReturnToShareAppButton(shareSource, onReturnToShareApp)
 
                 OcrFromShareStayInAppButton(onStayInApp)
             }
@@ -160,23 +164,16 @@ internal fun OcrFromShareScreenContentMedium(
 }
 
 @Composable
-fun OcrFromShareScreenCompact(
+private fun OcrFromShareScreenCompact(
+    sharedImageUri: Uri?,
+    dependencyUiState: OcrFromShareViewModel.OcrDependencyViewersUiState?,
+    shareSource: OcrFromShareViewModel.ShareSourceUiState,
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
     onNavigateToDependencies: () -> Unit,
-    viewModel: OcrFromShareViewModel,
+    resultSection: @Composable ColumnScope.() -> Unit,
+    actionsSection: @Composable ColumnScope.() -> Unit,
 ) {
-    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
-    val ocrDependencyViewersUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
-
-    // Reload on every resume: returning from the app's dependency setup changes the status.
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.reloadOcrDependencyViewersUiState()
-        }
-    }
-
     Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
         Column(
             modifier =
@@ -196,7 +193,7 @@ fun OcrFromShareScreenCompact(
                 ),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
-                OcrFromShareOcrDependencyStatusCard(ocrDependencyViewersUiState, onNavigateToDependencies)
+                OcrFromShareOcrDependencyStatusCard(dependencyUiState, onNavigateToDependencies)
 
                 OcrFromShareImage(
                     sharedImageUri,
@@ -205,12 +202,12 @@ fun OcrFromShareScreenCompact(
                         .aspectRatio(16f / 9f),
                 )
 
-                OcrFromShareOcrResult(viewModel)
+                resultSection()
 
-                OcrFromShareActions(viewModel)
+                actionsSection()
             }
 
-            OcrFromShareReturnToShareAppButton(onReturnToShareApp, viewModel)
+            OcrFromShareReturnToShareAppButton(shareSource, onReturnToShareApp)
 
             OcrFromShareStayInAppButton(onStayInApp)
         }
@@ -224,6 +221,8 @@ fun OcrFromShareScreen(
     viewModel: OcrFromShareViewModel,
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     val navigateToDependencies = {
         // User should expect returning to this activity after setting up,
         // so do not finish activity here.
@@ -237,20 +236,103 @@ fun OcrFromShareScreen(
         context.startActivity(intent)
     }
 
+    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
+    val dependencyUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
+    val shareSource by viewModel.shareSourceUiState.collectAsStateWithLifecycle()
+    val resultState by viewModel.ocrResultState.collectAsStateWithLifecycle()
+    val playResultSaveState by viewModel.playResultSaveState.collectAsStateWithLifecycle()
+    val imageSaved by viewModel.imageSaved.collectAsStateWithLifecycle()
+    val warnings by viewModel.warnings.collectAsStateWithLifecycle()
+    val display by viewModel.display.collectAsStateWithLifecycle()
+
+    val resultSection: @Composable ColumnScope.() -> Unit =
+        remember {
+            movableContentOf<ColumnScope> {
+                OcrFromShareOcrResult(
+                    playResult = (resultState as? OcrResultState.Done)?.playResult,
+                    onSetPlayResult = { viewModel.setPlayResult(it) },
+                    display = display,
+                    warnings = warnings,
+                    playResultSaveState = playResultSaveState,
+                    exception = (resultState as? OcrResultState.Failed)?.exception,
+                    onRetryOcr = { viewModel.retryOcr() },
+                )
+            }
+        }
+
+    val actionsSection: @Composable ColumnScope.() -> Unit =
+        remember {
+            movableContentOf<ColumnScope> {
+                val handleSaveImage = { viewModel.saveImage() }
+                val requestWriteStoragePermissionLauncher =
+                    rememberLauncherForActivityResult(
+                        ActivityResultContracts.RequestPermission(),
+                    ) { if (it) handleSaveImage() }
+
+                var showSavePicturePermissionRequiredDialog by rememberSaveable { mutableStateOf(false) }
+                if (showSavePicturePermissionRequiredDialog) {
+                    PermissionRequiredDialog(
+                        onDismiss = { showSavePicturePermissionRequiredDialog = false },
+                        onConfirm = {
+                            requestWriteStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            showSavePicturePermissionRequiredDialog = false
+                        },
+                        functionName = stringResource(R.string.permission_function_save_image),
+                        permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    )
+                }
+
+                OcrFromShareActions(
+                    hasPlayResult = resultState is OcrResultState.Done,
+                    playResultSaveState = playResultSaveState,
+                    imageSaved = imageSaved,
+                    warnings = warnings,
+                    onSavePlayResult = { coroutineScope.launch { viewModel.savePlayResult() } },
+                    onCachePlayResult = {
+                        // TODO: coroutineScope.launch { viewModel.cachePlayResult(context) }
+                        Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+                    },
+                    onSaveImage = {
+                        if (SaveImageToGallery.checkPermission(context)) {
+                            handleSaveImage()
+                        } else {
+                            showSavePicturePermissionRequiredDialog = true
+                        }
+                    },
+                )
+            }
+        }
+
+    // Reload on every resume: returning from the app's dependency setup changes the status.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.reloadOcrDependencyViewersUiState()
+        }
+    }
+
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
-        OcrFromShareScreenContentMedium(
+        OcrFromShareScreenExpanded(
+            sharedImageUri = sharedImageUri,
+            dependencyUiState = dependencyUiState,
+            shareSource = shareSource,
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
             onNavigateToDependencies = navigateToDependencies,
-            viewModel = viewModel,
+            resultSection = resultSection,
+            actionsSection = actionsSection,
         )
     } else {
         OcrFromShareScreenCompact(
+            sharedImageUri = sharedImageUri,
+            dependencyUiState = dependencyUiState,
+            shareSource = shareSource,
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
             onNavigateToDependencies = navigateToDependencies,
-            viewModel = viewModel,
+            resultSection = resultSection,
+            actionsSection = actionsSection,
         )
     }
 }
