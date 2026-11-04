@@ -7,6 +7,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -16,6 +17,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,11 +35,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,6 +77,7 @@ import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
+import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.components.ImagePreviewDialogFullscreen
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
@@ -121,6 +130,8 @@ private fun OcrFromShareStayInAppButton(
 @Composable
 private fun OcrFromShareScreenExpanded(
     sharedImageUri: Uri?,
+    imageSaved: Boolean,
+    onSaveImage: () -> Unit,
     dependencyUiState: OcrFromShareViewModel.OcrDependencyViewersUiState?,
     shareSource: OcrFromShareViewModel.ShareSourceUiState,
     onReturnToShareApp: () -> Unit,
@@ -147,6 +158,8 @@ private fun OcrFromShareScreenExpanded(
                 // Bias the crop window left for max recall to be visible
                 // Right side contains nearly useless partner image for OCR data correction
                 alignment = BiasAlignment(-0.42f, 0f),
+                imageSaved = imageSaved,
+                onSaveImage = onSaveImage,
             )
 
             Column(
@@ -172,6 +185,8 @@ private fun OcrFromShareScreenExpanded(
 @Composable
 private fun OcrFromShareScreenCompact(
     sharedImageUri: Uri?,
+    imageSaved: Boolean,
+    onSaveImage: () -> Unit,
     dependencyUiState: OcrFromShareViewModel.OcrDependencyViewersUiState?,
     shareSource: OcrFromShareViewModel.ShareSourceUiState,
     onReturnToShareApp: () -> Unit,
@@ -206,6 +221,8 @@ private fun OcrFromShareScreenCompact(
                     Modifier
                         .fillMaxWidth()
                         .aspectRatio(16f / 9f),
+                    imageSaved = imageSaved,
+                    onSaveImage = onSaveImage,
                 )
 
                 resultSection()
@@ -266,44 +283,44 @@ fun OcrFromShareScreen(
             }
         }
 
+    val handleSaveImage = { viewModel.saveImage() }
+    val requestWriteStoragePermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { if (it) handleSaveImage() }
+
+    var showSavePicturePermissionRequiredDialog by rememberSaveable { mutableStateOf(false) }
+    if (showSavePicturePermissionRequiredDialog) {
+        PermissionRequiredDialog(
+            onDismiss = { showSavePicturePermissionRequiredDialog = false },
+            onConfirm = {
+                requestWriteStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                showSavePicturePermissionRequiredDialog = false
+            },
+            functionName = stringResource(R.string.permission_function_save_image),
+            permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+        )
+    }
+
+    val onSaveImage = {
+        if (SaveImageToGallery.checkPermission(context)) {
+            handleSaveImage()
+        } else {
+            showSavePicturePermissionRequiredDialog = true
+        }
+    }
+
     val actionsSection: @Composable ColumnScope.() -> Unit =
         remember {
             movableContentOf<ColumnScope> {
-                val handleSaveImage = { viewModel.saveImage() }
-                val requestWriteStoragePermissionLauncher =
-                    rememberLauncherForActivityResult(
-                        ActivityResultContracts.RequestPermission(),
-                    ) { if (it) handleSaveImage() }
-
-                var showSavePicturePermissionRequiredDialog by rememberSaveable { mutableStateOf(false) }
-                if (showSavePicturePermissionRequiredDialog) {
-                    PermissionRequiredDialog(
-                        onDismiss = { showSavePicturePermissionRequiredDialog = false },
-                        onConfirm = {
-                            requestWriteStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            showSavePicturePermissionRequiredDialog = false
-                        },
-                        functionName = stringResource(R.string.permission_function_save_image),
-                        permissions = listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    )
-                }
-
                 OcrFromShareActions(
                     hasPlayResult = resultState is OcrResultState.Done,
                     playResultSaveState = playResultSaveState,
-                    imageSaved = imageSaved,
                     warnings = warnings,
                     onSavePlayResult = { coroutineScope.launch { viewModel.savePlayResult() } },
                     onCachePlayResult = {
                         // TODO: coroutineScope.launch { viewModel.cachePlayResult(context) }
                         Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
-                    },
-                    onSaveImage = {
-                        if (SaveImageToGallery.checkPermission(context)) {
-                            handleSaveImage()
-                        } else {
-                            showSavePicturePermissionRequiredDialog = true
-                        }
                     },
                 )
             }
@@ -322,6 +339,8 @@ fun OcrFromShareScreen(
     if (landscape) {
         OcrFromShareScreenExpanded(
             sharedImageUri = sharedImageUri,
+            imageSaved = imageSaved,
+            onSaveImage = onSaveImage,
             dependencyUiState = dependencyUiState,
             shareSource = shareSource,
             onReturnToShareApp = onReturnToShareApp,
@@ -333,6 +352,8 @@ fun OcrFromShareScreen(
     } else {
         OcrFromShareScreenCompact(
             sharedImageUri = sharedImageUri,
+            imageSaved = imageSaved,
+            onSaveImage = onSaveImage,
             dependencyUiState = dependencyUiState,
             shareSource = shareSource,
             onReturnToShareApp = onReturnToShareApp,
@@ -350,6 +371,8 @@ private fun OcrFromShareImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
+    imageSaved: Boolean,
+    onSaveImage: () -> Unit,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     val imageState = rememberAsyncImageState()
@@ -363,7 +386,17 @@ private fun OcrFromShareImage(
         }
     }
 
-    Box(modifier.clickable(enabled = uri != null) { showImagePreview = true }) {
+    // Image tap and the fullscreen button share an interaction source
+    // The press ripple draws on the button rather than the whole image
+    val imageInteractionSource = remember { MutableInteractionSource() }
+
+    Box(
+        modifier.clickable(
+            interactionSource = imageInteractionSource,
+            indication = null,
+            enabled = uri != null,
+        ) { showImagePreview = true },
+    ) {
         if (uri == null) {
             // placeholder box to keep layout stable
             Box(
@@ -393,6 +426,49 @@ private fun OcrFromShareImage(
                 contentScale = contentScale,
                 alignment = alignment,
             )
+
+            Column(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(MaterialTheme.spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.xxs),
+            ) {
+                FilledTonalButton(
+                    onClick = { showImagePreview = true },
+                    interactionSource = imageInteractionSource,
+                ) {
+                    IconRow {
+                        Icon(Icons.Default.Fullscreen, null)
+                        Text(stringResource(R.string.ocr_from_share_fullscreen))
+                    }
+                }
+
+                FilledTonalButton(
+                    onClick = onSaveImage,
+                    enabled = !imageSaved,
+                    // Disabled colors are explicit since the defaults are alpha-faded and the
+                    // image would show through the button
+                    colors =
+                        ButtonDefaults.filledTonalButtonColors(
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        ),
+                ) {
+                    AnimatedContent(imageSaved) { saved ->
+                        if (saved) {
+                            IconRow {
+                                Icon(Icons.Default.Check, null)
+                                Text(stringResource(R.string.ocr_from_share_image_saved))
+                            }
+                        } else {
+                            IconRow {
+                                Icon(Icons.Default.FileDownload, null)
+                                Text(stringResource(R.string.ocr_from_share_save_image_button))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

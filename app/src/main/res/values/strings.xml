@@ -116,6 +116,7 @@ CC BY-SA 3.0
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">Waiting for OCR…</string>
+    <string name="ocr_from_share_fullscreen">Fullscreen</string>
     <string name="ocr_from_share_save_image_button">Save Image</string>
     <string name="ocr_from_share_image_saved">Image Saved</string>
     <string name="ocr_from_share_cache_play_result_button">Cache</string>

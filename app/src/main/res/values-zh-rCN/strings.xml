@@ -100,6 +100,7 @@
 
     <!-- OcrFromShareActivity -->
     <string name="ocr_from_share_waiting_result">等待 OCR 结果……</string>
+    <string name="ocr_from_share_fullscreen">全屏</string>
     <string name="ocr_from_share_save_image_button">保存图片</string>
     <string name="ocr_from_share_image_saved">图片已保存</string>
     <string name="ocr_from_share_cache_play_result_button">暂存</string>
