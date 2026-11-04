@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare
 
 import android.Manifest
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +38,6 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,7 +48,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -56,7 +59,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.core.layout.WindowSizeClass
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.PainterState
 import com.github.panpf.sketch.rememberAsyncImageState
@@ -127,7 +129,9 @@ private fun OcrFromShareScreenExpanded(
     resultSection: @Composable ColumnScope.() -> Unit,
     actionsSection: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
+    // Top bar removed since it takes a certain amount of height but contains no useful information
+    // Especially useless on landscape phones
+    Scaffold { innerPadding ->
         Row(
             Modifier
                 .fillMaxSize()
@@ -136,14 +140,14 @@ private fun OcrFromShareScreenExpanded(
                 .padding(MaterialTheme.spacing.pagePadding),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.pagePadding),
         ) {
-            Column(
+            OcrFromShareImage(
+                sharedImageUri,
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
-            ) {
-                OcrFromShareOcrDependencyStatusCard(dependencyUiState, onNavigateToDependencies)
-
-                OcrFromShareImage(sharedImageUri, Modifier.weight(1f))
-            }
+                contentScale = ContentScale.Crop,
+                // Bias the crop window left for max recall to be visible
+                // Right side contains nearly useless partner image for OCR data correction
+                alignment = BiasAlignment(-0.42f, 0f),
+            )
 
             Column(
                 Modifier
@@ -151,6 +155,8 @@ private fun OcrFromShareScreenExpanded(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             ) {
+                OcrFromShareOcrDependencyStatusCard(dependencyUiState, onNavigateToDependencies)
+
                 resultSection()
 
                 actionsSection()
@@ -303,7 +309,8 @@ fun OcrFromShareScreen(
             }
         }
 
-    // Reload on every resume: returning from the app's dependency setup changes the status.
+    // Reload on every resume to possibly reflect the latest status
+    // e.g. returning from the app's dependency setup
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -311,8 +318,8 @@ fun OcrFromShareScreen(
         }
     }
 
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-    if (windowSizeClass.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND)) {
+    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    if (landscape) {
         OcrFromShareScreenExpanded(
             sharedImageUri = sharedImageUri,
             dependencyUiState = dependencyUiState,
@@ -341,6 +348,8 @@ fun OcrFromShareScreen(
 private fun OcrFromShareImage(
     uri: Uri?,
     modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
 ) {
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     val imageState = rememberAsyncImageState()
@@ -381,6 +390,8 @@ private fun OcrFromShareImage(
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 state = imageState,
+                contentScale = contentScale,
+                alignment = alignment,
             )
         }
     }
