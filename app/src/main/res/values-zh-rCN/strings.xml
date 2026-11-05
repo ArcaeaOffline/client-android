@@ -428,6 +428,9 @@
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">分数不在范围内</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
 
+    <string name="play_result_validator_SCORE_IMPOSSIBLE_title">分数超出理论范围</string>
+    <string name="play_result_validator_SCORE_IMPOSSIBLE_message">分数为负或超过该谱面理论值</string>
+
     <string name="play_result_validator_PFL_OVERFLOW_title">Note 溢出</string>
     <string name="play_result_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
 

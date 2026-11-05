@@ -9,6 +9,16 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
+/**
+ * A data problem detected in a [PlayResult].
+ *
+ * Two null-value policies exist:
+ *
+ * * Contradiction warnings need both compared values. An unknown value (a null [PlayResult]
+ *   field or missing [ChartInfo.notes]) makes the check pass silently.
+ * * Suspicion warnings, titled with a "?", verify the judgment counts implied by a claimed
+ *   clear type. Unknown counts cannot confirm the claim and also trigger the warning.
+ */
 sealed interface ArcaeaPlayResultValidatorWarning {
     val id: String
 
@@ -76,6 +86,26 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
 
         val scoreRange = calculateScoreRange(chartInfo.notes!!, playResult.pure!!, playResult.far!!)
         return !scoreRange.contains(playResult.score)
+    }
+}
+
+data object ArcaeaPlayResultValidatorScoreImpossibleWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "SCORE_IMPOSSIBLE"
+
+    override val title = "Impossible score"
+    override val titleId = R.string.play_result_validator_SCORE_IMPOSSIBLE_title
+
+    override val message = "The score is below zero, or above the Max PURE MEMORY value."
+    override val messageId = R.string.play_result_validator_SCORE_IMPOSSIBLE_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean {
+        if (playResult.score < 0) return true
+
+        val notes = chartInfo?.notes ?: return false
+        return playResult.score > 10_000_000 + notes
     }
 }
 
@@ -149,7 +179,10 @@ data object ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning :
             return false
         }
 
-        return playResult.maxRecall != chartInfo?.notes
+        val notes = chartInfo?.notes ?: return false
+        val maxRecall = playResult.maxRecall ?: return false
+
+        return maxRecall != notes
     }
 }
 
@@ -166,20 +199,25 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        if (chartInfo?.notes == null || playResult.clearType == null || playResult.modifier == null) {
+        val notes = chartInfo?.notes ?: return false
+        val clearType = playResult.clearType ?: return false
+
+        // A HARD play can be interrupted before the chart ends, so a TRACK LOST result may have
+        // pure + far + lost below the note count. An unknown modifier cannot rule HARD out.
+        // NORMAL and EASY gauges cannot interrupt a play.
+        if (
+            clearType == ArcaeaPlayResultClearType.TRACK_LOST &&
+            playResult.modifier != ArcaeaPlayResultModifier.NORMAL &&
+            playResult.modifier != ArcaeaPlayResultModifier.EASY
+        ) {
             return false
         }
 
-        // HARD LOST does not conform to this rule
-        if (playResult.clearType == ArcaeaPlayResultClearType.TRACK_LOST && playResult.modifier == ArcaeaPlayResultModifier.HARD) {
-            return false
-        }
+        val pure = playResult.pure ?: return false
+        val far = playResult.far ?: return false
+        val lost = playResult.lost ?: return false
 
-        if (playResult.pure == null || playResult.far == null || playResult.lost == null) {
-            return false
-        }
-
-        return playResult.pure!! + playResult.far!! + playResult.lost!! != chartInfo.notes
+        return pure + far + lost != notes
     }
 }
 

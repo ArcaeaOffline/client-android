@@ -10,6 +10,7 @@ object ArcaeaPlayResultValidator {
             ArcaeaPlayResultValidatorScoreIsZeroWarning,
             ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
             ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
+            ArcaeaPlayResultValidatorScoreImpossibleWarning,
             ArcaeaPlayResultValidatorPflOverflowWarning,
             ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
             ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,

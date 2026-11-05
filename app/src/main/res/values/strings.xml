@@ -471,6 +471,9 @@ CC BY-SA 3.0
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
     <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
 
+    <string name="play_result_validator_SCORE_IMPOSSIBLE_title">Impossible score</string>
+    <string name="play_result_validator_SCORE_IMPOSSIBLE_message">The score is below zero or above Max PURE MEMORY.</string>
+
     <string name="play_result_validator_PFL_OVERFLOW_title">Notes overflow</string>
     <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
 
