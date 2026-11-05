@@ -39,10 +39,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -60,9 +62,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -75,7 +80,7 @@ import com.github.panpf.sketch.rememberAsyncImageState
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.MainActivity
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.helpers.SECONDARY_ALPHA
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
@@ -251,6 +256,7 @@ fun OcrFromShareScreen(
     viewModel: OcrFromShareViewModel,
 ) {
     val context = LocalContext.current
+    val res = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
 
     val navigateToDependencies = {
@@ -346,7 +352,7 @@ fun OcrFromShareScreen(
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.events.collect { event ->
-                snackbarHostState.showSnackbar(event.asString(context.resources), withDismissAction = true)
+                snackbarHostState.showSnackbar(event.asString(res), withDismissAction = true)
             }
         }
     }
@@ -416,24 +422,17 @@ private fun OcrFromShareImage(
         ) { showImagePreview = true },
     ) {
         if (uri == null) {
-            // placeholder box to keep layout stable
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    Icons.Outlined.Image,
-                    contentDescription = null,
-                    Modifier
-                        .size(48.dp)
-                        .secondaryItemAlpha(),
-                )
-            }
+            ImagePlaceholder(Icons.Outlined.Image, LocalContentColor.current.copy(alpha = SECONDARY_ALPHA))
         } else {
-            if (imageState.painterState == null || imageState.painterState is PainterState.Loading) {
+            val painterState = imageState.painterState
+
+            if (painterState == null || painterState is PainterState.Loading) {
                 ImageSkeleton(Modifier.fillMaxSize())
+            }
+
+            // TODO: this does not actually invoke, sketch or our issue?
+            if (painterState is PainterState.Error) {
+                ImagePlaceholder(Icons.Outlined.BrokenImage, MaterialTheme.colorScheme.error)
             }
 
             AsyncImage(
@@ -488,6 +487,23 @@ private fun OcrFromShareImage(
                 }
             }
         }
+    }
+}
+
+/** Solid placeholder with a centered icon, shown while the uri is absent or its image failed to load. */
+@Composable
+private fun ImagePlaceholder(
+    icon: ImageVector,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainer),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = null, Modifier.size(48.dp), tint = tint)
     }
 }
 
