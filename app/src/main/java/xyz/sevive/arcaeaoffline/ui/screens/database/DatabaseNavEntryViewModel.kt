@@ -2,6 +2,7 @@ package xyz.sevive.arcaeaoffline.ui.screens.database
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -14,6 +15,8 @@ class DatabaseNavEntryViewModel(
     private val propertyRepo: PropertyRepository,
     playResultRepo: PlayResultRepository,
 ) : ViewModel() {
+    private val logger = Logger.withTag(LOG_TAG)
+
     val playResultCount: StateFlow<Int> =
         playResultRepo
             .count()
@@ -25,6 +28,7 @@ class DatabaseNavEntryViewModel(
 
     companion object {
         private const val TIMEOUT_MILLIS = 1000L
+        private const val LOG_TAG = "DatabaseNavEntryVM"
     }
 
     val scoringMode: StateFlow<ArcaeaScoringMode> =
@@ -38,7 +42,8 @@ class DatabaseNavEntryViewModel(
 
     fun setScoringMode(mode: ArcaeaScoringMode) {
         viewModelScope.launch {
-            propertyRepo.setScoringMode(mode)
+            runCatching { propertyRepo.setScoringMode(mode) }
+                .onFailure { logger.e(it) { "Failed to set scoring mode" } }
         }
     }
 }
