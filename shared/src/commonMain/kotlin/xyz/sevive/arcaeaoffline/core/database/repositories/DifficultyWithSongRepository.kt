@@ -22,6 +22,10 @@ interface DifficultyWithSongRepository {
     fun findAll(): Flow<List<DifficultyWithSong>>
 
     fun findAllWithInfo(): Flow<List<DifficultyWithSongAndInfo>>
+
+    fun findAllMissingInfo(): Flow<List<DifficultyWithSong>>
+
+    fun countMissingChartInfo(): Flow<Int>
 }
 
 class DifficultyWithSongRepositoryImpl(
@@ -39,4 +43,8 @@ class DifficultyWithSongRepositoryImpl(
     override fun findAll(): Flow<List<DifficultyWithSong>> = dao.findAll()
 
     override fun findAllWithInfo(): Flow<List<DifficultyWithSongAndInfo>> = dao.findAllWithInfo()
+
+    override fun findAllMissingInfo(): Flow<List<DifficultyWithSong>> = dao.findAllMissingInfo()
+
+    override fun countMissingChartInfo(): Flow<Int> = dao.countMissingChartInfo()
 }

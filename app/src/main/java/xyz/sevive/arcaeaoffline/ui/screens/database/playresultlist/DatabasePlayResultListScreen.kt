@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -27,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -37,6 +41,8 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaSearchTextField
 import xyz.sevive.arcaeaoffline.ui.components.LoadingOverlay
+import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
+import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterChips
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.components.DatabasePlayResultFilterDialog
@@ -68,12 +74,18 @@ private fun DatabasePlayResultSearchBar(
 
 @Composable
 fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = koinViewModel()) {
-    val context = LocalContext.current
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val catalog by viewModel.catalog.collectAsStateWithLifecycle()
     val selectedItemUuids by viewModel.selectedItemUuids.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val navContext = LocalListDetailNavigationContext.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            snackbarHostState.showSnackbar(event.asString(resources), withDismissAction = true)
+        }
+    }
 
     val listItems = uiState.listItems
 
@@ -146,6 +158,11 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
                 onSelectedModeChange = { isInSelectMode = it },
                 onClearSelectedItems = { viewModel.clearSelectedItems() },
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { navContext.navigateToDetail(DatabaseSubScreen.AddPlayResult.route) }) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(DatabaseSubScreen.AddPlayResult.title))
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) {
@@ -220,7 +237,10 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
             ) {
                 when {
                     uiState.totalCount == 0 -> {
-                        EmptyScreen(Modifier.fillMaxSize())
+                        EmptyScreen(
+                            Modifier.fillMaxSize(),
+                            text = stringResource(R.string.database_no_play_results),
+                        )
                     }
 
                     listItems.isEmpty() -> {
@@ -248,13 +268,7 @@ fun DatabasePlayResultListScreen(viewModel: DatabasePlayResultListViewModel = ko
 
                                 DatabasePlayResultListItem(
                                     item = it,
-                                    onPlayResultChange = { newPlayResult ->
-                                        viewModel.updatePlayResult(
-                                            playResult = newPlayResult,
-                                            context = context,
-                                            snackbarHostState = snackbarHostState,
-                                        )
-                                    },
+                                    onPlayResultChange = viewModel::updatePlayResult,
                                     inSelectMode = isInSelectMode,
                                     selected = isSelected,
                                     onSelectedChange = { selected ->

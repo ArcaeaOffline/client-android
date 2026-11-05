@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Api
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Queue
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.sevive.arcaeaoffline.R
+import xyz.sevive.arcaeaoffline.helpers.ImageHashesDatabaseStatusDetail
+import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusViewer
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusViewer
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
@@ -27,6 +32,14 @@ import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.screens.NavEntryNavigateButton
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
+
+/**
+ * Whether the image hashes database needs setup: absent, failed to load, or holding no hashes.
+ *
+ * Null counts mean the detail has not loaded yet, not an empty database.
+ */
+private fun ImageHashesDatabaseStatusDetail.needsSetup(): Boolean =
+    absence || exception != null || jacketCount == 0 || partnerIconCount == 0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +66,16 @@ fun OcrNavEntry(modifier: Modifier = Modifier) {
                 Column {
                     OcrDependencyImageHashesDatabaseStatusViewer(imageHashesDatabaseUiState)
                     OcrDependencyCrnnModelStatusViewer(crnnModelUiState)
+
+                    if (imageHashesDatabaseUiState.statusDetail.needsSetup()) {
+                        TextItem(
+                            title = stringResource(R.string.ocr_guide_image_hashes_database_title),
+                            content = stringResource(R.string.ocr_guide_image_hashes_database_content),
+                            leadingIcon = Icons.Default.CloudDownload,
+                            trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
+                            onClick = { navContext.navigateToDetail(OcrSubScreen.Dependencies.route) },
+                        )
+                    }
                 }
             }
 

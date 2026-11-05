@@ -90,6 +90,11 @@ CC BY-SA 3.0
     <!-- OCR dependencies -->
     <string name="ocr_dependency_image_hashes_database">Image hashes database</string>
     <string name="ocr_dependency_crnn_model">CRNN OCR model</string>
+    <string name="ocr_guide_image_hashes_database_title">Get the image hashes database</string>
+    <string name="ocr_guide_image_hashes_database_content">OCR uses it to identify songs in screenshots.</string>
+    <string name="ocr_guide_database_title">Import songs and chart info</string>
+    <string name="ocr_guide_database_content">OCR needs them to show song details and validate plays.</string>
+    <string name="ocr_guide_chart_info_partial_content">Warnings for those charts may be incomplete.</string>
 
     <!-- Arcaea terms -->
     <string name="arcaea_chart">Chart</string>
@@ -118,9 +123,10 @@ CC BY-SA 3.0
     <string name="ocr_from_share_stay_in_app">Stay in %s</string>
 
     <!-- Bottom navigation -->
-    <string name="nav_overview">Overview</string>
-    <string name="nav_database">Database</string>
-    <string name="nav_utilities">Utilities</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_plays">Plays</string>
+    <string name="nav_resources">Resources</string>
+    <string name="nav_tools">Tools</string>
     <string name="nav_ocr">OCR</string>
     <string name="nav_settings">Settings</string>
 
@@ -159,8 +165,6 @@ CC BY-SA 3.0
     <string name="database_status_not_initialized">Database not initialized</string>
 
     <!-- Database manage pane -->
-    <string name="database_manage_title">Manage</string>
-
     <string name="database_manage_scoring_mode_title">Scoring mode</string>
     <string name="database_manage_scoring_mode_b30_r10">B30 + R10</string>
     <string name="database_manage_scoring_mode_b50">B50</string>
@@ -192,14 +196,39 @@ CC BY-SA 3.0
     <string name="database_manage_export_title">Export…</string>
     <string name="database_manage_export_play_results">Play Results</string>
 
+    <!-- Plays: play data pane -->
+    <string name="database_play_data_title">Play Data</string>
+
+    <!-- Resources pane -->
+    <string name="resources_songs_title">Packs &amp; Songs</string>
+    <string name="resources_chart_info_title">Chart Info</string>
+    <string name="resources_source_online">Download online</string>
+    <string name="resources_source_file">From file</string>
+    <string name="resources_last_imported_at">Last imported: %1$s</string>
+    <plurals name="resources_missing_chart_info">
+        <item quantity="one">%d chart has no constant</item>
+        <item quantity="other">%d charts have no constant</item>
+    </plurals>
+
+    <!-- Home pane -->
+    <string name="home_setup_header">Get started</string>
+    <string name="home_setup_step_songs">Import packs &amp; songs</string>
+    <string name="home_setup_step_chart_info">Import chart info</string>
+    <string name="home_setup_update_chart_info">Update chart info</string>
+    <string name="home_recent_header">Recent plays</string>
+
     <!-- Database add play result pane -->
     <string name="database_add_play_result_title">Add a Play Result</string>
     <string name="database_add_play_result_select_chart_header">Select a chart…</string>
     <string name="database_add_play_result_edit_play_result_header">Then edit your play result…</string>
     <string name="database_add_play_result_click_select_chart">Click here to select a chart.</string>
     <string name="database_add_play_result_select_chart_first">Select a chart first.</string>
+    <string name="database_add_play_result_save_with_warnings_title">Save with warnings?</string>
+    <string name="database_add_play_result_keep_chart">Keep chart</string>
+    <string name="database_add_play_result_saved">Play result saved</string>
 
     <!-- Database play result list pane -->
+    <string name="database_no_play_results">No plays yet</string>
     <string name="database_play_result_list_title">Play Results List</string>
     <plurals name="database_play_result_list_delete_confirm_dialog_content">
         <item quantity="one">Are you sure to delete %d play result?</item>
@@ -362,6 +391,7 @@ CC BY-SA 3.0
     </plurals>
     <string name="ocr_queue_event_folder_staged">Scanning "%s"</string>
     <string name="ocr_queue_event_staging_error">Error occurred in staging: %s</string>
+    <string name="ocr_queue_event_ihdb_missing">Cannot start the queue without image hashes database.</string>
     <string name="ocr_queue_event_staging_cleared">Staging cleared</string>
     <string name="ocr_queue_staging_status">Staging</string>
     <string name="ocr_queue_staging_empty">Empty</string>

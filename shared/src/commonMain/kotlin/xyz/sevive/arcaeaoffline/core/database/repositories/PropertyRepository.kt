@@ -33,6 +33,18 @@ interface PropertyRepository {
     suspend fun r30LastUpdatedAt(): Instant?
 
     suspend fun setR30LastUpdatedAt(instant: Instant)
+
+    fun packlistLastImportedAt(): Flow<Instant?>
+
+    suspend fun setPacklistLastImportedAt(instant: Instant)
+
+    fun songsLastImportedAt(): Flow<Instant?>
+
+    suspend fun setSongsLastImportedAt(instant: Instant)
+
+    fun chartInfoLastImportedAt(): Flow<Instant?>
+
+    suspend fun setChartInfoLastImportedAt(instant: Instant)
 }
 
 class PropertyRepositoryImpl(
@@ -77,4 +89,26 @@ class PropertyRepositoryImpl(
     override suspend fun setR30LastUpdatedAt(instant: Instant) {
         this.upsert(Property(Property.KEY_R30_LAST_UPDATED_AT, instant.toEpochMilliseconds().toString()))
     }
+
+    private fun lastImportedAt(key: String): Flow<Instant?> =
+        this.find(key).map { it?.value?.toLongOrNull()?.let(Instant::fromEpochMilliseconds) }
+
+    private suspend fun setLastImportedAt(
+        key: String,
+        instant: Instant,
+    ) {
+        this.upsert(Property(key, instant.toEpochMilliseconds().toString()))
+    }
+
+    override fun packlistLastImportedAt(): Flow<Instant?> = lastImportedAt(Property.KEY_PACKLIST_LAST_IMPORTED_AT)
+
+    override suspend fun setPacklistLastImportedAt(instant: Instant) = setLastImportedAt(Property.KEY_PACKLIST_LAST_IMPORTED_AT, instant)
+
+    override fun songsLastImportedAt(): Flow<Instant?> = lastImportedAt(Property.KEY_SONGS_LAST_IMPORTED_AT)
+
+    override suspend fun setSongsLastImportedAt(instant: Instant) = setLastImportedAt(Property.KEY_SONGS_LAST_IMPORTED_AT, instant)
+
+    override fun chartInfoLastImportedAt(): Flow<Instant?> = lastImportedAt(Property.KEY_CHART_INFO_LAST_IMPORTED_AT)
+
+    override suspend fun setChartInfoLastImportedAt(instant: Instant) = setLastImportedAt(Property.KEY_CHART_INFO_LAST_IMPORTED_AT, instant)
 }

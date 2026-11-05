@@ -1,7 +1,5 @@
 package xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist
 
-import android.content.Context
-import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +32,8 @@ import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalog
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogStateHolder
 import xyz.sevive.arcaeaoffline.core.search.SearchEngine
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
@@ -65,6 +65,9 @@ class DatabasePlayResultListViewModel(
     val selectedItemUuids = MutableStateFlow(emptySet<Uuid>())
 
     private val filter = MutableStateFlow(PlayResultFilter())
+
+    private val eventChannel = UiEventChannel()
+    val events = eventChannel.events
 
     /**
      * [filter] with the text query cleared. The list and facet computations
@@ -291,24 +294,15 @@ class DatabasePlayResultListViewModel(
         selectedItemUuids.value = emptySet()
     }
 
-    fun updatePlayResult(
-        playResult: PlayResult,
-        context: Context? = null,
-        snackbarHostState: SnackbarHostState? = null,
-    ) {
+    fun updatePlayResult(playResult: PlayResult) {
         viewModelScope.launch(Dispatchers.IO) {
             playResultRepo.upsert(playResult)
-
-            if (context != null && snackbarHostState != null) {
-                snackbarHostState.showSnackbar(
-                    message =
-                        context.getString(
-                            R.string.database_play_result_updated,
-                            "(${playResult.songId}, ${playResult.uuid})",
-                        ),
-                    withDismissAction = true,
-                )
-            }
+            eventChannel.send(
+                UiEvent.StringRes(
+                    R.string.database_play_result_updated,
+                    listOf("(${playResult.songId}, ${playResult.uuid})"),
+                ),
+            )
         }
     }
 

@@ -1,5 +1,7 @@
 output-metadata.json
 
+.kotlin/sessions/
+
 # OCR ONNX models
 app/src/main/assets/ocr/model*.onnx
 app/src/main/assets/ocr/model*.ort

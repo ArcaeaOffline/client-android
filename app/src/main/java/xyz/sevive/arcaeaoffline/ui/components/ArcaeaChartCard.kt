@@ -2,7 +2,6 @@ package xyz.sevive.arcaeaoffline.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -31,15 +30,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.materialkolor.hct.Hct
 import kotlinx.coroutines.flow.combine
 import org.koin.compose.koinInject
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -50,8 +45,6 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
-import xyz.sevive.arcaeaoffline.ui.theme.isSystemInDarkTheme
-import xyz.sevive.arcaeaoffline.ui.theme.ratingClassColor
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 
 // Display data resolved as one atomic unit. Swapping the pair together is
@@ -97,36 +90,10 @@ fun ArcaeaChartCard(
     var artistOverflowed by remember(difficultyWithSong) { mutableStateOf(false) }
     val canExpand = expanded || titleOverflowed || artistOverflowed
 
-    // TODO: change to local when theme settings added
-    val isDarkTheme = isSystemInDarkTheme()
-    val textTone = if (isDarkTheme) 80.0 else 32.0
-    val accentColor by animateColorAsState(
-        targetValue =
-            ratingClassColor(
-                ArcaeaRatingClassDisplay.of(difficultyWithSong.ratingClass, difficultyWithSong.ratingClassAlias),
-            ),
-        label = "accentColor",
-    )
-    val (backgroundBrush, accentTextColor) =
-        remember(accentColor, isDarkTheme) {
-            val hct = Hct.fromInt(accentColor.toArgb())
-            if (isDarkTheme) {
-                val backgroundEnd = Color(hct.withTone(20.0).toInt())
-                Brush.horizontalGradient(
-                    0.48f to backgroundEnd.copy(alpha = 0f),
-                    0.68f to backgroundEnd.copy(alpha = 0.12f),
-                    0.84f to backgroundEnd.copy(alpha = 0.45f),
-                    0.94f to backgroundEnd.copy(alpha = 0.78f),
-                    1.00f to backgroundEnd.copy(alpha = 0.90f),
-                ) to Color(hct.withTone(textTone).toInt())
-            } else {
-                Brush.horizontalGradient(
-                    0.00f to accentColor.copy(alpha = 0f),
-                    0.40f to accentColor.copy(alpha = 0f),
-                    1.00f to accentColor.copy(alpha = 0.22f),
-                ) to Color(hct.withTone(textTone).toInt())
-            }
-        }
+    val accent =
+        rememberRatingClassAccent(
+            ArcaeaRatingClassDisplay.of(difficultyWithSong.ratingClass, difficultyWithSong.ratingClassAlias),
+        )
     val enabledCardColors = CardDefaults.cardColors()
 
     Card(
@@ -143,7 +110,7 @@ fun ArcaeaChartCard(
         Row(
             // TODO: sync this to spacing...?
             Modifier
-                .background(backgroundBrush)
+                .background(accent.backgroundBrush)
                 .padding(horizontal = MaterialTheme.spacing.pagePadding, vertical = MaterialTheme.spacing.cardPadding),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
@@ -187,12 +154,12 @@ fun ArcaeaChartCard(
                         value,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Medium,
-                        color = accentTextColor,
+                        color = accent.textColor,
                     )
                     Text(
                         ratingClass,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = accentTextColor,
+                        color = accent.textColor,
                     )
                 }
             }
@@ -203,7 +170,7 @@ fun ArcaeaChartCard(
                         if (it) Icons.Default.UnfoldLess else Icons.Default.UnfoldMore,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
-                        tint = accentTextColor,
+                        tint = accent.textColor,
                     )
                 }
             }

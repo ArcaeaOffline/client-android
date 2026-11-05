@@ -38,6 +38,10 @@ interface PlayResultDao {
     @Query("SELECT COUNT(*) FROM play_results")
     fun count(): Flow<Int>
 
+    /** Rows without a date sort last. */
+    @Query("SELECT * FROM play_results ORDER BY date DESC LIMIT :limit")
+    fun findLatestPlays(limit: Int): Flow<List<PlayResult>>
+
     @Upsert
     suspend fun upsert(item: PlayResult): Long
 

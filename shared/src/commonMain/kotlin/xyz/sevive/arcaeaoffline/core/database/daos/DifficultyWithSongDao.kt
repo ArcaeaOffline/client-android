@@ -34,6 +34,30 @@ private const val DIFFICULTY_WITH_SONG_AND_INFO_QUERY =
     ORDER BY ci.constant
     """
 
+// ChartInfoDatabaseImporter maps source NULL constants to 0, so a present row can
+// still carry no usable constant. Both queries count constant <= 0 as missing.
+private const val DIFFICULTY_WITH_SONG_MISSING_INFO_QUERY =
+    """
+    SELECT
+        d.song_id, d.rating_class, d.rating_class_alias,
+        d.rating, d.rating_plus,
+        COALESCE(d.title, s.title) AS title,
+        COALESCE(d.artist, s.artist) AS artist
+    FROM difficulties d
+    INNER JOIN songs s ON d.song_id = s.id
+    LEFT JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class
+    WHERE ci.song_id IS NULL OR ci.constant <= 0
+    """
+
+private const val MISSING_CHART_INFO_COUNT_QUERY =
+    """
+    SELECT COUNT(*)
+    FROM difficulties d
+    INNER JOIN songs s ON d.song_id = s.id
+    LEFT JOIN charts_info ci ON d.song_id = ci.song_id AND d.rating_class = ci.rating_class
+    WHERE ci.song_id IS NULL OR ci.constant <= 0
+    """
+
 @Dao
 interface DifficultyWithSongDao {
     @Query("$DIFFICULTY_WITH_SONG_QUERY_BASE WHERE d.song_id = :songId AND d.rating_class = :ratingClass")
@@ -59,4 +83,10 @@ interface DifficultyWithSongDao {
     // constant, which is meaningless without it.
     @Query(DIFFICULTY_WITH_SONG_AND_INFO_QUERY)
     fun findAllWithInfo(): Flow<List<DifficultyWithSongAndInfo>>
+
+    @Query(DIFFICULTY_WITH_SONG_MISSING_INFO_QUERY)
+    fun findAllMissingInfo(): Flow<List<DifficultyWithSong>>
+
+    @Query(MISSING_CHART_INFO_COUNT_QUERY)
+    fun countMissingChartInfo(): Flow<Int>
 }

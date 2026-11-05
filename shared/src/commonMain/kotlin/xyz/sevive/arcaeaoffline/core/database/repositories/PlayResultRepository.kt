@@ -22,6 +22,8 @@ interface PlayResultRepository {
 
     fun count(): Flow<Int>
 
+    fun findLatestPlays(limit: Int): Flow<List<PlayResult>>
+
     suspend fun upsert(item: PlayResult): Long
 
     suspend fun upsertBatch(vararg items: PlayResult): List<Long>
@@ -48,6 +50,8 @@ class PlayResultRepositoryImpl(
     override fun findAllByUuid(uuids: List<Uuid>): Flow<List<PlayResult>> = dao.findAllByUuid(uuids)
 
     override fun count(): Flow<Int> = dao.count()
+
+    override fun findLatestPlays(limit: Int): Flow<List<PlayResult>> = dao.findLatestPlays(limit)
 
     override suspend fun upsert(item: PlayResult) = dao.upsert(item)
 

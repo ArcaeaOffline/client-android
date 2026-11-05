@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.manage
+package xyz.sevive.arcaeaoffline.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogEvent
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogObject
 import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
@@ -52,15 +54,13 @@ import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 private fun ImportLogObjectUi(
     log: ImportLogObject,
+    widthSizeClass: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val resources = LocalResources.current
-    val widthSizeClass = context.findActivity()?.let { calculateWindowSizeClass(it) }?.widthSizeClass ?: WindowWidthSizeClass.Compact
 
     val timestampText =
         remember(widthSizeClass) {
@@ -102,13 +102,19 @@ private fun ImportLogObjectUi(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 internal fun ImportLogBottomSheet(
     onDismissRequest: () -> Unit,
     logs: List<ImportLogObject>,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val widthSizeClass =
+        LocalContext.current
+            .findActivity()
+            ?.let { calculateWindowSizeClass(it) }
+            ?.widthSizeClass
+            ?: WindowWidthSizeClass.Compact
 
     val lazyColumnState = rememberLazyListState()
     val showScrollToTopButton by remember {
@@ -150,6 +156,7 @@ internal fun ImportLogBottomSheet(
                 items(logs, key = { it.uuid }) {
                     ImportLogObjectUi(
                         it,
+                        widthSizeClass,
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = MaterialTheme.spacing.sm)
@@ -161,22 +168,34 @@ internal fun ImportLogBottomSheet(
     }
 }
 
+private fun previewImportLogObject() =
+    ImportLogObject(
+        uuid = Uuid.generateV4(),
+        timestamp = Instant.fromEpochMilliseconds(0),
+        tag = "P-VIEW",
+        event = ImportLogEvent.Raw("Wow this is a log wow"),
+    )
+
 @Preview
 @Composable
-private fun ImportLogObjectUiPreview() {
-    val log =
-        remember {
-            ImportLogObject(
-                uuid = Uuid.generateV4(),
-                timestamp = Instant.fromEpochMilliseconds(0),
-                tag = "P-VIEW",
-                event = ImportLogEvent.Raw("Wow this is a log wow"),
-            )
-        }
+private fun ImportLogObjectUiCompactPreview() {
+    val log = remember { previewImportLogObject() }
 
     ArcaeaOfflineTheme {
         Card {
-            ImportLogObjectUi(log)
+            ImportLogObjectUi(log, WindowWidthSizeClass.Compact)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ImportLogObjectUiMediumPreview() {
+    val log = remember { previewImportLogObject() }
+
+    ArcaeaOfflineTheme {
+        Card {
+            ImportLogObjectUi(log, WindowWidthSizeClass.Medium)
         }
     }
 }

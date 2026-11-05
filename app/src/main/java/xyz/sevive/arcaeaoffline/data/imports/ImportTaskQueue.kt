@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.screens.database.manage
+package xyz.sevive.arcaeaoffline.data.imports
 
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CancellationException

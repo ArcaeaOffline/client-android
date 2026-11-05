@@ -36,6 +36,7 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
+import kotlinx.coroutines.flow.merge
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.context.persistUriPermissions
@@ -50,6 +51,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingView
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OcrQueueScreen(
+    onNavigateToResources: () -> Unit,
     screenViewModel: OcrQueueScreenViewModel = koinViewModel(),
     stagingViewModel: OcrQueueStagingViewModel = koinViewModel(),
 ) {
@@ -63,6 +65,8 @@ fun OcrQueueScreen(
     val taskUiItems by screenViewModel.currentScreenUiItems.collectAsStateWithLifecycle()
     val isTaskUiItemsLoading by screenViewModel.isTaskUiItemsLoading.collectAsStateWithLifecycle()
 
+    val readinessSummary by screenViewModel.readinessSummary.collectAsStateWithLifecycle()
+
     val category by screenViewModel.currentScreenCategory.collectAsStateWithLifecycle()
     val categoryBackButtonEnabled by remember {
         derivedStateOf { category != OcrQueueScreenCategory.NULL }
@@ -71,9 +75,9 @@ fun OcrQueueScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val stagingUiState by stagingViewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(stagingViewModel, lifecycleOwner.lifecycle) {
+    LaunchedEffect(stagingViewModel, screenViewModel, lifecycleOwner.lifecycle) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            stagingViewModel.events.collect { event ->
+            merge(stagingViewModel.events, screenViewModel.events).collect { event ->
                 val message = event.asString(resources)
                 snackbarHostState.showSnackbar(message, withDismissAction = true)
             }
@@ -172,6 +176,8 @@ fun OcrQueueScreen(
                 taskCounts = queueTaskCounts,
                 taskUiItems = taskUiItems,
                 taskUiItemsLoading = isTaskUiItemsLoading,
+                readinessSummary = readinessSummary,
+                onNavigateToResources = onNavigateToResources,
                 onSaveTask = { screenViewModel.saveTaskPlayResult(it) },
                 onDeleteTask = { screenViewModel.deleteTask(it) },
                 onEditChart = { id, c -> screenViewModel.modifyTaskChart(id, c) },

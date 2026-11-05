@@ -179,4 +179,32 @@ class DifficultyWithSongDaoTest {
             // Null notes survive the join.
             assertNull(result.last().notes)
         }
+
+    @Test
+    fun findAllMissingInfoTreatsZeroConstantAsMissing() =
+        runBlocking {
+            seed()
+
+            // songb/FUTURE has no chart info row at all.
+            assertEquals(
+                setOf("songb" to ArcaeaRatingClass.FUTURE),
+                dao
+                    .findAllMissingInfo()
+                    .first()
+                    .map { it.songId to it.ratingClass }
+                    .toSet(),
+            )
+
+            // A row with constant = 0 (the importer maps source NULLs to 0) counts as missing too.
+            db.chartInfoDao().insert(ChartInfo("songb", ArcaeaRatingClass.FUTURE, constant = 0, notes = 800))
+
+            assertEquals(
+                setOf("songb" to ArcaeaRatingClass.FUTURE),
+                dao
+                    .findAllMissingInfo()
+                    .first()
+                    .map { it.songId to it.ratingClass }
+                    .toSet(),
+            )
+        }
 }

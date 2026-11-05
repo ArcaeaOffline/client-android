@@ -21,6 +21,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.SongLocalizedReposito
 import xyz.sevive.arcaeaoffline.core.database.repositories.SongRepository
 import xyz.sevive.arcaeaoffline.core.di.coreModule
 import xyz.sevive.arcaeaoffline.core.search.ArcaeaCatalogStateHolder
+import xyz.sevive.arcaeaoffline.data.imports.ImportLogManager
 import xyz.sevive.arcaeaoffline.database.AppDatabase
 import xyz.sevive.arcaeaoffline.database.OcrQueueDatabase
 import xyz.sevive.arcaeaoffline.database.daos.OcrHistoryDao
@@ -47,7 +48,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.database.DatabaseNavEntryViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.addplayresult.DatabaseAddPlayResultViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.bestlist.DatabaseBestListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.deduplicator.DatabaseDeduplicatorViewModel
-import xyz.sevive.arcaeaoffline.ui.screens.database.manage.DatabaseManageViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.database.playdata.DatabasePlayDataViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.playresultlist.DatabasePlayResultListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.database.r30list.DatabaseR30ListViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.dependencies.OcrDependenciesScreenViewModel
@@ -56,6 +57,7 @@ import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.OcrQueueScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.preferences.OcrQueuePreferencesViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.overview.OverviewViewModel
+import xyz.sevive.arcaeaoffline.ui.screens.resources.ResourcesViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.SettingsViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.settings.unstablealert.SettingsUnstableAlertScreenViewModel
 import xyz.sevive.arcaeaoffline.ui.screens.utilities.UtilitiesChartRecommendScreenViewModel
@@ -156,11 +158,13 @@ val appModule =
         single<ArcaeaCatalogStateHolder> { create(::createArcaeaCatalogStateHolder) }
 
         single<DiagnosticsCollector> { create(::createDiagnosticsCollector) }
+        single<ImportLogManager>()
 
         viewModel<EmergencyModeActivityViewModel>()
         viewModel<OverviewViewModel>()
         viewModel<DatabaseNavEntryViewModel>()
-        viewModel<DatabaseManageViewModel>()
+        viewModel<ResourcesViewModel>()
+        viewModel<DatabasePlayDataViewModel>()
         viewModel<DatabaseAddPlayResultViewModel>()
         viewModel<DatabasePlayResultListViewModel>()
         viewModel<DatabaseBestListViewModel>()
