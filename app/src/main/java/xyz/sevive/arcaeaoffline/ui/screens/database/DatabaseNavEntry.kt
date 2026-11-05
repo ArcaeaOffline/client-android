@@ -27,6 +27,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.ui.components.SelectItem
 import xyz.sevive.arcaeaoffline.ui.components.SelectOption
+import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.navigation.LocalListDetailNavigationContext
 import xyz.sevive.arcaeaoffline.ui.navigation.MainScreen
@@ -55,6 +56,10 @@ fun DatabaseNavEntry(
                 .consumeWindowInsets(it),
             contentPadding = it,
         ) {
+            item {
+                SettingsGroupHeader(stringResource(R.string.database_manage_scoring_mode_title))
+            }
+
             item {
                 SelectItem(
                     options =

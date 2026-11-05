@@ -181,7 +181,6 @@
     <!-- Resources pane -->
     <string name="resources_songs_title">曲包与曲目</string>
     <string name="resources_chart_info_title">谱面定数</string>
-    <string name="resources_source_header">来源</string>
     <string name="resources_source_online">在线下载</string>
     <string name="resources_source_file">从文件导入</string>
     <string name="resources_last_imported_at">上次导入：%1$s</string>

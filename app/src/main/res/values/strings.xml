@@ -202,7 +202,6 @@ CC BY-SA 3.0
     <!-- Resources pane -->
     <string name="resources_songs_title">Packs &amp; Songs</string>
     <string name="resources_chart_info_title">Chart Info</string>
-    <string name="resources_source_header">Source</string>
     <string name="resources_source_online">Download online</string>
     <string name="resources_source_file">From file</string>
     <string name="resources_last_imported_at">Last imported: %1$s</string>
