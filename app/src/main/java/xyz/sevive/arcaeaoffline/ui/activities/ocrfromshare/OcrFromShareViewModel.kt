@@ -295,7 +295,13 @@ class OcrFromShareViewModel(
                         }
                     }
 
-                SaveImageToGallery.saveImageBytes(appContext, fileName, bytes, dateTaken.toEpochMilliseconds())
+                SaveImageToGallery.saveImageBytes(
+                    appContext,
+                    fileName,
+                    bytes,
+                    dateTaken.toEpochMilliseconds(),
+                    imageFileMimeType(shared.bytes),
+                )
                 _imageSaved.value = true
             } catch (e: CancellationException) {
                 throw e
@@ -387,3 +393,5 @@ private val imageFileDateFormat =
     }
 
 private fun imageFileExtension(bytes: ByteArray): String = MediaFormat.detect(bytes)?.fileNameExtensions?.firstOrNull() ?: "jpg"
+
+private fun imageFileMimeType(bytes: ByteArray): String = MediaFormat.detect(bytes)?.mimeType ?: "image/jpeg"

@@ -37,6 +37,7 @@ object SaveImageToGallery {
      * @see <a href="https://stackoverflow.com/a/73554532/16484891">link</a>
      * @param dateTakenMillis The image's logical date in epoch millis, for gallery apps use it for
      *   timeline ordering on API 29+.
+     * @param mimeType Override MediaStore's mime type prediction
      * @throws IOException If writing the image fails, including MediaStore rejecting the entry.
      * @throws SecurityException On API < 29 when [checkPermission] is false.
      */
@@ -45,13 +46,14 @@ object SaveImageToGallery {
         fileName: String,
         bytes: ByteArray,
         dateTakenMillis: Long,
+        mimeType: String,
     ) {
         logger.i { "Saving $fileName to gallery" }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             saveImageBytesPreQ(context, fileName, bytes)
         } else {
-            saveImageBytesQPlus(context, fileName, bytes, dateTakenMillis)
+            saveImageBytesQPlus(context, fileName, bytes, dateTakenMillis, mimeType)
         }
     }
 
@@ -88,7 +90,13 @@ object SaveImageToGallery {
                 index++
             }
         }
-        target.outputStream().use { it.write(bytes) }
+        try {
+            target.outputStream().use { it.write(bytes) }
+        } catch (e: Exception) {
+            // A failed save must not leave a partial file behind
+            target.delete()
+            throw e
+        }
     }
 
     private fun saveImageBytesQPlus(
@@ -96,10 +104,12 @@ object SaveImageToGallery {
         fileName: String,
         bytes: ByteArray,
         dateTakenMillis: Long,
+        mimeType: String,
     ) {
         val values =
             ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
                     "${Environment.DIRECTORY_PICTURES}/$DIRECTORY",
@@ -113,18 +123,20 @@ object SaveImageToGallery {
             resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
                 ?: throw IOException("Failed to create a MediaStore entry for $fileName")
 
-        val outputStream =
-            resolver.openOutputStream(uri)
-                ?: run {
-                    // Nothing was written, removing the pending placeholder
-                    resolver.delete(uri, null, null)
-                    throw IOException("Failed to open the MediaStore entry for writing")
-                }
+        try {
+            val outputStream =
+                resolver.openOutputStream(uri)
+                    ?: throw IOException("Failed to open the MediaStore entry for writing")
 
-        outputStream.use { it.write(bytes) }
+            outputStream.use { it.write(bytes) }
 
-        values.clear()
-        values.put(MediaStore.MediaColumns.IS_PENDING, 0)
-        resolver.update(uri, values, null, null)
+            values.clear()
+            values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+            resolver.update(uri, values, null, null)
+        } catch (e: Exception) {
+            // A failed save must not leave the IS_PENDING placeholder behind
+            resolver.delete(uri, null, null)
+            throw e
+        }
     }
 }
