@@ -76,7 +76,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.PainterState
 import com.github.panpf.sketch.rememberAsyncImageState
-import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.MainActivity
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.helpers.SECONDARY_ALPHA
