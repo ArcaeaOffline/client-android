@@ -35,6 +35,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.io.asOutputStream
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
@@ -52,6 +53,8 @@ import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import java.io.IOException
 import kotlin.concurrent.Volatile
 import kotlin.time.Clock
@@ -106,6 +109,9 @@ class OcrFromShareViewModel(
     }
 
     private val logger = Logger.withTag(LOG_TAG)
+
+    private val eventChannel = UiEventChannel()
+    val events = eventChannel.events
 
     private val _ocrDependencyViewersUiState = MutableStateFlow<OcrDependencyViewersUiState?>(null)
     val ocrDependencyViewersUiState = _ocrDependencyViewersUiState.asStateFlow()
@@ -289,8 +295,15 @@ class OcrFromShareViewModel(
                         }
                     }
 
-                _imageSaved.value =
-                    SaveImageToGallery.saveImageBytes(appContext, fileName, bytes, dateTaken.toEpochMilliseconds())
+                SaveImageToGallery.saveImageBytes(appContext, fileName, bytes, dateTaken.toEpochMilliseconds())
+                _imageSaved.value = true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(e) { "Error occurred while saving image" }
+                eventChannel.send(
+                    UiEvent.StringRes(R.string.ocr_from_share_image_save_failed, listOf(e.toString())),
+                )
             } finally {
                 imageSaveInFlight = false
             }

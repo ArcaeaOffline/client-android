@@ -119,6 +119,7 @@ CC BY-SA 3.0
     <string name="ocr_from_share_fullscreen">Fullscreen</string>
     <string name="ocr_from_share_save_image_button">Save Image</string>
     <string name="ocr_from_share_image_saved">Image Saved</string>
+    <string name="ocr_from_share_image_save_failed">Failed to save image (%s)</string>
     <string name="ocr_from_share_cache_play_result_button">Cache</string>
     <string name="ocr_from_share_play_result_saved">Play Saved</string>
     <string name="ocr_from_share_error">OCR Error</string>

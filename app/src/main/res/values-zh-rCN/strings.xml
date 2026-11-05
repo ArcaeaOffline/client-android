@@ -103,6 +103,7 @@
     <string name="ocr_from_share_fullscreen">全屏</string>
     <string name="ocr_from_share_save_image_button">保存图片</string>
     <string name="ocr_from_share_image_saved">图片已保存</string>
+    <string name="ocr_from_share_image_save_failed">图片保存失败 (%s)</string>
     <string name="ocr_from_share_cache_play_result_button">暂存</string>
     <string name="ocr_from_share_play_result_saved">记录已保存</string>
     <string name="ocr_from_share_error">OCR 出错</string>

@@ -45,6 +45,8 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -137,12 +139,13 @@ private fun OcrFromShareScreenExpanded(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
     onNavigateToDependencies: () -> Unit,
+    snackbarHost: @Composable () -> Unit,
     resultSection: @Composable ColumnScope.() -> Unit,
     actionsSection: @Composable ColumnScope.() -> Unit,
 ) {
     // Top bar removed since it takes a certain amount of height but contains no useful information
     // Especially useless on landscape phones
-    Scaffold { innerPadding ->
+    Scaffold(snackbarHost = snackbarHost) { innerPadding ->
         Row(
             Modifier
                 .fillMaxSize()
@@ -192,10 +195,14 @@ private fun OcrFromShareScreenCompact(
     onReturnToShareApp: () -> Unit,
     onStayInApp: () -> Unit,
     onNavigateToDependencies: () -> Unit,
+    snackbarHost: @Composable () -> Unit,
     resultSection: @Composable ColumnScope.() -> Unit,
     actionsSection: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(topBar = { OcrFromShareTopBar() }) { innerPadding ->
+    Scaffold(
+        topBar = { OcrFromShareTopBar() },
+        snackbarHost = snackbarHost,
+    ) { innerPadding ->
         Column(
             modifier =
                 Modifier
@@ -335,6 +342,15 @@ fun OcrFromShareScreen(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel, lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.events.collect { event ->
+                snackbarHostState.showSnackbar(event.asString(context.resources), withDismissAction = true)
+            }
+        }
+    }
+
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     if (landscape) {
         OcrFromShareScreenExpanded(
@@ -346,6 +362,7 @@ fun OcrFromShareScreen(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
             onNavigateToDependencies = navigateToDependencies,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             resultSection = resultSection,
             actionsSection = actionsSection,
         )
@@ -359,6 +376,7 @@ fun OcrFromShareScreen(
             onReturnToShareApp = onReturnToShareApp,
             onStayInApp = onStayInApp,
             onNavigateToDependencies = navigateToDependencies,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             resultSection = resultSection,
             actionsSection = actionsSection,
         )
