@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -28,6 +29,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -50,6 +53,9 @@ class DatabaseAddPlayResultViewModel(
     private val selectedChart = MutableStateFlow<ChartKey?>(null)
     private val editingPlayResult = MutableStateFlow<PlayResult?>(null)
     private val keepChartAfterSave = MutableStateFlow(false)
+
+    private val eventChannel = UiEventChannel()
+    val events = eventChannel.events
 
     private val chart: Flow<DifficultyWithSong?> =
         selectedChart.flatMapLatest { key ->
@@ -139,6 +145,8 @@ class DatabaseAddPlayResultViewModel(
                 } else {
                     reset()
                 }
+
+                eventChannel.send(UiEvent.StringRes(R.string.database_add_play_result_saved))
             }
     }
 }

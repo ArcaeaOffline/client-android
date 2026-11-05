@@ -24,6 +24,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -208,6 +211,15 @@ internal fun DatabaseAddPlayResultScreen(
         }
     }
 
+    val resources = LocalResources.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            snackbarHostState.showSnackbar(event.asString(resources), withDismissAction = true)
+        }
+    }
+
     var showSaveConfirmDialog by rememberSaveable { mutableStateOf(false) }
 
     fun requestSave() {
@@ -235,6 +247,7 @@ internal fun DatabaseAddPlayResultScreen(
     ) {
         Scaffold(
             contentWindowInsets = WindowInsets.safeDrawing,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             bottomBar = {
                 BottomActionsBar(
                     warnings = uiState.warnings,

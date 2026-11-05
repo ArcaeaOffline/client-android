@@ -10,7 +10,6 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
@@ -39,7 +37,8 @@ import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
-import xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging.OcrQueueStagingViewModel
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -57,10 +56,8 @@ class OcrQueueScreenViewModel(
 
     private val workManager = WorkManager.getInstance(context.applicationContext)
 
-    private val _events = Channel<OcrQueueStagingViewModel.UiEvent>(Channel.BUFFERED)
-
-    /** One-shot UI events for the queue screen, e.g. the start-queue gate. */
-    val events = _events.receiveAsFlow()
+    private val eventChannel = UiEventChannel()
+    val events = eventChannel.events
 
     private val ocrQueuePreferences =
         preferencesRepository.preferencesFlow.stateIn(
@@ -278,7 +275,7 @@ class OcrQueueScreenViewModel(
         viewModelScope.launch {
             // NORMAL and ALL needs the hashes database before processing any task
             if (runMode != OcrQueueProcessingJob.RunMode.SMART_FIX && !imageHashesDatabaseFileExists()) {
-                _events.send(OcrQueueStagingViewModel.UiEvent.StringRes(R.string.ocr_queue_event_ihdb_missing))
+                eventChannel.send(UiEvent.StringRes(R.string.ocr_queue_event_ihdb_missing))
                 return@launch
             }
 

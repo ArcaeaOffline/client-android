@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.ui.screens.ocr.queue.staging
 
 import android.content.Context
-import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,14 +14,12 @@ import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import xyz.sevive.arcaeaoffline.R
@@ -38,6 +35,8 @@ import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
 import xyz.sevive.arcaeaoffline.helpers.fromWorkInfo
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueStagingJob
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
+import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -57,26 +56,6 @@ class OcrQueueStagingViewModel(
             OcrQueuePreferencesSerializer.defaultValue,
         )
 
-    // TODO: combine with ImportLog?
-    sealed class UiEvent {
-        data class StringRes(
-            @androidx.annotation.StringRes val resId: Int,
-            val formatArgs: List<Any> = emptyList(),
-        ) : UiEvent()
-
-        data class PluralRes(
-            @androidx.annotation.PluralsRes val resId: Int,
-            val quantity: Int,
-            val formatArgs: List<Any> = emptyList(),
-        ) : UiEvent()
-
-        fun asString(resources: Resources): String =
-            when (this) {
-                is StringRes -> resources.getString(resId, *formatArgs.toTypedArray())
-                is PluralRes -> resources.getQuantityString(resId, quantity, *formatArgs.toTypedArray())
-            }
-    }
-
     data class StagingItemCount(
         val checked: Int = 0,
         val total: Int = 0,
@@ -89,8 +68,8 @@ class OcrQueueStagingViewModel(
         val stagingItemCount: StagingItemCount? = null,
     )
 
-    private val _events = Channel<UiEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
+    private val eventChannel = UiEventChannel()
+    val events = eventChannel.events
 
     private val stagingJobWorkInfoFlow =
         workManager.getWorkInfosForUniqueWorkFlow(OcrQueueStagingJob.WORK_NAME).map {
@@ -109,7 +88,7 @@ class OcrQueueStagingViewModel(
             stagingJobWorkInfoFlow.distinctUntilChanged { old, new -> old?.state == new?.state }.collectLatest { workInfo ->
                 if (workInfo == null || workInfo.state != WorkInfo.State.FAILED) return@collectLatest
 
-                _events.send(
+                eventChannel.send(
                     UiEvent.StringRes(
                         R.string.ocr_queue_event_staging_error,
                         listOf(workInfo.outputData.getString(OcrQueueStagingJob.KEY_ERROR_MESSAGE) ?: "WorkInfo.State.FAILED"),
@@ -163,7 +142,7 @@ class OcrQueueStagingViewModel(
             itemRepo.insertBatch(uris.associateWith { OcrQueueStagingUriType.FILE }, batchId)
 
             requestWork()
-            _events.send(
+            eventChannel.send(
                 UiEvent.PluralRes(R.plurals.ocr_queue_event_files_staged, count, listOf(count)),
             )
         }
@@ -181,7 +160,7 @@ class OcrQueueStagingViewModel(
             itemRepo.insertBatch(mapOf(folder.toAndroidUri() to OcrQueueStagingUriType.FOLDER), batchId)
 
             requestWork()
-            _events.send(
+            eventChannel.send(
                 UiEvent.StringRes(R.string.ocr_queue_event_folder_staged, listOf(folder.name)),
             )
         }
@@ -205,7 +184,7 @@ class OcrQueueStagingViewModel(
     fun deleteAll() {
         viewModelScope.launch {
             itemRepo.deleteAll()
-            _events.send(UiEvent.StringRes(R.string.ocr_queue_event_staging_cleared))
+            eventChannel.send(UiEvent.StringRes(R.string.ocr_queue_event_staging_cleared))
         }
     }
 }
