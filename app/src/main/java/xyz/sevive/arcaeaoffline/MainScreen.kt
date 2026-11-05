@@ -8,6 +8,9 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -42,8 +45,14 @@ fun MainScreen(
     val currentRoute = navBackStackEntry?.destination?.route
     val currentRouteRoot = currentRoute?.split("/")
 
+    // The intent extra survives activity recreation (rotation, process-death restore, etc.),
+    // so consuming the initial route to prevent unexpected extra navigations.
+    // A new jump recreates the activity via CLEAR_TOP, which starts with fresh state.
+    var initialRouteConsumed by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(initialNavigateRoute) {
         val route = initialNavigateRoute ?: return@LaunchedEffect
+        if (initialRouteConsumed) return@LaunchedEffect
         val tabRoute = route.substringBefore('/')
         if (MainScreen.entries.none { it.route == tabRoute }) return@LaunchedEffect
 
@@ -59,6 +68,8 @@ fun MainScreen(
             }
             launchSingleTop = true
         }
+
+        initialRouteConsumed = true
     }
 
     val navigationSuiteColors =
