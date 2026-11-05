@@ -56,7 +56,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -257,7 +256,6 @@ fun OcrFromShareScreen(
 ) {
     val context = LocalContext.current
     val res = LocalResources.current
-    val coroutineScope = rememberCoroutineScope()
 
     val navigateToDependencies = {
         // User should expect returning to this activity after setting up,
@@ -330,9 +328,9 @@ fun OcrFromShareScreen(
                     hasPlayResult = resultState is OcrResultState.Done,
                     playResultSaveState = playResultSaveState,
                     warnings = warnings,
-                    onSavePlayResult = { coroutineScope.launch { viewModel.savePlayResult() } },
+                    onSavePlayResult = { viewModel.savePlayResult() },
                     onCachePlayResult = {
-                        // TODO: coroutineScope.launch { viewModel.cachePlayResult(context) }
+                        // TODO: viewModel.cachePlayResult(context)
                         Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
                     },
                 )

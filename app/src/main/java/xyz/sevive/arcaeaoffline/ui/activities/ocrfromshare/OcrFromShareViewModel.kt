@@ -215,37 +215,43 @@ class OcrFromShareViewModel(
 
     /** Single entry for Activity */
     fun onImageShared(uri: Uri) {
+        // The Activity re-delivers the share intent on recreation, so holding a flag here
+        // to prevent dropping the user's edits and the saved state.
+        if (_sharedImageUri.value == uri) return
+
+        _sharedImageUri.value = uri
+        viewModelScope.launch { readImageAndStartOcr(uri) }
+    }
+
+    private suspend fun readImageAndStartOcr(uri: Uri) {
         val sharedAt = Clock.System.now()
 
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val bytes =
-                        appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                            ?: throw IOException("Cannot open shared image stream")
+        try {
+            withContext(Dispatchers.IO) {
+                val bytes =
+                    appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        ?: throw IOException("Cannot open shared image stream")
 
-                    val sourceTakenAt =
-                        runCatching {
-                            DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
-                        }.getOrNull()
+                val sourceTakenAt =
+                    runCatching {
+                        DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
+                    }.getOrNull()
 
-                    sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
-                    _sharedImageUri.value = uri
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _ocrResultState.value = OcrResultState.Failed(Exception("Error reading image", e))
-                return@launch
+                sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
             }
-
-            startOcr(uri)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            _ocrResultState.value = OcrResultState.Failed(Exception("Error reading image", e))
+            return
         }
+
+        startOcr(uri)
     }
 
     fun retryOcr() {
-        val imageUri = sharedImage?.uri ?: return
-        viewModelScope.launch { startOcr(imageUri) }
+        val imageUri = _sharedImageUri.value ?: return
+        viewModelScope.launch { readImageAndStartOcr(imageUri) }
     }
 
     fun setPlayResult(playResult: PlayResult) {
@@ -255,10 +261,29 @@ class OcrFromShareViewModel(
     private val _playResultSaveState = MutableStateFlow(PlayResultSaveState())
     val playResultSaveState = _playResultSaveState.asStateFlow()
 
-    suspend fun savePlayResult() {
+    @Volatile
+    private var playResultSaveInFlight = false
+
+    fun savePlayResult() {
+        if (playResultSaveInFlight || playResultSaveState.value.saved) return
         val playResult = (_ocrResultState.value as? OcrResultState.Done)?.playResult ?: return
-        playResultRepo.upsert(playResult)
-        _playResultSaveState.value = _playResultSaveState.value.copy(saved = true)
+        playResultSaveInFlight = true
+
+        viewModelScope.launch {
+            try {
+                playResultRepo.upsert(playResult)
+                _playResultSaveState.value = _playResultSaveState.value.copy(saved = true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(e) { "Error occurred while saving play result" }
+                eventChannel.send(
+                    UiEvent.StringRes(R.string.ocr_from_share_play_result_save_failed, listOf(e.toString())),
+                )
+            } finally {
+                playResultSaveInFlight = false
+            }
+        }
     }
 
     private val _imageSaved = MutableStateFlow(false)

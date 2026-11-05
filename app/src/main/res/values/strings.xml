@@ -122,6 +122,7 @@ CC BY-SA 3.0
     <string name="ocr_from_share_image_save_failed">Failed to save image (%s)</string>
     <string name="ocr_from_share_cache_play_result_button">Cache</string>
     <string name="ocr_from_share_play_result_saved">Play Saved</string>
+    <string name="ocr_from_share_play_result_save_failed">Failed to save play result (%s)</string>
     <string name="ocr_from_share_error">OCR Error</string>
     <string name="ocr_from_share_retry_ocr">Retry OCR</string>
     <string name="ocr_from_share_return_to_share_source">Return to previous app</string>
