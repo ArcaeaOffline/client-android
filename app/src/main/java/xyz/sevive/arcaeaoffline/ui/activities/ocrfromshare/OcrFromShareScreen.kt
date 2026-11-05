@@ -269,7 +269,8 @@ fun OcrFromShareScreen(
         context.startActivity(intent)
     }
 
-    val sharedImageUri by viewModel.sharedImageUri.collectAsStateWithLifecycle()
+    val shareRequest by viewModel.shareRequest.collectAsStateWithLifecycle()
+    val sharedImageUri = shareRequest?.uri
     val dependencyUiState by viewModel.ocrDependencyViewersUiState.collectAsStateWithLifecycle()
     val shareSource by viewModel.shareSourceUiState.collectAsStateWithLifecycle()
     val resultState by viewModel.ocrResultState.collectAsStateWithLifecycle()

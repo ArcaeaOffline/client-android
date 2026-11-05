@@ -95,6 +95,12 @@ class OcrFromShareViewModel(
         val cached: Boolean = false,
     )
 
+    /** The share as delivered by the Activity, captured once at [onImageShared] and reused by retries. */
+    data class ShareRequest(
+        val uri: Uri,
+        val sharedAt: Instant,
+    )
+
     /** The image this share session is about, captured once at [onImageShared]. */
     @Suppress("ArrayInDataClass")
     data class SharedImage(
@@ -210,26 +216,27 @@ class OcrFromShareViewModel(
 
     private var sharedImage: SharedImage? = null
 
-    private val _sharedImageUri = MutableStateFlow<Uri?>(null)
-    val sharedImageUri = _sharedImageUri.asStateFlow()
+    private val _shareRequest = MutableStateFlow<ShareRequest?>(null)
+    val shareRequest = _shareRequest.asStateFlow()
 
     /** Single entry for Activity */
     fun onImageShared(uri: Uri) {
         // The Activity re-delivers the share intent on recreation, so holding a flag here
         // to prevent dropping the user's edits and the saved state.
-        if (_sharedImageUri.value == uri) return
+        if (_shareRequest.value?.uri == uri) return
 
-        _sharedImageUri.value = uri
-        viewModelScope.launch { readImageAndStartOcr(uri) }
+        val request = ShareRequest(uri, Clock.System.now())
+        _shareRequest.value = request
+        viewModelScope.launch { readImageAndStartOcr(request) }
     }
 
-    private suspend fun readImageAndStartOcr(uri: Uri) {
-        val sharedAt = Clock.System.now()
+    private suspend fun readImageAndStartOcr(request: ShareRequest) {
+        _ocrResultState.value = OcrResultState.Waiting
 
         try {
             withContext(Dispatchers.IO) {
                 val bytes =
-                    appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    appContext.contentResolver.openInputStream(request.uri)?.use { it.readBytes() }
                         ?: throw IOException("Cannot open shared image stream")
 
                 val sourceTakenAt =
@@ -237,7 +244,7 @@ class OcrFromShareViewModel(
                         DeviceOcrHelper.readImageDateFromExif(ByteArrayByteReader(bytes))
                     }.getOrNull()
 
-                sharedImage = SharedImage(uri, sharedAt, sourceTakenAt, bytes)
+                sharedImage = SharedImage(request.uri, request.sharedAt, sourceTakenAt, bytes)
             }
         } catch (e: CancellationException) {
             throw e
@@ -246,12 +253,12 @@ class OcrFromShareViewModel(
             return
         }
 
-        startOcr(uri)
+        startOcr(request.uri)
     }
 
     fun retryOcr() {
-        val imageUri = _sharedImageUri.value ?: return
-        viewModelScope.launch { readImageAndStartOcr(imageUri) }
+        val request = _shareRequest.value ?: return
+        viewModelScope.launch { readImageAndStartOcr(request) }
     }
 
     fun setPlayResult(playResult: PlayResult) {
@@ -368,7 +375,6 @@ class OcrFromShareViewModel(
 
     private suspend fun startOcr(uri: Uri) {
         logger.i { "OCR from share request: $uri" }
-        _ocrResultState.value = OcrResultState.Waiting
 
         withContext(Dispatchers.IO) {
             try {
