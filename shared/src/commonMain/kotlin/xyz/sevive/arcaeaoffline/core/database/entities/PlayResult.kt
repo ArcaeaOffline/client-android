@@ -20,6 +20,7 @@ import kotlin.uuid.Uuid
     indices = [
         Index(value = ["uuid"], unique = true),
         Index(value = ["song_id", "rating_class"]),
+        Index(value = ["date"]),
     ],
 )
 data class PlayResult(
