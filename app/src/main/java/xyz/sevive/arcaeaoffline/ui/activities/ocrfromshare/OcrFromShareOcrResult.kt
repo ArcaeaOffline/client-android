@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,8 +42,10 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
+import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
 import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -69,6 +74,22 @@ internal fun OcrFromShareOcrResult(
         )
     }
 
+    var showChartSelector by rememberSaveable { mutableStateOf(false) }
+
+    if (showChartSelector && playResult != null) {
+        BasicAlertDialogSurface(onDismissRequest = { showChartSelector = false }) {
+            ArcaeaChartSelector(
+                songId = playResult.songId,
+                ratingClass = playResult.ratingClass,
+                onDifficultyChange = {
+                    onSetPlayResult(playResult.copy(songId = it.songId, ratingClass = it.ratingClass))
+                    // do not close dialog here since the selector will fire its initial selection
+                    // when the dialog opens
+                },
+            )
+        }
+    }
+
     // Size changes between the waiting, error, and result branches animate instead of jumping.
     Box(Modifier.animateContentSize()) {
         if (playResult != null) {
@@ -82,11 +103,28 @@ internal fun OcrFromShareOcrResult(
                 )
 
                 AnimatedVisibility(visible = !playResultSaved && !playResultCached) {
-                    IconButton(onClick = { showPlayResultEditorDialog = true }) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.general_edit),
-                        )
+                    Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
+                        var showEditMenu by rememberSaveable { mutableStateOf(false) }
+                        IconButton(onClick = { showEditMenu = true }) {
+                            Icon(Icons.Default.Edit, contentDescription = null)
+                        }
+
+                        DropdownMenu(expanded = showEditMenu, onDismissRequest = { showEditMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.arcaea_play_result)) },
+                                onClick = {
+                                    showPlayResultEditorDialog = true
+                                    showEditMenu = false
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.arcaea_chart)) },
+                                onClick = {
+                                    showChartSelector = true
+                                    showEditMenu = false
+                                },
+                            )
+                        }
                     }
                 }
             }
