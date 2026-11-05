@@ -132,10 +132,13 @@ object SaveImageToGallery {
 
             values.clear()
             values.put(MediaStore.MediaColumns.IS_PENDING, 0)
-            resolver.update(uri, values, null, null)
+            if (resolver.update(uri, values, null, null) == 0) {
+                throw IOException("Failed to finalize the MediaStore entry for $fileName")
+            }
         } catch (e: Exception) {
             // A failed save must not leave the IS_PENDING placeholder behind
-            resolver.delete(uri, null, null)
+            runCatching { resolver.delete(uri, null, null) }
+                .onFailure { logger.w(it) { "Failed to remove the pending MediaStore entry" } }
             throw e
         }
     }
