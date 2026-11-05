@@ -119,3 +119,10 @@ data class CrnnModelStatusDetail(
         }
     }
 }
+
+/**
+ * Whether the image hashes database needs setup: absent, failed to load, or holding no hashes.
+ *
+ * Null counts mean the detail has not loaded yet, not an empty database.
+ */
+fun ImageHashesDatabaseStatusDetail.needsSetup(): Boolean = absence || exception != null || jacketCount == 0 || partnerIconCount == 0
