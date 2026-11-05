@@ -340,38 +340,36 @@ class OcrFromShareViewModel(
         _ocrResultState.value = OcrResultState.Waiting
 
         withContext(Dispatchers.IO) {
-            val ortSession = DeviceOcrOnnxHelper.createOrtSession(appContext)
-
             try {
-                val imageHashesSQLiteDatabase =
-                    OcrDependencyLoader.imageHashesSQLiteDatabase()
+                DeviceOcrOnnxHelper.createOrtSession(appContext).use { ortSession ->
+                    val imageHashesSQLiteDatabase =
+                        OcrDependencyLoader.imageHashesSQLiteDatabase()
 
-                val ocrResult =
-                    imageHashesSQLiteDatabase.use { sqliteDb ->
-                        val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
-                        DeviceOcrHelper.ocrImage(
+                    val ocrResult =
+                        imageHashesSQLiteDatabase.use { sqliteDb ->
+                            val imageHashesDatabase = ImageHashesDatabase(sqliteDb)
+                            DeviceOcrHelper.ocrImage(
+                                uri,
+                                imageHashesDatabase,
+                                ortSession = ortSession,
+                            )
+                        }
+                    val playResult =
+                        DeviceOcrHelper.ocrResultToPlayResult(
                             uri,
-                            imageHashesDatabase,
-                            ortSession = ortSession,
+                            appContext,
+                            ocrResult,
+                            fallbackDate = Clock.System.now(),
                         )
-                    }
-                val playResult =
-                    DeviceOcrHelper.ocrResultToPlayResult(
-                        uri,
-                        appContext,
-                        ocrResult,
-                        fallbackDate = Clock.System.now(),
-                    )
 
-                _ocrResultState.value = OcrResultState.Done(playResult)
+                    _ocrResultState.value = OcrResultState.Done(playResult)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 _ocrResultState.value = OcrResultState.Failed(e)
 
                 logger.e(e) { "Error occurred during OCR" }
-            } finally {
-                ortSession.close()
             }
         }
     }
