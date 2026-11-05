@@ -127,6 +127,19 @@ class DatabaseReadinessRepositoryTest {
         }
 
     @Test
+    fun partialWhenChartInfoConstantIsZero() =
+        runBlocking {
+            seedPartial()
+            // Filling the only missing difficulty with constant = 0 must not reach READY.
+            db.chartInfoDao().insert(
+                ChartInfo("songb", ArcaeaRatingClass.FUTURE, constant = 0, notes = 800),
+            )
+
+            assertEquals(DatabaseReadiness.PARTIAL, repository.readiness().first())
+            assertEquals(1, repository.missingChartInfoCount().first())
+        }
+
+    @Test
     fun summaryCarriesReadinessAndCounts() =
         runBlocking {
             seedPartial()
