@@ -50,9 +50,9 @@ import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyStatusBuilder
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
-import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyCrnnModelStatusUiState
 import xyz.sevive.arcaeaoffline.ui.components.ocr.OcrDependencyImageHashesDatabaseStatusUiState
+import xyz.sevive.arcaeaoffline.ui.helpers.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import java.io.IOException

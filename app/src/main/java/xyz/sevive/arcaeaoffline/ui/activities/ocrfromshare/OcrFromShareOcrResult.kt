@@ -46,8 +46,8 @@ import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
 import xyz.sevive.arcaeaoffline.ui.components.BasicAlertDialogSurface
-import xyz.sevive.arcaeaoffline.ui.components.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
+import xyz.sevive.arcaeaoffline.ui.helpers.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
 import kotlin.time.Instant

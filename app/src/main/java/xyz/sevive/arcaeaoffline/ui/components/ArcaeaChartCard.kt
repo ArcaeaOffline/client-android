@@ -44,18 +44,9 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+import xyz.sevive.arcaeaoffline.ui.helpers.DifficultyWithSongDisplay
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
-
-// Display data resolved as one atomic unit. Swapping the pair together is
-// what keeps the card consistent (title/level text and constant change in
-// the same frame) and lets the card's AnimatedContent keep its old -> new
-// transition: the previous pair is held while the next one is resolving,
-// instead of dropping the card to its placeholder.
-data class DifficultyWithSongDisplay(
-    val difficultyWithSong: DifficultyWithSong,
-    val chartInfo: ChartInfo?,
-)
 
 @Composable
 internal fun rememberArcaeaChartDisplay(
