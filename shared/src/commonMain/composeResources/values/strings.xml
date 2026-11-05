@@ -4,7 +4,7 @@
     <string name="general_please_wait">Please wait…</string>
     <string name="general_no_results">No results</string>
 
-    <string name="song_id_selector_quick_search">Search title, artist or ID…</string>
+    <string name="song_id_selector_quick_search">Title or artist…</string>
 
     <string name="arcaea_play_result_score">Score</string>
     <string name="arcaea_constant">Constant</string>

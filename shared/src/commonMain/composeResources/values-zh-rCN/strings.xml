@@ -4,7 +4,7 @@
     <string name="general_please_wait">请稍候……</string>
     <string name="general_no_results">无结果</string>
 
-    <string name="song_id_selector_quick_search">搜索曲名、曲师或 ID……</string>
+    <string name="song_id_selector_quick_search">曲名、曲师……</string>
 
     <string name="arcaea_play_result_score">分数</string>
     <string name="arcaea_constant">定数</string>

@@ -242,7 +242,7 @@ CC BY-SA 3.0
     </plurals>
     <string name="database_play_result_updated">Play result %s updated</string>
 
-    <string name="database_play_result_search_hint">Search title, artist, pack or comment…</string>
+    <string name="database_play_result_search_hint">Title, artist or comment…</string>
     <string name="database_play_result_filter">Filter</string>
     <string name="database_play_result_filter_title">Filter</string>
     <string name="database_play_result_filter_packs">Packs</string>

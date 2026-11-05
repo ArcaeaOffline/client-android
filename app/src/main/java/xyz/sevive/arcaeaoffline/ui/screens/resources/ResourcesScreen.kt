@@ -166,12 +166,18 @@ private enum class ChartInfoSource {
 
 @Composable
 private fun LastImportedText(
-    label: String,
+    label: String?,
     instant: Instant,
     modifier: Modifier = Modifier,
 ) {
+    val text =
+        buildString {
+            if (label != null) append("$label · ")
+            append(stringResource(R.string.resources_last_imported_at, instant.formatAsLocalizedDateTime()))
+        }
+
     Text(
-        "$label · ${stringResource(R.string.resources_last_imported_at, instant.formatAsLocalizedDateTime())}",
+        text,
         style = MaterialTheme.typography.bodySmall,
         modifier = modifier.secondaryItemAlpha(),
     )
@@ -354,10 +360,7 @@ private fun ResourcesChartInfoCard(
                 )
             }
             status.chartInfoLastImportedAt?.let {
-                LastImportedText(
-                    stringResource(R.string.database_manage_download_chart_info_database),
-                    it,
-                )
+                LastImportedText(label = null, instant = it)
             }
         }
 
