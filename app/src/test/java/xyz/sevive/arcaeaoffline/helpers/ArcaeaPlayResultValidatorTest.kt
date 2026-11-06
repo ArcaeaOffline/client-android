@@ -552,4 +552,98 @@ class ArcaeaPlayResultValidatorTest {
             ),
         )
     }
+
+    @Test
+    fun noteBasedWarningsSkipNonPositiveNotes() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 10_000_500,
+                pure = 900,
+                far = 20,
+                lost = 0,
+                maxRecall = 920,
+                clearType = ArcaeaPlayResultClearType.FULL_RECALL,
+            )
+
+        for (notes in listOf(0, -5)) {
+            val corrupt = chartInfo.copy(notes = notes)
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, corrupt),
+            )
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResult, corrupt),
+            )
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(playResult, corrupt),
+            )
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, corrupt),
+            )
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(playResult, corrupt),
+            )
+            assertFalse(
+                "notes=$notes",
+                ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(playResult, corrupt),
+            )
+        }
+
+        // A negative score stays impossible even when the note count is unusable.
+        assertTrue(
+            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(
+                playResult.copy(score = -1),
+                chartInfo.copy(notes = 0),
+            ),
+        )
+    }
+
+    @Test
+    fun pflOverflow() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 917,
+                far = 3,
+                lost = 1,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(playResult, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(
+                playResult.copy(lost = 0),
+                chartInfo,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(
+                playResult,
+                chartInfo.copy(notes = 0),
+            ),
+        )
+    }
 }

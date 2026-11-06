@@ -10,12 +10,18 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 /**
+ * The chart's note count when it can validate a play result, or `null` when the chart data is
+ * missing or non-positive.
+ */
+private fun ChartInfo?.usableNotes(): Int? = this?.notes?.takeIf { it > 0 }
+
+/**
  * A data problem detected in a [PlayResult].
  *
  * Two null-value policies exist:
  *
  * * Contradiction warnings need both compared values. An unknown value (a null [PlayResult]
- *   field or missing [ChartInfo.notes]) makes the check pass silently.
+ *   field or a missing or non-positive [ChartInfo.notes]) makes the check pass silently.
  * * Suspicion warnings, titled with a "?", verify the judgment counts implied by a claimed
  *   clear type. Unknown counts cannot confirm the claim and also trigger the warning.
  */
@@ -80,9 +86,7 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        val notes = chartInfo?.notes ?: return false
-        // A non-positive note count is corrupt chart data, not a play data problem.
-        if (notes <= 0) return false
+        val notes = chartInfo.usableNotes() ?: return false
 
         val pure = playResult.pure ?: return false
         val far = playResult.far ?: return false
@@ -124,7 +128,7 @@ data object ArcaeaPlayResultValidatorScoreImpossibleWarning : ArcaeaPlayResultVa
     ): Boolean {
         if (playResult.score < 0) return true
 
-        val notes = chartInfo?.notes ?: return false
+        val notes = chartInfo.usableNotes() ?: return false
         return playResult.score > 10_000_000 + notes
     }
 }
@@ -142,16 +146,14 @@ data object ArcaeaPlayResultValidatorPflOverflowWarning : ArcaeaPlayResultValida
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        if (chartInfo?.notes == null) {
-            return false
-        }
+        val notes = chartInfo.usableNotes() ?: return false
 
         var sum = 0
         sum += playResult.pure ?: 0
         sum += playResult.far ?: 0
         sum += playResult.lost ?: 0
 
-        return sum > chartInfo.notes!!
+        return sum > notes
     }
 }
 
@@ -168,7 +170,7 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        val notes = chartInfo?.notes ?: return false
+        val notes = chartInfo.usableNotes() ?: return false
         val maxRecall = playResult.maxRecall ?: return false
 
         return maxRecall > notes - (playResult.lost ?: 0)
@@ -217,7 +219,7 @@ data object ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning :
             return false
         }
 
-        val notes = chartInfo?.notes ?: return false
+        val notes = chartInfo.usableNotes() ?: return false
         val maxRecall = playResult.maxRecall ?: return false
 
         return maxRecall != notes
@@ -237,7 +239,7 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        val notes = chartInfo?.notes ?: return false
+        val notes = chartInfo.usableNotes() ?: return false
         val clearType = playResult.clearType ?: return false
 
         // A HARD play can be interrupted before the chart ends, so a TRACK LOST result may have
