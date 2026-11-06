@@ -21,6 +21,7 @@ If the local maven repo does not exist, Gradle falls back to Maven Central. This
 - [ARCHITECTURE.md](ARCHITECTURE.md): module boundaries and where new code goes
 - [potential.md](./docs/potential.md) (Chinese): potential calculation
 - [st3.md](./docs/st3.md) (Chinese): caveats of the in-game score database
+- [play-result-mechanisms.md](./docs/play-result-mechanisms.md) (Chinese): mechanisms about pure, far, lost, clear type, etc.
 
 ## License
 
