@@ -9,10 +9,23 @@ import kotlin.test.assertNull
 class CommonCalculatorsTest {
     @Test
     fun testScoreRange() {
-        assertEquals(
-            10_000_000..10_002_221,
-            calculateScoreRange(2221, 2221, 0),
-        )
+        // Counts such as 1046 and 1081 are where a floating-point bound falls one point short,
+        // so the sweep covers every note count up to 3000.
+        for (notes in 1..3000) {
+            assertEquals(
+                10_000_000..(10_000_000 + notes),
+                calculateScoreRange(notes, notes, 0),
+                "notes=$notes",
+            )
+        }
+
+        // Expected values are hand-computed from the score formula. See docs/play-result-mechanisms.md
+        assertEquals(9_843_750..9_844_339, calculateScoreRange(608, 589, 19))
+        assertEquals(9_983_695..9_984_612, calculateScoreRange(920, 917, 3))
+        assertEquals(9_890_057..9_891_080, calculateScoreRange(1046, 1023, 23))
+
+        assertEquals(IntRange.EMPTY, calculateScoreRange(0, 0, 0))
+        assertEquals(IntRange.EMPTY, calculateScoreRange(-1, 10, 0))
     }
 
     @Test
