@@ -161,7 +161,7 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
     override val title = "Max recall overflow"
     override val titleId = R.string.play_result_validator_MAX_RECALL_OVERFLOW_title
 
-    override val message = "max recall > chart note count"
+    override val message = "max recall > chart note count - lost"
     override val messageId = R.string.play_result_validator_MAX_RECALL_OVERFLOW_message
 
     override fun conditionsMet(
@@ -230,7 +230,7 @@ data object ArcaeaPlayResultValidatorClearPflMismatchWarning : ArcaeaPlayResultV
     override val title = "Notes mismatch"
     override val titleId = R.string.play_result_validator_CLEAR_PFL_MISMATCH_title
 
-    override val message = "pure + far + lost != chart note count"
+    override val message = "pure + far + lost != chart note count (except HARD TRACK LOST)"
     override val messageId = R.string.play_result_validator_CLEAR_PFL_MISMATCH_message
 
     override fun conditionsMet(
@@ -351,7 +351,7 @@ data object ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning :
     override val title = "Modifier <> Clear type mismatch"
     override val titleId = R.string.play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title
 
-    override val message = "easy clear != easy || hard clear != hard"
+    override val message = "easy clear != easy || hard clear != hard || normal clear != normal"
     override val messageId = R.string.play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message
 
     override fun conditionsMet(
