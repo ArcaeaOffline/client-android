@@ -238,4 +238,318 @@ class ArcaeaPlayResultValidatorTest {
             ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultBeyondTheoretical, chartInfoNotesNull),
         )
     }
+
+    @Test
+    fun allPureNotPm() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 10_000_000,
+                pure = 920,
+                far = 0,
+                lost = 0,
+                clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(playResult, null),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.TRACK_LOST),
+                null,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.PURE_MEMORY),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(far = 1),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(far = null),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(lost = null),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+                playResult.copy(clearType = null),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun clearWithoutLost() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 900,
+                far = 20,
+                lost = 0,
+                clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(playResult, null),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.EASY_CLEAR),
+                null,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.HARD_CLEAR),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(lost = 1),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(lost = null),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.TRACK_LOST),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun pmScoreTooLow() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_999_999,
+                clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(playResult, null),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+                playResult.copy(score = 10_000_000),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+                playResult.copy(clearType = null),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun negativeCount() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 900,
+                far = 20,
+                lost = 0,
+                maxRecall = 920,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+                playResult.copy(pure = -1),
+                null,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+                playResult.copy(far = -1),
+                null,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+                playResult.copy(lost = -1),
+                null,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+                playResult.copy(maxRecall = -1),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(playResult, null),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+                PlayResult(
+                    songId = "test",
+                    ratingClass = ArcaeaRatingClass.FUTURE,
+                    score = 9_900_000,
+                ),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun maxRecallOverflowWithLost() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 900,
+                far = 19,
+                lost = 1,
+                maxRecall = 920,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(lost = 0),
+                chartInfo,
+            ),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(lost = null, maxRecall = 921),
+                chartInfo,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(lost = null),
+                chartInfo,
+            ),
+        )
+    }
+
+    @Test
+    fun modifierClearTypeMismatchNormalDirection() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
+                modifier = ArcaeaPlayResultModifier.EASY,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(playResult, null),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+                playResult.copy(modifier = ArcaeaPlayResultModifier.HARD),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+                playResult.copy(modifier = ArcaeaPlayResultModifier.NORMAL),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+                playResult.copy(modifier = null),
+                null,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+                playResult.copy(
+                    clearType = ArcaeaPlayResultClearType.EASY_CLEAR,
+                    modifier = ArcaeaPlayResultModifier.EASY,
+                ),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun scoreOutOfRangeNonPositiveNotes() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 0,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 900,
+                far = 20,
+            )
+
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(
+                playResult,
+                chartInfo.copy(notes = -5),
+            ),
+        )
+    }
 }

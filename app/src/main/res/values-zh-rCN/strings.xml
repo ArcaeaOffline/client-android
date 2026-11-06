@@ -431,11 +431,17 @@
     <string name="play_result_validator_SCORE_IMPOSSIBLE_title">分数超出理论范围</string>
     <string name="play_result_validator_SCORE_IMPOSSIBLE_message">分数为负或超过该谱面理论值</string>
 
+    <string name="play_result_validator_PM_SCORE_TOO_LOW_title">PURE MEMORY 分数过低</string>
+    <string name="play_result_validator_PM_SCORE_TOO_LOW_message">PURE MEMORY 结算的成绩分数应至少为 10000000</string>
+
     <string name="play_result_validator_PFL_OVERFLOW_title">Note 溢出</string>
     <string name="play_result_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
 
     <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
-    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数要大</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数减去 LOST 数要大</string>
+
+    <string name="play_result_validator_NEGATIVE_COUNT_title">计数为负</string>
+    <string name="play_result_validator_NEGATIVE_COUNT_message">PURE、FAR、LOST 和 MAX RECALL 不能为负数</string>
 
     <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL 有误</string>
     <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
@@ -446,11 +452,17 @@
     <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">真全想起来了？</string>
     <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">FULL RECALL 时，LOST 应为 0</string>
 
+    <string name="play_result_validator_PLAIN_CLEAR_WITHOUT_LOST_title">通关标志与 LOST 不符</string>
+    <string name="play_result_validator_PLAIN_CLEAR_WITHOUT_LOST_message">Normal/Easy/Hard Clear 结算的成绩应至少有 1 个 LOST</string>
+
     <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">真纯净回忆？</string>
     <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
 
+    <string name="play_result_validator_ALL_PURE_NOT_PM_title">应为 PURE MEMORY</string>
+    <string name="play_result_validator_ALL_PURE_NOT_PM_message">FAR 和 LOST 均为 0 的成绩应为 PURE MEMORY</string>
+
     <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier 与 Clear Type 不匹配</string>
-    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY CLEAR 同理</string>
+    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY 和 NORMAL CLEAR 同理</string>
 
 
     <!-- `unstable` build flavor -->

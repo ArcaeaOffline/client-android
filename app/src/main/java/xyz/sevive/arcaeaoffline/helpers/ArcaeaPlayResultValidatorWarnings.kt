@@ -80,13 +80,33 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        if (chartInfo?.notes == null || playResult.pure == null || playResult.far == null) {
-            return false
-        }
+        val notes = chartInfo?.notes ?: return false
+        // A non-positive note count is corrupt chart data, not a play data problem.
+        if (notes <= 0) return false
 
-        val scoreRange = calculateScoreRange(chartInfo.notes!!, playResult.pure!!, playResult.far!!)
+        val pure = playResult.pure ?: return false
+        val far = playResult.far ?: return false
+
+        val scoreRange = calculateScoreRange(notes, pure, far)
         return !scoreRange.contains(playResult.score)
     }
+}
+
+data object ArcaeaPlayResultValidatorPmScoreTooLowWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "PM_SCORE_TOO_LOW"
+
+    override val title = "PURE MEMORY score too low"
+    override val titleId = R.string.play_result_validator_PM_SCORE_TOO_LOW_title
+
+    override val message = "A PURE MEMORY play result scores at least 10000000."
+    override val messageId = R.string.play_result_validator_PM_SCORE_TOO_LOW_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean =
+        playResult.clearType == ArcaeaPlayResultClearType.PURE_MEMORY &&
+            playResult.score < 10_000_000
 }
 
 data object ArcaeaPlayResultValidatorScoreImpossibleWarning : ArcaeaPlayResultValidatorWarning {
@@ -148,12 +168,30 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
         playResult: PlayResult,
         chartInfo: ChartInfo?,
     ): Boolean {
-        if (chartInfo?.notes == null || playResult.maxRecall == null) {
-            return false
-        }
+        val notes = chartInfo?.notes ?: return false
+        val maxRecall = playResult.maxRecall ?: return false
 
-        return playResult.maxRecall!! > chartInfo.notes!!
+        return maxRecall > notes - (playResult.lost ?: 0)
     }
+}
+
+data object ArcaeaPlayResultValidatorNegativeCountWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "NEGATIVE_COUNT"
+
+    override val title = "Negative count"
+    override val titleId = R.string.play_result_validator_NEGATIVE_COUNT_title
+
+    override val message = "pure, far, lost and max recall cannot be negative."
+    override val messageId = R.string.play_result_validator_NEGATIVE_COUNT_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean =
+        (playResult.pure ?: 0) < 0 ||
+            (playResult.far ?: 0) < 0 ||
+            (playResult.lost ?: 0) < 0 ||
+            (playResult.maxRecall ?: 0) < 0
 }
 
 data object ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning :
@@ -243,6 +281,28 @@ data object ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning :
     }
 }
 
+data object ArcaeaPlayResultValidatorPlainClearWithoutLostWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "PLAIN_CLEAR_WITHOUT_LOST"
+
+    override val title = "Clear type & lost mismatch"
+    override val titleId = R.string.play_result_validator_PLAIN_CLEAR_WITHOUT_LOST_title
+
+    override val message = "A Normal/Easy/Hard Clear play result should have at least one lost."
+    override val messageId = R.string.play_result_validator_PLAIN_CLEAR_WITHOUT_LOST_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean =
+        playResult.clearType in
+            listOf(
+                ArcaeaPlayResultClearType.NORMAL_CLEAR,
+                ArcaeaPlayResultClearType.EASY_CLEAR,
+                ArcaeaPlayResultClearType.HARD_CLEAR,
+            ) &&
+            playResult.lost == 0
+}
+
 data object ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning :
     ArcaeaPlayResultValidatorWarning {
     override val id = "PURE_MEMORY_FAR_LOST_NOT_ZERO"
@@ -265,6 +325,25 @@ data object ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning :
     }
 }
 
+data object ArcaeaPlayResultValidatorAllPureNotPmWarning : ArcaeaPlayResultValidatorWarning {
+    override val id = "ALL_PURE_NOT_PM"
+
+    override val title = "Should be PURE MEMORY"
+    override val titleId = R.string.play_result_validator_ALL_PURE_NOT_PM_title
+
+    override val message = "A play result with 0 far and 0 lost should be a PURE MEMORY."
+    override val messageId = R.string.play_result_validator_ALL_PURE_NOT_PM_message
+
+    override fun conditionsMet(
+        playResult: PlayResult,
+        chartInfo: ChartInfo?,
+    ): Boolean =
+        playResult.clearType != null &&
+            playResult.clearType != ArcaeaPlayResultClearType.PURE_MEMORY &&
+            playResult.far == 0 &&
+            playResult.lost == 0
+}
+
 data object ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning :
     ArcaeaPlayResultValidatorWarning {
     override val id = "MODIFIER_CLEAR_TYPE_MISMATCH"
@@ -278,9 +357,13 @@ data object ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning :
     override fun conditionsMet(
         playResult: PlayResult,
         chartInfo: ChartInfo?,
-    ): Boolean =
-        (playResult.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.EASY) ||
-            (playResult.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && playResult.modifier != ArcaeaPlayResultModifier.HARD)
+    ): Boolean {
+        val modifier = playResult.modifier ?: return false
+
+        return (playResult.clearType == ArcaeaPlayResultClearType.EASY_CLEAR && modifier != ArcaeaPlayResultModifier.EASY) ||
+            (playResult.clearType == ArcaeaPlayResultClearType.HARD_CLEAR && modifier != ArcaeaPlayResultModifier.HARD) ||
+            (playResult.clearType == ArcaeaPlayResultClearType.NORMAL_CLEAR && modifier != ArcaeaPlayResultModifier.NORMAL)
+    }
 }
 
 data object ArcaeaPlayResultValidatorClearTypeMissingWarning :

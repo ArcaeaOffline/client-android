@@ -5,11 +5,17 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 
+/**
+ * Calculates the theoretical score range with given parameters.
+ * Returns an empty range when [notes] is not positive.
+ */
 fun calculateScoreRange(
     notes: Int,
     pure: Int,
     far: Int,
 ): IntRange {
+    if (notes <= 0) return IntRange.EMPTY
+
     val singleNoteScore = 10000000.0 / notes
     val actualScore = floor(singleNoteScore * pure + singleNoteScore * 0.5 * far).toInt()
     return actualScore..actualScore + pure

@@ -9,12 +9,16 @@ object ArcaeaPlayResultValidator {
         listOf(
             ArcaeaPlayResultValidatorScoreIsZeroWarning,
             ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+            ArcaeaPlayResultValidatorAllPureNotPmWarning,
             ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
             ArcaeaPlayResultValidatorScoreImpossibleWarning,
+            ArcaeaPlayResultValidatorPmScoreTooLowWarning,
             ArcaeaPlayResultValidatorPflOverflowWarning,
             ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
+            ArcaeaPlayResultValidatorNegativeCountWarning,
             ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
             ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning,
+            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning,
             ArcaeaPlayResultValidatorClearPflMismatchWarning,
             ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
         )
