@@ -9,8 +9,8 @@ import kotlin.test.assertNull
 class CommonCalculatorsTest {
     @Test
     fun testScoreRange() {
-        // Counts such as 1046 and 1081 are where a floating-point bound falls one point short,
-        // so the sweep covers every note count up to 3000.
+        // A single sample misses the counts where a floating-point bound is one point low
+        // (1046, 1081, ...), so the sweep covers every note count up to 3000.
         for (notes in 1..3000) {
             assertEquals(
                 10_000_000..(10_000_000 + notes),

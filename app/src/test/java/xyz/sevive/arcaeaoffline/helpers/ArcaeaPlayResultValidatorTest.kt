@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.helpers
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -644,6 +645,57 @@ class ArcaeaPlayResultValidatorTest {
                 playResult,
                 chartInfo.copy(notes = 0),
             ),
+        )
+    }
+
+    @Test
+    fun scoreWarningsDoNotOverlap() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 10_000_921,
+                pure = 920,
+                far = 0,
+                lost = 0,
+            )
+
+        // One point above the theoretical value.
+        assertTrue(
+            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResult, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, chartInfo),
+        )
+
+        val negative = playResult.copy(score = -1)
+        assertTrue(
+            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(negative, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(negative, chartInfo),
+        )
+
+        // Below what 920 PURE judgments can score.
+        val inconsistent = playResult.copy(score = 9_000_000)
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(inconsistent, chartInfo),
+        )
+        assertTrue(
+            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(inconsistent, chartInfo),
+        )
+
+        // validate() reports the score problem once.
+        assertEquals(
+            listOf<ArcaeaPlayResultValidatorWarning>(ArcaeaPlayResultValidatorScoreImpossibleWarning),
+            ArcaeaPlayResultValidator.validate(playResult, chartInfo),
         )
     }
 }

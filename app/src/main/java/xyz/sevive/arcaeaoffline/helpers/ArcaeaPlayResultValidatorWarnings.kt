@@ -10,10 +10,13 @@ import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
 /**
- * The chart's note count when it can validate a play result, or `null` when the chart data is
- * missing or non-positive.
+ * The chart's note count when it is usable for validation, or `null` when the count is missing
+ * or non-positive.
  */
 private fun ChartInfo?.usableNotes(): Int? = this?.notes?.takeIf { it > 0 }
+
+/** The highest score a play can reach on a chart of [notes]: every PURE earns the shiny PURE bonus. */
+private fun maxScore(notes: Int): Int = 10_000_000 + notes
 
 /**
  * A data problem detected in a [PlayResult].
@@ -88,6 +91,10 @@ data object ArcaeaPlayResultValidatorScoreOutOfRangeWarning : ArcaeaPlayResultVa
     ): Boolean {
         val notes = chartInfo.usableNotes() ?: return false
 
+        // SCORE_IMPOSSIBLE reports scores outside [0, maxScore(notes)]. Without this guard the
+        // range check below would report them too.
+        if (playResult.score < 0 || playResult.score > maxScore(notes)) return false
+
         val pure = playResult.pure ?: return false
         val far = playResult.far ?: return false
 
@@ -129,7 +136,7 @@ data object ArcaeaPlayResultValidatorScoreImpossibleWarning : ArcaeaPlayResultVa
         if (playResult.score < 0) return true
 
         val notes = chartInfo.usableNotes() ?: return false
-        return playResult.score > 10_000_000 + notes
+        return playResult.score > maxScore(notes)
     }
 }
 
