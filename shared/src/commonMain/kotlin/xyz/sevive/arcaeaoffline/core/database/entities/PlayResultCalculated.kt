@@ -1,7 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.database.entities
 
 import xyz.sevive.arcaeaoffline.core.calculators.calculatePlayRating
-import kotlin.math.floor
 
 data class PlayResultCalculated(
     val playResult: PlayResult,
@@ -27,9 +26,10 @@ data class PlayResultCalculated(
     val playRatingWithClearBonus =
         calculatePlayRating(score = score, constant = chartInfo.constant, clearType = clearType)
     val shinyPure =
-        if (chartInfo.notes == null || chartInfo.notes == 0 || pure == null || far == null || lost == null) {
+        if (chartInfo.notes == null || chartInfo.notes <= 0 || pure == null || far == null || lost == null) {
             null
         } else {
-            (score - floor((pure * 10000000.0 / chartInfo.notes) + (far * 0.5 * 100000000.0 / chartInfo.notes))).toInt()
+            val base = 10_000_000L * (2L * pure + far) / (2L * chartInfo.notes)
+            (score - base).toInt()
         }
 }
