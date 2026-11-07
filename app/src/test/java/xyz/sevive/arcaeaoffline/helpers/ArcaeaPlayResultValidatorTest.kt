@@ -7,6 +7,7 @@ import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
+import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 
@@ -748,6 +749,117 @@ class ArcaeaPlayResultValidatorTest {
         assertEquals(
             listOf<ArcaeaPlayResultValidatorWarning>(ArcaeaPlayResultValidatorScoreImpossibleWarning),
             ArcaeaPlayResultValidator.validate(playResult, chartInfo),
+        )
+    }
+
+    @Test
+    fun warningRegistryIsComplete() {
+        val allWarnings =
+            setOf(
+                ArcaeaPlayResultValidatorScoreIsZeroWarning,
+                ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+                ArcaeaPlayResultValidatorAllPureNotPmWarning,
+                ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
+                ArcaeaPlayResultValidatorScoreImpossibleWarning,
+                ArcaeaPlayResultValidatorPmScoreTooLowWarning,
+                ArcaeaPlayResultValidatorPflOverflowWarning,
+                ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
+                ArcaeaPlayResultValidatorNegativeCountWarning,
+                ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
+                ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning,
+                ArcaeaPlayResultValidatorPlainClearWithoutLostWarning,
+                ArcaeaPlayResultValidatorClearPflMismatchWarning,
+                ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
+                ArcaeaPlayResultValidatorClearTypeMissingWarning,
+            )
+
+        // CLEAR_TYPE_MISSING is only added by the B50 overload, so the general registry leaves it
+        // out.
+        assertEquals(
+            allWarnings - ArcaeaPlayResultValidatorClearTypeMissingWarning,
+            ArcaeaPlayResultValidator.WARNINGS.toSet(),
+        )
+    }
+
+    @Test
+    fun clearTypeMissingOnlyUnderB50() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 900,
+                far = 20,
+                lost = 0,
+                maxRecall = 920,
+                clearType = null,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidator
+                .validate(playResult, chartInfo, ArcaeaScoringMode.B50)
+                .contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidator
+                .validate(playResult, chartInfo, ArcaeaScoringMode.B30_R10)
+                .contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidator
+                .validate(
+                    playResult.copy(clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR),
+                    chartInfo,
+                    ArcaeaScoringMode.B50,
+                ).contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+        )
+    }
+
+    @Test
+    fun clearTypeMissing() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                clearType = null,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(playResult, null),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR),
+                null,
+            ),
+        )
+    }
+
+    @Test
+    fun scoreIsZero() {
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 0,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorScoreIsZeroWarning.conditionsMet(playResult, null),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorScoreIsZeroWarning.conditionsMet(
+                playResult.copy(score = 1),
+                null,
+            ),
         )
     }
 }
