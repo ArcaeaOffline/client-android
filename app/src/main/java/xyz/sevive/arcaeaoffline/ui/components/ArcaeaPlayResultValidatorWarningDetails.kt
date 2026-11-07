@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,16 +34,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.sp
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorMaxRecallOverflowWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPflOverflowWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorMaxRecallOverflowWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorPflOverflowWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.ui.helpers.messageRes
+import xyz.sevive.arcaeaoffline.ui.helpers.titleRes
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
@@ -60,7 +61,6 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
         label = "expandArrow",
     )
 
-    val context = LocalContext.current
     val density = LocalDensity.current
 
     val padding = MaterialTheme.spacing.cardPadding
@@ -70,12 +70,8 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
             PaddingValues(start = start, end = padding, bottom = padding)
         }
 
-    val title = remember(warning) { warning.getTitle(context) }
-    val message = remember(warning) { warning.getMessage(context) }
-
-    val showWarningId by remember {
-        derivedStateOf { message.isNullOrBlank() || expanded }
-    }
+    val title = stringResource(warning.titleRes())
+    val message = stringResource(warning.messageRes())
 
     Column(
         Modifier
@@ -96,7 +92,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
 
                 Column(Modifier.weight(1f)) {
                     Text(title)
-                    AnimatedVisibility(visible = showWarningId) {
+                    AnimatedVisibility(visible = expanded) {
                         Text(
                             warning.id,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
@@ -105,7 +101,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
                 }
             }
 
-            if (!message.isNullOrBlank()) {
+            if (message.isNotBlank()) {
                 Icon(
                     Icons.Default.ExpandMore,
                     contentDescription = null,
@@ -115,7 +111,7 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
         }
 
         AnimatedVisibility(visible = expanded) {
-            if (!message.isNullOrBlank()) {
+            if (message.isNotBlank()) {
                 Text(
                     message,
                     Modifier

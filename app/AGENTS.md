@@ -24,7 +24,7 @@ xyz.sevive.arcaeaoffline/
 ├── datastore/                    DataStore stores and their repositories
 ├── data/                         Paths, BuildFlavor, maintenance tasks, notification channels, ImportLog, etc.
 ├── jobs/                         WorkManager workers
-├── helpers/                      validators, OCR and resource helpers, diagnostics, activity/context extensions
+├── helpers/                      OCR and resource helpers, diagnostics, activity/context extensions
 ├── di/AppModule.kt               the Koin module
 ├── logging/                      rolling file log writer
 └── permissions/                  saving bitmaps to the gallery

@@ -15,7 +15,8 @@ xyz.sevive.arcaeaoffline/
 │   ├── calculators/  pure math (potential/B30); keep dependency-free and unit-tested
 │   ├── constants/    Arcaea domain enums/constants (rating classes, clear types, ...)
 │   ├── database/     the main Room database (largest package; below)
-│   └── search/       in-memory song/pack catalog and text matching (SearchEngine, ArcaeaCatalog)
+│   ├── search/       in-memory song/pack catalog and text matching (SearchEngine, ArcaeaCatalog)
+│   └── validation/   PlayResult warnings and the validator
 └── ui/
     ├── theme/        expect Theme + CustomColors, ColorSchemes, Typography, Spacing
     ├── components/   cross-platform composables (e.g. ArcaeaScoreTextField)

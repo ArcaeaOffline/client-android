@@ -27,8 +27,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Clock

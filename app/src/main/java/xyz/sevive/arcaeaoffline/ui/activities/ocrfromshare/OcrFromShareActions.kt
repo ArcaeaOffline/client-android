@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorScoreIsZeroWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorScoreIsZeroWarning
+import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
 import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 

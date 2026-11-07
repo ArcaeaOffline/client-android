@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.helpers
+package xyz.sevive.arcaeaoffline.core.validation
 
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo

@@ -1,15 +1,15 @@
-package xyz.sevive.arcaeaoffline.helpers
+package xyz.sevive.arcaeaoffline.core.validation
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ArcaeaPlayResultValidatorTest {
     @Test
@@ -631,28 +631,28 @@ class ArcaeaPlayResultValidatorTest {
         for (notes in listOf(0, -5)) {
             val corrupt = chartInfo.copy(notes = notes)
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
             assertFalse(
-                "notes=$notes",
                 ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(playResult, corrupt),
+                "notes=$notes",
             )
         }
 
