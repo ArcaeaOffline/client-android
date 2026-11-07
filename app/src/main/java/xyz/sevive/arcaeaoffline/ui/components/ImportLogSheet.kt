@@ -47,10 +47,10 @@ import xyz.sevive.arcaeaoffline.helpers.context.findActivity
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.screens.EmptyScreen
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 

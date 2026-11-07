@@ -78,7 +78,6 @@ import com.github.panpf.sketch.PainterState
 import com.github.panpf.sketch.rememberAsyncImageState
 import xyz.sevive.arcaeaoffline.MainActivity
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.helpers.SECONDARY_ALPHA
 import xyz.sevive.arcaeaoffline.permissions.storage.SaveImageToGallery
 import xyz.sevive.arcaeaoffline.ui.activities.ocrfromshare.OcrFromShareViewModel.OcrResultState
 import xyz.sevive.arcaeaoffline.ui.common.PermissionRequiredDialog
@@ -87,6 +86,7 @@ import xyz.sevive.arcaeaoffline.ui.components.ImagePreviewDialogFullscreen
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.SECONDARY_ALPHA
 
 @Composable
 private fun OcrFromShareReturnToShareAppButton(

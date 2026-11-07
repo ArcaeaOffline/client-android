@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components
+package xyz.sevive.arcaeaoffline.ui.components.playresult
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,18 +35,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.stringResource
 import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.core.validation.PlayResultWarning
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
-import xyz.sevive.arcaeaoffline.ui.helpers.messageRes
-import xyz.sevive.arcaeaoffline.ui.helpers.titleRes
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 
 @Composable
 private fun PlayResultWarningDetailItem(
@@ -167,7 +165,7 @@ fun PlayResultWarningDetailsDialog(
     )
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PlayResultWarningDetailItemPreview() {
     ArcaeaOfflineTheme {
@@ -177,7 +175,7 @@ private fun PlayResultWarningDetailItemPreview() {
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PlayResultWarningDetailsPreview() {
     ArcaeaOfflineTheme {
@@ -194,7 +192,7 @@ private fun PlayResultWarningDetailsPreview() {
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun PlayResultWarningDetailsDialogPreview() {
     ArcaeaOfflineTheme {

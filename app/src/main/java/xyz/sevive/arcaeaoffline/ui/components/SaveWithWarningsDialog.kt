@@ -8,6 +8,7 @@ import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogConfirmButton
 import xyz.sevive.arcaeaoffline.ui.components.dialogs.DialogDismissTextButton
+import xyz.sevive.arcaeaoffline.ui.components.playresult.PlayResultWarningDetails
 
 /** Asks for confirmation before saving a play result that raised validator warnings. */
 @Composable

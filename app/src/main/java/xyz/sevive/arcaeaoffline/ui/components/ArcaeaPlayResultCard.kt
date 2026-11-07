@@ -40,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -59,6 +58,8 @@ import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
+import xyz.sevive.arcaeaoffline.ui.components.playresult.PlayResultWarningDetailsDialog
+import xyz.sevive.arcaeaoffline.ui.components.playresult.playResultWarningCountText
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.arcaeaColors
@@ -217,12 +218,7 @@ fun ArcaeaPlayResultCard(
                         ) {
                             Icon(
                                 Icons.Default.Warning,
-                                contentDescription =
-                                    pluralStringResource(
-                                        R.plurals.play_result_validator_warning_count,
-                                        warnings.size,
-                                        warnings.size,
-                                    ),
+                                contentDescription = playResultWarningCountText(warnings.size),
                             )
                         }
                     }

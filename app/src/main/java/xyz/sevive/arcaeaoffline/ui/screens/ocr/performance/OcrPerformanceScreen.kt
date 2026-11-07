@@ -53,7 +53,6 @@ import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.ocr.device.OcrPerformanceBenchmark
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDate
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedTime
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
 import xyz.sevive.arcaeaoffline.ui.components.BaseSettingsItem
 import xyz.sevive.arcaeaoffline.ui.components.IconRow
@@ -63,6 +62,7 @@ import xyz.sevive.arcaeaoffline.ui.components.SliderItem
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.navigation.OcrSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 import java.util.Locale
 
 @Composable
