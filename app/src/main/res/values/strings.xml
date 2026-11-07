@@ -481,7 +481,7 @@ CC BY-SA 3.0
     <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
 
     <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
-    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart minus the lost count.</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the number of judgments that are not LOST.</string>
 
     <string name="play_result_validator_NEGATIVE_COUNT_title">Negative counts</string>
     <string name="play_result_validator_NEGATIVE_COUNT_message">pure, far, lost and max recall cannot be negative.</string>

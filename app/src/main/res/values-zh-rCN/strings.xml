@@ -438,7 +438,7 @@
     <string name="play_result_validator_PFL_OVERFLOW_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
 
     <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL 溢出</string>
-    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数比谱面总物件数减去 LOST 数要大</string>
+    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">最大连击数大于非 LOST 判定的数量</string>
 
     <string name="play_result_validator_NEGATIVE_COUNT_title">计数为负</string>
     <string name="play_result_validator_NEGATIVE_COUNT_message">PURE、FAR、LOST 和 MAX RECALL 不能为负数</string>

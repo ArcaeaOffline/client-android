@@ -453,10 +453,8 @@ class ArcaeaPlayResultValidatorTest {
                 songId = "test",
                 ratingClass = ArcaeaRatingClass.FUTURE,
                 score = 9_900_000,
-                pure = 900,
-                far = 19,
-                lost = 1,
-                maxRecall = 920,
+                lost = 5,
+                maxRecall = 916,
             )
 
         assertTrue(
@@ -464,7 +462,7 @@ class ArcaeaPlayResultValidatorTest {
         )
         assertFalse(
             ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
-                playResult.copy(lost = 0),
+                playResult.copy(maxRecall = 915),
                 chartInfo,
             ),
         )
@@ -476,7 +474,61 @@ class ArcaeaPlayResultValidatorTest {
         )
         assertFalse(
             ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
-                playResult.copy(lost = null),
+                playResult.copy(lost = null, maxRecall = 920),
+                chartInfo,
+            ),
+        )
+    }
+
+    @Test
+    fun maxRecallOverflowAgainstJudgedCounts() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        // 920 notes with 800 PURE and 20 FAR: only 820 judgments are not LOST.
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_900_000,
+                pure = 800,
+                far = 20,
+                lost = 0,
+                maxRecall = 821,
+            )
+
+        assertTrue(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(maxRecall = 820),
+                chartInfo,
+            ),
+        )
+
+        // An interrupted play: notes minus lost (915) is looser than the 820 judged notes.
+        assertTrue(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(lost = 5),
+                chartInfo,
+            ),
+        )
+
+        // PURE + FAR exceed the note count, so notes minus lost (910) is the tighter bound.
+        assertTrue(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(pure = 900, far = 30, lost = 10, maxRecall = 911),
+                chartInfo,
+            ),
+        )
+        assertFalse(
+            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+                playResult.copy(pure = 900, far = 30, lost = 10, maxRecall = 910),
                 chartInfo,
             ),
         )

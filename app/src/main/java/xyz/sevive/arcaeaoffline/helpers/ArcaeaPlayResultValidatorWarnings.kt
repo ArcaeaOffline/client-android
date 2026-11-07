@@ -25,8 +25,8 @@ private fun maxScore(notes: Int): Int = 10_000_000 + notes
  *
  * * Contradiction warnings need every compared value. An unknown value (a null [PlayResult]
  *   field or a missing or non-positive [ChartInfo.notes]) makes the check pass silently.
- * * Overflow warnings treat an unknown count as zero. A real value would only raise the sum or
- *   lower the bound, so the check can miss an overflow but never invent one.
+ * * Overflow warnings ignore an unknown count. A known value could only tighten the check, so
+ *   an overflow can be missed but never invented.
  * * Suspicion warnings, titled with a "?", verify the judgment counts implied by a claimed
  *   clear type. Unknown counts cannot confirm the claim and also trigger the warning.
  */
@@ -172,7 +172,7 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
     override val title = "Max recall overflow"
     override val titleId = R.string.play_result_validator_MAX_RECALL_OVERFLOW_title
 
-    override val message = "max recall > chart note count - lost"
+    override val message = "max recall > non-LOST judgments"
     override val messageId = R.string.play_result_validator_MAX_RECALL_OVERFLOW_message
 
     override fun conditionsMet(
@@ -182,7 +182,14 @@ data object ArcaeaPlayResultValidatorMaxRecallOverflowWarning : ArcaeaPlayResult
         val notes = chartInfo.usableNotes() ?: return false
         val maxRecall = playResult.maxRecall ?: return false
 
-        return maxRecall > notes - (playResult.lost ?: 0)
+        val notesBound = notes - (playResult.lost ?: 0)
+        val pure = playResult.pure
+        val far = playResult.far
+
+        // Max recall cannot exceed the judged non-LOST count, nor the chart's notes minus lost.
+        // The smaller bound is the tighter check.
+        val bound = if (pure != null && far != null) minOf(notesBound, pure + far) else notesBound
+        return maxRecall > bound
     }
 }
 
