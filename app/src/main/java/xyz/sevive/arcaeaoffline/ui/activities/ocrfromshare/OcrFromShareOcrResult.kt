@@ -41,7 +41,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaChartSelector
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultCard
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultEditorDialog
@@ -57,7 +57,7 @@ internal fun OcrFromShareOcrResult(
     playResult: PlayResult?,
     onSetPlayResult: (PlayResult) -> Unit,
     display: DifficultyWithSongDisplay?,
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    warnings: List<PlayResultFinding>,
     playResultSaveState: OcrFromShareViewModel.PlayResultSaveState,
     exception: Exception?,
     onRetryOcr: () -> Unit,

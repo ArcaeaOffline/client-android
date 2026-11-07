@@ -27,8 +27,8 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.PropertyRepository
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidator
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEventChannel
 import kotlin.time.Clock
@@ -46,7 +46,7 @@ class DatabaseAddPlayResultViewModel(
         val chartInfo: ChartInfo? = null,
         val playResult: PlayResult? = null,
         val scoringMode: ArcaeaScoringMode = ArcaeaScoringMode.B50,
-        val warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
+        val warnings: List<PlayResultFinding> = emptyList(),
         val keepChartAfterSave: Boolean = false,
     )
 
@@ -80,7 +80,7 @@ class DatabaseAddPlayResultViewModel(
                 chartInfo = chartInfo,
                 playResult = playResult,
                 scoringMode = scoringMode,
-                warnings = playResult?.let { ArcaeaPlayResultValidator.validate(it, chartInfo, scoringMode) } ?: emptyList(),
+                warnings = playResult?.let { PlayResultValidator.validate(it, chartInfo, scoringMode) } ?: emptyList(),
                 keepChartAfterSave = keepChartAfterSave,
             )
         }.stateIn(

@@ -1,5 +1,6 @@
 package xyz.sevive.arcaeaoffline.core.validation
 
+import xyz.sevive.arcaeaoffline.core.calculators.calculateScoreRange
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultClearType
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaPlayResultModifier
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
@@ -9,9 +10,11 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class ArcaeaPlayResultValidatorTest {
+class PlayResultValidatorTest {
     @Test
     fun maxRecallOverflow() {
         val chartInfo =
@@ -38,8 +41,8 @@ class ArcaeaPlayResultValidatorTest {
                 comment = null,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(playResult, chartInfo),
         )
     }
 
@@ -91,20 +94,20 @@ class ArcaeaPlayResultValidatorTest {
                 comment = null,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO.check(
                 playResultHasFar,
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO.check(
                 playResultHasLost,
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO.check(
                 playResultHasNothing,
                 null,
             ),
@@ -135,26 +138,26 @@ class ArcaeaPlayResultValidatorTest {
         val playResultMismatched = playResultMatches.copy(maxRecall = 900)
         val playResultNoMaxRecall = playResultMatches.copy(maxRecall = null)
 
-        assertFalse(
-            ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(
                 playResultMismatched,
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(
                 playResultNoMaxRecall,
                 chartInfo,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(
                 playResultMismatched,
                 chartInfo,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(
                 playResultMatches,
                 chartInfo,
             ),
@@ -183,20 +186,20 @@ class ArcaeaPlayResultValidatorTest {
             )
         val trackLost = playResult.copy(clearType = ArcaeaPlayResultClearType.TRACK_LOST)
 
-        assertTrue(
-            ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.CLEAR_PFL_MISMATCH.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(trackLost, chartInfo),
+        assertNull(
+            PlayResultWarning.CLEAR_PFL_MISMATCH.check(trackLost, chartInfo),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.CLEAR_PFL_MISMATCH.check(
                 trackLost.copy(modifier = ArcaeaPlayResultModifier.NORMAL),
                 chartInfo,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.CLEAR_PFL_MISMATCH.check(
                 trackLost.copy(modifier = ArcaeaPlayResultModifier.HARD),
                 chartInfo,
             ),
@@ -224,20 +227,20 @@ class ArcaeaPlayResultValidatorTest {
         val playResultTheoretical = playResultNegative.copy(score = 10_000_920)
         val playResultBeyondTheoretical = playResultNegative.copy(score = 10_000_921)
 
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultNegative, null),
+        assertNotNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResultNegative, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultZero, null),
+        assertNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResultZero, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultTheoretical, chartInfo),
+        assertNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResultTheoretical, chartInfo),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultBeyondTheoretical, chartInfo),
+        assertNotNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResultBeyondTheoretical, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResultBeyondTheoretical, chartInfoNotesNull),
+        assertNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResultBeyondTheoretical, chartInfoNotesNull),
         )
     }
 
@@ -254,47 +257,47 @@ class ArcaeaPlayResultValidatorTest {
                 clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(playResult, null),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.TRACK_LOST),
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.PURE_MEMORY),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(far = 1),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(far = null),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(lost = null),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorAllPureNotPmWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.ALL_PURE_NOT_PM.check(
                 playResult.copy(clearType = null),
                 null,
             ),
@@ -314,41 +317,41 @@ class ArcaeaPlayResultValidatorTest {
                 clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(playResult, null),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.EASY_CLEAR),
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.HARD_CLEAR),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(lost = 1),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(lost = null),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPlainClearWithoutLostWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PLAIN_CLEAR_WITHOUT_LOST.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.TRACK_LOST),
                 null,
             ),
@@ -365,23 +368,23 @@ class ArcaeaPlayResultValidatorTest {
                 clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.PM_SCORE_TOO_LOW.check(playResult, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PM_SCORE_TOO_LOW.check(
                 playResult.copy(score = 10_000_000),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PM_SCORE_TOO_LOW.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPmScoreTooLowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PM_SCORE_TOO_LOW.check(
                 playResult.copy(clearType = null),
                 null,
             ),
@@ -401,35 +404,35 @@ class ArcaeaPlayResultValidatorTest {
                 maxRecall = 920,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(
                 playResult.copy(pure = -1),
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(
                 playResult.copy(far = -1),
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(
                 playResult.copy(lost = -1),
                 null,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(
                 playResult.copy(maxRecall = -1),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(playResult, null),
+        assertNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(playResult, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorNegativeCountWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.NEGATIVE_COUNT.check(
                 PlayResult(
                     songId = "test",
                     ratingClass = ArcaeaRatingClass.FUTURE,
@@ -458,23 +461,23 @@ class ArcaeaPlayResultValidatorTest {
                 maxRecall = 916,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(maxRecall = 915),
                 chartInfo,
             ),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(lost = null, maxRecall = 921),
                 chartInfo,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(lost = null, maxRecall = 920),
                 chartInfo,
             ),
@@ -502,33 +505,33 @@ class ArcaeaPlayResultValidatorTest {
                 maxRecall = 821,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(maxRecall = 820),
                 chartInfo,
             ),
         )
 
         // An interrupted play: notes minus lost (915) is looser than the 820 judged notes.
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(lost = 5),
                 chartInfo,
             ),
         )
 
         // PURE + FAR exceed the note count, so notes minus lost (910) is the tighter bound.
-        assertTrue(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(pure = 900, far = 30, lost = 10, maxRecall = 911),
                 chartInfo,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
                 playResult.copy(pure = 900, far = 30, lost = 10, maxRecall = 910),
                 chartInfo,
             ),
@@ -546,29 +549,29 @@ class ArcaeaPlayResultValidatorTest {
                 modifier = ArcaeaPlayResultModifier.EASY,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.MODIFIER_CLEAR_TYPE_MISMATCH.check(playResult, null),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.MODIFIER_CLEAR_TYPE_MISMATCH.check(
                 playResult.copy(modifier = ArcaeaPlayResultModifier.HARD),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MODIFIER_CLEAR_TYPE_MISMATCH.check(
                 playResult.copy(modifier = ArcaeaPlayResultModifier.NORMAL),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MODIFIER_CLEAR_TYPE_MISMATCH.check(
                 playResult.copy(modifier = null),
                 null,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.MODIFIER_CLEAR_TYPE_MISMATCH.check(
                 playResult.copy(
                     clearType = ArcaeaPlayResultClearType.EASY_CLEAR,
                     modifier = ArcaeaPlayResultModifier.EASY,
@@ -596,11 +599,11 @@ class ArcaeaPlayResultValidatorTest {
                 far = 20,
             )
 
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, chartInfo),
+        assertNull(
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(
                 playResult,
                 chartInfo.copy(notes = -5),
             ),
@@ -630,35 +633,35 @@ class ArcaeaPlayResultValidatorTest {
 
         for (notes in listOf(0, -5)) {
             val corrupt = chartInfo.copy(notes = notes)
-            assertFalse(
-                ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.SCORE_OUT_OF_RANGE.check(playResult, corrupt),
                 "notes=$notes",
             )
-            assertFalse(
-                ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.SCORE_IMPOSSIBLE.check(playResult, corrupt),
                 "notes=$notes",
             )
-            assertFalse(
-                ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.PFL_OVERFLOW.check(playResult, corrupt),
                 "notes=$notes",
             )
-            assertFalse(
-                ArcaeaPlayResultValidatorMaxRecallOverflowWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.MAX_RECALL_OVERFLOW.check(playResult, corrupt),
                 "notes=$notes",
             )
-            assertFalse(
-                ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(playResult, corrupt),
                 "notes=$notes",
             )
-            assertFalse(
-                ArcaeaPlayResultValidatorClearPflMismatchWarning.conditionsMet(playResult, corrupt),
+            assertNull(
+                PlayResultWarning.CLEAR_PFL_MISMATCH.check(playResult, corrupt),
                 "notes=$notes",
             )
         }
 
         // A negative score stays impossible even when the note count is unusable.
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(
+        assertNotNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(
                 playResult.copy(score = -1),
                 chartInfo.copy(notes = 0),
             ),
@@ -684,17 +687,17 @@ class ArcaeaPlayResultValidatorTest {
                 lost = 1,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.PFL_OVERFLOW.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PFL_OVERFLOW.check(
                 playResult.copy(lost = 0),
                 chartInfo,
             ),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorPflOverflowWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.PFL_OVERFLOW.check(
                 playResult,
                 chartInfo.copy(notes = 0),
             ),
@@ -721,63 +724,34 @@ class ArcaeaPlayResultValidatorTest {
             )
 
         // One point above the theoretical value.
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(playResult, chartInfo),
+        assertNotNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResult, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(playResult, chartInfo),
+        assertNull(
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(playResult, chartInfo),
         )
 
         val negative = playResult.copy(score = -1)
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(negative, chartInfo),
+        assertNotNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(negative, chartInfo),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(negative, chartInfo),
+        assertNull(
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(negative, chartInfo),
         )
 
         // Below what 920 PURE judgments can score.
         val inconsistent = playResult.copy(score = 9_000_000)
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreImpossibleWarning.conditionsMet(inconsistent, chartInfo),
+        assertNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(inconsistent, chartInfo),
         )
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreOutOfRangeWarning.conditionsMet(inconsistent, chartInfo),
+        assertNotNull(
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(inconsistent, chartInfo),
         )
 
         // validate() reports the score problem once.
         assertEquals(
-            listOf<ArcaeaPlayResultValidatorWarning>(ArcaeaPlayResultValidatorScoreImpossibleWarning),
-            ArcaeaPlayResultValidator.validate(playResult, chartInfo),
-        )
-    }
-
-    @Test
-    fun warningRegistryIsComplete() {
-        val allWarnings =
-            setOf(
-                ArcaeaPlayResultValidatorScoreIsZeroWarning,
-                ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
-                ArcaeaPlayResultValidatorAllPureNotPmWarning,
-                ArcaeaPlayResultValidatorScoreOutOfRangeWarning,
-                ArcaeaPlayResultValidatorScoreImpossibleWarning,
-                ArcaeaPlayResultValidatorPmScoreTooLowWarning,
-                ArcaeaPlayResultValidatorPflOverflowWarning,
-                ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-                ArcaeaPlayResultValidatorNegativeCountWarning,
-                ArcaeaPlayResultValidatorFrPmMaxRecallMismatchWarning,
-                ArcaeaPlayResultValidatorFullRecallLostNotZeroWarning,
-                ArcaeaPlayResultValidatorPlainClearWithoutLostWarning,
-                ArcaeaPlayResultValidatorClearPflMismatchWarning,
-                ArcaeaPlayResultValidatorModifierClearTypeMismatchWarning,
-                ArcaeaPlayResultValidatorClearTypeMissingWarning,
-            )
-
-        // CLEAR_TYPE_MISSING is only added by the B50 overload, so the general registry leaves it
-        // out.
-        assertEquals(
-            allWarnings - ArcaeaPlayResultValidatorClearTypeMissingWarning,
-            ArcaeaPlayResultValidator.WARNINGS.toSet(),
+            listOf(PlayResultWarning.SCORE_IMPOSSIBLE),
+            PlayResultValidator.validate(playResult, chartInfo).map { it.warning },
         )
     }
 
@@ -803,22 +777,22 @@ class ArcaeaPlayResultValidatorTest {
             )
 
         assertTrue(
-            ArcaeaPlayResultValidator
+            PlayResultValidator
                 .validate(playResult, chartInfo, ArcaeaScoringMode.B50)
-                .contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+                .any { it.warning == PlayResultWarning.CLEAR_TYPE_MISSING },
         )
         assertFalse(
-            ArcaeaPlayResultValidator
+            PlayResultValidator
                 .validate(playResult, chartInfo, ArcaeaScoringMode.B30_R10)
-                .contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+                .any { it.warning == PlayResultWarning.CLEAR_TYPE_MISSING },
         )
         assertFalse(
-            ArcaeaPlayResultValidator
+            PlayResultValidator
                 .validate(
                     playResult.copy(clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR),
                     chartInfo,
                     ArcaeaScoringMode.B50,
-                ).contains(ArcaeaPlayResultValidatorClearTypeMissingWarning),
+                ).any { it.warning == PlayResultWarning.CLEAR_TYPE_MISSING },
         )
     }
 
@@ -832,11 +806,11 @@ class ArcaeaPlayResultValidatorTest {
                 clearType = null,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.CLEAR_TYPE_MISSING.check(playResult, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorClearTypeMissingWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.CLEAR_TYPE_MISSING.check(
                 playResult.copy(clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR),
                 null,
             ),
@@ -852,13 +826,133 @@ class ArcaeaPlayResultValidatorTest {
                 score = 0,
             )
 
-        assertTrue(
-            ArcaeaPlayResultValidatorScoreIsZeroWarning.conditionsMet(playResult, null),
+        assertNotNull(
+            PlayResultWarning.SCORE_IS_ZERO.check(playResult, null),
         )
-        assertFalse(
-            ArcaeaPlayResultValidatorScoreIsZeroWarning.conditionsMet(
+        assertNull(
+            PlayResultWarning.SCORE_IS_ZERO.check(
                 playResult.copy(score = 1),
                 null,
+            ),
+        )
+    }
+
+    @Test
+    fun warningDetails() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = 920,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 9_000_000,
+                pure = 900,
+                far = 20,
+                lost = 0,
+            )
+
+        assertEquals(
+            PlayResultWarningDetail.ScoreOutOfRange(
+                actual = 9_000_000,
+                expected = calculateScoreRange(920, 900, 20),
+                pure = 900,
+                far = 20,
+            ),
+            PlayResultWarning.SCORE_OUT_OF_RANGE.check(playResult, chartInfo),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.ScoreTooLow(actual = 9_900_000, minimum = 10_000_000),
+            PlayResultWarning.PM_SCORE_TOO_LOW.check(
+                playResult.copy(
+                    score = 9_900_000,
+                    clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
+                ),
+                chartInfo,
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.ScoreNegative(actual = -1),
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResult.copy(score = -1), chartInfo),
+        )
+        assertEquals(
+            PlayResultWarningDetail.ScoreBeyondMaximum(actual = 10_000_921, maximum = 10_000_920),
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResult.copy(score = 10_000_921), chartInfo),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.Judgments(pure = 917, far = 3, lost = 1, notes = 920),
+            PlayResultWarning.PFL_OVERFLOW.check(
+                playResult.copy(pure = 917, far = 3, lost = 1),
+                chartInfo,
+            ),
+        )
+        // The overflow warning is still raised when a count is unknown, but there is no complete evidence.
+        assertEquals(
+            PlayResultWarningDetail.None,
+            PlayResultWarning.PFL_OVERFLOW.check(
+                playResult.copy(pure = null, far = 3, lost = 1),
+                chartInfo.copy(notes = 3),
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.MaxRecall(actual = 921, expected = 920),
+            PlayResultWarning.MAX_RECALL_OVERFLOW.check(
+                playResult.copy(pure = 917, far = 3, lost = 0, maxRecall = 921),
+                chartInfo,
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.MaxRecall(actual = 919, expected = 920),
+            PlayResultWarning.FR_PM_MAX_RECALL_MISMATCH.check(
+                playResult.copy(
+                    clearType = ArcaeaPlayResultClearType.FULL_RECALL,
+                    maxRecall = 919,
+                ),
+                chartInfo,
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.Judgments(pure = 900, far = 20, lost = 1, notes = 920),
+            PlayResultWarning.CLEAR_PFL_MISMATCH.check(
+                playResult.copy(lost = 1, clearType = ArcaeaPlayResultClearType.NORMAL_CLEAR),
+                chartInfo,
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.FarLost(far = 1, lost = 0),
+            PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO.check(
+                playResult.copy(
+                    clearType = ArcaeaPlayResultClearType.PURE_MEMORY,
+                    far = 1,
+                    lost = 0,
+                ),
+                chartInfo,
+            ),
+        )
+
+        assertEquals(
+            PlayResultWarningDetail.Lost(actual = 1),
+            PlayResultWarning.FULL_RECALL_LOST_NOT_ZERO.check(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL, lost = 1),
+                chartInfo,
+            ),
+        )
+        assertEquals(
+            PlayResultWarningDetail.None,
+            PlayResultWarning.FULL_RECALL_LOST_NOT_ZERO.check(
+                playResult.copy(clearType = ArcaeaPlayResultClearType.FULL_RECALL, lost = null),
+                chartInfo,
             ),
         )
     }

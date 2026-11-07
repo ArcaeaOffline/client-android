@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import xyz.sevive.arcaeaoffline.R
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorScoreIsZeroWarning
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultWarning
 import xyz.sevive.arcaeaoffline.ui.components.SaveWithWarningsDialog
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 
@@ -31,7 +31,7 @@ import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 internal fun OcrFromShareActions(
     hasPlayResult: Boolean,
     playResultSaveState: OcrFromShareViewModel.PlayResultSaveState,
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    warnings: List<PlayResultFinding>,
     onSavePlayResult: () -> Unit,
     onCachePlayResult: () -> Unit,
 ) {
@@ -118,7 +118,7 @@ private fun PreviewActions() {
                         saved = false,
                         cached = false,
                     ),
-                warnings = listOf(ArcaeaPlayResultValidatorScoreIsZeroWarning),
+                warnings = listOf(PlayResultFinding(PlayResultWarning.SCORE_IS_ZERO)),
                 onSavePlayResult = {},
                 onCachePlayResult = {},
             )

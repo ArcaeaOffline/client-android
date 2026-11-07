@@ -57,7 +57,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidatorWarning
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
@@ -124,7 +124,7 @@ fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
+    warnings: List<PlayResultFinding> = emptyList(),
     shape: Shape = CardDefaults.shape,
     colors: CardColors? = CardDefaults.cardColors(),
 ) {
@@ -174,7 +174,7 @@ fun ArcaeaPlayResultCard(
 
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog && warnings.isNotEmpty()) {
-        ArcaeaPlayResultValidatorWarningDetailsDialog(
+        PlayResultWarningDetailsDialog(
             onDismissRequest = { showWarningsDialog = false },
             warnings = warnings,
         )
@@ -302,7 +302,7 @@ fun ArcaeaPlayResultCard(
     playResult: PlayResult,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    warnings: List<ArcaeaPlayResultValidatorWarning> = emptyList(),
+    warnings: List<PlayResultFinding> = emptyList(),
     difficultyWithSong: DifficultyWithSong?,
     chartInfo: ChartInfo? = null,
     colors: CardColors? = CardDefaults.cardColors(),

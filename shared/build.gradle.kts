@@ -78,6 +78,8 @@ kotlin {
     compilerOptions {
         // Room3 compiler opt out
         freeCompilerArgs.add("-Xexpect-actual-classes")
+
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
     }
 
     jvm()

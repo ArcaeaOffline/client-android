@@ -42,7 +42,7 @@ import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRep
 import xyz.sevive.arcaeaoffline.core.database.repositories.PlayResultRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.data.OcrPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrHistory
 import xyz.sevive.arcaeaoffline.database.repositories.OcrHistoryRepository
@@ -209,7 +209,7 @@ class OcrFromShareViewModel(
                     flowOf(emptyList())
                 } else {
                     display.map { d ->
-                        ArcaeaPlayResultValidator.validate(playResult = playResult, chartInfo = d?.chartInfo)
+                        PlayResultValidator.validate(playResult = playResult, chartInfo = d?.chartInfo)
                     }
                 }
             }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

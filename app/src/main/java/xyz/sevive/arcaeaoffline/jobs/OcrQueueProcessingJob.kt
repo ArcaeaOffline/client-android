@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import xyz.sevive.arcaeaoffline.R
 import xyz.sevive.arcaeaoffline.core.Progress
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
-import xyz.sevive.arcaeaoffline.core.validation.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.data.notification.Notifications
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
@@ -161,7 +161,7 @@ class OcrQueueProcessingJob(
                 taskRepo.findByStatus(OcrQueueTaskStatus.DONE).firstOrNull().orEmpty().filter { task ->
                     task.playResult?.let { playResult ->
                         val chartInfo = chartInfoRepo.find(playResult).firstOrNull() ?: return@let false
-                        ArcaeaPlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
+                        PlayResultValidator.validate(playResult, chartInfo).isNotEmpty()
                     } == true
                 }
             }
