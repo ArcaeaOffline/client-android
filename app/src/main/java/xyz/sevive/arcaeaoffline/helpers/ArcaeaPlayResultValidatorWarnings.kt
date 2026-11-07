@@ -21,10 +21,12 @@ private fun maxScore(notes: Int): Int = 10_000_000 + notes
 /**
  * A data problem detected in a [PlayResult].
  *
- * Two null-value policies exist:
+ * Three null-value policies exist:
  *
- * * Contradiction warnings need both compared values. An unknown value (a null [PlayResult]
+ * * Contradiction warnings need every compared value. An unknown value (a null [PlayResult]
  *   field or a missing or non-positive [ChartInfo.notes]) makes the check pass silently.
+ * * Overflow warnings treat an unknown count as zero. A real value would only raise the sum or
+ *   lower the bound, so the check can miss an overflow but never invent one.
  * * Suspicion warnings, titled with a "?", verify the judgment counts implied by a claimed
  *   clear type. Unknown counts cannot confirm the claim and also trigger the warning.
  */
