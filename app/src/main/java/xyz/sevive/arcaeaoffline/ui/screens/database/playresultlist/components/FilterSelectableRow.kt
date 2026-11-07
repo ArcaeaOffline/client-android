@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
-import xyz.sevive.arcaeaoffline.helpers.DISABLED_ALPHA
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.DISABLED_ALPHA
 
 @Composable
 internal fun SelectableRow(
