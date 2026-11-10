@@ -118,7 +118,7 @@ private fun PreviewActions() {
                         saved = false,
                         cached = false,
                     ),
-                warnings = listOf(PlayResultFinding(PlayResultWarning.SCORE_IS_ZERO)),
+                warnings = listOf(PlayResultFinding(PlayResultWarning.EMPTY_PLAY_RESULT)),
                 onSavePlayResult = {},
                 onCachePlayResult = {},
             )

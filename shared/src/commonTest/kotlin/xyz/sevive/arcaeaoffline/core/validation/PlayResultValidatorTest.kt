@@ -818,19 +818,34 @@ class PlayResultValidatorTest {
     }
 
     @Test
-    fun scoreIsZero() {
+    fun emptyPlayResult() {
         val playResult =
             PlayResult(
                 songId = "test",
                 ratingClass = ArcaeaRatingClass.FUTURE,
                 score = 0,
+                pure = 0,
+                far = 0,
+                lost = 0,
             )
 
         assertNotNull(
-            PlayResultWarning.SCORE_IS_ZERO.check(playResult, null),
+            PlayResultWarning.EMPTY_PLAY_RESULT.check(playResult, null),
+        )
+        assertNotNull(
+            PlayResultWarning.EMPTY_PLAY_RESULT.check(
+                playResult.copy(pure = null, far = null, lost = null),
+                null,
+            ),
         )
         assertNull(
-            PlayResultWarning.SCORE_IS_ZERO.check(
+            PlayResultWarning.EMPTY_PLAY_RESULT.check(
+                playResult.copy(lost = 1),
+                null,
+            ),
+        )
+        assertNull(
+            PlayResultWarning.EMPTY_PLAY_RESULT.check(
                 playResult.copy(score = 1),
                 null,
             ),

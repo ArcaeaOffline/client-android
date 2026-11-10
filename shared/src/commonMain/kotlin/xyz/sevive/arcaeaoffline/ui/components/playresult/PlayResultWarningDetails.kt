@@ -68,11 +68,13 @@ private fun PlayResultWarningDetailItem(
         }
 
     val title = stringResource(warning.titleRes())
-    val message = stringResource(warning.messageRes())
+    val action = stringResource(warning.actionRes())
+    val message = finding.messageText()
+    val expandable = message != null
 
     Column(
         Modifier
-            .clickable { expanded = !expanded }
+            .clickable(enabled = expandable) { expanded = !expanded }
             .then(modifier),
     ) {
         Row(
@@ -89,16 +91,15 @@ private fun PlayResultWarningDetailItem(
 
                 Column(Modifier.weight(1f)) {
                     Text(title)
-                    AnimatedVisibility(visible = expanded) {
-                        Text(
-                            warning.name,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
-                        )
-                    }
+                    Text(
+                        action,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
-            if (message.isNotBlank()) {
+            if (expandable) {
                 Icon(
                     Icons.Default.ExpandMore,
                     contentDescription = null,
@@ -107,13 +108,18 @@ private fun PlayResultWarningDetailItem(
             }
         }
 
-        AnimatedVisibility(visible = expanded) {
-            if (message.isNotBlank()) {
+        AnimatedVisibility(visible = expandable && expanded) {
+            Column(
+                Modifier.padding(messagePadding),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            ) {
+                if (message != null) {
+                    Text(message, Modifier.secondaryItemAlpha())
+                }
                 Text(
-                    message,
-                    Modifier
-                        .secondaryItemAlpha()
-                        .padding(messagePadding),
+                    warning.name,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
+                    modifier = Modifier.secondaryItemAlpha(),
                 )
             }
         }

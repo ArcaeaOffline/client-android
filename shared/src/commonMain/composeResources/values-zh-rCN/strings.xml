@@ -15,47 +15,64 @@
         <item quantity="other">%1$d 条警告</item>
     </plurals>
 
-    <string name="play_result_validator_score_is_zero_title">分数为零</string>
-    <string name="play_result_validator_score_is_zero_message">分数为 0。</string>
-    <string name="play_result_validator_clear_type_missing_title">缺少通关状态</string>
-    <string name="play_result_validator_clear_type_missing_message">B50 规则下，缺少通关状态的成绩按 TRACK LOST 计，无法获得通关奖励。</string>
-
-    <string name="play_result_validator_score_out_of_range_title">分数不在范围内</string>
-    <string name="play_result_validator_score_out_of_range_message">所给分数不在由 PURE、FAR 计算而得的分数范围内</string>
-
-    <string name="play_result_validator_score_impossible_title">分数超出理论范围</string>
-    <string name="play_result_validator_score_impossible_message">分数为负或超过该谱面理论值</string>
-
-    <string name="play_result_validator_pm_score_too_low_title">PURE MEMORY 分数过低</string>
-    <string name="play_result_validator_pm_score_too_low_message">PURE MEMORY 结算的成绩分数应至少为 10000000</string>
-
-    <string name="play_result_validator_pfl_overflow_title">Note 溢出</string>
-    <string name="play_result_validator_pfl_overflow_message">PURE、FAR、LOST 的和比谱面总物件数要大</string>
-
-    <string name="play_result_validator_max_recall_overflow_title">MAX RECALL 溢出</string>
-    <string name="play_result_validator_max_recall_overflow_message">最大连击数大于非 LOST 判定的数量</string>
-
-    <string name="play_result_validator_negative_count_title">计数为负</string>
-    <string name="play_result_validator_negative_count_message">PURE、FAR、LOST 和 MAX RECALL 不能为负数</string>
-
-    <string name="play_result_validator_fr_pm_max_recall_mismatch_title">FR/PM MAX RECALL 有误</string>
-    <string name="play_result_validator_fr_pm_max_recall_mismatch_message">以 FULL RECALL / PURE MEMORY 结算的游玩结果，其最大连击数应与谱面总物件数相等</string>
-
-    <string name="play_result_validator_clear_pfl_mismatch_title">Note 有误</string>
-    <string name="play_result_validator_clear_pfl_mismatch_message">非 HARD LOST 结算的游玩结果，其 PURE、FAR、LOST 的和应与谱面总物件数相等</string>
-
-    <string name="play_result_validator_full_recall_lost_not_zero_title">真全想起来了？</string>
-    <string name="play_result_validator_full_recall_lost_not_zero_message">FULL RECALL 时，LOST 应为 0</string>
-
-    <string name="play_result_validator_plain_clear_without_lost_title">通关标志与 LOST 不符</string>
-    <string name="play_result_validator_plain_clear_without_lost_message">Normal/Easy/Hard Clear 结算的成绩应至少有 1 个 LOST</string>
+    <string name="play_result_validator_empty_play_result_title">成绩未填写</string>
+    <string name="play_result_validator_empty_play_result_action">请填写分数与判定数</string>
 
     <string name="play_result_validator_pure_memory_far_lost_not_zero_title">真纯净回忆？</string>
-    <string name="play_result_validator_pure_memory_far_lost_not_zero_message">PURE MEMORY 时，FAR 和 LOST 应为 0</string>
+    <string name="play_result_validator_pure_memory_far_lost_not_zero_action">请核对 FAR/LOST 与通关状态</string>
+    <string name="play_result_validator_pure_memory_far_lost_not_zero_message">Pure Memory 时 FAR 和 LOST 都应为 0</string>
 
-    <string name="play_result_validator_all_pure_not_pm_title">应为 PURE MEMORY</string>
-    <string name="play_result_validator_all_pure_not_pm_message">FAR 和 LOST 均为 0 的成绩应为 PURE MEMORY</string>
+    <string name="play_result_validator_all_pure_not_pm_title">应为 Pure Memory</string>
+    <string name="play_result_validator_all_pure_not_pm_action">请核对 FAR/LOST 与通关状态</string>
+    <string name="play_result_validator_all_pure_not_pm_message">FAR 和 LOST 均为 0 时，通关状态应为 Pure Memory</string>
 
-    <string name="play_result_validator_modifier_clear_type_mismatch_title">Modifier 与 Clear Type 不匹配</string>
-    <string name="play_result_validator_modifier_clear_type_mismatch_message">以 HARD CLEAR 结算的游玩成绩，其 Modifier 应为 HARD，EASY 和 NORMAL CLEAR 同理</string>
+    <string name="play_result_validator_score_out_of_range_title">分数不在范围内</string>
+    <string name="play_result_validator_score_out_of_range_action">请核对 PURE/FAR 判定数与谱面物量</string>
+    <string name="play_result_validator_score_out_of_range_message">所给分数 %1$d 不在 PURE %4$d、FAR %5$d 对应的 %2$d~%3$d 范围内</string>
+
+    <string name="play_result_validator_score_impossible_title">分数超出理论范围</string>
+    <string name="play_result_validator_score_impossible_action">请核对分数与谱面物量</string>
+    <string name="play_result_validator_score_impossible_message_negative">分数 %1$d 为负数</string>
+    <string name="play_result_validator_score_impossible_message_beyond_max">分数 %1$d 超过该谱面的理论值 %2$d</string>
+
+    <string name="play_result_validator_pm_score_too_low_title">Pure Memory 分数过低</string>
+    <string name="play_result_validator_pm_score_too_low_action">Pure Memory 成绩应不低于 10'000'000</string>
+    <string name="play_result_validator_pm_score_too_low_message">分数 %1$d 低于 Pure Memory 的最低分 10'000'000</string>
+
+    <string name="play_result_validator_pfl_overflow_title">判定数超过物量</string>
+    <string name="play_result_validator_pfl_overflow_action">请核对 PURE、FAR、LOST 与谱面物量</string>
+    <string name="play_result_validator_pfl_overflow_message">判定数之和超过谱面物量</string>
+    <string name="play_result_validator_pfl_overflow_message_detailed">PURE %1$d + FAR %2$d + LOST %3$d 超过谱面总物量 %4$d</string>
+
+    <string name="play_result_validator_max_recall_overflow_title">Max Recall 溢出</string>
+    <string name="play_result_validator_max_recall_overflow_action">请核对 Max Recall 与判定数</string>
+    <string name="play_result_validator_max_recall_overflow_message">Max Recall %1$d 超过允许的上限 %2$d</string>
+
+    <string name="play_result_validator_negative_count_title">计数为负</string>
+    <string name="play_result_validator_negative_count_action">请填入 0 或正数</string>
+    <string name="play_result_validator_negative_count_message">PURE、FAR、LOST 和 Max Recall 不能为负数</string>
+
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_title">FR/PM 与 Max Recall 不符</string>
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_action">请核对通关状态与 Max Recall</string>
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_message">Max Recall %1$d 与谱面物量 %2$d 不符</string>
+
+    <string name="play_result_validator_full_recall_lost_not_zero_title">真全想起来了？</string>
+    <string name="play_result_validator_full_recall_lost_not_zero_action">请核对 LOST 与通关状态</string>
+    <string name="play_result_validator_full_recall_lost_not_zero_message">Full Recall 时 LOST 应为 0</string>
+
+    <string name="play_result_validator_plain_clear_without_lost_title">通关状态与 LOST 不符</string>
+    <string name="play_result_validator_plain_clear_without_lost_action">请检查 LOST 数，或修改通关状态</string>
+    <string name="play_result_validator_plain_clear_without_lost_message">该通关状态应至少有 1 个 LOST</string>
+
+    <string name="play_result_validator_clear_pfl_mismatch_title">判定数与物量不符</string>
+    <string name="play_result_validator_clear_pfl_mismatch_action">请核对判定数与谱面物量</string>
+    <string name="play_result_validator_clear_pfl_mismatch_message">PURE %1$d + FAR %2$d + LOST %3$d 与谱面物量 %4$d 不符</string>
+
+    <string name="play_result_validator_modifier_clear_type_mismatch_title">Modifier 与通关状态不匹配</string>
+    <string name="play_result_validator_modifier_clear_type_mismatch_action">请核对 Modifier 与通关状态</string>
+    <string name="play_result_validator_modifier_clear_type_mismatch_message">Easy Clear、Hard Clear、Normal Clear 需要对应的 Modifier</string>
+
+    <string name="play_result_validator_clear_type_missing_title">缺少通关状态</string>
+    <string name="play_result_validator_clear_type_missing_action">请补全通关状态</string>
+    <string name="play_result_validator_clear_type_missing_message">缺少通关状态时，B50 规则按 Track Lost 计算，无法获得通关奖励</string>
 </resources>

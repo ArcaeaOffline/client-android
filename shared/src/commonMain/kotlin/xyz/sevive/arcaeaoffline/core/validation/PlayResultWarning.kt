@@ -32,7 +32,7 @@ enum class PlayResultWarningScope {
 /**
  * A data problem detected in a [PlayResult].
  *
- * Three null-value policies exist:
+ * Four null-value policies exist:
  *
  * * Contradiction warnings need every compared value. An unknown value (a null [PlayResult]
  *   field or a missing or non-positive [ChartInfo.notes]) makes the check pass silently.
@@ -40,15 +40,26 @@ enum class PlayResultWarningScope {
  *   an overflow can be missed but never invented.
  * * Suspicion warnings verify the judgment counts implied by a claimed clear type. Unknown
  *   counts cannot confirm the claim, so the warning is still raised.
+ * * EMPTY_PLAY_RESULT treats a null judgment count as 0, because the editor cannot distinguish
+ *   an untouched count from one it cleared.
  */
 enum class PlayResultWarning(
     val scope: PlayResultWarningScope = PlayResultWarningScope.ALWAYS,
 ) {
-    SCORE_IS_ZERO {
+    EMPTY_PLAY_RESULT {
         override fun check(
             playResult: PlayResult,
             chartInfo: ChartInfo?,
-        ) = if (playResult.score == 0) PlayResultWarningDetail.None else null
+        ) = if (
+            playResult.score == 0 &&
+            (playResult.pure ?: 0) == 0 &&
+            (playResult.far ?: 0) == 0 &&
+            (playResult.lost ?: 0) == 0
+        ) {
+            PlayResultWarningDetail.None
+        } else {
+            null
+        }
     },
 
     PURE_MEMORY_FAR_LOST_NOT_ZERO {
@@ -174,7 +185,7 @@ enum class PlayResultWarning(
             val pure = playResult.pure
             val far = playResult.far
 
-            // Max recall cannot exceed the judged non-LOST count, nor the chart's notes minus lost.
+            // Max Recall cannot exceed the judged non-LOST count, nor the chart's notes minus LOST.
             // The smaller bound is the tighter check.
             val bound = if (pure != null && far != null) minOf(notesBound, pure + far) else notesBound
             return if (maxRecall > bound) {
@@ -269,7 +280,7 @@ enum class PlayResultWarning(
             val notes = chartInfo.usableNotes() ?: return null
             val clearType = playResult.clearType ?: return null
 
-            // A HARD play can be interrupted before the chart ends, so a TRACK LOST result may have
+            // A HARD play can be interrupted before the chart ends, so a Track Lost result may have
             // pure + far + lost below the note count. An unknown modifier cannot rule HARD out.
             // NORMAL and EASY gauges cannot interrupt a play.
             if (
