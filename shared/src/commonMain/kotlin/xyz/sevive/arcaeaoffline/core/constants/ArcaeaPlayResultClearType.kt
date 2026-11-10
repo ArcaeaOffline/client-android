@@ -13,7 +13,15 @@ enum class ArcaeaPlayResultClearType(
     HARD_CLEAR(5),
     ;
 
-    fun toDisplayString(): String = this.name.replace('_', ' ')
+    fun toDisplayString(): String =
+        when (this) {
+            TRACK_LOST -> "Track Lost"
+            NORMAL_CLEAR -> "Normal Clear"
+            FULL_RECALL -> "Full Recall"
+            PURE_MEMORY -> "Pure Memory"
+            EASY_CLEAR -> "Easy Clear"
+            HARD_CLEAR -> "Hard Clear"
+        }
 
     companion object {
         fun fromInt(clearTypeInt: Int): ArcaeaPlayResultClearType {

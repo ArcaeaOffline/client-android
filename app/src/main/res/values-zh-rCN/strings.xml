@@ -42,7 +42,7 @@
 
     <!-- ArcaeaPlayResultCard -->
     <string name="play_result_no_date">// 无日期 //</string>
-    <string name="play_result_no_clear_type">// 无 Clear Type //</string>
+    <string name="play_result_no_clear_type">// 无通关状态 //</string>
     <string name="play_result_no_modifier">// 无 Modifier //</string>
     <string name="play_result_no_comment">// 无备注 //</string>
 
@@ -231,9 +231,9 @@
     <string name="database_play_result_filter_score">分数</string>
     <string name="database_play_result_filter_all_scores">全部分数</string>
     <string name="database_play_result_filter_pick_score_grades">选择分数段</string>
-    <string name="database_play_result_filter_clear_status">通关类型</string>
-    <string name="database_play_result_filter_all_clear_statuses">全部通关类型</string>
-    <string name="database_play_result_filter_pick_clear_statuses">选择通关类型</string>
+    <string name="database_play_result_filter_clear_status">通关状态</string>
+    <string name="database_play_result_filter_all_clear_statuses">全部通关状态</string>
+    <string name="database_play_result_filter_pick_clear_statuses">选择通关状态</string>
     <string name="database_play_result_filter_search_pack_hint">搜索曲包……</string>
     <string name="database_play_result_filter_show_empty_packs">显示没有游玩记录的曲包</string>
     <string name="database_play_result_filter_no_base_packs">数据库中暂无曲包</string>
