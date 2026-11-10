@@ -28,16 +28,16 @@
 
     <string name="play_result_validator_score_out_of_range_title">分数不在范围内</string>
     <string name="play_result_validator_score_out_of_range_action">请核对 PURE/FAR 判定数与谱面物量</string>
-    <string name="play_result_validator_score_out_of_range_message">所给分数 %1$d 不在 PURE %4$d、FAR %5$d 对应的 %2$d~%3$d 范围内</string>
+    <string name="play_result_validator_score_out_of_range_message">所给分数 %1$s 不在 PURE %4$d、FAR %5$d 对应的 %2$s~%3$s 范围内</string>
 
     <string name="play_result_validator_score_impossible_title">分数超出理论范围</string>
     <string name="play_result_validator_score_impossible_action">请核对分数与谱面物量</string>
     <string name="play_result_validator_score_impossible_message_negative">分数 %1$d 为负数</string>
-    <string name="play_result_validator_score_impossible_message_beyond_max">分数 %1$d 超过该谱面的理论值 %2$d</string>
+    <string name="play_result_validator_score_impossible_message_beyond_max">分数 %1$s 超过该谱面的理论值 %2$s</string>
 
     <string name="play_result_validator_pm_score_too_low_title">Pure Memory 分数过低</string>
     <string name="play_result_validator_pm_score_too_low_action">Pure Memory 成绩应不低于 10'000'000</string>
-    <string name="play_result_validator_pm_score_too_low_message">分数 %1$d 低于 Pure Memory 的最低分 10'000'000</string>
+    <string name="play_result_validator_pm_score_too_low_message">分数 %1$s 低于 Pure Memory 的最低分 10'000'000</string>
 
     <string name="play_result_validator_pfl_overflow_title">判定数超过物量</string>
     <string name="play_result_validator_pfl_overflow_action">请核对 PURE、FAR、LOST 与谱面物量</string>

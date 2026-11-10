@@ -22,6 +22,9 @@ import xyz.sevive.arcaeaoffline.resources.play_result_validator_pure_memory_far_
 import xyz.sevive.arcaeaoffline.resources.play_result_validator_score_impossible_message_beyond_max
 import xyz.sevive.arcaeaoffline.resources.play_result_validator_score_impossible_message_negative
 import xyz.sevive.arcaeaoffline.resources.play_result_validator_score_out_of_range_message
+import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
+
+private fun formatScore(score: Int): String = if (score < 0) score.toString() else ArcaeaFormatters.score(score)
 
 @Composable
 internal fun PlayResultFinding.messageText(): String? =
@@ -43,9 +46,9 @@ internal fun PlayResultFinding.messageText(): String? =
                 is PlayResultWarningDetail.ScoreOutOfRange -> {
                     stringResource(
                         Res.string.play_result_validator_score_out_of_range_message,
-                        d.actual,
-                        d.expected.first,
-                        d.expected.last,
+                        formatScore(d.actual),
+                        formatScore(d.expected.first),
+                        formatScore(d.expected.last),
                         d.pure,
                         d.far,
                     )
@@ -69,8 +72,8 @@ internal fun PlayResultFinding.messageText(): String? =
                 is PlayResultWarningDetail.ScoreBeyondMaximum -> {
                     stringResource(
                         Res.string.play_result_validator_score_impossible_message_beyond_max,
-                        d.actual,
-                        d.maximum,
+                        formatScore(d.actual),
+                        formatScore(d.maximum),
                     )
                 }
 
@@ -85,7 +88,7 @@ internal fun PlayResultFinding.messageText(): String? =
                 is PlayResultWarningDetail.ScoreTooLow -> {
                     stringResource(
                         Res.string.play_result_validator_pm_score_too_low_message,
-                        d.actual,
+                        formatScore(d.actual),
                     )
                 }
 

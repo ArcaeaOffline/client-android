@@ -29,16 +29,16 @@
 
     <string name="play_result_validator_score_out_of_range_title">Score out of range</string>
     <string name="play_result_validator_score_out_of_range_action">Check the PURE/FAR counts and the chart note count.</string>
-    <string name="play_result_validator_score_out_of_range_message">The score %1$d is outside %2$d–%3$d, the range for %4$d PURE and %5$d FAR.</string>
+    <string name="play_result_validator_score_out_of_range_message">The score %1$s is outside %2$s–%3$s, the range for %4$d PURE and %5$d FAR.</string>
 
     <string name="play_result_validator_score_impossible_title">Impossible score</string>
     <string name="play_result_validator_score_impossible_action">Check the score and the chart note count.</string>
     <string name="play_result_validator_score_impossible_message_negative">The score %1$d is negative.</string>
-    <string name="play_result_validator_score_impossible_message_beyond_max">The score %1$d is above the chart's maximum %2$d.</string>
+    <string name="play_result_validator_score_impossible_message_beyond_max">The score %1$s is above the chart's maximum %2$s.</string>
 
     <string name="play_result_validator_pm_score_too_low_title">Pure Memory score too low</string>
     <string name="play_result_validator_pm_score_too_low_action">A Pure Memory play scores at least 10'000'000.</string>
-    <string name="play_result_validator_pm_score_too_low_message">The score %1$d is below the Pure Memory minimum of 10'000'000.</string>
+    <string name="play_result_validator_pm_score_too_low_message">The score %1$s is below the Pure Memory minimum of 10'000'000.</string>
 
     <string name="play_result_validator_pfl_overflow_title">Judgment counts exceed the note count</string>
     <string name="play_result_validator_pfl_overflow_action">Check PURE, FAR and LOST against the chart note count.</string>
