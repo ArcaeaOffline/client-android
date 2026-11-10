@@ -13,8 +13,12 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
  */
 private fun ChartInfo?.usableNotes(): Int? = this?.notes?.takeIf { it > 0 }
 
-/** The highest score a play can reach on a chart of [notes]: every PURE earns the shiny PURE bonus. */
-private fun maxScore(notes: Int): Int = 10_000_000 + notes
+/**
+ * The highest score a play can reach on a chart of [notes]: every PURE earns the shiny PURE bonus.
+ *
+ * The sum is computed in [Long] and clamped to [Int], so a corrupt note count cannot overflow it.
+ */
+private fun maxScore(notes: Int): Int = (10_000_000L + notes).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
 /** Which scoring modes a warning takes part in. */
 enum class PlayResultWarningScope {

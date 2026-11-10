@@ -245,6 +245,30 @@ class PlayResultValidatorTest {
     }
 
     @Test
+    fun scoreImpossibleDoesNotOverflowWithHugeNotes() {
+        val chartInfo =
+            ChartInfo(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                constant = 95,
+                notes = Int.MAX_VALUE,
+            )
+        val playResult =
+            PlayResult(
+                songId = "test",
+                ratingClass = ArcaeaRatingClass.FUTURE,
+                score = 1,
+                pure = 0,
+                far = 0,
+                lost = 0,
+            )
+
+        assertNull(
+            PlayResultWarning.SCORE_IMPOSSIBLE.check(playResult, chartInfo),
+        )
+    }
+
+    @Test
     fun allPureNotPm() {
         val playResult =
             PlayResult(

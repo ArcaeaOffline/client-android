@@ -29,6 +29,18 @@ class CommonCalculatorsTest {
     }
 
     @Test
+    fun testScoreRangeClampsOverflow() {
+        assertEquals(
+            Int.MAX_VALUE..Int.MAX_VALUE,
+            calculateScoreRange(notes = 1, pure = 2_000_000_000, far = 0),
+        )
+        assertEquals(
+            Int.MAX_VALUE..Int.MAX_VALUE,
+            calculateScoreRange(notes = 1, pure = 0, far = 2_000_000_000),
+        )
+    }
+
+    @Test
     fun testPlayRating() {
         assertEquals(
             14.0,
