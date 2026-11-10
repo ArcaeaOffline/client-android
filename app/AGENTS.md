@@ -17,7 +17,7 @@ xyz.sevive.arcaeaoffline/
 │   ├── activities/               entry activities' screens and ViewModels, including ocrfromshare/
 │   ├── common/                   dialogs shared by several screens
 │   ├── components/               composables used by 2+ features: dialogs/, ocr/, resources/
-│   ├── helpers/                  formatters, display-chart cache
+│   ├── helpers/                  display helpers, display-chart cache, UI events
 │   ├── navigation/               MainScreen, MainNavigationGraph, per-tab route enums
 │   └── screens/<feature>/[<subfeature>/]
 ├── database/                     app-private Room 3 databases: AppDatabase, OcrQueueDatabase

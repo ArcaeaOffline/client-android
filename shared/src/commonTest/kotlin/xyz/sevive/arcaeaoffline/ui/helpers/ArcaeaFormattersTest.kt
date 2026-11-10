@@ -1,10 +1,10 @@
 package xyz.sevive.arcaeaoffline.ui.helpers
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClass
 import xyz.sevive.arcaeaoffline.core.constants.ArcaeaRatingClassDisplay
 import xyz.sevive.arcaeaoffline.core.database.entities.DifficultyWithSong
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ArcaeaFormattersTest {
     @Test

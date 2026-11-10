@@ -20,6 +20,7 @@ xyz.sevive.arcaeaoffline/
 └── ui/
     ├── theme/        expect Theme + CustomColors, ColorSchemes, Typography, Spacing
     ├── components/   cross-platform composables (e.g. ArcaeaScoreTextField)
+    ├── helpers/      cross-platform formatters (ArcaeaFormatters)
     └── utils/        UI helpers (e.g. AutoRepeatController)
 ```
 
