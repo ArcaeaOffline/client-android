@@ -23,16 +23,8 @@ import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
-import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
-import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcr
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrScenario
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
@@ -63,38 +55,8 @@ object DeviceOcrHelper {
 
         return MatOfByte(*byteArray).use { matOfBytes ->
             Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
-                val roisAutoType = DeviceRoisAutoSelector.select(img)
-
-                CropBlackEdges.crop(img).use { imgCropped ->
-                    val rois =
-                        when (roisAutoType) {
-                            DeviceRoisAutoSelectorResult.T1 -> {
-                                DeviceRoisAutoT1(
-                                    imgCropped.width(),
-                                    imgCropped.height(),
-                                )
-                            }
-
-                            else -> {
-                                DeviceRoisAutoT2(
-                                    imgCropped.width(),
-                                    imgCropped.height(),
-                                )
-                            }
-                        }
-                    val extractor = DeviceRoisExtractor(rois, imgCropped)
-                    val masker =
-                        when (roisAutoType) {
-                            DeviceRoisAutoSelectorResult.T1 -> DeviceRoisMaskerAutoT1()
-                            else -> DeviceRoisMaskerAutoT2()
-                        }
-
-                    DeviceOcr(
-                        extractor = extractor,
-                        masker = masker,
-                        ortSession = ortSession,
-                        hashesDb = imageHashesDatabase,
-                    ).ocr()
+                DeviceOcrScenario.forImage(img).use { scenario ->
+                    scenario.ocr(ortSession, imageHashesDatabase)
                 }
             }
         }

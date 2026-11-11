@@ -6,10 +6,13 @@ import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.doubleArrayRoundToRect
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 
 enum class DeviceRoisAutoSelectorResult { T1, T2, UNKNOWN }
 
@@ -202,4 +205,28 @@ object DeviceRoisAutoSelector {
         if (results.all { it.value == 0.0 }) return fallback ?: DeviceRoisAutoSelectorResult.UNKNOWN
         return results.maxBy { it.value }.key.result
     }
+
+    /**
+     * Creates the rois/masker pair matching the selector [result].
+     *
+     * @throws IllegalArgumentException when [result] is [DeviceRoisAutoSelectorResult.UNKNOWN].
+     */
+    fun createRoisAndMasker(
+        result: DeviceRoisAutoSelectorResult,
+        w: Int,
+        h: Int,
+    ): Pair<DeviceRois, DeviceRoisMasker> =
+        when (result) {
+            DeviceRoisAutoSelectorResult.T1 -> {
+                DeviceRoisAutoT1(w, h) to DeviceRoisMaskerAutoT1()
+            }
+
+            DeviceRoisAutoSelectorResult.T2 -> {
+                DeviceRoisAutoT2(w, h) to DeviceRoisMaskerAutoT2()
+            }
+
+            DeviceRoisAutoSelectorResult.UNKNOWN -> {
+                throw IllegalArgumentException("No rois/masker pair for $result")
+            }
+        }
 }

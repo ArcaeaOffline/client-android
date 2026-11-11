@@ -8,11 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.opencv.core.Mat
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
-import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.DeviceRoisExtractor
+import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrScenario
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import java.util.Locale
 import kotlin.system.measureTimeMillis
@@ -45,16 +41,10 @@ object OcrPerformanceBenchmark {
      * ownership transfers to the caller.
      */
     fun extractRois(img: Mat): List<Mat> =
-        CropBlackEdges.crop(img).use { imgCropped ->
-            val rois =
-                when (DeviceRoisAutoSelector.select(img)) {
-                    DeviceRoisAutoSelectorResult.T1 -> DeviceRoisAutoT1(imgCropped.width(), imgCropped.height())
-                    else -> DeviceRoisAutoT2(imgCropped.width(), imgCropped.height())
-                }
-            val extractor = DeviceRoisExtractor(rois, imgCropped)
-
-            // extractor properties return submat views of imgCropped; clone them
-            // so the returned Mats stay valid after imgCropped is released.
+        DeviceOcrScenario.forImage(img).use { scenario ->
+            // extractor properties return submat views of the scenario's cropped image
+            // clone them so the returned Mats stay valid after the scenario closes
+            val extractor = scenario.extractor
             listOf(extractor.pure, extractor.far, extractor.lost, extractor.score, extractor.maxRecall).map { view ->
                 view.use { it.clone() }
             }
