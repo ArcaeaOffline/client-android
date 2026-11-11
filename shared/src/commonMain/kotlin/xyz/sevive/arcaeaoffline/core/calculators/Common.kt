@@ -5,14 +5,23 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 
+/**
+ * Calculates the theoretical score range of a play with [pure] and [far] judgments on a chart with [notes].
+ *
+ * Returns an empty range when [notes] is not positive. Values outside the [Int] range are clamped to
+ * 0 and [Int.MAX_VALUE].
+ */
 fun calculateScoreRange(
     notes: Int,
     pure: Int,
     far: Int,
 ): IntRange {
-    val singleNoteScore = 10000000.0 / notes
-    val actualScore = floor(singleNoteScore * pure + singleNoteScore * 0.5 * far).toInt()
-    return actualScore..actualScore + pure
+    if (notes <= 0) return IntRange.EMPTY
+
+    val base = 10_000_000L * (2L * pure + far) / (2L * notes)
+    val start = base.coerceIn(0L, Int.MAX_VALUE.toLong())
+    val end = (base + pure).coerceIn(start, Int.MAX_VALUE.toLong())
+    return start.toInt()..end.toInt()
 }
 
 /** Bonus added to single-play potential by the B50 scoring. */

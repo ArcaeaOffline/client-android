@@ -45,7 +45,6 @@ import xyz.sevive.arcaeaoffline.core.api.DownloadableResource
 import xyz.sevive.arcaeaoffline.core.api.RemoteResourcesInfoUiState
 import xyz.sevive.arcaeaoffline.helpers.formatAsLocalizedDateTime
 import xyz.sevive.arcaeaoffline.helpers.rememberFileChooserLauncher
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
 import xyz.sevive.arcaeaoffline.ui.components.ArcaeaAppIcon
 import xyz.sevive.arcaeaoffline.ui.components.ImportLogBottomSheet
 import xyz.sevive.arcaeaoffline.ui.components.SelectItem
@@ -53,6 +52,7 @@ import xyz.sevive.arcaeaoffline.ui.components.SelectOption
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.resources.RemoteResourceDownloadItem
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 import kotlin.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)

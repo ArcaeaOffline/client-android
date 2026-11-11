@@ -103,7 +103,7 @@ CC BY-SA 3.0
     <string name="arcaea_play_result_pure" translatable="false">PURE</string>
     <string name="arcaea_play_result_far" translatable="false">FAR</string>
     <string name="arcaea_play_result_lost" translatable="false">LOST</string>
-    <string name="arcaea_play_result_max_recall">MAX RECALL</string>
+    <string name="arcaea_play_result_max_recall">Max Recall</string>
     <string name="arcaea_play_result_clear_type">Clear Type</string>
     <string name="play_rating_cleared">Cleared</string>
     <string name="play_rating_cleared_description">Counts the +0.2 clear bonus</string>
@@ -456,42 +456,6 @@ CC BY-SA 3.0
     <string name="diagnostics_generated">Diagnostics exported: %1$s</string>
 
     <string name="title_activity_ocr_from_share">OCR from Sharing</string>
-
-    <!-- PlayResult validator warnings -->
-    <plurals name="play_result_validator_warning_count">
-        <item quantity="one">%d warning</item>
-        <item quantity="other">%d warnings</item>
-    </plurals>
-
-    <string name="play_result_validator_SCORE_IS_ZERO_title">Score is zero</string>
-    <string name="play_result_validator_SCORE_IS_ZERO_message">Score is zero.</string>
-    <string name="play_result_validator_CLEAR_TYPE_MISSING_title">Clear type missing</string>
-    <string name="play_result_validator_CLEAR_TYPE_MISSING_message">The B50 rules count a play without a clear type as TRACK LOST, so it earns no clear bonus.</string>
-
-    <string name="play_result_validator_SCORE_OUT_OF_RANGE_title">Score out of range</string>
-    <string name="play_result_validator_SCORE_OUT_OF_RANGE_message">The score calculation based on the pure/far value does not match the given score.</string>
-
-    <string name="play_result_validator_PFL_OVERFLOW_title">Notes overflow</string>
-    <string name="play_result_validator_PFL_OVERFLOW_message">The sum of pure, far and lost is greater than the total notes of the chart.</string>
-
-    <string name="play_result_validator_MAX_RECALL_OVERFLOW_title">MAX RECALL overflow</string>
-    <string name="play_result_validator_MAX_RECALL_OVERFLOW_message">The max recall is greater than the total notes of the chart.</string>
-
-    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_title">FR/PM MAX RECALL mismatch</string>
-    <string name="play_result_validator_FR_PM_MAX_RECALL_MISMATCH_message">The max recall of a FULL RECALL / PURE MEMORY play result should be equal to the total notes of the chart.</string>
-
-    <string name="play_result_validator_CLEAR_PFL_MISMATCH_title">Notes mismatch</string>
-    <string name="play_result_validator_CLEAR_PFL_MISMATCH_message">The sum of pure, far, lost of a non HARD LOST play result should be equal to the total notes of the chart.</string>
-
-    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_title">FULL RECALL?</string>
-    <string name="play_result_validator_FULL_RECALL_LOST_NOT_ZERO_message">The lost of a FULL RECALL play result should be zero.</string>
-
-    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_title">PURE MEMORY?</string>
-    <string name="play_result_validator_PURE_MEMORY_FAR_LOST_NOT_ZERO_message">The far and lost of a PURE MEMORY play result should be zero.</string>
-
-    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_title">Modifier &amp; Clear Type mismatch</string>
-    <string name="play_result_validator_MODIFIER_CLEAR_TYPE_MISMATCH_message">A HARD CLEAR clear type should have the HARD modifier, and the same for EASY CLEAR.</string>
-
 
     <!-- `unstable` build flavor -->
     <string name="unstable_version_alert_title">UNSTABLE VERSION</string>

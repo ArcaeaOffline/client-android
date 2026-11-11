@@ -9,4 +9,71 @@
     <string name="arcaea_play_result_score">Score</string>
     <string name="arcaea_constant">Constant</string>
     <string name="arcaea_play_rating">Play Rating</string>
+
+    <!-- PlayResult validator warnings -->
+    <plurals name="play_result_validator_warning_count">
+        <item quantity="one">%1$d warning</item>
+        <item quantity="other">%1$d warnings</item>
+    </plurals>
+
+    <string name="play_result_validator_empty_play_result_title">Empty play result</string>
+    <string name="play_result_validator_empty_play_result_action">Fill in the score and judgment counts.</string>
+
+    <string name="play_result_validator_pure_memory_far_lost_not_zero_title">Pure Memory?</string>
+    <string name="play_result_validator_pure_memory_far_lost_not_zero_action">Check FAR/LOST and the clear type.</string>
+    <string name="play_result_validator_pure_memory_far_lost_not_zero_message">FAR and LOST should both be 0 for Pure Memory.</string>
+
+    <string name="play_result_validator_all_pure_not_pm_title">Should be Pure Memory</string>
+    <string name="play_result_validator_all_pure_not_pm_action">Check FAR/LOST and the clear type.</string>
+    <string name="play_result_validator_all_pure_not_pm_message">FAR and LOST are both 0, so the clear type should be Pure Memory.</string>
+
+    <string name="play_result_validator_score_out_of_range_title">Score out of range</string>
+    <string name="play_result_validator_score_out_of_range_action">Check the PURE/FAR counts and the chart note count.</string>
+    <string name="play_result_validator_score_out_of_range_message">The score %1$s is outside %2$s–%3$s, the range for %4$d PURE and %5$d FAR.</string>
+
+    <string name="play_result_validator_score_impossible_title">Impossible score</string>
+    <string name="play_result_validator_score_impossible_action">Check the score and the chart note count.</string>
+    <string name="play_result_validator_score_impossible_message_negative">The score %1$d is negative.</string>
+    <string name="play_result_validator_score_impossible_message_beyond_max">The score %1$s is above the chart's maximum %2$s.</string>
+
+    <string name="play_result_validator_pm_score_too_low_title">Pure Memory score too low</string>
+    <string name="play_result_validator_pm_score_too_low_action">A Pure Memory play scores at least 10'000'000.</string>
+    <string name="play_result_validator_pm_score_too_low_message">The score %1$s is below the Pure Memory minimum of 10'000'000.</string>
+
+    <string name="play_result_validator_pfl_overflow_title">Judgment counts exceed the note count</string>
+    <string name="play_result_validator_pfl_overflow_action">Check PURE, FAR and LOST against the chart note count.</string>
+    <string name="play_result_validator_pfl_overflow_message">The judgment counts exceed the chart's note count.</string>
+    <string name="play_result_validator_pfl_overflow_message_detailed">PURE %1$d + FAR %2$d + LOST %3$d exceeds the chart's %4$d notes.</string>
+
+    <string name="play_result_validator_max_recall_overflow_title">Max Recall overflow</string>
+    <string name="play_result_validator_max_recall_overflow_action">Check Max Recall and the judgment counts.</string>
+    <string name="play_result_validator_max_recall_overflow_message">Max Recall %1$d exceeds the allowed maximum %2$d.</string>
+
+    <string name="play_result_validator_negative_count_title">Negative counts</string>
+    <string name="play_result_validator_negative_count_action">Enter 0 or a positive count.</string>
+    <string name="play_result_validator_negative_count_message">PURE, FAR, LOST and Max Recall cannot be negative.</string>
+
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_title">FR/PM and Max Recall mismatch</string>
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_action">Check the clear type and Max Recall.</string>
+    <string name="play_result_validator_fr_pm_max_recall_mismatch_message">Max Recall %1$d does not match the chart's %2$d notes.</string>
+
+    <string name="play_result_validator_full_recall_lost_not_zero_title">Full Recall?</string>
+    <string name="play_result_validator_full_recall_lost_not_zero_action">Check LOST and the clear type.</string>
+    <string name="play_result_validator_full_recall_lost_not_zero_message">LOST should be 0 for Full Recall.</string>
+
+    <string name="play_result_validator_plain_clear_without_lost_title">Clear type and LOST mismatch</string>
+    <string name="play_result_validator_plain_clear_without_lost_action">Check the LOST count, or change the clear type.</string>
+    <string name="play_result_validator_plain_clear_without_lost_message">This clear type requires at least one LOST.</string>
+
+    <string name="play_result_validator_clear_pfl_mismatch_title">Judgment counts and note count mismatch</string>
+    <string name="play_result_validator_clear_pfl_mismatch_action">Check the judgment counts against the chart note count.</string>
+    <string name="play_result_validator_clear_pfl_mismatch_message">PURE %1$d + FAR %2$d + LOST %3$d does not match the chart's %4$d notes.</string>
+
+    <string name="play_result_validator_modifier_clear_type_mismatch_title">Modifier and clear type mismatch</string>
+    <string name="play_result_validator_modifier_clear_type_mismatch_action">Check the modifier and the clear type.</string>
+    <string name="play_result_validator_modifier_clear_type_mismatch_message">Easy Clear, Hard Clear and Normal Clear each require the matching modifier.</string>
+
+    <string name="play_result_validator_clear_type_missing_title">Clear type missing</string>
+    <string name="play_result_validator_clear_type_missing_action">Set the clear type.</string>
+    <string name="play_result_validator_clear_type_missing_message">Without a clear type, the B50 rules count the play as Track Lost, so it earns no clear bonus.</string>
 </resources>

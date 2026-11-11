@@ -28,13 +28,13 @@ import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DatabaseReadinessRepository
 import xyz.sevive.arcaeaoffline.core.database.repositories.DifficultyWithSongRepository
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.data.OcrDependencyPaths
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepositoryImpl
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesRepository
 import xyz.sevive.arcaeaoffline.datastore.OcrQueuePreferencesSerializer
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.jobs.OcrQueueProcessingJob
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 import xyz.sevive.arcaeaoffline.ui.helpers.UiEvent
@@ -71,7 +71,7 @@ class OcrQueueScreenViewModel(
         val display: UiDisplayChartCacheHolder.Entry? = null,
     ) {
         val warnings =
-            dbItem.playResult?.let { ArcaeaPlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }
+            dbItem.playResult?.let { PlayResultValidator.validate(playResult = it, chartInfo = display?.chartInfo) }
         val hasWarnings = warnings?.isNotEmpty() == true
 
         val canEditChart = dbItem.status in listOf(OcrQueueTaskStatus.DONE, OcrQueueTaskStatus.ERROR)

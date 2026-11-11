@@ -10,7 +10,7 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.playRating
 import xyz.sevive.arcaeaoffline.core.search.SearchEngine
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.helpers.UiDisplayChartCacheHolder
 
@@ -39,7 +39,7 @@ data class PlayResultListUiItem(
             }
             append(baseText)
         }
-    val warnings = ArcaeaPlayResultValidator.validate(playResult, display?.chartInfo, scoringMode)
+    val warnings = PlayResultValidator.validate(playResult, display?.chartInfo, scoringMode)
     val scoreGrade = ArcaeaScoreGrade.of(playResult.score)
     val clearStatus = ArcaeaPlayResultClearStatus.of(playResult.clearType)
     val normalizedComment = playResult.comment?.let(SearchEngine::normalize)

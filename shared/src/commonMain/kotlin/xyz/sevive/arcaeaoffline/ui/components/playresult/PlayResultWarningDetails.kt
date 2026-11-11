@@ -1,4 +1,4 @@
-package xyz.sevive.arcaeaoffline.ui.components
+package xyz.sevive.arcaeaoffline.ui.components.playresult
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,32 +34,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorMaxRecallOverflowWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPflOverflowWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import org.jetbrains.compose.resources.stringResource
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultWarning
 import xyz.sevive.arcaeaoffline.ui.theme.ArcaeaOfflineTheme
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 
 @Composable
-private fun ArcaeaPlayResultValidatorWarningDetailItem(
-    warning: ArcaeaPlayResultValidatorWarning,
+private fun PlayResultWarningDetailItem(
+    finding: PlayResultFinding,
     modifier: Modifier = Modifier,
 ) {
+    val warning = finding.warning
     var expanded by rememberSaveable { mutableStateOf(false) }
     val expandArrowRotateDegree by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         label = "expandArrow",
     )
 
-    val context = LocalContext.current
     val density = LocalDensity.current
 
     val padding = MaterialTheme.spacing.cardPadding
@@ -70,16 +67,14 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
             PaddingValues(start = start, end = padding, bottom = padding)
         }
 
-    val title = remember(warning) { warning.getTitle(context) }
-    val message = remember(warning) { warning.getMessage(context) }
-
-    val showWarningId by remember {
-        derivedStateOf { message.isNullOrBlank() || expanded }
-    }
+    val title = stringResource(warning.titleRes())
+    val action = stringResource(warning.actionRes())
+    val message = finding.messageText()
+    val expandable = message != null
 
     Column(
         Modifier
-            .clickable { expanded = !expanded }
+            .clickable(enabled = expandable) { expanded = !expanded }
             .then(modifier),
     ) {
         Row(
@@ -96,16 +91,15 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
 
                 Column(Modifier.weight(1f)) {
                     Text(title)
-                    AnimatedVisibility(visible = showWarningId) {
-                        Text(
-                            warning.id,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
-                        )
-                    }
+                    Text(
+                        action,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
-            if (!message.isNullOrBlank()) {
+            if (expandable) {
                 Icon(
                     Icons.Default.ExpandMore,
                     contentDescription = null,
@@ -114,13 +108,18 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
             }
         }
 
-        AnimatedVisibility(visible = expanded) {
-            if (!message.isNullOrBlank()) {
+        AnimatedVisibility(visible = expandable && expanded) {
+            Column(
+                Modifier.padding(messagePadding),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.sm),
+            ) {
+                if (message != null) {
+                    Text(message, Modifier.secondaryItemAlpha())
+                }
                 Text(
-                    message,
-                    Modifier
-                        .secondaryItemAlpha()
-                        .padding(messagePadding),
+                    warning.name,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Light),
+                    modifier = Modifier.secondaryItemAlpha(),
                 )
             }
         }
@@ -128,22 +127,22 @@ private fun ArcaeaPlayResultValidatorWarningDetailItem(
 }
 
 @Composable
-fun ArcaeaPlayResultValidatorWarningDetails(
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
+fun PlayResultWarningDetails(
+    warnings: List<PlayResultFinding>,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier) {
         warnings.forEachIndexed { i, it ->
-            ArcaeaPlayResultValidatorWarningDetailItem(warning = it)
+            PlayResultWarningDetailItem(finding = it)
             if (i != warnings.lastIndex) HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun ArcaeaPlayResultValidatorWarningDetailsDialog(
+fun PlayResultWarningDetailsDialog(
     onDismissRequest: () -> Unit,
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    warnings: List<PlayResultFinding>,
     modifier: Modifier = Modifier,
 ) {
     AlertDialog(
@@ -165,52 +164,52 @@ fun ArcaeaPlayResultValidatorWarningDetailsDialog(
         },
         text = {
             LazyColumn {
-                item { ArcaeaPlayResultValidatorWarningDetails(warnings) }
+                item { PlayResultWarningDetails(warnings) }
             }
         },
         confirmButton = { /* Nothing */ },
     )
 }
 
-@PreviewLightDark
+@Preview
 @Composable
-private fun ArcaeaPlayResultValidatorWarningDetailItemPreview() {
+private fun PlayResultWarningDetailItemPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            ArcaeaPlayResultValidatorWarningDetailItem(ArcaeaPlayResultValidatorPflOverflowWarning)
+            PlayResultWarningDetailItem(PlayResultFinding(PlayResultWarning.PFL_OVERFLOW))
         }
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
-private fun ArcaeaPlayResultValidatorWarningDetailsPreview() {
+private fun PlayResultWarningDetailsPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            ArcaeaPlayResultValidatorWarningDetails(
+            PlayResultWarningDetails(
                 warnings =
                     listOf(
-                        ArcaeaPlayResultValidatorPflOverflowWarning,
-                        ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-                        ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+                        PlayResultFinding(PlayResultWarning.PFL_OVERFLOW),
+                        PlayResultFinding(PlayResultWarning.MAX_RECALL_OVERFLOW),
+                        PlayResultFinding(PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO),
                     ),
             )
         }
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
-private fun ArcaeaPlayResultValidatorWarningDetailsDialogPreview() {
+private fun PlayResultWarningDetailsDialogPreview() {
     ArcaeaOfflineTheme {
         Surface {
-            ArcaeaPlayResultValidatorWarningDetailsDialog(
+            PlayResultWarningDetailsDialog(
                 onDismissRequest = {},
                 warnings =
                     listOf(
-                        ArcaeaPlayResultValidatorPflOverflowWarning,
-                        ArcaeaPlayResultValidatorMaxRecallOverflowWarning,
-                        ArcaeaPlayResultValidatorPureMemoryFarLostNotZeroWarning,
+                        PlayResultFinding(PlayResultWarning.PFL_OVERFLOW),
+                        PlayResultFinding(PlayResultWarning.MAX_RECALL_OVERFLOW),
+                        PlayResultFinding(PlayResultWarning.PURE_MEMORY_FAR_LOST_NOT_ZERO),
                     ),
             )
         }

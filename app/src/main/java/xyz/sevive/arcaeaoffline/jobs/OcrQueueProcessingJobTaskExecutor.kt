@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import xyz.sevive.arcaeaoffline.core.database.repositories.ChartInfoRepository
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrOnnxHelper
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultValidator
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTask
 import xyz.sevive.arcaeaoffline.database.entities.OcrQueueTaskStatus
 import xyz.sevive.arcaeaoffline.database.repositories.OcrQueueTaskRepository
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidator
 import xyz.sevive.arcaeaoffline.helpers.DeviceOcrHelper
 import xyz.sevive.arcaeaoffline.helpers.OcrDependencyLoader
 import kotlin.time.Clock
@@ -107,7 +107,7 @@ class OcrQueueFixTaskExecutor(
             val chartInfo = chartInfoRepo.find(songId, ratingClass).firstOrNull() ?: continue
 
             val newPlayResult = task.playResult.copy(songId = songId)
-            if (ArcaeaPlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
+            if (PlayResultValidator.validate(newPlayResult, chartInfo).isEmpty()) {
                 ocrQueueTaskRepo.update(task.copy(playResult = newPlayResult))
                 return
             }

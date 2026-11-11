@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
@@ -47,10 +46,8 @@ import xyz.sevive.arcaeaoffline.core.constants.ArcaeaScoringMode
 import xyz.sevive.arcaeaoffline.core.database.entities.ChartInfo
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.database.entities.playRating
-import xyz.sevive.arcaeaoffline.helpers.ArcaeaPlayResultValidatorWarning
-import xyz.sevive.arcaeaoffline.helpers.secondaryItemAlpha
+import xyz.sevive.arcaeaoffline.core.validation.PlayResultFinding
 import xyz.sevive.arcaeaoffline.ui.SubScreenContainer
-import xyz.sevive.arcaeaoffline.ui.components.ArcaeaPlayResultValidatorWarningDetailsDialog
 import xyz.sevive.arcaeaoffline.ui.components.LabeledCheckbox
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorClearTypeField
 import xyz.sevive.arcaeaoffline.ui.components.PlayResultEditorCommentField
@@ -65,14 +62,17 @@ import xyz.sevive.arcaeaoffline.ui.components.SettingsGroupHeader
 import xyz.sevive.arcaeaoffline.ui.components.TextItem
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.OutlinedArcaeaScoreTextField
 import xyz.sevive.arcaeaoffline.ui.components.arcaea.rememberArcaeaScoreTextFieldState
+import xyz.sevive.arcaeaoffline.ui.components.playresult.PlayResultWarningDetailsDialog
+import xyz.sevive.arcaeaoffline.ui.components.playresult.playResultWarningCountText
 import xyz.sevive.arcaeaoffline.ui.helpers.ArcaeaFormatters
 import xyz.sevive.arcaeaoffline.ui.navigation.DatabaseSubScreen
 import xyz.sevive.arcaeaoffline.ui.theme.extendedColorScheme
 import xyz.sevive.arcaeaoffline.ui.theme.spacing
+import xyz.sevive.arcaeaoffline.ui.utils.secondaryItemAlpha
 
 @Composable
 internal fun BottomActionsBar(
-    warnings: List<ArcaeaPlayResultValidatorWarning>,
+    warnings: List<PlayResultFinding>,
     keepChart: Boolean,
     onKeepChartChange: (Boolean) -> Unit,
     onReset: () -> Unit,
@@ -82,7 +82,7 @@ internal fun BottomActionsBar(
 ) {
     var showWarningsDialog by rememberSaveable { mutableStateOf(false) }
     if (showWarningsDialog && warnings.isNotEmpty()) {
-        ArcaeaPlayResultValidatorWarningDetailsDialog(
+        PlayResultWarningDetailsDialog(
             onDismissRequest = { showWarningsDialog = false },
             warnings = warnings,
         )
@@ -96,7 +96,7 @@ internal fun BottomActionsBar(
                     LocalContentColor provides MaterialTheme.extendedColorScheme.onWarningContainer,
                 ) {
                     TextItem(
-                        title = pluralStringResource(R.plurals.play_result_validator_warning_count, warnings.size, warnings.size),
+                        title = playResultWarningCountText(warnings.size),
                         leadingIcon = Icons.Default.Warning,
                         leadingIconTint = MaterialTheme.extendedColorScheme.onWarningContainer,
                         onClick = { showWarningsDialog = true },
