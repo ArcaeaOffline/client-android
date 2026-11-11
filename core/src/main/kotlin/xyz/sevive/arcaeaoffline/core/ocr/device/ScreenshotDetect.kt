@@ -5,6 +5,8 @@ import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
+import kotlin.math.roundToInt
 
 object ScreenshotDetect {
     private val PURPLE_HSV_LOWER = Scalar(110.0, 45.0, 75.0)
@@ -20,17 +22,15 @@ object ScreenshotDetect {
     ): Boolean {
         val rois = DeviceRoisAutoT2(imgHsv.width(), imgHsv.height())
 
-        val roiRect =
-            Rect(
-                0,
-                (rois.layoutAreaHMid + ROI_HEIGHT_OFFSET * rois.factor).toInt(),
-                (rois.wMid + ROI_WIDTH_OFFSET * rois.factor).toInt(),
-                (ROI_HEIGHT * rois.factor).toInt(),
-            )
+        val y = (rois.layoutAreaHMid + ROI_HEIGHT_OFFSET * rois.factor).roundToInt()
+        val w = (rois.wMid + ROI_WIDTH_OFFSET * rois.factor).roundToInt()
+        val h = (ROI_HEIGHT * rois.factor).roundToInt()
 
-        val roi = imgHsv.submat(roiRect)
-        Core.inRange(roi, PURPLE_HSV_LOWER, PURPLE_HSV_UPPER, roi)
-
-        return Core.countNonZero(roi) >= roi.width() * roi.height() * ratio
+        Mat().use { mask ->
+            imgHsv.submat(Rect(0, y, w, h)).use { roi ->
+                Core.inRange(roi, PURPLE_HSV_LOWER, PURPLE_HSV_UPPER, mask)
+            }
+            return Core.countNonZero(mask) >= w * h * ratio
+        }
     }
 }
