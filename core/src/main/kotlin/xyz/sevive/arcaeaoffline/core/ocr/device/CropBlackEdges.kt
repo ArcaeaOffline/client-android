@@ -49,8 +49,7 @@ class CropBlackEdges {
                 left += 1
             }
 
-            // never scans past left + 1, so the crop spans at least two columns once a
-            // non-black column exists
+            // keeps at least a two-column crop whenever a non-black column exists
             for (i in width - 1 downTo 0) {
                 if (i <= left + 1) break
                 val isBlack = imgGray.submat(Rect(i, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }

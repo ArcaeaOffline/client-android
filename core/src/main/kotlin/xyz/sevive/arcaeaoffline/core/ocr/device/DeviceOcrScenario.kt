@@ -23,7 +23,7 @@ class DeviceOcrScenario private constructor(
     companion object {
         /**
          * Builds a scenario from a raw BGR screenshot. The rois type (T1/T2) is auto-detected
-         * on the black-edge-cropped image, and the matching rois/masker pair is constructed.
+         * on the black-edge-cropped image.
          *
          * @param fallback Selected when every detector reports zero confidence.
          * @throws IllegalArgumentException when the rois type cannot be determined and
