@@ -13,6 +13,7 @@ xyz.sevive.arcaeaoffline.core/
 │   ├── ImageHashers, ImageHashesDatabase(+Builder), ImageHashItem, OcrScenario
 │   ├── device/        DeviceOcr, DeviceOcrScenario, ONNX helper, ScreenshotDetect, performance benchmark
 │   │   └── rois/      ROI definition / extractor / masker
+│   ├── layouts/       DeviceLayout: bundled T1/T2 layout JSON and its screen mapping
 │   └── opencv/        OpenCV helpers
 └── di/CoreModule.kt
 ```
