@@ -151,7 +151,7 @@ class DeviceOcr(
             far = ocrIntOrNull(extractor.far) ?: 0,
             lost = ocrIntOrNull(extractor.lost) ?: 0,
             score = ocrIntOrNull(extractor.score) ?: 0,
-            maxRecall = ocrIntOrNull(extractor.maxRecall),
+            maxRecall = ocrIntOrNull(extractor.maxRecall) ?: 0,
             songIdResults = lookupSongId(),
             clearStatus = clearStatus(),
             partnerIdResults = lookupPartnerId(),
