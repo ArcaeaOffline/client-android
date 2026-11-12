@@ -25,6 +25,9 @@ class DeviceOcrScenario private constructor(
          * Builds a scenario from a raw BGR screenshot. The rois type (T1/T2) is auto-detected
          * on the black-edge-cropped image.
          *
+         * The scenario owns its cropped image and never aliases [imgBgr]. The caller stays
+         * responsible for releasing it.
+         *
          * @param fallback Selected when every detector reports zero confidence.
          * @throws IllegalArgumentException when the rois type cannot be determined and
          *   [fallback] is null.
@@ -33,19 +36,27 @@ class DeviceOcrScenario private constructor(
             imgBgr: Mat,
             fallback: DeviceRoisAutoSelectorResult? = null,
         ): DeviceOcrScenario {
-            val imgCropped = CropBlackEdges.cropOrOriginal(imgBgr)
-            val roisType = DeviceRoisAutoSelector.select(imgCropped, fallback)
-            require(roisType != DeviceRoisAutoSelectorResult.UNKNOWN) {
-                "Cannot determine device rois type; pass an explicit fallback"
-            }
+            val cropped = CropBlackEdges.cropOrOriginal(imgBgr)
+            // cropOrOriginal returns imgBgr itself when cropping fails, so clone to keep
+            // close() off the caller's Mat
+            val imgCropped = if (cropped === imgBgr) cropped.clone() else cropped
+            try {
+                val roisType = DeviceRoisAutoSelector.select(imgCropped, fallback)
+                require(roisType != DeviceRoisAutoSelectorResult.UNKNOWN) {
+                    "Cannot determine device rois type; pass an explicit fallback"
+                }
 
-            val (rois, masker) =
-                DeviceRoisAutoSelector.createRoisAndMasker(
-                    roisType,
-                    imgCropped.width(),
-                    imgCropped.height(),
-                )
-            return DeviceOcrScenario(imgCropped, DeviceRoisExtractor(rois, imgCropped), masker)
+                val (rois, masker) =
+                    DeviceRoisAutoSelector.createRoisAndMasker(
+                        roisType,
+                        imgCropped.width(),
+                        imgCropped.height(),
+                    )
+                return DeviceOcrScenario(imgCropped, DeviceRoisExtractor(rois, imgCropped), masker)
+            } catch (e: Exception) {
+                imgCropped.release()
+                throw e
+            }
         }
     }
 
