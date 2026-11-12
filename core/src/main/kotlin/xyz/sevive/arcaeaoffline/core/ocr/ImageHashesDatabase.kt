@@ -20,6 +20,33 @@ private fun hammingDistance(
     return distance
 }
 
+/**
+ * Returns the [limit] items with the smallest [scoreOf] value as `(item, score)` pairs,
+ * ordered by score ascending.
+ *
+ * Equal scores keep their original relative order, like a stable sort truncated to [limit].
+ * [scoreOf] is called once per item.
+ */
+internal fun <T> stableTopKBy(
+    source: Sequence<T>,
+    limit: Int,
+    scoreOf: (T) -> Int,
+): List<Pair<T, Int>> {
+    require(limit > 0) { "limit must be positive" }
+
+    val top = ArrayList<Pair<T, Int>>(limit)
+    for (item in source) {
+        val score = scoreOf(item)
+        if (top.size == limit && score >= top.last().second) continue
+
+        // insert after equal scores so earlier items keep priority
+        val pos = top.indexOfFirst { it.second > score }
+        top.add(if (pos == -1) top.size else pos, item to score)
+        if (top.size > limit) top.removeAt(top.size - 1)
+    }
+    return top
+}
+
 class ImageHashesDatabase(
     private val conn: SQLiteConnection,
 ) {
@@ -27,6 +54,8 @@ class ImageHashesDatabase(
         const val PROP_HASH_SIZE_KEY = "hash_size"
         const val PROP_HIGH_FREQ_FACTOR_KEY = "high_freq_factor"
         const val PROP_BUILT_TIMESTAMP_KEY = "built_timestamp"
+
+        private const val LOOKUP_LIMIT = 10
     }
 
     private var hashSize: Int by Delegates.notNull()
@@ -145,13 +174,12 @@ class ImageHashesDatabase(
         hash: ByteArray,
     ): List<ImageHashItem> {
         val hashLength = hashSize.toDouble().pow(2)
-        return allHashes
-            .filter { it.type == type && it.hashType == hashType }
-            .sortedBy { it.distance(hash) }
-            .take(10)
-            .map { entry ->
-                val distance = entry.distance(hash)
 
+        return stableTopKBy(
+            allHashes.asSequence().filter { it.type == type && it.hashType == hashType },
+            LOOKUP_LIMIT,
+        ) { it.distance(hash) }
+            .map { (entry, distance) ->
                 ImageHashItem(
                     hashType = hashType,
                     type = type,
