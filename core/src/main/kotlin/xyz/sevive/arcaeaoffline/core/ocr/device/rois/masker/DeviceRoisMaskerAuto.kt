@@ -21,6 +21,27 @@ private fun maskBgrInHsv(
     return masked
 }
 
+/**
+ * Counts non-zero pixels of [roiBgr] masked under each HSV range in order, with a single
+ * BGR -> HSV conversion.
+ */
+private fun hsvVote(
+    roiBgr: Mat,
+    ranges: List<Pair<Scalar, Scalar>>,
+): IntArray {
+    val votes = IntArray(ranges.size)
+    Mat().use { roiHsv ->
+        Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
+        Mat().use { mask ->
+            ranges.forEachIndexed { index, (lower, upper) ->
+                Core.inRange(roiHsv, lower, upper, mask)
+                votes[index] = Core.countNonZero(mask)
+            }
+        }
+    }
+    return votes
+}
+
 interface DeviceRoisMaskerAuto : DeviceRoisMasker
 
 class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
@@ -56,6 +77,23 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
 
     private val pureMemoryHsvLower = Scalar(90.0, 70.0, 80.0)
     private val pureMemoryHsvUpper = Scalar(110.0, 200.0, 175.0)
+
+    private val ratingClassRanges =
+        listOf(
+            pstHsvLower to pstHsvUpper,
+            prsHsvLower to prsHsvUpper,
+            ftrHsvLower to ftrHsvUpper,
+            bydHsvLower to bydHsvUpper,
+            etrHsvMin to etrHsvMax,
+        )
+
+    private val clearStatusRanges =
+        listOf(
+            trackLostHsvLower to trackLostHsvUpper,
+            trackCompleteHsvLower to trackCompleteHsvUpper,
+            fullRecallHsvLower to fullRecallHsvUpper,
+            pureMemoryHsvLower to pureMemoryHsvUpper,
+        )
 
     /** Returns a newly allocated 8UC1 mask with 255 where the BGR channel spread is at most [threshold]. */
     private fun channelSpreadMask(
@@ -131,6 +169,10 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
     override fun clearStatusFullRecall(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, fullRecallHsvLower, fullRecallHsvUpper)
 
     override fun clearStatusPureMemory(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pureMemoryHsvLower, pureMemoryHsvUpper)
+
+    override fun ratingClassVotes(roiBgr: Mat): IntArray = hsvVote(roiBgr, ratingClassRanges)
+
+    override fun clearStatusVotes(roiBgr: Mat): IntArray = hsvVote(roiBgr, clearStatusRanges)
 }
 
 class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
@@ -170,6 +212,23 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
     private val pureMemoryHsvLower = Scalar(90.0, 70.0, 80.0)
     private val pureMemoryHsvUpper = Scalar(110.0, 200.0, 175.0)
 
+    private val ratingClassRanges =
+        listOf(
+            pstHsvLower to pstHsvUpper,
+            prsHsvLower to prsHsvUpper,
+            ftrHsvLower to ftrHsvUpper,
+            bydHsvLower to bydHsvUpper,
+            etrHsvMin to etrHsvMax,
+        )
+
+    private val clearStatusRanges =
+        listOf(
+            trackLostHsvLower to trackLostHsvUpper,
+            trackCompleteHsvLower to trackCompleteHsvUpper,
+            fullRecallHsvLower to fullRecallHsvUpper,
+            pureMemoryHsvLower to pureMemoryHsvUpper,
+        )
+
     private fun pfl(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pflHsvLower, pflHsvUpper)
 
     override fun pure(roiBgr: Mat): Mat = pfl(roiBgr)
@@ -199,4 +258,8 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
     override fun clearStatusFullRecall(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, fullRecallHsvLower, fullRecallHsvUpper)
 
     override fun clearStatusPureMemory(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pureMemoryHsvLower, pureMemoryHsvUpper)
+
+    override fun ratingClassVotes(roiBgr: Mat): IntArray = hsvVote(roiBgr, ratingClassRanges)
+
+    override fun clearStatusVotes(roiBgr: Mat): IntArray = hsvVote(roiBgr, clearStatusRanges)
 }
