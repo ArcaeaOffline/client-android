@@ -25,28 +25,41 @@ data class ImageHashItem(
     val confidence: Double,
 )
 
+/**
+ * Picks the winning label across per-hash-type lookup results and returns its best entry.
+ *
+ * A label's score is the weighted average of its entries' confidences, weighting DCT 4,
+ * DIFFERENCE 2 and AVERAGE 1. Score ties resolve to the earliest-appearing label.
+ *
+ * @return The winning label's highest-confidence entry, with [ImageHashItem.confidence]
+ *   replaced by the label's score rather than the entry's raw confidence. `null` on an
+ *   empty list.
+ */
 fun List<ImageHashItem>.getMostConfidentItem(): ImageHashItem? {
     if (isEmpty()) return null
 
-    val labelConfidenceMap =
-        this
-            .map { it.label }
-            .distinct()
-            .associateWith { 0.0 }
-            .toMutableMap()
+    data class Accumulator(
+        val weightedConfidenceSum: Double,
+        val weightSum: Double,
+    )
 
-    this.forEach {
+    val labelAccumulators = linkedMapOf<String, Accumulator>()
+    for ((hashType, _, label, confidence) in this) {
         val weight =
-            when (it.hashType) {
-                ImageHashItemHashType.AVERAGE -> 0.3
-                ImageHashItemHashType.DCT -> 0.2
-                ImageHashItemHashType.DIFFERENCE -> 0.2
+            when (hashType) {
+                ImageHashItemHashType.AVERAGE -> 1.0
+                ImageHashItemHashType.DIFFERENCE -> 2.0
+                ImageHashItemHashType.DCT -> 4.0
             }
-        val value = labelConfidenceMap[it.label] ?: 0.0
-        labelConfidenceMap[it.label] = value + it.confidence * weight
+        val acc = labelAccumulators[label] ?: Accumulator(0.0, 0.0)
+        labelAccumulators[label] =
+            Accumulator(acc.weightedConfidenceSum + confidence * weight, acc.weightSum + weight)
     }
 
-    return this
-        .sortedByDescending { it.confidence }
-        .first { it.label == labelConfidenceMap.maxBy { mapItem -> mapItem.value }.key }
+    val winner =
+        labelAccumulators.entries.maxByOrNull { it.value.weightedConfidenceSum / it.value.weightSum }
+            ?: return null
+    val fused = winner.value.weightedConfidenceSum / winner.value.weightSum
+
+    return this.filter { it.label == winner.key }.maxByOrNull { it.confidence }?.copy(confidence = fused)
 }

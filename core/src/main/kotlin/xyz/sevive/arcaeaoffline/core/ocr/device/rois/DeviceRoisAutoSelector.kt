@@ -3,13 +3,16 @@ package xyz.sevive.arcaeaoffline.core.ocr.device.rois
 import co.touchlab.kermit.Logger
 import org.opencv.core.Core
 import org.opencv.core.Mat
-import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.extractor.doubleArrayRoundToRect
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 enum class DeviceRoisAutoSelectorResult { T1, T2, UNKNOWN }
 
@@ -35,7 +38,6 @@ private object T1Detector : DeviceRoisAutoSelectorDetector {
 
     private const val INTEREST_POINTS = 3.0
 
-    private const val PFL_LABEL_WIDTH = 85
     private val pureLabelHsvLower = Scalar(80.0, 60.0, 125.0)
     private val pureLabelHsvUpper = Scalar(110.0, 200.0, 225.0)
 
@@ -43,49 +45,20 @@ private object T1Detector : DeviceRoisAutoSelectorDetector {
     private const val FAR_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.04
     private const val LOST_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.055
 
-    private val masker = DeviceRoisMaskerAutoT1()
-
-    private fun getPflLabelRectFromPflRoiRect(
-        array: DoubleArray,
-        labelWidth: Double,
-    ): Rect =
-        doubleArrayRoundToRect(
-            doubleArrayOf(array[0] - labelWidth, array[1], labelWidth, array[3]),
-        )
-
-    private fun getPflLabelBgr(
-        imgBgr: Mat,
-        roiRect: DoubleArray,
-    ): Mat {
-        val rois = DeviceRoisAutoT1(imgBgr.width(), imgBgr.height())
-        val pflLabelWidth = PFL_LABEL_WIDTH * rois.factor
-
-        val labelRect = getPflLabelRectFromPflRoiRect(roiRect, pflLabelWidth)
-        return imgBgr.submat(labelRect).clone()
-    }
+    private val grayMasker = DeviceRoisMaskerAutoT1()
 
     private fun maskPureLabel(roiBgr: Mat): Mat {
-        val roiHsv = Mat()
-        Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
         val roiMasked = Mat()
-        Core.inRange(roiHsv, pureLabelHsvLower, pureLabelHsvUpper, roiMasked)
+        Mat().use { roiHsv ->
+            Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
+            Core.inRange(roiHsv, pureLabelHsvLower, pureLabelHsvUpper, roiMasked)
+        }
         return roiMasked
     }
 
-    private fun maskFarLostLabel(roiBgr: Mat): Mat = masker.gray(roiBgr)
-
-    private fun pflLabelMatches(
-        labelMasked: Mat,
-        nonZeroRatioThreshold: Double,
-    ): Boolean {
-        val labelSize = labelMasked.size().height * labelMasked.size().width
-        val nonZeroRatio = Core.countNonZero(labelMasked) / labelSize
-        return nonZeroRatio >= nonZeroRatioThreshold
-    }
-
     @Suppress("ArrayInDataClass")
-    private data class PflLabelInterest(
-        val roiRect: DoubleArray,
+    private data class Interest(
+        val rect: DoubleArray,
         val masker: (Mat) -> Mat,
         val nonZeroRatioThreshold: Double,
     )
@@ -96,13 +69,16 @@ private object T1Detector : DeviceRoisAutoSelectorDetector {
         val rois = DeviceRoisAutoT1(imgBgr.width(), imgBgr.height())
 
         listOf(
-            PflLabelInterest(rois.pure, ::maskPureLabel, PURE_LABEL_NON_ZERO_RATIO_THRESHOLD),
-            PflLabelInterest(rois.far, ::maskFarLostLabel, FAR_LABEL_NON_ZERO_RATIO_THRESHOLD),
-            PflLabelInterest(rois.lost, ::maskFarLostLabel, LOST_LABEL_NON_ZERO_RATIO_THRESHOLD),
-        ).forEach {
-            val labelBgr = getPflLabelBgr(imgBgr, it.roiRect)
-            val labelMasked = it.masker(labelBgr)
-            if (pflLabelMatches(labelMasked, it.nonZeroRatioThreshold)) matches += 1
+            Interest(rois.pureLabel, ::maskPureLabel, PURE_LABEL_NON_ZERO_RATIO_THRESHOLD),
+            Interest(rois.farLabel, grayMasker::gray, FAR_LABEL_NON_ZERO_RATIO_THRESHOLD),
+            Interest(rois.lostLabel, grayMasker::gray, LOST_LABEL_NON_ZERO_RATIO_THRESHOLD),
+        ).forEach { (rect, masker, threshold) ->
+            imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
+                masker(labelBgr).use { labelMasked ->
+                    val labelSize = labelMasked.size().height * labelMasked.size().width
+                    if (Core.countNonZero(labelMasked) / labelSize >= threshold) matches += 1
+                }
+            }
         }
 
         return matches / INTEREST_POINTS
@@ -114,7 +90,6 @@ private object T2Detector : DeviceRoisAutoSelectorDetector {
 
     private const val INTEREST_POINTS = 3.0
 
-    private const val PFL_LABEL_WIDTH = 180
     private val pureLabelHsvLower = Scalar(110.0, 25.0, 90.0)
     private val pureLabelHsvUpper = Scalar(160.0, 150.0, 230.0)
     private val farLabelHsvLower = Scalar(5.0, 25.0, 120.0)
@@ -124,52 +99,35 @@ private object T2Detector : DeviceRoisAutoSelectorDetector {
 
     private const val PFL_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.3
 
-    private fun getPflLabelRectFromPflRoiRect(
-        array: DoubleArray,
-        labelWidth: Double,
-    ): Rect =
-        doubleArrayRoundToRect(
-            doubleArrayOf(array[0] - labelWidth, array[1], labelWidth, array[3]),
-        )
-
-    private fun pflLabelMatches(
-        imgBgr: Mat,
-        roiRect: DoubleArray,
-        hsvLower: Scalar,
-        hsvUpper: Scalar,
-    ): Boolean {
-        val rois = DeviceRoisAutoT2(imgBgr.width(), imgBgr.height())
-        val pflLabelWidth = PFL_LABEL_WIDTH * rois.factor
-        val labelRect = getPflLabelRectFromPflRoiRect(roiRect, pflLabelWidth)
-
-        val labelBgr = imgBgr.submat(labelRect).clone()
-        val labelHsv = Mat()
-        Imgproc.cvtColor(labelBgr, labelHsv, Imgproc.COLOR_BGR2HSV)
-        val labelMasked = Mat()
-        Core.inRange(labelHsv, hsvLower, hsvUpper, labelMasked)
-
-        val labelSize = labelMasked.size().height * labelMasked.size().width
-        val nonZeroRatio = Core.countNonZero(labelMasked) / labelSize
-        return nonZeroRatio >= PFL_LABEL_NON_ZERO_RATIO_THRESHOLD
-    }
-
     @Suppress("ArrayInDataClass")
-    private data class PflLabelInterest(
-        val roiRect: DoubleArray,
+    private data class Interest(
+        val rect: DoubleArray,
         val hsvLower: Scalar,
         val hsvUpper: Scalar,
     )
 
     override fun confidence(imgBgr: Mat): Double {
         var matches = 0
+
         val rois = DeviceRoisAutoT2(imgBgr.width(), imgBgr.height())
 
         listOf(
-            PflLabelInterest(rois.pure, pureLabelHsvLower, pureLabelHsvUpper),
-            PflLabelInterest(rois.far, farLabelHsvLower, farLabelHsvUpper),
-            PflLabelInterest(rois.lost, lostLabelHsvLower, lostLabelHsvUpper),
-        ).forEach {
-            if (pflLabelMatches(imgBgr, it.roiRect, it.hsvLower, it.hsvUpper)) matches += 1
+            Interest(rois.pureLabel, pureLabelHsvLower, pureLabelHsvUpper),
+            Interest(rois.farLabel, farLabelHsvLower, farLabelHsvUpper),
+            Interest(rois.lostLabel, lostLabelHsvLower, lostLabelHsvUpper),
+        ).forEach { (rect, hsvLower, hsvUpper) ->
+            imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
+                Mat().use { labelHsv ->
+                    Imgproc.cvtColor(labelBgr, labelHsv, Imgproc.COLOR_BGR2HSV)
+                    Mat().use { labelMasked ->
+                        Core.inRange(labelHsv, hsvLower, hsvUpper, labelMasked)
+                        val labelSize = labelMasked.size().height * labelMasked.size().width
+                        if (Core.countNonZero(labelMasked) / labelSize >= PFL_LABEL_NON_ZERO_RATIO_THRESHOLD) {
+                            matches += 1
+                        }
+                    }
+                }
+            }
         }
 
         return matches / INTEREST_POINTS
@@ -202,4 +160,28 @@ object DeviceRoisAutoSelector {
         if (results.all { it.value == 0.0 }) return fallback ?: DeviceRoisAutoSelectorResult.UNKNOWN
         return results.maxBy { it.value }.key.result
     }
+
+    /**
+     * Creates the rois/masker pair matching the selector [result].
+     *
+     * @throws IllegalArgumentException when [result] is [DeviceRoisAutoSelectorResult.UNKNOWN].
+     */
+    fun createRoisAndMasker(
+        result: DeviceRoisAutoSelectorResult,
+        w: Int,
+        h: Int,
+    ): Pair<DeviceRois, DeviceRoisMasker> =
+        when (result) {
+            DeviceRoisAutoSelectorResult.T1 -> {
+                DeviceRoisAutoT1(w, h) to DeviceRoisMaskerAutoT1()
+            }
+
+            DeviceRoisAutoSelectorResult.T2 -> {
+                DeviceRoisAutoT2(w, h) to DeviceRoisMaskerAutoT2()
+            }
+
+            DeviceRoisAutoSelectorResult.UNKNOWN -> {
+                throw IllegalArgumentException("No rois/masker pair for $result")
+            }
+        }
 }

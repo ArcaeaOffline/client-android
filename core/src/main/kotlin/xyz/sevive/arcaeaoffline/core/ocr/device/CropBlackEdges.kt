@@ -6,7 +6,6 @@ import org.opencv.core.Mat
 import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
-import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges.Companion.cropOrOriginal
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 class CropBlackEdges {
@@ -42,42 +41,47 @@ class CropBlackEdges {
             var top = 0
             var bottom = height
 
-            // submat views are passed directly instead of pixel-copying clones;
+            // submat views are passed directly instead of pixel-copying clones.
             // isBlackEdge only reads the slice
-            for (i in 0..width) {
+            for (i in 0 until width) {
                 val isBlack = imgGray.submat(Rect(i, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }
                 if (!isBlack) break
                 left += 1
             }
 
-            for (i in width downTo 0) {
-                val isBlack = imgGray.submat(Rect(i - 1, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }
+            // keeps at least a two-column crop whenever a non-black column exists
+            for (i in width - 1 downTo 0) {
+                if (i <= left + 1) break
+                val isBlack = imgGray.submat(Rect(i, 0, 1, height)).use { isBlackEdge(it, blackPixelThreshold) }
                 if (!isBlack) break
                 right -= 1
             }
 
-            for (i in 0..height) {
+            for (i in 0 until height) {
                 val isBlack = imgGray.submat(Rect(0, i, width, 1)).use { isBlackEdge(it, blackPixelThreshold) }
                 if (!isBlack) break
                 top += 1
             }
 
-            for (i in height downTo 0) {
-                val isBlack = imgGray.submat(Rect(0, i - 1, width, 1)).use { isBlackEdge(it, blackPixelThreshold) }
+            for (i in height - 1 downTo 0) {
+                if (i <= top + 1) break
+                val isBlack = imgGray.submat(Rect(0, i, width, 1)).use { isBlackEdge(it, blackPixelThreshold) }
                 if (!isBlack) break
                 bottom -= 1
             }
 
-            assert(right > left) { "CropBlackEdges: cropped width <= 0" }
-            assert(bottom > top) { "CropBlackEdges: cropped height <= 0" }
+            require(right > left) { "CropBlackEdges: cropped width <= 0" }
+            require(bottom > top) { "CropBlackEdges: cropped height <= 0" }
 
             return Rect(left, top, right - left, bottom - top)
         }
 
         /**
-         * This function would fail if the cropped image has a width or height below 0.
+         * Crops the black edges of [img].
          *
-         * Use [cropOrOriginal] if you don't want to handle errors.
+         * @throws IllegalArgumentException when the image is fully black.
+         *
+         * Use [cropOrOriginal] to fall back to the original image instead of throwing.
          */
         fun crop(
             img: Mat,

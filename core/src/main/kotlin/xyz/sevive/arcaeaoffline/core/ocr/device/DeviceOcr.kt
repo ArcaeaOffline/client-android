@@ -115,35 +115,14 @@ class DeviceOcr(
 
     fun ratingClass(): ArcaeaRatingClass =
         extractor.ratingClass.use { roi ->
-            val results =
-                listOf(
-                    masker.ratingClassPst(roi),
-                    masker.ratingClassPrs(roi),
-                    masker.ratingClassFtr(roi),
-                    masker.ratingClassByd(roi),
-                    masker.ratingClassEtr(roi),
-                )
-            try {
-                ArcaeaRatingClass.fromInt(results.indices.maxBy { Core.countNonZero(results[it]) })
-            } finally {
-                results.forEach { it.release() }
-            }
+            val votes = masker.ratingClassVotes(roi)
+            ArcaeaRatingClass.fromInt(votes.indices.maxBy { votes[it] })
         }
 
     private fun clearStatus(): Int =
         extractor.clearStatus.use { roi ->
-            val results =
-                listOf(
-                    masker.clearStatusTrackLost(roi),
-                    masker.clearStatusTrackComplete(roi),
-                    masker.clearStatusFullRecall(roi),
-                    masker.clearStatusPureMemory(roi),
-                )
-            try {
-                results.indices.maxBy { Core.countNonZero(results[it]) }
-            } finally {
-                results.forEach { it.release() }
-            }
+            val votes = masker.clearStatusVotes(roi)
+            votes.indices.maxBy { votes[it] }
         }
 
     private fun lookupSongId(): List<ImageHashItem> =
@@ -158,14 +137,21 @@ class DeviceOcr(
             preprocessPartnerIcon(roiGray).use { hashesDb.lookupPartnerIcon(it) }
         }
 
+    /** Parses the ROI's OCR text as an Int. Returns `null` when the OCR result is empty. */
+    private fun ocrIntOrNull(roiBgr: Mat): Int? =
+        roiBgr
+            .use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession) }
+            .takeIf { it.isNotEmpty() }
+            ?.toInt()
+
     fun ocr(): DeviceOcrResult =
         DeviceOcrResult(
             ratingClass = ratingClass(),
-            pure = extractor.pure.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
-            far = extractor.far.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
-            lost = extractor.lost.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
-            score = extractor.score.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
-            maxRecall = extractor.maxRecall.use { DeviceOcrOnnxHelper.ocrBgrMat(it, ortSession).toInt() },
+            pure = ocrIntOrNull(extractor.pure) ?: 0,
+            far = ocrIntOrNull(extractor.far) ?: 0,
+            lost = ocrIntOrNull(extractor.lost) ?: 0,
+            score = ocrIntOrNull(extractor.score) ?: 0,
+            maxRecall = ocrIntOrNull(extractor.maxRecall),
             songIdResults = lookupSongId(),
             clearStatus = clearStatus(),
             partnerIdResults = lookupPartnerId(),
