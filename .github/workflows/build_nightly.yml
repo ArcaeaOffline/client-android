@@ -1,0 +1,100 @@
+name: Build nightly release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
+
+permissions:
+  contents: write
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+
+jobs:
+  guard:
+    name: Check for new commits
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Compare HEAD with the nightly tag
+        id: check
+        run: |
+          if git rev-parse -q --verify refs/tags/nightly >/dev/null \
+              && [ "$(git rev-parse nightly^{commit})" = "$(git rev-parse HEAD)" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build and publish nightly
+    needs: guard
+    if: needs.guard.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Toolchain
+        uses: ./.github/actions/setup-toolchain
+
+      - name: Setup Custom Maven
+        uses: ./.github/actions/setup-custom-maven
+
+      - name: Release keystore file
+        run: base64 -d <<< "${{ secrets.KEYSTORE_FILE_BASE64 }}" > arcaea_offline.jks
+
+      - name: Release local.properties file
+        run: base64 -d <<< "${{ secrets.LOCAL_PROPERTIES_FILE_BASE64 }}" > local.properties
+
+      - name: Setup OCR Model
+        uses: ./.github/actions/setup-ocr-model
+
+      - name: Build APK using gradle
+        run: ./gradlew assembleUnstableRelease
+
+      - name: Verify APK signing
+        run: bash .github/scripts/verify-apk-signing.sh
+
+      - name: Verify custom-built libs in APK
+        continue-on-error: true
+        run: bash .github/scripts/verify-custom-libs.sh
+
+      # The tag moves only after a verified build so it never points at a
+      # commit whose APKs failed to build.
+      - name: Move nightly tag to HEAD
+        run: |
+          git tag -f nightly HEAD
+          git push -f origin nightly
+
+      - name: Generate release body
+        # Keep --match in sync with the tagFilter in app/build.gradle.kts so
+        # the moving nightly tag is never picked as the changelog base.
+        run: |
+          LAST_TAG="$(git describe --tags --abbrev=0 --match='*.*.*')"
+          {
+            echo "Built from $(git rev-parse --short HEAD)."
+            echo
+            echo "### Changes since $LAST_TAG"
+            echo
+            git log --oneline "$LAST_TAG..HEAD"
+          } > nightly-body.md
+
+      - name: Publish nightly release
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: nightly
+          name: nightly
+          body_path: nightly-body.md
+          prerelease: true
+          make_latest: false
+          files: |
+            app/build/outputs/apk/unstable/release/app-unstable-*-release.apk

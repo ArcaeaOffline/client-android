@@ -33,6 +33,10 @@ kotlin {
 }
 
 appVersioning {
+    // exclude the moving nightly tag (see build_nightly.yml)
+    // a non-semver match would break version generation
+    tagFilter.set("*.*.*")
+
     overrideVersionName { gitTag, _, _ ->
         buildString {
             append(gitTag.toSemVer().toString())
