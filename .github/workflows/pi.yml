@@ -58,7 +58,7 @@ jobs:
 
       - name: Run pi agent
         id: pi
-        uses: shaftoe/pi-coding-agent-action@v2.30.2
+        uses: shaftoe/pi-coding-agent-action@d14d9e06ad38861cd3964c8a985dee871f7ff994
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           provider: ${{ steps.resolve-model.outputs.provider }}
