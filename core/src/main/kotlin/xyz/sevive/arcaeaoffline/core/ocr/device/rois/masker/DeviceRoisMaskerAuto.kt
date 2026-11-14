@@ -22,20 +22,22 @@ private fun maskBgrInHsv(
 }
 
 /**
- * Counts non-zero pixels of [roiBgr] masked under each HSV range in order, with a single
- * BGR -> HSV conversion.
+ * Counts non-zero pixels of [roiBgr] masked under each HSV ranges in order with a single
+ * BGR -> HSV conversion. `maxOf` is used for subranges.
  */
 private fun hsvVote(
     roiBgr: Mat,
-    ranges: List<Pair<Scalar, Scalar>>,
+    ranges: List<List<Pair<Scalar, Scalar>>>,
 ): IntArray {
     val votes = IntArray(ranges.size)
     Mat().use { roiHsv ->
         Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
         Mat().use { mask ->
-            ranges.forEachIndexed { index, (lower, upper) ->
-                Core.inRange(roiHsv, lower, upper, mask)
-                votes[index] = Core.countNonZero(mask)
+            ranges.forEachIndexed { index, subranges ->
+                subranges.forEach { (lower, upper) ->
+                    Core.inRange(roiHsv, lower, upper, mask)
+                    votes[index] = maxOf(Core.countNonZero(mask), votes[index])
+                }
             }
         }
     }
@@ -63,8 +65,11 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
     private val bydHsvLower = Scalar(170.0, 50.0, 50.0)
     private val bydHsvUpper = Scalar(179.0, 210.0, 198.0)
 
-    private val etrHsvMin = Scalar(130.0, 60.0, 80.0)
-    private val etrHsvMax = Scalar(140.0, 145.0, 180.0)
+    private val etrHsvLower = Scalar(130.0, 60.0, 80.0)
+    private val etrHsvUpper = Scalar(140.0, 145.0, 180.0)
+
+    private val insHsvLower = Scalar(110.0, 115.0, 80.0)
+    private val insHsvUpper = Scalar(120.0, 180.0, 150.0)
 
     private val trackLostHsvLower = Scalar(170.0, 75.0, 90.0)
     private val trackLostHsvUpper = Scalar(175.0, 170.0, 160.0)
@@ -80,19 +85,20 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
 
     private val ratingClassRanges =
         listOf(
-            pstHsvLower to pstHsvUpper,
-            prsHsvLower to prsHsvUpper,
-            ftrHsvLower to ftrHsvUpper,
-            bydHsvLower to bydHsvUpper,
-            etrHsvMin to etrHsvMax,
+            listOf(pstHsvLower to pstHsvUpper),
+            listOf(prsHsvLower to prsHsvUpper),
+            listOf(ftrHsvLower to ftrHsvUpper),
+            // T1 does not actually have INS difficulty
+            listOf(bydHsvLower to bydHsvUpper),
+            listOf(etrHsvLower to etrHsvUpper),
         )
 
     private val clearStatusRanges =
         listOf(
-            trackLostHsvLower to trackLostHsvUpper,
-            trackCompleteHsvLower to trackCompleteHsvUpper,
-            fullRecallHsvLower to fullRecallHsvUpper,
-            pureMemoryHsvLower to pureMemoryHsvUpper,
+            listOf(trackLostHsvLower to trackLostHsvUpper),
+            listOf(trackCompleteHsvLower to trackCompleteHsvUpper),
+            listOf(fullRecallHsvLower to fullRecallHsvUpper),
+            listOf(pureMemoryHsvLower to pureMemoryHsvUpper),
         )
 
     /** Returns a newly allocated 8UC1 mask with 255 where the BGR channel spread is at most [threshold]. */
@@ -160,7 +166,9 @@ class DeviceRoisMaskerAutoT1 : DeviceRoisMaskerAuto {
 
     override fun ratingClassByd(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, bydHsvLower, bydHsvUpper)
 
-    override fun ratingClassEtr(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, etrHsvMin, etrHsvMax)
+    override fun ratingClassEtr(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, etrHsvLower, etrHsvUpper)
+
+    override fun ratingClassIns(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, insHsvLower, insHsvUpper)
 
     override fun clearStatusTrackLost(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, trackLostHsvLower, trackLostHsvUpper)
 
@@ -194,8 +202,11 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
     private val bydHsvLower = Scalar(170.0, 50.0, 50.0)
     private val bydHsvUpper = Scalar(179.0, 210.0, 198.0)
 
-    private val etrHsvMin = Scalar(130.0, 60.0, 80.0)
-    private val etrHsvMax = Scalar(140.0, 145.0, 180.0)
+    private val etrHsvLower = Scalar(130.0, 60.0, 80.0)
+    private val etrHsvUpper = Scalar(140.0, 145.0, 180.0)
+
+    private val insHsvLower = Scalar(110.0, 115.0, 80.0)
+    private val insHsvUpper = Scalar(120.0, 180.0, 150.0)
 
     private val maxRecallHsvLower = Scalar(125.0, 0.0, 0.0)
     private val maxRecallHsvUpper = Scalar(145.0, 100.0, 150.0)
@@ -214,19 +225,19 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
 
     private val ratingClassRanges =
         listOf(
-            pstHsvLower to pstHsvUpper,
-            prsHsvLower to prsHsvUpper,
-            ftrHsvLower to ftrHsvUpper,
-            bydHsvLower to bydHsvUpper,
-            etrHsvMin to etrHsvMax,
+            listOf(pstHsvLower to pstHsvUpper),
+            listOf(prsHsvLower to prsHsvUpper),
+            listOf(ftrHsvLower to ftrHsvUpper),
+            listOf(bydHsvLower to bydHsvUpper, insHsvLower to insHsvUpper),
+            listOf(etrHsvLower to etrHsvUpper),
         )
 
     private val clearStatusRanges =
         listOf(
-            trackLostHsvLower to trackLostHsvUpper,
-            trackCompleteHsvLower to trackCompleteHsvUpper,
-            fullRecallHsvLower to fullRecallHsvUpper,
-            pureMemoryHsvLower to pureMemoryHsvUpper,
+            listOf(trackLostHsvLower to trackLostHsvUpper),
+            listOf(trackCompleteHsvLower to trackCompleteHsvUpper),
+            listOf(fullRecallHsvLower to fullRecallHsvUpper),
+            listOf(pureMemoryHsvLower to pureMemoryHsvUpper),
         )
 
     private fun pfl(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pflHsvLower, pflHsvUpper)
@@ -247,7 +258,9 @@ class DeviceRoisMaskerAutoT2 : DeviceRoisMaskerAuto {
 
     override fun ratingClassByd(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, bydHsvLower, bydHsvUpper)
 
-    override fun ratingClassEtr(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, etrHsvMin, etrHsvMax)
+    override fun ratingClassEtr(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, etrHsvLower, etrHsvUpper)
+
+    override fun ratingClassIns(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, insHsvLower, insHsvUpper)
 
     override fun maxRecall(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, maxRecallHsvLower, maxRecallHsvUpper)
 

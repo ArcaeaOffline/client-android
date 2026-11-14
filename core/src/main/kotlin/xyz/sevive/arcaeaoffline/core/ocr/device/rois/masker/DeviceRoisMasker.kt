@@ -22,6 +22,8 @@ interface DeviceRoisMasker {
 
     fun ratingClassEtr(roiBgr: Mat): Mat
 
+    fun ratingClassIns(roiBgr: Mat): Mat
+
     fun maxRecall(roiBgr: Mat): Mat
 
     fun clearStatusTrackLost(roiBgr: Mat): Mat
