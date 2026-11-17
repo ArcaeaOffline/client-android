@@ -4,21 +4,8 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.maskBgrInHsv
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
-
-/** Returns a newly allocated mask of [roiBgr] pixels inside the HSV range. Ownership passes to the caller. */
-private fun maskBgrInHsv(
-    roiBgr: Mat,
-    hsvLower: Scalar,
-    hsvUpper: Scalar,
-): Mat {
-    val masked = Mat()
-    Mat().use { roiHsv ->
-        Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
-        Core.inRange(roiHsv, hsvLower, hsvUpper, masked)
-    }
-    return masked
-}
 
 /**
  * Counts non-zero pixels of [roiBgr] masked under each HSV ranges in order with a single

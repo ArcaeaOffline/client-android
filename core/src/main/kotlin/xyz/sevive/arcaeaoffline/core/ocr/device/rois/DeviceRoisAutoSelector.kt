@@ -4,7 +4,6 @@ import co.touchlab.kermit.Logger
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT2
@@ -13,6 +12,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMasker
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT1
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAutoT2
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.RgbGrayMasker
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.maskBgrInHsv
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 enum class DeviceRoisAutoSelectorResult { T1, T2, UNKNOWN }
@@ -45,6 +45,27 @@ interface DeviceRoisAutoSelectorDetector {
     fun analyze(imgBgr: Mat): DetectionReport
 }
 
+@Suppress("ArrayInDataClass")
+private data class Interest(
+    val name: String,
+    val rect: DoubleArray,
+    val masker: (Mat) -> Mat,
+    val nonZeroRatioThreshold: Double,
+)
+
+private fun analyzeLabels(
+    imgBgr: Mat,
+    interests: List<Interest>,
+): List<LabelMatch> =
+    interests.map { (name, rect, masker, threshold) ->
+        imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
+            masker(labelBgr).use { labelMasked ->
+                val labelSize = labelMasked.total().toDouble()
+                LabelMatch(name, Core.countNonZero(labelMasked) / labelSize, threshold)
+            }
+        }
+    }
+
 private object T1Detector : DeviceRoisAutoSelectorDetector {
     override val result: DeviceRoisAutoSelectorResult = DeviceRoisAutoSelectorResult.T1
 
@@ -57,14 +78,7 @@ private object T1Detector : DeviceRoisAutoSelectorDetector {
     private const val FAR_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.06
     private const val LOST_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.06
 
-    private fun maskPureLabel(roiBgr: Mat): Mat {
-        val roiMasked = Mat()
-        Mat().use { roiHsv ->
-            Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
-            Core.inRange(roiHsv, pureLabelHsvLower, pureLabelHsvUpper, roiMasked)
-        }
-        return roiMasked
-    }
+    private fun maskPureLabel(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pureLabelHsvLower, pureLabelHsvUpper)
 
     private fun maskFarLostLabel(roiBgr: Mat): Mat =
         RgbGrayMasker.gray(
@@ -73,30 +87,18 @@ private object T1Detector : DeviceRoisAutoSelectorDetector {
             farLostLabelGrayBgrUpper,
         )
 
-    @Suppress("ArrayInDataClass")
-    private data class Interest(
-        val name: String,
-        val rect: DoubleArray,
-        val masker: (Mat) -> Mat,
-        val nonZeroRatioThreshold: Double,
-    )
-
     override fun analyze(imgBgr: Mat): DetectionReport {
         val rois = DeviceRoisAutoT1(imgBgr.width(), imgBgr.height())
 
         val labels =
-            listOf(
-                Interest("pure", rois.pureLabel, ::maskPureLabel, PURE_LABEL_NON_ZERO_RATIO_THRESHOLD),
-                Interest("far", rois.farLabel, ::maskFarLostLabel, FAR_LABEL_NON_ZERO_RATIO_THRESHOLD),
-                Interest("lost", rois.lostLabel, ::maskFarLostLabel, LOST_LABEL_NON_ZERO_RATIO_THRESHOLD),
-            ).map { (name, rect, masker, threshold) ->
-                imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
-                    masker(labelBgr).use { labelMasked ->
-                        val labelSize = labelMasked.size().height * labelMasked.size().width
-                        LabelMatch(name, Core.countNonZero(labelMasked) / labelSize, threshold)
-                    }
-                }
-            }
+            analyzeLabels(
+                imgBgr,
+                listOf(
+                    Interest("pure", rois.pureLabel, ::maskPureLabel, PURE_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                    Interest("far", rois.farLabel, ::maskFarLostLabel, FAR_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                    Interest("lost", rois.lostLabel, ::maskFarLostLabel, LOST_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                ),
+            )
 
         return DetectionReport(labels)
     }
@@ -114,34 +116,25 @@ private object T2Detector : DeviceRoisAutoSelectorDetector {
 
     private const val PFL_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.3
 
-    @Suppress("ArrayInDataClass")
-    private data class Interest(
-        val name: String,
-        val rect: DoubleArray,
-        val hsvLower: Scalar,
-        val hsvUpper: Scalar,
-    )
+    private fun hsvInterest(
+        name: String,
+        rect: DoubleArray,
+        hsvLower: Scalar,
+        hsvUpper: Scalar,
+    ): Interest = Interest(name, rect, { roiBgr -> maskBgrInHsv(roiBgr, hsvLower, hsvUpper) }, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD)
 
     override fun analyze(imgBgr: Mat): DetectionReport {
         val rois = DeviceRoisAutoT2(imgBgr.width(), imgBgr.height())
 
         val labels =
-            listOf(
-                Interest("pure", rois.pureLabel, pureLabelHsvLower, pureLabelHsvUpper),
-                Interest("far", rois.farLabel, farLabelHsvLower, farLabelHsvUpper),
-                Interest("lost", rois.lostLabel, lostLabelHsvLower, lostLabelHsvUpper),
-            ).map { (name, rect, hsvLower, hsvUpper) ->
-                imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
-                    Mat().use { labelHsv ->
-                        Imgproc.cvtColor(labelBgr, labelHsv, Imgproc.COLOR_BGR2HSV)
-                        Mat().use { labelMasked ->
-                            Core.inRange(labelHsv, hsvLower, hsvUpper, labelMasked)
-                            val labelSize = labelMasked.size().height * labelMasked.size().width
-                            LabelMatch(name, Core.countNonZero(labelMasked) / labelSize, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD)
-                        }
-                    }
-                }
-            }
+            analyzeLabels(
+                imgBgr,
+                listOf(
+                    hsvInterest("pure", rois.pureLabel, pureLabelHsvLower, pureLabelHsvUpper),
+                    hsvInterest("far", rois.farLabel, farLabelHsvLower, farLabelHsvUpper),
+                    hsvInterest("lost", rois.lostLabel, lostLabelHsvLower, lostLabelHsvUpper),
+                ),
+            )
 
         return DetectionReport(labels)
     }
@@ -155,39 +148,20 @@ private object ArknightsDetector : DeviceRoisAutoSelectorDetector {
 
     private const val PFL_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.7
 
-    private fun maskPflLabel(roiBgr: Mat): Mat {
-        val roiMasked = Mat()
-        Mat().use { roiHsv ->
-            Imgproc.cvtColor(roiBgr, roiHsv, Imgproc.COLOR_BGR2HSV)
-            Core.inRange(roiHsv, pflLabelHsvLower, pflLabelHsvUpper, roiMasked)
-        }
-        return roiMasked
-    }
-
-    @Suppress("ArrayInDataClass")
-    private data class Interest(
-        val name: String,
-        val rect: DoubleArray,
-        val masker: (Mat) -> Mat,
-        val nonZeroRatioThreshold: Double,
-    )
+    private fun maskPflLabel(roiBgr: Mat): Mat = maskBgrInHsv(roiBgr, pflLabelHsvLower, pflLabelHsvUpper)
 
     override fun analyze(imgBgr: Mat): DetectionReport {
         val rois = DeviceRoisAutoT2(imgBgr.width(), imgBgr.height())
 
         val labels =
-            listOf(
-                Interest("pure", rois.pureLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
-                Interest("far", rois.farLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
-                Interest("lost", rois.lostLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
-            ).map { (name, rect, masker, threshold) ->
-                imgBgr.submat(doubleArrayRoundToRect(rect)).use { labelBgr ->
-                    masker(labelBgr).use { labelMasked ->
-                        val labelSize = labelMasked.size().height * labelMasked.size().width
-                        LabelMatch(name, Core.countNonZero(labelMasked) / labelSize, threshold)
-                    }
-                }
-            }
+            analyzeLabels(
+                imgBgr,
+                listOf(
+                    Interest("pure", rois.pureLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                    Interest("far", rois.farLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                    Interest("lost", rois.lostLabel, ::maskPflLabel, PFL_LABEL_NON_ZERO_RATIO_THRESHOLD),
+                ),
+            )
 
         return DetectionReport(labels)
     }
