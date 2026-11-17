@@ -11,10 +11,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
-import org.opencv.core.MatOfByte
-import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.decodeBgrImage
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
@@ -42,12 +41,8 @@ object OcrQueueHelper {
                 val file = PlatformFile(uri)
                 if (file.size() > MAX_FILE_SIZE_BYTES) return@async false
 
-                val byteArray = file.readBytes()
-
-                MatOfByte(*byteArray).use { matOfBytes ->
-                    Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
-                        DeviceRoisAutoSelector.select(img) != DeviceRoisAutoSelectorResult.UNKNOWN
-                    }
+                decodeBgrImage(file.readBytes()).use { img ->
+                    DeviceRoisAutoSelector.select(img) != DeviceRoisAutoSelectorResult.UNKNOWN
                 }
             }.await()
         }
