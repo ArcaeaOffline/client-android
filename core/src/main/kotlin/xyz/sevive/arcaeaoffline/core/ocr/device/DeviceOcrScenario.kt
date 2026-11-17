@@ -36,10 +36,7 @@ class DeviceOcrScenario private constructor(
             imgBgr: Mat,
             fallback: DeviceRoisAutoSelectorResult? = null,
         ): DeviceOcrScenario {
-            val cropped = CropBlackEdges.cropOrOriginal(imgBgr)
-            // cropOrOriginal returns imgBgr itself when cropping fails, so clone to keep
-            // close() off the caller's Mat
-            val imgCropped = if (cropped === imgBgr) cropped.clone() else cropped
+            val imgCropped = CropBlackEdges.cropOrClone(imgBgr)
             try {
                 val roisType = DeviceRoisAutoSelector.select(imgCropped, fallback)
                 require(roisType != DeviceRoisAutoSelectorResult.UNKNOWN) {

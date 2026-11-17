@@ -11,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
+import xyz.sevive.arcaeaoffline.core.ocr.device.CropBlackEdges
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.decodeBgrImage
@@ -42,7 +43,9 @@ object OcrQueueHelper {
                 if (file.size() > MAX_FILE_SIZE_BYTES) return@async false
 
                 decodeBgrImage(file.readBytes()).use { img ->
-                    DeviceRoisAutoSelector.select(img) != DeviceRoisAutoSelectorResult.UNKNOWN
+                    CropBlackEdges.cropOrClone(img).use { cropped ->
+                        DeviceRoisAutoSelector.select(cropped) != DeviceRoisAutoSelectorResult.UNKNOWN
+                    }
                 }
             }.await()
         }
