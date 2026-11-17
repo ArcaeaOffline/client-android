@@ -153,7 +153,7 @@ private object ArknightsDetector : DeviceRoisAutoSelectorDetector {
     private val pflLabelHsvLower = Scalar(0.0, 5.0, 70.0)
     private val pflLabelHsvUpper = Scalar(179.0, 90.0, 145.0)
 
-    private const val PFL_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.4
+    private const val PFL_LABEL_NON_ZERO_RATIO_THRESHOLD = 0.7
 
     private fun maskPflLabel(roiBgr: Mat): Mat {
         val roiMasked = Mat()
