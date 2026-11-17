@@ -3,6 +3,7 @@ package xyz.sevive.arcaeaoffline.core.ocr.device.rois
 import co.touchlab.kermit.Logger
 import org.opencv.core.Core
 import org.opencv.core.Mat
+import org.opencv.core.Rect
 import org.opencv.core.Scalar
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRois
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.definition.DeviceRoisAutoT1
@@ -14,6 +15,7 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.DeviceRoisMaskerAuto
 import xyz.sevive.arcaeaoffline.core.ocr.device.rois.masker.RgbGrayMasker
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.maskBgrInHsv
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
+import kotlin.math.roundToInt
 
 enum class DeviceRoisAutoSelectorResult { T1, T2, UNKNOWN }
 
@@ -65,6 +67,50 @@ private fun analyzeLabels(
             }
         }
     }
+
+private data class StripMatch(
+    val purple: LabelMatch,
+    val gray: LabelMatch,
+)
+
+/**
+ * The top-left background strip check that gates label detection: purple is the regular Arcaea skin,
+ * gray (BGR 10..40) is the Arknights collab skin, and any other background cannot be an Arcaea
+ * result screenshot. The strip anchors to T2 geometry and holds for T1 screenshots as well.
+ */
+private object StripProbe {
+    private const val HEIGHT_OFFSET = -510
+    private const val WIDTH_OFFSET = -250
+    private const val HEIGHT = 165
+
+    private val purpleHsvLower = Scalar(110.0, 45.0, 75.0)
+    private val purpleHsvUpper = Scalar(140.0, 150.0, 175.0)
+    private const val PURPLE_NON_ZERO_RATIO_THRESHOLD = 0.65
+
+    private val grayBgrLower = Scalar(10.0, 10.0, 10.0)
+    private val grayBgrUpper = Scalar(40.0, 40.0, 40.0)
+    private const val GRAY_NON_ZERO_RATIO_THRESHOLD = 0.5
+
+    fun analyze(imgBgr: Mat): StripMatch {
+        val rois = DeviceRoisAutoT2(imgBgr.width(), imgBgr.height())
+
+        val y = (rois.layoutAreaHMid + HEIGHT_OFFSET * rois.factor).roundToInt()
+        val w = (rois.wMid + WIDTH_OFFSET * rois.factor).roundToInt()
+        val h = (HEIGHT * rois.factor).roundToInt()
+
+        return imgBgr.submat(Rect(0, y, w, h)).use { stripBgr ->
+            val stripSize = stripBgr.total().toDouble()
+            maskBgrInHsv(stripBgr, purpleHsvLower, purpleHsvUpper).use { purpleMask ->
+                RgbGrayMasker.gray(stripBgr, grayBgrLower, grayBgrUpper).use { grayMask ->
+                    StripMatch(
+                        LabelMatch("purple", Core.countNonZero(purpleMask) / stripSize, PURPLE_NON_ZERO_RATIO_THRESHOLD),
+                        LabelMatch("gray", Core.countNonZero(grayMask) / stripSize, GRAY_NON_ZERO_RATIO_THRESHOLD),
+                    )
+                }
+            }
+        }
+    }
+}
 
 private object T1Detector : DeviceRoisAutoSelectorDetector {
     override val result: DeviceRoisAutoSelectorResult = DeviceRoisAutoSelectorResult.T1
@@ -171,18 +217,18 @@ object DeviceRoisAutoSelector {
     private const val LOG_TAG = "DeviceRoisAutoSelector"
     private val logger = Logger.withTag(LOG_TAG)
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    val selectors = mutableListOf(T1Detector, T2Detector, ArknightsDetector)
+    private fun formatLabel(label: LabelMatch): String =
+        "%s[%s]: %.3f/%.3f".format(label.name, if (label.matched) "Y" else "n", label.ratio, label.threshold)
 
-    private fun logDetectorResults(results: Map<DeviceRoisAutoSelectorDetector, DetectionReport>) {
+    private fun logSelectResults(
+        strip: StripMatch,
+        results: Map<DeviceRoisAutoSelectorDetector, DetectionReport>,
+    ) {
         logger.v {
             val resultsSeparated =
                 results
                     .map { (detector, report) ->
-                        val labels =
-                            report.labels.joinToString(", ") { label ->
-                                "%s[%s]: %.3f/%.3f".format(label.name, if (label.matched) "Y" else "n", label.ratio, label.threshold)
-                            }
+                        val labels = report.labels.joinToString(", ") { formatLabel(it) }
                         "\t%s (%s, %.3f) - %s".format(
                             detector.javaClass.simpleName,
                             detector.result,
@@ -190,16 +236,30 @@ object DeviceRoisAutoSelector {
                             labels,
                         )
                     }.joinToString("\n")
-            "Detector results:\n$resultsSeparated"
+                    .ifEmpty { "\t(none)" }
+            "Strip - ${formatLabel(strip.purple)}, ${formatLabel(strip.gray)}\nDetector results:\n$resultsSeparated"
         }
     }
 
+    /**
+     * Classifies an Arcaea result screenshot into a rois type by its top-left background strip.
+     *
+     * @param fallback Selected when no skin matches or every detector reports zero confidence.
+     */
     fun select(
         imgBgr: Mat,
         fallback: DeviceRoisAutoSelectorResult? = null,
     ): DeviceRoisAutoSelectorResult {
-        val results = selectors.associateWith { it.analyze(imgBgr) }
-        logDetectorResults(results)
+        val strip = StripProbe.analyze(imgBgr)
+
+        val detectors =
+            when {
+                strip.purple.matched -> listOf(T1Detector, T2Detector)
+                strip.gray.matched -> listOf(ArknightsDetector)
+                else -> emptyList()
+            }
+        val results = detectors.associateWith { it.analyze(imgBgr) }
+        logSelectResults(strip, results)
 
         if (results.all { it.value.confidence == 0.0 }) return fallback ?: DeviceRoisAutoSelectorResult.UNKNOWN
         return results.maxBy { it.value.confidence }.key.result

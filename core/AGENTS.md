@@ -11,7 +11,7 @@ Kotlin sources live under `src/main/kotlin/`.
 xyz.sevive.arcaeaoffline.core/
 ├── ocr/
 │   ├── ImageHashers, ImageHashesDatabase(+Builder), ImageHashItem, OcrScenario
-│   ├── device/        DeviceOcr, DeviceOcrScenario, ONNX helper, ScreenshotDetect, performance benchmark
+│   ├── device/        DeviceOcr, DeviceOcrScenario, ONNX helper, performance benchmark
 │   │   └── rois/      ROI definition / extractor / masker
 │   ├── layouts/       DeviceLayout: bundled T1/T2 layout JSON and its screen mapping
 │   └── opencv/        OpenCV helpers

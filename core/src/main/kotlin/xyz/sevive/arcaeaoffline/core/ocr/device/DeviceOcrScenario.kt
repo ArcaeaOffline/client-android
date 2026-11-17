@@ -28,7 +28,7 @@ class DeviceOcrScenario private constructor(
          * The scenario owns its cropped image and never aliases [imgBgr]. The caller stays
          * responsible for releasing it.
          *
-         * @param fallback Selected when every detector reports zero confidence.
+         * @param fallback Selected when the screenshot cannot be classified.
          * @throws IllegalArgumentException when the rois type cannot be determined and
          *   [fallback] is null.
          */

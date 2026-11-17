@@ -10,11 +10,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.io.asInputStream
 import kotlinx.io.buffered
-import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
-import org.opencv.imgproc.Imgproc
-import xyz.sevive.arcaeaoffline.core.ocr.device.ScreenshotDetect
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelector
+import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResult
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
@@ -41,10 +40,7 @@ object OcrQueueHelper {
 
                 MatOfByte(*byteArray).use { matOfBytes ->
                     Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
-                        Mat().use { imgHsv ->
-                            Imgproc.cvtColor(img, imgHsv, Imgproc.COLOR_BGR2HSV)
-                            ScreenshotDetect.isArcaeaScreenshot(imgHsv)
-                        }
+                        DeviceRoisAutoSelector.select(img) != DeviceRoisAutoSelectorResult.UNKNOWN
                     }
                 }
             }.await()
