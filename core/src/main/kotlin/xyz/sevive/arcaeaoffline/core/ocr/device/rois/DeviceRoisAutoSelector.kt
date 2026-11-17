@@ -186,7 +186,7 @@ private object T2Detector : DeviceRoisAutoSelectorDetector {
     }
 }
 
-private object ArknightsDetector : DeviceRoisAutoSelectorDetector {
+private object T2ArknightsSkinDetector : DeviceRoisAutoSelectorDetector {
     override val result: DeviceRoisAutoSelectorResult = DeviceRoisAutoSelectorResult.T2
 
     private val pflLabelHsvLower = Scalar(0.0, 5.0, 70.0)
@@ -255,7 +255,7 @@ object DeviceRoisAutoSelector {
         val detectors =
             when {
                 strip.purple.matched -> listOf(T1Detector, T2Detector)
-                strip.gray.matched -> listOf(ArknightsDetector)
+                strip.gray.matched -> listOf(T2ArknightsSkinDetector)
                 else -> emptyList()
             }
         val results = detectors.associateWith { it.analyze(imgBgr) }
