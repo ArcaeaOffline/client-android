@@ -318,7 +318,8 @@ class OcrQueueStagingJob(
             if (options.checkIsImage && !OcrQueueHelper.isUriImage(item.uri)) {
                 shouldInsert = false
             }
-            if (options.checkIsArcaeaImage && !OcrQueueHelper.isUriArcaeaImage(item.uri)) {
+            // skip the check if the input is already not an image
+            if (shouldInsert && options.checkIsArcaeaImage && !OcrQueueHelper.isUriArcaeaImage(item.uri)) {
                 shouldInsert = false
             }
         } catch (e: Exception) {

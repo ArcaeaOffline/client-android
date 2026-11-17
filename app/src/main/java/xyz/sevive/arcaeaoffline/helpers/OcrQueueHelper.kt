@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -17,6 +18,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.device.rois.DeviceRoisAutoSelectorResul
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
+    private const val MAX_FILE_SIZE_BYTES = 30L * 1024 * 1024
+
     suspend fun isUriImage(uri: Uri): Boolean =
         withContext(Dispatchers.IO) {
             async {
@@ -36,7 +39,10 @@ object OcrQueueHelper {
     suspend fun isUriArcaeaImage(uri: Uri): Boolean =
         withContext(Dispatchers.IO) {
             async {
-                val byteArray = PlatformFile(uri).readBytes()
+                val file = PlatformFile(uri)
+                if (file.size() > MAX_FILE_SIZE_BYTES) return@async false
+
+                val byteArray = file.readBytes()
 
                 MatOfByte(*byteArray).use { matOfBytes ->
                     Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
