@@ -49,12 +49,18 @@ object DeviceOcrHelper {
         imageUri: Uri,
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
-    ): DeviceOcrResult =
-        decodeBgrImage(PlatformFile(imageUri).readBytes()).use { img ->
+    ): DeviceOcrResult {
+        val file = PlatformFile(imageUri)
+        if (file.size() > OcrQueueHelper.MAX_FILE_SIZE_BYTES) {
+            throw IllegalArgumentException("Image file exceeds ${OcrQueueHelper.MAX_FILE_SIZE_BYTES} bytes: $imageUri")
+        }
+
+        return decodeBgrImage(file.readBytes()).use { img ->
             DeviceOcrScenario.forImage(img).use { scenario ->
                 scenario.ocr(ortSession, imageHashesDatabase)
             }
         }
+    }
 
     fun readImageDateFromExif(
         byteReader: ByteReader,

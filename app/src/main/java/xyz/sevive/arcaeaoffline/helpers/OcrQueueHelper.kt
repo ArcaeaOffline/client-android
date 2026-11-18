@@ -18,7 +18,8 @@ import xyz.sevive.arcaeaoffline.core.ocr.opencv.decodeBgrImage
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 
 object OcrQueueHelper {
-    private const val MAX_FILE_SIZE_BYTES = 30L * 1024 * 1024
+    /** Prevent large files (e.g. screen recordings) to be accidentally loaded into memory. */
+    internal const val MAX_FILE_SIZE_BYTES = 30L * 1024 * 1024
 
     suspend fun isUriImage(uri: Uri): Boolean =
         withContext(Dispatchers.IO) {
