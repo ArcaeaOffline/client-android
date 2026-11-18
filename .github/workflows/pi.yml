@@ -19,9 +19,12 @@ jobs:
       ) && (
         github.event.pull_request.head.repo.fork != true
       )
+    concurrency:
+      group: pi-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: write
       pull-requests: write
     steps:
@@ -29,7 +32,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -42,33 +45,49 @@ jobs:
       - name: Release local.properties file
         run: cp local.defaults.properties local.properties
 
-      - name: Resolve provider and model
+      # provider/model:thinkingLevel
+      - name: Resolve provider, model and thinking level
         id: resolve-model
         env:
-          PI_MODEL: ${{ vars.PI_MODEL || 'deepseek/deepseek-flash' }}
+          PI_MODEL: ${{ vars.PI_MODEL || 'deepseek/deepseek-flash:high' }}
         run: |
           if [[ "$PI_MODEL" != */* ]]; then
-            echo "::error title=Invalid PI_MODEL::Expected 'provider/model', got '$PI_MODEL'"
+            echo "::error title=Invalid PI_MODEL::Expected 'provider/model[:thinking]', got '$PI_MODEL'"
             exit 1
           fi
+          provider=${PI_MODEL%%/*}
+          rest=${PI_MODEL#*/}
+          model=${rest%%:*}
+          if [[ -z "$provider" || -z "$model" ]]; then
+            echo "::error title=Invalid PI_MODEL::Expected 'provider/model[:thinking]', got '$PI_MODEL'"
+            exit 1
+          fi
+          thinking=off
+          if [[ "$rest" == *:* ]]; then
+            thinking=${rest#*:}
+            thinking=${thinking:-off}
+          fi
           {
-            echo "provider=${PI_MODEL%%/*}"
-            echo "model=${PI_MODEL#*/}"
+            echo "provider=$provider"
+            echo "model=$model"
+            echo "thinking=$thinking"
           } >> "$GITHUB_OUTPUT"
 
       - name: Run pi agent
         id: pi
-        uses: shaftoe/pi-coding-agent-action@d14d9e06ad38861cd3964c8a985dee871f7ff994
+        uses: shaftoe/pi-coding-agent-action@e7bc21262bbc4f2b64b6e8b0eb1727aa321add80
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           provider: ${{ steps.resolve-model.outputs.provider }}
           model: ${{ steps.resolve-model.outputs.model }}
+          thinking_level: ${{ steps.resolve-model.outputs.thinking }}
           token: ${{ secrets.ACTIONS_AGENT_API_KEY }}
           export_session_html: true
           export_session_jsonl: true
+          collapse_intermediate_output: true
 
       - name: Upload session
-        if: ${{ steps.pi.outputs.session_jsonl_path || steps.pi.outputs.session_html_path }}
+        if: ${{ !cancelled() && (steps.pi.outputs.session_jsonl_path || steps.pi.outputs.session_html_path) }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: session-files
