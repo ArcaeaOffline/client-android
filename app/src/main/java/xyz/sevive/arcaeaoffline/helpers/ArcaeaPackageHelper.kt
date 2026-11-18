@@ -78,7 +78,8 @@ class ArcaeaPackageHelper(
         val tailFilename = Path(filenameParts.last()).name
         if (JACKET_FILENAME_REGEX.find(tailFilename) == null) return null
 
-        val songId = filenameParts[filenameParts.size - 2].replace("dl_", "")
+        val songId = filenameParts[filenameParts.size - 2].removePrefix("dl_")
+        if (songId in JACKET_EXCLUDED_SONG_IDS) return null
 
         val path = Path(filename)
         val baseFilename = path.name.substringBeforeLast(".")
@@ -281,8 +282,15 @@ class ArcaeaPackageHelper(
         const val APK_CHAR_FOLDER_ENTRY_NAME = "assets/char/"
 
         val JACKET_FILENAME_REGEX = """^(1080_)?(0|1|2|3|4|base)\.(jpg|png)$""".toRegex()
+
+        /**
+         * Song folders shipped in the APK that are not real songs and do not appear in the songlist.
+         * They provide placeholder jackets (`random`) and the tutorial background (`tutorial`).
+         */
+        val JACKET_EXCLUDED_SONG_IDS = setOf("random", "tutorial")
         val JACKET_RENAME_REGEX = """_.*$""".toRegex()
 
-        val PARTNER_ICON_FILENAME_REGEX = """^\d+u?_icon\.(jpg|png)$""".toRegex()
+        val PARTNER_ICON_FILENAME_REGEX =
+            """^\d+[a-z]?_icon\.(jpg|png)$""".toRegex(RegexOption.IGNORE_CASE)
     }
 }
