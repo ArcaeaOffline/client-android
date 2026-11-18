@@ -110,7 +110,7 @@ class DeviceRoisAutoT2(
             return doubleArrayOf(wMid - w / 2, 0.0, w, h)
         }
 
-    // screen-anchored helpers: ScreenshotDetect positions its probe against them
+    // screen-anchored helpers: DeviceRoisAutoSelector's strip probe positions itself against them
     override val factor: Double
         get() = if (w.toDouble() / h < 16.0 / 9.0) (w / 16.0) * 9.0 / 1080.0 else h / 1080.0
 

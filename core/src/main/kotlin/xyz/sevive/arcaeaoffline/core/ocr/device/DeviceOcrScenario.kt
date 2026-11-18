@@ -28,7 +28,7 @@ class DeviceOcrScenario private constructor(
          * The scenario owns its cropped image and never aliases [imgBgr]. The caller stays
          * responsible for releasing it.
          *
-         * @param fallback Selected when every detector reports zero confidence.
+         * @param fallback Selected when the screenshot cannot be classified.
          * @throws IllegalArgumentException when the rois type cannot be determined and
          *   [fallback] is null.
          */
@@ -36,10 +36,7 @@ class DeviceOcrScenario private constructor(
             imgBgr: Mat,
             fallback: DeviceRoisAutoSelectorResult? = null,
         ): DeviceOcrScenario {
-            val cropped = CropBlackEdges.cropOrOriginal(imgBgr)
-            // cropOrOriginal returns imgBgr itself when cropping fails, so clone to keep
-            // close() off the caller's Mat
-            val imgCropped = if (cropped === imgBgr) cropped.clone() else cropped
+            val imgCropped = CropBlackEdges.cropOrClone(imgBgr)
             try {
                 val roisType = DeviceRoisAutoSelector.select(imgCropped, fallback)
                 require(roisType != DeviceRoisAutoSelectorResult.UNKNOWN) {

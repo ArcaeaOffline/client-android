@@ -19,13 +19,12 @@ import kotlinx.datetime.format.char
 import kotlinx.datetime.parseOrNull
 import kotlinx.datetime.toInstant
 import kotlinx.io.buffered
-import org.opencv.core.MatOfByte
-import org.opencv.imgcodecs.Imgcodecs
 import xyz.sevive.arcaeaoffline.core.database.entities.PlayResult
 import xyz.sevive.arcaeaoffline.core.ocr.ImageHashesDatabase
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrResult
 import xyz.sevive.arcaeaoffline.core.ocr.device.DeviceOcrScenario
 import xyz.sevive.arcaeaoffline.core.ocr.device.toPlayResult
+import xyz.sevive.arcaeaoffline.core.ocr.opencv.decodeBgrImage
 import xyz.sevive.arcaeaoffline.core.ocr.opencv.use
 import xyz.sevive.arcaeaoffline.helpers.context.getFilename
 import kotlin.time.Instant
@@ -51,13 +50,14 @@ object DeviceOcrHelper {
         imageHashesDatabase: ImageHashesDatabase,
         ortSession: OrtSession,
     ): DeviceOcrResult {
-        val byteArray = PlatformFile(imageUri).readBytes()
+        val file = PlatformFile(imageUri)
+        if (file.size() > OcrQueueHelper.MAX_FILE_SIZE_BYTES) {
+            throw IllegalArgumentException("Image file exceeds ${OcrQueueHelper.MAX_FILE_SIZE_BYTES} bytes: $imageUri")
+        }
 
-        return MatOfByte(*byteArray).use { matOfBytes ->
-            Imgcodecs.imdecode(matOfBytes, Imgcodecs.IMREAD_COLOR).use { img ->
-                DeviceOcrScenario.forImage(img).use { scenario ->
-                    scenario.ocr(ortSession, imageHashesDatabase)
-                }
+        return decodeBgrImage(file.readBytes()).use { img ->
+            DeviceOcrScenario.forImage(img).use { scenario ->
+                scenario.ocr(ortSession, imageHashesDatabase)
             }
         }
     }

@@ -81,7 +81,7 @@ class CropBlackEdges {
          *
          * @throws IllegalArgumentException when the image is fully black.
          *
-         * Use [cropOrOriginal] to fall back to the original image instead of throwing.
+         * Use [cropOrClone] to fall back to the original image instead of throwing.
          */
         fun crop(
             img: Mat,
@@ -95,11 +95,11 @@ class CropBlackEdges {
             }
 
         /**
-         * This function would try returning the cropped image.
+         * Crops the black edges of [img]. When cropping fails, falls back to a clone of [img].
          *
-         * If any error occurred during the process, it will return the original image.
+         * The returned Mat never aliases [img], so the caller may release it independently.
          */
-        fun cropOrOriginal(
+        fun cropOrClone(
             img: Mat,
             convertFlag: Int = Imgproc.COLOR_BGR2GRAY,
             blackPixelThreshold: Int = 25,
@@ -108,7 +108,7 @@ class CropBlackEdges {
                 crop(img, convertFlag, blackPixelThreshold)
             } catch (e: Exception) {
                 logger.e(e) { "Error cropping an image" }
-                img
+                img.clone()
             }
     }
 }
