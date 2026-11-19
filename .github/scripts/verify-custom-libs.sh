@@ -21,7 +21,7 @@ APK_DIR="${APK_DIR:-$ROOT/app/build/outputs/apk/unstable/release}"
 # Keep in sync with .github/actions/setup-custom-maven/action.yml
 LIBS=(
     "libonnxruntime.so|com/microsoft/onnxruntime/onnxruntime-android/1.26.0/onnxruntime-android-1.26.0.aar"
-    "libopencv_java5.so|org/opencv/opencv/5.0.0/opencv-5.0.0.aar"
+    "libopencv_java5.so|org/opencv/opencv/5.1.0/opencv-5.1.0.aar"
 )
 # universal APK is the union of these four, so no special checks for it
 ABIS=(arm64-v8a armeabi-v7a x86 x86_64)

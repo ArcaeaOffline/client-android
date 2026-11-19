@@ -19,7 +19,7 @@ MAVEN_LOCAL="${MAVEN_LOCAL:-$ROOT/maven-local}"
 # after a republish. GitHub Actions has fast access to its own releases,
 # so we just re-download (~125MB) on every run.
 ORT_TAG="${ORT_TAG:-onnxruntime-1.26.0}"
-OPENCV_TAG="${OPENCV_TAG:-opencv-5.0.0}"
+OPENCV_TAG="${OPENCV_TAG:-opencv-5.1.0}"
 BASE_URL="https://github.com/ArcaeaOffline/custom-lib-builds/releases/download"
 
 mkdir -p "$MAVEN_LOCAL"
@@ -36,4 +36,4 @@ download_and_extract "$OPENCV_TAG" /tmp/opencv-maven.zip
 # The two zips have com/ and org/ roots; they merge into maven-local/
 # without conflicts. Verify the expected AARs actually landed.
 test -f "$MAVEN_LOCAL/com/microsoft/onnxruntime/onnxruntime-android/1.26.0/onnxruntime-android-1.26.0.aar"
-test -f "$MAVEN_LOCAL/org/opencv/opencv/5.0.0/opencv-5.0.0.aar"
+test -f "$MAVEN_LOCAL/org/opencv/opencv/5.1.0/opencv-5.1.0.aar"
