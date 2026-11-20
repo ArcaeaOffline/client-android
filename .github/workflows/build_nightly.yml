@@ -3,7 +3,11 @@ name: Build nightly release
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '33 4 * * *'
+      timezone: 'Asia/Shanghai'
+    - cron: '5 19 * * *'
+      timezone: 'Asia/Shanghai'
+    - cron: '16 6 * * *'
 
 permissions:
   contents: write
