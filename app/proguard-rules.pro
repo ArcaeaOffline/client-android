@@ -14,18 +14,13 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
 -dontobfuscate
-
-# onnx runtime
-# @see https://onnxruntime.ai/docs/build/android.html#note-proguard-rules-for-r8-minimization-android-app-builds-to-work
--keep class ai.onnxruntime.** { *; }
--keep class * extends androidx.room3.RoomDatabase { <init>(); }
 
 -dontwarn javax.annotation.processing.*
 
